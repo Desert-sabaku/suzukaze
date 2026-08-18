@@ -190,7 +190,7 @@ def yolo_worker(frame_queue, result_queue):
             # messageの送信は廃止し、メインプロセス側の状態で生成する
         }
 
-        # YOLOの結果はlist[Results]またはNoneを返す場合があるため、
+        # YOLOの結果はlist[Results]またはNoneを返す場合があるため
         # 事前に安全に反復・存在確認してからアクセスする
         for result in results or []:
             if result is None:
@@ -331,6 +331,7 @@ def main():
 
         # 描画処理
         annotated_image = frame.copy()
+        h, w, _ = annotated_image.shape
 
         draw_landmarks_from_data(
             annotated_image, latest_mp_result["landmarks"], POSE_CONNECTIONS
@@ -345,6 +346,13 @@ def main():
                 color,
                 int(scale * 2),
             )
+
+        # 右手首のピクセル座標を計算 (インデックス16番)
+        right_wrist_px = None
+        if len(latest_mp_result["landmarks"]) > 16:
+            rx, ry, r_vis = latest_mp_result["landmarks"][16]
+            if r_vis > 0.5:
+                right_wrist_px = (int(rx * w), int(ry * h))
 
         # YOLO描画
         if (
@@ -362,6 +370,21 @@ def main():
                 (0, 165, 255),
                 2,
             )
+
+            # ラムネ瓶の領域に右手首が重なったら複合アクションを表示
+            if right_wrist_px is not None:
+                px, py = right_wrist_px
+                if x1 <= px <= x2 and y1 <= py <= y2:
+                    cv2.putText(
+                        annotated_image,
+                        "Action: Opening Ramune!",
+                        (10, 200),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        1.2,
+                        (0, 255, 255),
+                        3,
+                    )
+                    cv2.rectangle(annotated_image, (x1, y1), (x2, y2), (0, 255, 255), 5)
 
         # カメラFPSの計算と表示
         curr_time = time.time()
