@@ -10,8 +10,8 @@
 `uv`を使います．
 
 ```
-gh repo clone Desert-sabkaku/suzukaze
+git clone https://github.com/Desert-sabaku/suzukaze
 cd suzukaze/gesture-detection
-uv install
+uv sync
 uv run ./fanning_detector.py
 ```
