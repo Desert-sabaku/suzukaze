@@ -9,7 +9,7 @@
 
 `uv`を使います．
 
-```
+```sh
 git clone https://github.com/Desert-sabaku/suzukaze
 cd suzukaze/gesture-detection
 uv sync
