@@ -2,6 +2,12 @@
     "cSpell.words": [
         "fftfreq",
         "freqs",
-        "landmarker"
+        "imshow",
+        "landmarker",
+        "linalg",
+        "Ramune",
+        "SRGB",
+        "xyxy",
+        "yolov"
     ]
 }

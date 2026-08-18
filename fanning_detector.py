@@ -1,5 +1,6 @@
 import multiprocessing as mp
 import os
+import queue
 import time
 import urllib.request
 from collections import deque
@@ -11,9 +12,7 @@ from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 from ultralytics import YOLO
 
-# ==========================================
 # 定数・設定
-# ==========================================
 MODEL_PATH = "pose_landmarker_lite.task"
 MODEL_URL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
 FPS = 30
@@ -21,6 +20,7 @@ WINDOW_SEC = 2
 BUFFER_SIZE = FPS * WINDOW_SEC
 TARGET_LMS = [0, 11, 12, 15, 16]
 
+# なぜか自分で定義する必要があるらしい
 POSE_CONNECTIONS = [
     (0, 1),
     (1, 2),
@@ -60,9 +60,7 @@ POSE_CONNECTIONS = [
 ]
 
 
-# ==========================================
 # Workerプロセス (推論・演算プレーン)
-# ==========================================
 def mediapipe_worker(frame_queue, result_queue):
     """別プロセスで動作し、MediaPipe推論と時系列判定に専念するワーカー"""
 
@@ -80,16 +78,17 @@ def mediapipe_worker(frame_queue, result_queue):
     )
     landmarker = vision.PoseLandmarker.create_from_options(options)
 
-    # 2. 状態管理バッファ (このプロセス内だけで状態を持つ)
+    # 状態管理バッファ
+    # このプロセス内だけで状態を持つ
     wrist_y_history = deque(maxlen=BUFFER_SIZE)
     motion_history = deque(maxlen=FPS * 1)
     prev_landmarks = None
 
     while True:
-        # メインプロセスから画像が来るまで待機 (ブロック)
+        # メインプロセスから画像が来るまで待機
         frame = frame_queue.get()
         if frame is None:
-            break  # 終了シグナル
+            break
 
         # 推論用に入力画像を変換
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -98,9 +97,7 @@ def mediapipe_worker(frame_queue, result_queue):
         # 推論実行
         detection_result = landmarker.detect(mp_image)
 
-        # ------------------------------------------------
-        # 返却用データの構築 (軽量なメタデータのみ)
-        # ------------------------------------------------
+        # 返却用データの構築
         result_data = {"landmarks": [], "messages": []}
 
         if len(detection_result.pose_landmarks) > 0:
@@ -163,22 +160,18 @@ def mediapipe_worker(frame_queue, result_queue):
                         ("Action: Relaxing...", (10, 130), (255, 150, 150), 1.2)
                     )
 
-        # ------------------------------------------------
         # 結果の送信 (古い結果があれば破棄して最新版に上書き)
-        # ------------------------------------------------
         while not result_queue.empty():
             try:
                 result_queue.get_nowait()
-            except:
+            except queue.Empty:
                 pass
         result_queue.put(result_data)
 
     landmarker.close()
 
 
-# ==========================================
 # YOLO Workerプロセス (物体検出プレーン)
-# ==========================================
 def yolo_worker(frame_queue, result_queue):
     """別プロセスで動作し、YOLOによる物体検出に専念するワーカー"""
     # YOLOv8 nanoモデルの読み込み (初回は自動的にダウンロードされます)
@@ -189,7 +182,7 @@ def yolo_worker(frame_queue, result_queue):
         if frame is None:
             break
 
-        # 推論実行 (verbose=Falseで標準出力へのログを抑制)
+        # 推論実行
         results = model(frame, verbose=False)
 
         result_data = {
@@ -197,9 +190,17 @@ def yolo_worker(frame_queue, result_queue):
             # messageの送信は廃止し、メインプロセス側の状態で生成する
         }
 
-        # ボトル(COCOデータセットのクラスID: 39) をラムネ瓶に見立てて探す
-        for r in results:
-            for box in r.boxes:
+        # YOLOの結果はlist[Results]またはNoneを返す場合があるため、
+        # 事前に安全に反復・存在確認してからアクセスする
+        for result in results or []:
+            if result is None:
+                continue
+
+            boxes = getattr(result, "boxes", None)
+            if boxes is None:
+                continue
+
+            for box in boxes:
                 cls_id = int(box.cls[0])
                 conf = float(box.conf[0])
                 # 確信度50%以上のボトルを検出
@@ -213,14 +214,12 @@ def yolo_worker(frame_queue, result_queue):
         while not result_queue.empty():
             try:
                 result_queue.get_nowait()
-            except:
+            except queue.Empty:
                 pass
         result_queue.put(result_data)
 
 
-# ==========================================
 # Mainプロセス (コントロール・UIプレーン)
-# ==========================================
 def draw_landmarks_from_data(image, landmarks_data, connections):
     """メタデータ(座標リスト)から描画を行う"""
     h, w, _ = image.shape
@@ -268,49 +267,46 @@ def main():
     prev_time = time.time()
     latest_mp_result = {"landmarks": [], "messages": []}
 
-    # 【追加】YOLOの状態管理（平滑化・保持用）
+    # 平滑化・保持用
     yolo_state = {
-        "box": None,  # np.array([x1, y1, x2, y2])
+        "box": None,
         "conf": 0.0,
-        "last_seen": 0,  # 最後に検出した時刻
+        "last_seen": 0,
     }
-    YOLO_TTL = 0.5  # 検出が途絶えても枠を保持する時間(秒)
-    YOLO_EMA_ALPHA = (
-        0.3  # 指数移動平均の係数 (1に近いほど最新値を重視、0に近いほど滑らか)
-    )
+    YOLO_TTL = 0.5
+    YOLO_EMA_ALPHA = 0.3  # 1に近いほど最新値を重視、0に近いほど滑らか
 
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
 
-        # 1. 各ワーカーへ最新フレームを送信 (ブロードキャスト)
+        #  各ワーカーへ最新フレームを送信
         if mp_frame_queue.full():
             try:
                 mp_frame_queue.get_nowait()
-            except:
+            except queue.Empty:
                 pass
         mp_frame_queue.put(frame.copy())
 
         if yolo_frame_queue.full():
             try:
                 yolo_frame_queue.get_nowait()
-            except:
+            except queue.Empty:
                 pass
         yolo_frame_queue.put(frame.copy())
 
-        # 2. ワーカーから最新の推論結果を受信
+        # ワーカーから最新の推論結果を受信
         try:
             latest_mp_result = mp_result_queue.get_nowait()
-        except:
+        except queue.Empty:
             pass
 
         try:
             latest_yolo_result = yolo_result_queue.get_nowait()
 
-            # 【追加】YOLOの推論結果が届いた場合、状態を更新する
             if latest_yolo_result["boxes"]:
-                # 複数検出された場合は、最も確信度が高いものを採用
+                # 最も確信度が高いものを採用
                 best_box = max(latest_yolo_result["boxes"], key=lambda b: b[4])
                 current_box = np.array(best_box[:4])
                 conf = best_box[4]
@@ -322,7 +318,7 @@ def main():
                 ):
                     yolo_state["box"] = current_box
                 else:
-                    # 既に追従中の場合は、指数移動平均(EMA)をかけて滑らかに更新
+                    # 既に追従中の場合指数移動平均をかけて滑らかに更新
                     yolo_state["box"] = (
                         YOLO_EMA_ALPHA * current_box
                         + (1 - YOLO_EMA_ALPHA) * yolo_state["box"]
@@ -330,13 +326,12 @@ def main():
 
                 yolo_state["conf"] = conf
                 yolo_state["last_seen"] = time.time()
-        except:
+        except queue.Empty:
             pass
 
-        # 3. 描画処理 (メインプロセスが各ワーカーの結果を合成)
+        # 描画処理
         annotated_image = frame.copy()
 
-        # MediaPipe結果の描画
         draw_landmarks_from_data(
             annotated_image, latest_mp_result["landmarks"], POSE_CONNECTIONS
         )
@@ -351,7 +346,7 @@ def main():
                 int(scale * 2),
             )
 
-        # 【追加】YOLO結果の描画（内部状態を使う）
+        # YOLO描画
         if (
             yolo_state["box"] is not None
             and (time.time() - yolo_state["last_seen"]) < YOLO_TTL
@@ -397,6 +392,6 @@ def main():
 
 
 if __name__ == "__main__":
-    # Windows等の環境でマルチプロセスを正常起動するためのおまじない
+    # Windows等の環境でマルチプロセスを正常起動するために必要らしい
     mp.freeze_support()
     main()
