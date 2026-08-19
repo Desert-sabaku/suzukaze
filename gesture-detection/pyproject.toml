@@ -1,12 +1,15 @@
 [project]
-name = "gesture-detection"
-version = "0.1.0"
+dependencies = [
+  "mediapipe>=0.10.35",
+  "numpy>=2.5.1",
+  "opencv-python>=5.0.0.93",
+  "ultralytics>=8.4.121",
+]
 description = "Add your description here"
+name = "gesture-detection"
 readme = "README.md"
 requires-python = ">=3.14"
-dependencies = [
-    "mediapipe>=0.10.35",
-    "numpy>=2.5.1",
-    "opencv-python>=5.0.0.93",
-    "ultralytics>=8.4.121",
-]
+version = "0.1.0"
+
+[project.scripts]
+gesture-detection = "gesture_detection.app:main"
