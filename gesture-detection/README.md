@@ -7,14 +7,24 @@ OpenCV camera input is processed by two independent workers:
 
 ## Run
 
-The project uses Python 3.14 and `uv`:
+The project uses Python 3.9+ and `uv`:
 
-```powershell
+```bash
 uv sync
-uv run python fanning_detector.py
+uv run gesture-detection
 ```
 
-Press `Esc` in the camera window to exit. The pose model is downloaded automatically when it is missing.
+Alternatively, you can run the Python module directly:
+
+```bash
+uv run python -m gesture_detection.app
+```
+
+Press `Esc` in the camera window to exit.
+
+**Model requirements:**
+- The MediaPipe pose model (`pose_landmarker_lite.task`) downloads automatically when missing.
+- The YOLO model (`yolov8n.pt`) must be obtained separately and placed in the project root. You can download it from the [Ultralytics repository](https://github.com/ultralytics/assets/releases) or it will be downloaded automatically by the ultralytics library on first use.
 
 ## Structure
 

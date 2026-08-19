@@ -43,7 +43,14 @@ class PoseAnalyzer:
     @staticmethod
     def _create_landmarker():
         if not POSE_MODEL_PATH.exists():
-            urllib.request.urlretrieve(POSE_MODEL_URL, POSE_MODEL_PATH)
+            temp_path = POSE_MODEL_PATH.parent / f".{POSE_MODEL_PATH.name}.tmp"
+            try:
+                urllib.request.urlretrieve(POSE_MODEL_URL, temp_path)
+                temp_path.rename(POSE_MODEL_PATH)
+            except Exception:
+                if temp_path.exists():
+                    temp_path.unlink()
+                raise
 
         options = vision.PoseLandmarkerOptions(
             base_options=python.BaseOptions(model_asset_path=str(POSE_MODEL_PATH)),

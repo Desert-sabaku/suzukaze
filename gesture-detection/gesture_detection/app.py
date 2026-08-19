@@ -35,6 +35,10 @@ class GestureApplication:
                 success, frame = capture.read()
                 if not success:
                     break
+                if not self.pose_process.is_alive():
+                    raise RuntimeError("Pose worker process has exited unexpectedly")
+                if not self.yolo_process.is_alive():
+                    raise RuntimeError("YOLO worker process has exited unexpectedly")
                 put_latest(self.pose_frame_queue, frame.copy())
                 put_latest(self.yolo_frame_queue, frame.copy())
                 latest_pose = get_latest(self.pose_result_queue, latest_pose)
