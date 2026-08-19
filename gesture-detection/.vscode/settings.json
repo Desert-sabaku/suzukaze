@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
+        "cooldown",
         "fftfreq",
         "freqs",
         "imshow",
@@ -7,6 +8,7 @@
         "linalg",
         "Ramune",
         "SRGB",
+        "uchimizu",
         "xyxy",
         "yolov"
     ]
