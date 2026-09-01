@@ -294,7 +294,7 @@ class PoseAnalyzer:
                     0.65,
                 ),
                 (
-                    f"Uchimizu stage: {self.uchimizu_state}",
+                    f"Uchimizu state: {self.uchimizu_state}",
                     (10, 130),
                     (255, 100, 100),
                     0.65,
