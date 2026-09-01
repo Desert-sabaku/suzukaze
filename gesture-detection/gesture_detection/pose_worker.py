@@ -84,6 +84,8 @@ class PoseAnalyzer:
             else:
                 self._reset_gesture_state()
             self._update_relaxing_state()
+        else:
+            self._reset_tracking_state()
 
         result["selected_action"] = self.selected_action
         result["relaxing_state"] = self.relaxing_state
@@ -110,6 +112,16 @@ class PoseAnalyzer:
         self.fanning_score = 0.0
         self.selected_action = "NONE"
         self.action_hold_count = 0
+
+    def _reset_tracking_state(self):
+        self._reset_gesture_state()
+        self.wrist_y_history.clear()
+        self.wrist_t_history.clear()
+        self.wrist_dy_history.clear()
+        self.motion_history.clear()
+        self.previous_landmarks = None
+        self.relaxing_state = False
+        self.relaxing_low_count = 0
 
     def _update_gesture_scores(self, landmarks):
         wrist = landmarks[16]
