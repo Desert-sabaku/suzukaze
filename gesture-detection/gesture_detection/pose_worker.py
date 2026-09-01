@@ -89,6 +89,7 @@ class PoseAnalyzer:
         result["relaxing_state"] = self.relaxing_state
         result["fanning_score"] = self.fanning_score
         result["uchimizu_score"] = self.uchimizu_score
+        result["uchimizu_state"] = self.uchimizu_state
         self._append_status_messages(result)
         return result
 
@@ -292,6 +293,12 @@ class PoseAnalyzer:
                     (255, 100, 100),
                     0.65,
                 ),
+                (
+                    f"Uchimizu stage: {self.uchimizu_state}",
+                    (10, 130),
+                    (255, 100, 100),
+                    0.65,
+                ),
             ]
         )
         if not self.motion_history:
@@ -301,7 +308,7 @@ class PoseAnalyzer:
                 "Relaxing: ON"
                 if self.relaxing_state
                 else f"Relaxing: OFF (warmup {max(0, int(FPS * 0.4) - self.relaxing_low_count)})",
-                (10, 130),
+                (10, 155),
                 (255, 255, 180),
                 0.65,
             )
