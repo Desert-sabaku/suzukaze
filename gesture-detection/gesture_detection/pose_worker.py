@@ -84,10 +84,12 @@ class PoseAnalyzer:
             else:
                 self._reset_gesture_state()
             self._update_relaxing_state()
-            self._append_status_messages(result)
 
         result["selected_action"] = self.selected_action
         result["relaxing_state"] = self.relaxing_state
+        result["fanning_score"] = self.fanning_score
+        result["uchimizu_score"] = self.uchimizu_score
+        self._append_status_messages(result)
         return result
 
     def _update_motion(self, landmarks):
@@ -271,18 +273,35 @@ class PoseAnalyzer:
             self.relaxing_low_count = 0
 
     def _append_status_messages(self, result):
+        if self.motion_history:
+            average_motion = np.mean(self.motion_history)
+            result["messages"].append(
+                (f"Motion: {average_motion:.4f}", (10, 55), (255, 200, 0), 0.7)
+            )
+        result["messages"].extend(
+            [
+                (
+                    f"Fanning score: {self.fanning_score:.3f}",
+                    (10, 80),
+                    (0, 165, 255),
+                    0.65,
+                ),
+                (
+                    f"Uchimizu score: {self.uchimizu_score:.3f}",
+                    (10, 105),
+                    (255, 100, 100),
+                    0.65,
+                ),
+            ]
+        )
         if not self.motion_history:
             return
-        average_motion = np.mean(self.motion_history)
-        result["messages"].append(
-            (f"Motion: {average_motion:.4f}", (10, 55), (255, 200, 0), 0.7)
-        )
         result["messages"].append(
             (
                 "Relaxing: ON"
                 if self.relaxing_state
                 else f"Relaxing: OFF (warmup {max(0, int(FPS * 0.4) - self.relaxing_low_count)})",
-                (10, 105),
+                (10, 130),
                 (255, 255, 180),
                 0.65,
             )
