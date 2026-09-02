@@ -3,6 +3,7 @@ import queue
 import time
 import urllib.request
 from collections import deque
+from typing import Any
 
 import cv2
 import mediapipe as mp_core
@@ -73,7 +74,7 @@ class PoseAnalyzer:
             data=rgb_frame,
         )
         detection_result = self.landmarker.detect(mp_image)
-        result = {"landmarks": [], "messages": []}
+        result: dict[str, Any] = {"landmarks": [], "messages": []}
 
         if detection_result.pose_landmarks:
             landmarks = detection_result.pose_landmarks[0]
@@ -201,11 +202,7 @@ class PoseAnalyzer:
                 self.uchimizu_ready_frames = 0
             return
         if self.uchimizu_state == "IDLE":
-            if (
-                raise_motion > 0.04
-                and recent_speed > 0.012
-                and ready_motion
-            ):
+            if raise_motion > 0.04 and recent_speed > 0.012 and ready_motion:
                 self.uchimizu_state = "READY"
                 self.uchimizu_ready_frames = 1
         elif self.uchimizu_state == "READY":
@@ -350,9 +347,11 @@ class PoseAnalyzer:
             return
         result["messages"].append(
             (
-                "Relaxing: ON"
-                if self.relaxing_state
-                else f"Relaxing: OFF (warmup {max(0, int(FPS * 0.4) - self.relaxing_low_count)})",
+                (
+                    "Relaxing: ON"
+                    if self.relaxing_state
+                    else f"Relaxing: OFF (warmup {max(0, int(FPS * 0.4) - self.relaxing_low_count)})"
+                ),
                 (10, 155),
                 (255, 255, 180),
                 0.65,

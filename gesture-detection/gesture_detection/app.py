@@ -22,14 +22,18 @@ class GestureApplication:
         self.yolo_process = None
 
     def run(self):
-        capture = cv2.VideoCapture(self.camera_index)
+        # V4L2で，かつMJPG形式を指定しています．これは環境依存なので，調整が必要になるかもしれません．
+        capture = cv2.VideoCapture(self.camera_index, cv2.CAP_V4L2)
         if not capture.isOpened():
             raise RuntimeError(f"Unable to open camera {self.camera_index}")
+        capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter.fourcc(*"MJPG"))
 
         latest_pose = {"landmarks": [], "messages": [], "selected_action": "NONE"}
         bottle_state = {"box": None, "confidence": 0.0, "last_seen": 0.0}
         previous_time = time.monotonic()
         self._start_workers()
+        assert self.pose_process is not None
+        assert self.yolo_process is not None
         try:
             while capture.isOpened():
                 success, frame = capture.read()
