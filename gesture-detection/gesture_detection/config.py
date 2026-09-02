@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import cv2
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 POSE_MODEL_PATH = PROJECT_ROOT / "pose_landmarker_lite.task"
 POSE_MODEL_URL = (
@@ -7,6 +9,10 @@ POSE_MODEL_URL = (
     "pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
 )
 YOLO_MODEL_PATH = PROJECT_ROOT / "yolov8n.pt"
+
+# Camera settings may need to be changed to match the capture device/driver.
+CAMERA_BACKEND = cv2.CAP_V4L2
+CAMERA_FOURCC = "MJPG"
 
 FPS = 60
 WINDOW_SECONDS = 1
@@ -17,6 +23,10 @@ YOLO_BOTTLE_CLASS_ID = 39
 YOLO_CONFIDENCE_THRESHOLD = 0.5
 YOLO_TTL_SECONDS = 0.5
 YOLO_EMA_ALPHA = 0.3
+
+READY_FACE_EXCLUSION_DISTANCE = 1.0
+READY_TORSO_DISTANCE = 1.25
+FANNING_FACE_DISTANCE = 1.5
 
 WINDOW_TITLE = "Gesture Recognition (Async Pipeline)"
 POSE_CONNECTIONS = (

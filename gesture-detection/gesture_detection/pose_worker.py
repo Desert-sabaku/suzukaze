@@ -3,6 +3,7 @@ import queue
 import time
 import urllib.request
 from collections import deque
+from typing import Any
 
 import cv2
 import mediapipe as mp_core
@@ -12,11 +13,15 @@ from mediapipe.tasks.python import vision
 
 from .config import (
     BUFFER_SIZE,
+    FANNING_FACE_DISTANCE,
     FPS,
     POSE_MODEL_PATH,
     POSE_MODEL_URL,
     TARGET_LANDMARKS,
+    WINDOW_SECONDS,
 )
+from .gesture_position import is_uchimizu_ready_motion, normalized_wrist_distances
+from .signal_processing import resample_time_window
 
 
 class PoseAnalyzer:
@@ -71,7 +76,7 @@ class PoseAnalyzer:
             data=rgb_frame,
         )
         detection_result = self.landmarker.detect(mp_image)
-        result = {"landmarks": [], "messages": []}
+        result: dict[str, Any] = {"landmarks": [], "messages": []}
 
         if detection_result.pose_landmarks:
             landmarks = detection_result.pose_landmarks[0]
@@ -105,6 +110,9 @@ class PoseAnalyzer:
         self.previous_landmarks = current
 
     def _reset_gesture_state(self):
+        self.wrist_y_history.clear()
+        self.wrist_t_history.clear()
+        self.wrist_dy_history.clear()
         self.uchimizu_state = "IDLE"
         self.uchimizu_cooldown = 0
         self.uchimizu_ready_frames = 0
@@ -133,7 +141,13 @@ class PoseAnalyzer:
 
         self.uchimizu_score = 0.0
         raise_motion = drop_motion = recent_speed = 0.0
+        face_proximity = 0.0
         if len(self.wrist_y_history) >= 5:
+            face_distance, torso_distance = normalized_wrist_distances(landmarks)
+            face_proximity = max(
+                0.0,
+                1.0 - face_distance / FANNING_FACE_DISTANCE,
+            )
             recent_y = np.asarray(list(self.wrist_y_history)[-8:], dtype=np.float32)
             recent_t = np.asarray(list(self.wrist_t_history)[-8:], dtype=np.float64)
             raise_motion = max(0.0, float(np.max(recent_y) - recent_y[-1]))
@@ -146,37 +160,43 @@ class PoseAnalyzer:
             recent_speed = float(
                 np.mean(np.abs(np.diff(recent_y))) / max(average_dt, 1e-6)
             )
+            ready_motion = is_uchimizu_ready_motion(
+                raise_motion=raise_motion,
+                recent_speed=recent_speed,
+                face_distance=face_distance,
+                torso_distance=torso_distance,
+            )
             wave_score = min(
                 1.0,
                 (raise_motion / 0.08) * 0.45
                 + (drop_motion / 0.08) * 0.55
                 + min(recent_speed / 0.02, 1.0) * 0.20,
             )
-            self._advance_uchimizu_state(raise_motion, drop_motion, recent_speed)
-
-            face_distance = float(
-                np.linalg.norm(
-                    np.array(
-                        [wrist.x - landmarks[0].x, wrist.y - landmarks[0].y],
-                        dtype=np.float32,
-                    )
-                )
+            self._advance_uchimizu_state(
+                raise_motion,
+                drop_motion,
+                recent_speed,
+                ready_motion,
             )
-            face_proximity = max(0.0, 1.0 - face_distance / 0.35)
             if self.uchimizu_state == "READY":
                 self.uchimizu_score = max(0.62, wave_score)
             elif self.uchimizu_state == "SWING":
                 self.uchimizu_score = max(0.90, wave_score)
             if raise_motion <= 0.05 or drop_motion <= 0.07 or recent_speed <= 0.02:
                 self.uchimizu_score *= 0.5
-            self.uchimizu_score = min(1.0, self.uchimizu_score + face_proximity * 0.10)
-            self.fanning_score = max(0.0, self.fanning_score - face_proximity * 0.08)
-
-        if len(self.wrist_y_history) == BUFFER_SIZE:
-            self.fanning_score = self._calculate_fanning_score()
+        raw_fanning_score = self._calculate_fanning_score()
+        smoothing = 0.35 if raw_fanning_score > self.fanning_score else 0.55
+        self.fanning_score += smoothing * (raw_fanning_score - self.fanning_score)
+        self.fanning_score = min(1.0, self.fanning_score + face_proximity * 0.08)
         self._select_action(raise_motion, drop_motion, recent_speed)
 
-    def _advance_uchimizu_state(self, raise_motion, drop_motion, recent_speed):
+    def _advance_uchimizu_state(
+        self,
+        raise_motion,
+        drop_motion,
+        recent_speed,
+        ready_motion,
+    ):
         if self.uchimizu_cooldown > 0:
             self.uchimizu_cooldown -= 1
             if self.uchimizu_cooldown == 0:
@@ -184,7 +204,7 @@ class PoseAnalyzer:
                 self.uchimizu_ready_frames = 0
             return
         if self.uchimizu_state == "IDLE":
-            if raise_motion > 0.04 and recent_speed > 0.012:
+            if raise_motion > 0.04 and recent_speed > 0.012 and ready_motion:
                 self.uchimizu_state = "READY"
                 self.uchimizu_ready_frames = 1
         elif self.uchimizu_state == "READY":
@@ -199,42 +219,59 @@ class PoseAnalyzer:
                     self.uchimizu_ready_frames = 0
 
     def _calculate_fanning_score(self):
-        average_motion = np.mean(self.motion_history) if self.motion_history else 0.0
-        signal = np.asarray(self.wrist_y_history, dtype=np.float32)
+        if len(self.wrist_y_history) < 8:
+            return 0.0
+
+        history_signal = np.asarray(self.wrist_y_history, dtype=np.float32)
+        history_timestamps = np.asarray(self.wrist_t_history, dtype=np.float64)
+        signal, timestamps = resample_time_window(
+            history_signal,
+            history_timestamps,
+            WINDOW_SECONDS,
+        )
+        if len(signal) < 8:
+            return 0.0
+        duration = timestamps[-1] - timestamps[0]
+        if duration < 0.6:
+            return 0.0
+
         signal = signal - np.mean(signal)
-        x_axis = np.arange(BUFFER_SIZE, dtype=np.float32)
+        sample_count = len(signal)
+        x_axis = np.arange(sample_count, dtype=np.float32)
         slope, intercept = np.polyfit(x_axis, signal, 1)
         signal -= slope * x_axis + intercept
 
-        timestamps = np.asarray(self.wrist_t_history, dtype=np.float64)
-        dt = (timestamps[-1] - timestamps[0]) / max(BUFFER_SIZE - 1, 1)
+        dt = duration / max(sample_count - 1, 1)
         effective_fps = 1.0 / dt if dt > 1e-6 else float(FPS)
-        window = np.hanning(BUFFER_SIZE).astype(np.float32)
-        window_gain = np.sum(window) / BUFFER_SIZE
+        window = np.hanning(sample_count).astype(np.float32)
+        window_gain = np.sum(window) / sample_count
         spectrum = np.abs(np.fft.rfft(signal * window))
-        spectrum = 2.0 / (BUFFER_SIZE * max(window_gain, 1e-6)) * spectrum
-        frequencies = np.fft.rfftfreq(BUFFER_SIZE, d=1.0 / effective_fps)
+        spectrum = 2.0 / (sample_count * max(window_gain, 1e-6)) * spectrum
+        frequencies = np.fft.rfftfreq(sample_count, d=1.0 / effective_fps)
         target = (frequencies >= 1.0) & (frequencies <= 3.0)
         band = (frequencies >= 0.5) & (frequencies <= 5.0)
         max_amplitude = float(np.max(spectrum[target])) if np.any(target) else 0.0
         target_energy = float(np.sum(spectrum[target] ** 2)) if np.any(target) else 0.0
         band_energy = float(np.sum(spectrum[band] ** 2)) if np.any(band) else 1e-9
         band_ratio = target_energy / max(band_energy, 1e-9)
-        recent_motion = np.mean(self.wrist_dy_history) if self.wrist_dy_history else 0.0
-
-        if not (
-            average_motion > 0.003
-            and recent_motion > 0.0018
-            and max_amplitude > 0.012
-            and band_ratio > 0.45
-        ):
+        recent = history_timestamps >= history_timestamps[-1] - 0.3
+        recent_y = history_signal[recent]
+        recent_t = history_timestamps[recent]
+        if len(recent_y) < 2 or recent_t[-1] - recent_t[0] <= 1e-6:
             return 0.0
-        return min(
-            1.0,
-            (average_motion / 0.005) * 0.20
-            + (recent_motion / 0.003) * 0.25
-            + (max_amplitude / 0.02) * 0.25
-            + min(band_ratio / 0.6, 1.0) * 0.30,
+        recent_speed = float(
+            np.sum(np.abs(np.diff(recent_y))) / (recent_t[-1] - recent_t[0])
+        )
+
+        speed_excess = max(0.0, recent_speed - 0.02)
+        amplitude_excess = max(0.0, max_amplitude - 0.004)
+        frequency_excess = max(0.0, band_ratio - 0.15)
+        speed_score = speed_excess / (speed_excess + 0.12)
+        amplitude_score = amplitude_excess / (amplitude_excess + 0.012)
+        frequency_score = frequency_excess / (frequency_excess + 0.35)
+        activity_gate = min(1.0, recent_speed / 0.08)
+        return activity_gate * (
+            speed_score * 0.35 + amplitude_score * 0.35 + frequency_score * 0.30
         )
 
     def _select_action(self, raise_motion, drop_motion, recent_speed):
@@ -264,7 +301,9 @@ class PoseAnalyzer:
                 candidate = "UCHIMIZU"
 
         if (
-            candidate != self.selected_action
+            candidate in ("FANNING", "UCHIMIZU")
+            and self.selected_action in ("FANNING", "UCHIMIZU")
+            and candidate != self.selected_action
             and abs(self.fanning_score - self.uchimizu_score) < 0.08
         ):
             candidate = self.selected_action
@@ -306,7 +345,7 @@ class PoseAnalyzer:
                     0.65,
                 ),
                 (
-                    f"Uchimizu state: {self.uchimizu_state}",
+                    f"Uchimizu state: {self.uchimizu_state}",
                     (10, 130),
                     (255, 100, 100),
                     0.65,
@@ -317,9 +356,11 @@ class PoseAnalyzer:
             return
         result["messages"].append(
             (
-                "Relaxing: ON"
-                if self.relaxing_state
-                else f"Relaxing: OFF (warmup {max(0, int(FPS * 0.4) - self.relaxing_low_count)})",
+                (
+                    "Relaxing: ON"
+                    if self.relaxing_state
+                    else f"Relaxing: OFF (warmup {max(0, int(FPS * 0.4) - self.relaxing_low_count)})"
+                ),
                 (10, 155),
                 (255, 255, 180),
                 0.65,

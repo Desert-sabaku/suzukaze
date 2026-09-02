@@ -21,8 +21,8 @@ def put_latest(channel, value):
 
 
 def get_latest(channel, default):
+    value = default
     try:
-        value = default
         while True:
             value = channel.get_nowait()
     except queue.Empty:

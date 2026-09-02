@@ -15,5 +15,6 @@ version = "0.1.0"
 gesture-detection = "gesture_detection.app:main"
 
 [tool.pyright]
+include = ["gesture_detection", "tests", "main.py"]
 venvPath = "."
 venv = ".venv"
