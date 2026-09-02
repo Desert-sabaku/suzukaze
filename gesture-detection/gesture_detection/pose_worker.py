@@ -12,9 +12,12 @@ from mediapipe.tasks.python import vision
 
 from .config import (
     BUFFER_SIZE,
+    FANNING_FACE_DISTANCE,
     FPS,
     POSE_MODEL_PATH,
     POSE_MODEL_URL,
+    READY_FACE_EXCLUSION_DISTANCE,
+    READY_TORSO_DISTANCE,
     TARGET_LANDMARKS,
 )
 
@@ -138,6 +141,15 @@ class PoseAnalyzer:
         raise_motion = drop_motion = recent_speed = 0.0
         face_proximity = 0.0
         if len(self.wrist_y_history) >= 5:
+            face_distance, torso_distance = self._normalized_wrist_distances(landmarks)
+            face_proximity = max(
+                0.0,
+                1.0 - face_distance / FANNING_FACE_DISTANCE,
+            )
+            ready_position = (
+                face_distance >= READY_FACE_EXCLUSION_DISTANCE
+                and torso_distance <= READY_TORSO_DISTANCE
+            )
             recent_y = np.asarray(list(self.wrist_y_history)[-8:], dtype=np.float32)
             recent_t = np.asarray(list(self.wrist_t_history)[-8:], dtype=np.float64)
             raise_motion = max(0.0, float(np.max(recent_y) - recent_y[-1]))
@@ -156,31 +168,73 @@ class PoseAnalyzer:
                 + (drop_motion / 0.08) * 0.55
                 + min(recent_speed / 0.02, 1.0) * 0.20,
             )
-            self._advance_uchimizu_state(raise_motion, drop_motion, recent_speed)
-
-            face_distance = float(
-                np.linalg.norm(
-                    np.array(
-                        [wrist.x - landmarks[0].x, wrist.y - landmarks[0].y],
-                        dtype=np.float32,
-                    )
-                )
+            self._advance_uchimizu_state(
+                raise_motion,
+                drop_motion,
+                recent_speed,
+                ready_position,
             )
-            face_proximity = max(0.0, 1.0 - face_distance / 0.35)
             if self.uchimizu_state == "READY":
                 self.uchimizu_score = max(0.62, wave_score)
             elif self.uchimizu_state == "SWING":
                 self.uchimizu_score = max(0.90, wave_score)
             if raise_motion <= 0.05 or drop_motion <= 0.07 or recent_speed <= 0.02:
                 self.uchimizu_score *= 0.5
-            self.uchimizu_score = min(1.0, self.uchimizu_score + face_proximity * 0.10)
         raw_fanning_score = self._calculate_fanning_score()
         smoothing = 0.35 if raw_fanning_score > self.fanning_score else 0.55
         self.fanning_score += smoothing * (raw_fanning_score - self.fanning_score)
-        self.fanning_score = max(0.0, self.fanning_score - face_proximity * 0.04)
+        self.fanning_score = min(1.0, self.fanning_score + face_proximity * 0.08)
         self._select_action(raise_motion, drop_motion, recent_speed)
 
-    def _advance_uchimizu_state(self, raise_motion, drop_motion, recent_speed):
+    @staticmethod
+    def _normalized_wrist_distances(landmarks):
+        wrist = np.array([landmarks[16].x, landmarks[16].y], dtype=np.float32)
+        nose = np.array([landmarks[0].x, landmarks[0].y], dtype=np.float32)
+        left_shoulder = np.array(
+            [landmarks[11].x, landmarks[11].y],
+            dtype=np.float32,
+        )
+        right_shoulder = np.array(
+            [landmarks[12].x, landmarks[12].y],
+            dtype=np.float32,
+        )
+        left_hip = np.array([landmarks[23].x, landmarks[23].y], dtype=np.float32)
+        right_hip = np.array([landmarks[24].x, landmarks[24].y], dtype=np.float32)
+
+        shoulder_width = max(
+            float(np.linalg.norm(left_shoulder - right_shoulder)),
+            1e-6,
+        )
+        shoulder_center = (left_shoulder + right_shoulder) * 0.5
+        hip_center = (left_hip + right_hip) * 0.5
+        torso_axis = hip_center - shoulder_center
+        torso_length_squared = float(np.dot(torso_axis, torso_axis))
+        if torso_length_squared > 1e-12:
+            projection = float(
+                np.clip(
+                    np.dot(wrist - shoulder_center, torso_axis)
+                    / torso_length_squared,
+                    0.0,
+                    1.0,
+                )
+            )
+            nearest_torso_point = shoulder_center + projection * torso_axis
+        else:
+            nearest_torso_point = shoulder_center
+
+        face_distance = float(np.linalg.norm(wrist - nose)) / shoulder_width
+        torso_distance = (
+            float(np.linalg.norm(wrist - nearest_torso_point)) / shoulder_width
+        )
+        return face_distance, torso_distance
+
+    def _advance_uchimizu_state(
+        self,
+        raise_motion,
+        drop_motion,
+        recent_speed,
+        ready_position,
+    ):
         if self.uchimizu_cooldown > 0:
             self.uchimizu_cooldown -= 1
             if self.uchimizu_cooldown == 0:
@@ -188,7 +242,11 @@ class PoseAnalyzer:
                 self.uchimizu_ready_frames = 0
             return
         if self.uchimizu_state == "IDLE":
-            if raise_motion > 0.04 and recent_speed > 0.012:
+            if (
+                raise_motion > 0.04
+                and recent_speed > 0.012
+                and ready_position
+            ):
                 self.uchimizu_state = "READY"
                 self.uchimizu_ready_frames = 1
         elif self.uchimizu_state == "READY":
