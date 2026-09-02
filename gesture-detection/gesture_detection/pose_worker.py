@@ -18,8 +18,10 @@ from .config import (
     POSE_MODEL_PATH,
     POSE_MODEL_URL,
     TARGET_LANDMARKS,
+    WINDOW_SECONDS,
 )
 from .gesture_position import is_uchimizu_ready_motion, normalized_wrist_distances
+from .signal_processing import resample_time_window
 
 
 class PoseAnalyzer:
@@ -220,8 +222,15 @@ class PoseAnalyzer:
         if len(self.wrist_y_history) < 8:
             return 0.0
 
-        signal = np.asarray(self.wrist_y_history, dtype=np.float32)
-        timestamps = np.asarray(self.wrist_t_history, dtype=np.float64)
+        history_signal = np.asarray(self.wrist_y_history, dtype=np.float32)
+        history_timestamps = np.asarray(self.wrist_t_history, dtype=np.float64)
+        signal, timestamps = resample_time_window(
+            history_signal,
+            history_timestamps,
+            WINDOW_SECONDS,
+        )
+        if len(signal) < 8:
+            return 0.0
         duration = timestamps[-1] - timestamps[0]
         if duration < 0.6:
             return 0.0
@@ -245,9 +254,9 @@ class PoseAnalyzer:
         target_energy = float(np.sum(spectrum[target] ** 2)) if np.any(target) else 0.0
         band_energy = float(np.sum(spectrum[band] ** 2)) if np.any(band) else 1e-9
         band_ratio = target_energy / max(band_energy, 1e-9)
-        recent = timestamps >= timestamps[-1] - 0.3
-        recent_y = np.asarray(self.wrist_y_history, dtype=np.float32)[recent]
-        recent_t = timestamps[recent]
+        recent = history_timestamps >= history_timestamps[-1] - 0.3
+        recent_y = history_signal[recent]
+        recent_t = history_timestamps[recent]
         if len(recent_y) < 2 or recent_t[-1] - recent_t[0] <= 1e-6:
             return 0.0
         recent_speed = float(
