@@ -4,7 +4,14 @@ import time
 import cv2
 import numpy as np
 
-from .config import POSE_CONNECTIONS, WINDOW_TITLE, YOLO_EMA_ALPHA, YOLO_TTL_SECONDS
+from .config import (
+    CAMERA_BACKEND,
+    CAMERA_FOURCC,
+    POSE_CONNECTIONS,
+    WINDOW_TITLE,
+    YOLO_EMA_ALPHA,
+    YOLO_TTL_SECONDS,
+)
 from .ipc import get_latest, put_latest
 from .pose_worker import pose_worker
 from .rendering import draw_landmarks, draw_messages, right_wrist_pixel
@@ -22,11 +29,7 @@ class GestureApplication:
         self.yolo_process = None
 
     def run(self):
-        # V4L2で，かつMJPG形式を指定しています．これは環境依存なので，調整が必要になるかもしれません．
-        capture = cv2.VideoCapture(self.camera_index, cv2.CAP_V4L2)
-        if not capture.isOpened():
-            raise RuntimeError(f"Unable to open camera {self.camera_index}")
-        capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter.fourcc(*"MJPG"))
+        capture = self._open_capture()
 
         latest_pose = {"landmarks": [], "messages": [], "selected_action": "NONE"}
         bottle_state = {"box": None, "confidence": 0.0, "last_seen": 0.0}
@@ -70,6 +73,22 @@ class GestureApplication:
             capture.release()
             cv2.destroyAllWindows()
             self._stop_workers()
+
+    def _open_capture(self):
+        capture = cv2.VideoCapture(self.camera_index, CAMERA_BACKEND)
+        fourcc = cv2.VideoWriter.fourcc(*CAMERA_FOURCC)
+        if capture.isOpened() and capture.set(cv2.CAP_PROP_FOURCC, fourcc):
+            return capture
+        capture.release()
+
+        capture = cv2.VideoCapture(self.camera_index)
+        if capture.isOpened():
+            return capture
+        capture.release()
+        raise RuntimeError(
+            f"Unable to open camera {self.camera_index} with either the configured "
+            "or default settings"
+        )
 
     def _start_workers(self):
         self.pose_process = mp.Process(

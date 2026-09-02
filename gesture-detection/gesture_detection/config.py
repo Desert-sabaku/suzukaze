@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import cv2
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 POSE_MODEL_PATH = PROJECT_ROOT / "pose_landmarker_lite.task"
 POSE_MODEL_URL = (
@@ -7,6 +9,10 @@ POSE_MODEL_URL = (
     "pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
 )
 YOLO_MODEL_PATH = PROJECT_ROOT / "yolov8n.pt"
+
+# Camera settings may need to be changed to match the capture device/driver.
+CAMERA_BACKEND = cv2.CAP_V4L2
+CAMERA_FOURCC = "MJPG"
 
 FPS = 60
 WINDOW_SECONDS = 1
