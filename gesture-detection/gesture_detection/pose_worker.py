@@ -105,9 +105,7 @@ class PoseAnalyzer:
         return result
 
     def _update_motion(self, landmarks):
-        current = np.array(
-            [[landmarks[index].x, landmarks[index].y] for index in TARGET_LANDMARKS]
-        )
+        current = np.array([[landmarks[index].x, landmarks[index].y] for index in TARGET_LANDMARKS])
         if self.previous_landmarks is not None:
             motion = np.linalg.norm(current - self.previous_landmarks, axis=1)
             self.motion_history.append(float(np.mean(motion)))
@@ -158,12 +156,8 @@ class PoseAnalyzer:
             drop_motion = max(0.0, float(recent_y[-1] - np.min(recent_y)))
             intervals = np.diff(recent_t)
             valid_intervals = intervals[intervals > 0]
-            average_dt = (
-                float(np.mean(valid_intervals)) if len(valid_intervals) else 1.0 / FPS
-            )
-            recent_speed = float(
-                np.mean(np.abs(np.diff(recent_y))) / max(average_dt, 1e-6)
-            )
+            average_dt = float(np.mean(valid_intervals)) if len(valid_intervals) else 1.0 / FPS
+            recent_speed = float(np.mean(np.abs(np.diff(recent_y))) / max(average_dt, 1e-6))
             ready_motion = is_uchimizu_ready_motion(
                 raise_motion=raise_motion,
                 recent_speed=recent_speed,
@@ -263,9 +257,7 @@ class PoseAnalyzer:
         recent_t = history_timestamps[recent]
         if len(recent_y) < 2 or recent_t[-1] - recent_t[0] <= 1e-6:
             return 0.0
-        recent_speed = float(
-            np.sum(np.abs(np.diff(recent_y))) / (recent_t[-1] - recent_t[0])
-        )
+        recent_speed = float(np.sum(np.abs(np.diff(recent_y))) / (recent_t[-1] - recent_t[0]))
 
         speed_excess = max(0.0, recent_speed - 0.02)
         amplitude_excess = max(0.0, max_amplitude - 0.004)
@@ -372,7 +364,7 @@ class PoseAnalyzer:
         )
 
 
-def pose_worker(frame_queue: mp.Queue, result_queue: mp.Queue):
+def pose_worker(frame_queue: mp.Queue, result_queue: mp.Queue) -> None:
     analyzer = PoseAnalyzer()
     try:
         while True:

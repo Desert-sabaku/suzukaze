@@ -1,9 +1,19 @@
 import cv2
+import numpy as np
+import numpy.typing as npt
 
 from .config import RIGHT_WRIST_INDEX
 
+type Landmark = tuple[float, float, float]
+type PixelPoint = tuple[int, int]
+type Message = tuple[str, PixelPoint, tuple[int, int, int], float]
 
-def draw_landmarks(image, landmarks, connections):
+
+def draw_landmarks(
+    image: npt.NDArray[np.uint8],
+    landmarks: list[Landmark],
+    connections: tuple[tuple[int, int], ...],
+) -> None:
     height, width, _ = image.shape
     for start_index, end_index in connections:
         if start_index >= len(landmarks) or end_index >= len(landmarks):
@@ -24,7 +34,11 @@ def draw_landmarks(image, landmarks, connections):
             cv2.circle(image, (int(x * width), int(y * height)), 3, (0, 0, 255), -1)
 
 
-def right_wrist_pixel(landmarks, width, height):
+def right_wrist_pixel(
+    landmarks: list[Landmark],
+    width: int,
+    height: int,
+) -> PixelPoint | None:
     if len(landmarks) <= RIGHT_WRIST_INDEX:
         return None
     x, y, visibility = landmarks[RIGHT_WRIST_INDEX]
@@ -33,7 +47,10 @@ def right_wrist_pixel(landmarks, width, height):
     return int(x * width), int(y * height)
 
 
-def draw_messages(image, messages):
+def draw_messages(
+    image: npt.NDArray[np.uint8],
+    messages: list[Message],
+) -> None:
     for text, position, color, scale in messages:
         if text.startswith("Action: "):
             continue

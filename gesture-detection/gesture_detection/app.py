@@ -1,8 +1,10 @@
 import multiprocessing as mp
 import time
+from typing import Any, TypedDict
 
 import cv2
 import numpy as np
+import numpy.typing as npt
 
 from .config import (
     CAMERA_BACKEND,
@@ -17,9 +19,32 @@ from .pose_worker import pose_worker
 from .rendering import draw_landmarks, draw_messages, right_wrist_pixel
 from .yolo_worker import yolo_worker
 
+type Landmark = tuple[float, float, float]
+type PixelPoint = tuple[int, int]
+type PixelBox = tuple[int, int, int, int]
+type ScoredPixelBox = tuple[int, int, int, int, float]
+type Frame = npt.NDArray[Any]
+
+
+class PoseResult(TypedDict):
+    landmarks: list[Landmark]
+    messages: list[tuple[str, PixelPoint, tuple[int, int, int], float]]
+    selected_action: str
+    relaxing_state: bool
+
+
+class BottleResult(TypedDict):
+    boxes: list[ScoredPixelBox]
+
+
+class BottleState(TypedDict):
+    box: npt.NDArray[np.float32] | None
+    confidence: float
+    last_seen: float
+
 
 class GestureApplication:
-    def __init__(self, camera_index=0):
+    def __init__(self, camera_index: int = 0) -> None:
         self.camera_index = camera_index
         self.pose_frame_queue = mp.Queue(maxsize=1)
         self.pose_result_queue = mp.Queue(maxsize=1)
@@ -28,11 +53,16 @@ class GestureApplication:
         self.pose_process = None
         self.yolo_process = None
 
-    def run(self):
+    def run(self) -> None:
         capture = self._open_capture()
 
-        latest_pose = {"landmarks": [], "messages": [], "selected_action": "NONE"}
-        bottle_state = {"box": None, "confidence": 0.0, "last_seen": 0.0}
+        latest_pose: PoseResult = {
+            "landmarks": [],
+            "messages": [],
+            "selected_action": "NONE",
+            "relaxing_state": False,
+        }
+        bottle_state: BottleState = {"box": None, "confidence": 0.0, "last_seen": 0.0}
         previous_time = time.monotonic()
         self._start_workers()
         assert self.pose_process is not None
@@ -49,7 +79,7 @@ class GestureApplication:
                 put_latest(self.pose_frame_queue, frame.copy())
                 put_latest(self.yolo_frame_queue, frame.copy())
                 latest_pose = get_latest(self.pose_result_queue, latest_pose)
-                bottle_result = get_latest(self.yolo_result_queue, None)
+                bottle_result: BottleResult | None = get_latest(self.yolo_result_queue, None)
                 if bottle_result is not None:
                     self._update_bottle_state(bottle_state, bottle_result)
 
@@ -74,7 +104,7 @@ class GestureApplication:
             cv2.destroyAllWindows()
             self._stop_workers()
 
-    def _open_capture(self):
+    def _open_capture(self) -> cv2.VideoCapture:
         capture = cv2.VideoCapture(self.camera_index, CAMERA_BACKEND)
         fourcc = cv2.VideoWriter.fourcc(*CAMERA_FOURCC)
         if capture.isOpened() and capture.set(cv2.CAP_PROP_FOURCC, fourcc):
@@ -90,7 +120,7 @@ class GestureApplication:
             "or default settings"
         )
 
-    def _start_workers(self):
+    def _start_workers(self) -> None:
         self.pose_process = mp.Process(
             target=pose_worker,
             args=(self.pose_frame_queue, self.pose_result_queue),
@@ -104,7 +134,7 @@ class GestureApplication:
         self.pose_process.start()
         self.yolo_process.start()
 
-    def _stop_workers(self):
+    def _stop_workers(self) -> None:
         put_latest(self.pose_frame_queue, None)
         put_latest(self.yolo_frame_queue, None)
         for process in (self.pose_process, self.yolo_process):
@@ -116,7 +146,7 @@ class GestureApplication:
                 process.join()
 
     @staticmethod
-    def _update_bottle_state(state, result):
+    def _update_bottle_state(state: BottleState, result: BottleResult) -> None:
         boxes = result.get("boxes", [])
         if not boxes:
             return
@@ -128,12 +158,16 @@ class GestureApplication:
         else:
             state["box"] = (
                 YOLO_EMA_ALPHA * current_box + (1 - YOLO_EMA_ALPHA) * state["box"]
-            )
+            ).astype(np.float32)
         state["confidence"] = best_box[4]
         state["last_seen"] = now
 
     @staticmethod
-    def _annotate_frame(frame, pose_result, bottle_state):
+    def _annotate_frame(
+        frame: Frame,
+        pose_result: PoseResult,
+        bottle_state: BottleState,
+    ) -> Frame:
         image = frame.copy()
         height, width, _ = image.shape
         landmarks = pose_result.get("landmarks", [])
@@ -147,16 +181,18 @@ class GestureApplication:
         return image
 
     @staticmethod
-    def _active_bottle_box(state):
-        if (
-            state["box"] is None
-            or time.monotonic() - state["last_seen"] >= YOLO_TTL_SECONDS
-        ):
+    def _active_bottle_box(state: BottleState) -> PixelBox | None:
+        if state["box"] is None or time.monotonic() - state["last_seen"] >= YOLO_TTL_SECONDS:
             return None
-        return tuple(map(int, state["box"]))
+        box = tuple(map(int, state["box"]))
+        return box[0], box[1], box[2], box[3]
 
     @staticmethod
-    def _primary_action(pose_result, bottle_box, wrist):
+    def _primary_action(
+        pose_result: PoseResult,
+        bottle_box: PixelBox | None,
+        wrist: PixelPoint | None,
+    ) -> str:
         if bottle_box and wrist and GestureApplication._contains(bottle_box, wrist):
             return "RAMUNE"
         selected = pose_result.get("selected_action", "NONE")
@@ -165,13 +201,18 @@ class GestureApplication:
         )
 
     @staticmethod
-    def _contains(box, point):
+    def _contains(box: PixelBox, point: PixelPoint) -> bool:
         x1, y1, x2, y2 = box
         x, y = point
         return x1 <= x <= x2 and y1 <= y <= y2
 
     @staticmethod
-    def _draw_bottle(image, box, state, wrist):
+    def _draw_bottle(
+        image: Frame,
+        box: PixelBox | None,
+        state: BottleState,
+        wrist: PixelPoint | None,
+    ) -> None:
         if box is None:
             return
         highlighted = wrist and GestureApplication._contains(box, wrist)
@@ -189,7 +230,7 @@ class GestureApplication:
         )
 
     @staticmethod
-    def _draw_action(image, action):
+    def _draw_action(image: Frame, action: str) -> None:
         labels = {
             "FANNING": ("Action: Fanning!", (0, 165, 255)),
             "SPRINKLING": ("Action: Sprinkling Water!", (255, 100, 100)),
@@ -202,5 +243,5 @@ class GestureApplication:
         cv2.putText(image, text, (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1.2, color, 3)
 
 
-def main():
+def main() -> None:
     GestureApplication().run()

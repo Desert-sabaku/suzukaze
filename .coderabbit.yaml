@@ -1,3 +1,442 @@
+# Source: defaults
+language: ja-JP
+# Source: defaults
+tone_instructions: '丁寧語で、指摘は根拠→影響→代替案の順に簡潔に。推測は推測と明記してください。'
+# Source: defaults
+early_access: false
+# Source: defaults
+enable_free_tier: true
+# Source: defaults
+inheritance: false
 reviews:
+  # Source: defaults
+  profile: chill
+  # Source: defaults
+  request_changes_workflow: false
+  # Source: defaults
+  high_level_summary: true
+  # Source: defaults
+  high_level_summary_instructions: ''
+  # Source: defaults
+  high_level_summary_placeholder: '`@coderabbitai` summary'
+  # Source: defaults
+  high_level_summary_in_walkthrough: false
+  # Source: defaults
+  auto_title_placeholder: '`@coderabbitai`'
+  # Source: defaults
+  auto_title_instructions: ''
+  # Source: defaults
+  review_status: true
+  # Source: defaults
+  review_details: false
+  # Source: defaults
+  review_progress: true
+  # Source: defaults
+  commit_status: true
+  # Source: defaults
+  fail_commit_status: false
+  # Source: defaults
+  collapse_walkthrough: true
+  # Source: defaults
+  changed_files_summary: true
+  # Source: defaults
+  sequence_diagrams: true
+  # Source: defaults
+  estimate_code_review_effort: true
+  # Source: defaults
+  assess_linked_issues: true
+  # Source: defaults
+  related_issues: true
+  # Source: defaults
+  related_prs: true
+  # Source: defaults
+  suggested_labels: true
+  # Source: defaults
+  labeling_instructions: []
+  # Source: defaults
+  mutually_exclusive_groups: {}
+  # Source: defaults
+  auto_apply_labels: false
+  # Source: defaults
+  suggested_reviewers: true
+  # Source: defaults
+  auto_assign_reviewers: false
+  # Source: defaults
+  suggested_reviewers_instructions: []
+  # Source: defaults
+  in_progress_fortune: true
+  # Source: defaults
+  poem: false
+  # Source: defaults
+  enable_prompt_for_ai_agents: true
+  # Source: defaults
+  path_filters:
+    - "!**/*.lock"
+    - "!coverage/**"
+  # Source: defaults
+  path_instructions:
+    - path: "gesture-detection"
+      instructions: "細かい閾値などはひとまず無視し，全体としてどういうロジックで推定しているか，流れを把握してください．閾値について別個検討が必要なら，検討してください．"
+  
+  # Source: defaults
+  abort_on_close: true
+  # Source: defaults
+  disable_cache: false
+  slop_detection:
+    # Source: defaults
+    enabled: true
   auto_review:
+    # Source: Repository YAML (base)
     enabled: false
+    # Source: defaults
+    description_keyword: ''
+    # Source: defaults
+    auto_incremental_review: true
+    # Source: defaults
+    auto_pause_after_reviewed_commits: 5
+    # Source: defaults
+    ignore_title_keywords:
+      - "WIP"
+      - "DO NOT MERGE"
+      - "DRAFT"
+
+    # Source: defaults
+    labels:
+      - "!wip"
+      - "!do-not-review"
+    # Source: defaults
+    drafts: false
+    # Source: defaults
+    base_branches: []
+    # Source: defaults
+    ignore_usernames: []
+  finishing_touches:
+    docstrings:
+      # Source: defaults
+      enabled: true
+    unit_tests:
+      # Source: defaults
+      enabled: true
+    simplify:
+      # Source: defaults
+      enabled: false
+    autofix:
+      # Source: defaults
+      enabled: true
+    fix_ci:
+      # Source: defaults
+      enabled: true
+    resolve_merge_conflict:
+      # Source: defaults
+      enabled: true
+    # Source: defaults
+    custom: []
+  pre_merge_checks:
+    # Source: defaults
+    override_requested_reviewers_only: false
+    docstrings:
+      # Source: defaults
+      mode: warning
+      # Source: defaults
+      threshold: 80
+    title:
+      # Source: defaults
+      mode: warning
+      # Source: defaults
+      requirements: ''
+    description:
+      # Source: defaults
+      mode: warning
+    issue_assessment:
+      # Source: defaults
+      mode: warning
+    # Source: defaults
+    custom_checks: []
+  # Source: defaults
+  post_merge_actions: []
+  tools:
+    ast-grep:
+      # Source: defaults
+      rule_dirs: []
+      # Source: defaults
+      util_dirs: []
+      # Source: defaults
+      essential_rules: true
+      # Source: defaults
+      packages: []
+    shellcheck:
+      # Source: defaults
+      enabled: true
+    ruff:
+      # Source: defaults
+      enabled: true
+    markdownlint:
+      # Source: defaults
+      enabled: true
+    github-checks:
+      # Source: defaults
+      enabled: true
+    languagetool:
+      # Source: defaults
+      enabled: true
+      # Source: defaults
+      enabled_rules: []
+      # Source: defaults
+      disabled_rules: []
+      # Source: defaults
+      enabled_categories: []
+      # Source: defaults
+      disabled_categories: []
+      # Source: defaults
+      enabled_only: false
+      # Source: defaults
+      level: default
+    biome:
+      # Source: defaults
+      enabled: true
+    hadolint:
+      # Source: defaults
+      enabled: true
+    swiftlint:
+      # Source: defaults
+      enabled: true
+    phpstan:
+      # Source: defaults
+      enabled: true
+      # Source: defaults
+      level: default
+    phpmd:
+      # Source: defaults
+      enabled: true
+    phpcs:
+      # Source: defaults
+      enabled: true
+    golangci-lint:
+      # Source: defaults
+      enabled: true
+    yamllint:
+      # Source: defaults
+      enabled: true
+    gitleaks:
+      # Source: defaults
+      enabled: true
+    trufflehog:
+      # Source: defaults
+      enabled: true
+    checkov:
+      # Source: defaults
+      enabled: true
+    tflint:
+      # Source: defaults
+      enabled: true
+    detekt:
+      # Source: defaults
+      enabled: true
+    eslint:
+      # Source: defaults
+      enabled: true
+      e18e:
+        # Source: defaults
+        enabled: true
+    flake8:
+      # Source: defaults
+      enabled: true
+    fbinfer:
+      # Source: defaults
+      enabled: true
+      # Source: defaults
+      enable_java: false
+    fortitudeLint:
+      # Source: defaults
+      enabled: true
+    rubocop:
+      # Source: defaults
+      enabled: true
+    buf:
+      # Source: defaults
+      enabled: true
+    regal:
+      # Source: defaults
+      enabled: true
+    actionlint:
+      # Source: defaults
+      enabled: true
+    zizmor:
+      # Source: defaults
+      enabled: true
+    pmd:
+      # Source: defaults
+      enabled: true
+    clang:
+      # Source: defaults
+      enabled: true
+    cppcheck:
+      # Source: defaults
+      enabled: true
+    vale:
+      # Source: defaults
+      enabled: true
+    verilator:
+      # Source: defaults
+      enabled: true
+    opengrep:
+      # Source: defaults
+      enabled: true
+    semgrep:
+      # Source: defaults
+      enabled: true
+    circleci:
+      # Source: defaults
+      enabled: true
+    clippy:
+      # Source: defaults
+      enabled: true
+    sqlfluff:
+      # Source: defaults
+      enabled: true
+    squawk:
+      # Source: defaults
+      enabled: true
+    trivy:
+      # Source: defaults
+      enabled: true
+    prismaLint:
+      # Source: defaults
+      enabled: true
+    pylint:
+      # Source: defaults
+      enabled: true
+    oxc:
+      # Source: defaults
+      enabled: true
+    shopifyThemeCheck:
+      # Source: defaults
+      enabled: true
+    luacheck:
+      # Source: defaults
+      enabled: true
+    brakeman:
+      # Source: defaults
+      enabled: true
+    dotenvLint:
+      # Source: defaults
+      enabled: true
+    htmlhint:
+      # Source: defaults
+      enabled: true
+    stylelint:
+      # Source: defaults
+      enabled: true
+    checkmake:
+      # Source: defaults
+      enabled: true
+    osvScanner:
+      # Source: defaults
+      enabled: true
+    oasdiff:
+      # Source: defaults
+      enabled: true
+    reactDoctor:
+      # Source: defaults
+      enabled: true
+    presidio:
+      # Source: defaults
+      enabled: true
+    blinter:
+      # Source: defaults
+      enabled: true
+    smartyLint:
+      # Source: defaults
+      enabled: true
+    emberTemplateLint:
+      # Source: defaults
+      enabled: true
+    skillspector:
+      # Source: defaults
+      enabled: true
+    psscriptanalyzer:
+      # Source: defaults
+      enabled: true
+chat:
+  # Source: defaults
+  art: true
+  # Source: defaults
+  allow_non_org_members: true
+  # Source: defaults
+  auto_reply: true
+  integrations:
+    jira:
+      # Source: defaults
+      usage: auto
+    linear:
+      # Source: defaults
+      usage: auto
+knowledge_base:
+  # Source: defaults
+  opt_out: false
+  web_search:
+    # Source: defaults
+    enabled: true
+  code_guidelines:
+    # Source: defaults
+    enabled: true
+    # Source: defaults
+    filePatterns: []
+  learnings:
+    # Source: defaults
+    scope: auto
+    # Source: defaults
+    approval_delay: 0
+  issues:
+    # Source: defaults
+    scope: auto
+  jira:
+    # Source: defaults
+    usage: auto
+    # Source: defaults
+    project_keys: []
+    # Source: defaults
+    excluded_project_keys: []
+  linear:
+    # Source: defaults
+    usage: auto
+    # Source: defaults
+    team_keys: []
+  pull_requests:
+    # Source: defaults
+    scope: auto
+  mcp:
+    # Source: defaults
+    usage: auto
+    # Source: defaults
+    disabled_servers: []
+  # Source: defaults
+  automatic_linking_mode: disabled
+  # Source: defaults
+  automatic_repository_linking: false
+  # Source: defaults
+  linked_repositories: []
+code_generation:
+  docstrings:
+    # Source: defaults
+    path_instructions: []
+  unit_tests:
+    # Source: defaults
+    path_instructions: []
+issue_enrichment:
+  auto_enrich:
+    # Source: defaults
+    enabled: false
+  planning:
+    # Source: defaults
+    enabled: true
+    auto_planning:
+      # Source: defaults
+      enabled: true
+      # Source: defaults
+      labels: []
+  labeling:
+    # Source: defaults
+    labeling_instructions: []
+    # Source: defaults
+    auto_apply_labels: false
