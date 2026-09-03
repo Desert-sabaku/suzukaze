@@ -34,7 +34,5 @@ def resample_time_window(
         sample_count,
         dtype=np.float64,
     )
-    uniform_values = np.interp(uniform_timestamps, timestamps, values).astype(
-        np.float32
-    )
+    uniform_values = np.interp(uniform_timestamps, timestamps, values).astype(np.float32)
     return uniform_values, uniform_timestamps

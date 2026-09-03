@@ -1,9 +1,20 @@
 import math
+from typing import Protocol, TypeAlias
 
 from .config import READY_FACE_EXCLUSION_DISTANCE
 
+Point: TypeAlias = tuple[float, float]
 
-def normalized_wrist_distances(landmarks):
+
+class LandmarkLike(Protocol):
+    x: float
+    y: float
+
+
+type Landmarks = list[LandmarkLike]
+
+
+def normalized_wrist_distances(landmarks: Landmarks) -> tuple[float, float]:
     wrist = (landmarks[16].x, landmarks[16].y)
     nose = (landmarks[0].x, landmarks[0].y)
     left_shoulder = (landmarks[11].x, landmarks[11].y)
@@ -26,7 +37,7 @@ def normalized_wrist_distances(landmarks):
     )
 
 
-def is_wrist_within_torso_x(landmarks):
+def is_wrist_within_torso_x(landmarks: Landmarks) -> bool:
     wrist_x = landmarks[16].x
     torso_x_coordinates = (
         landmarks[11].x,
@@ -38,11 +49,11 @@ def is_wrist_within_torso_x(landmarks):
 
 
 def is_uchimizu_ready_motion(
-    raise_motion,
-    recent_speed,
-    face_distance,
-    wrist_within_torso_x,
-):
+    raise_motion: float,
+    recent_speed: float,
+    face_distance: float,
+    wrist_within_torso_x: bool,
+) -> bool:
     return (
         raise_motion > 0.04
         and recent_speed > 0.012
@@ -51,11 +62,11 @@ def is_uchimizu_ready_motion(
     )
 
 
-def _midpoint(first, second):
+def _midpoint(first: Point, second: Point) -> Point:
     return ((first[0] + second[0]) * 0.5, (first[1] + second[1]) * 0.5)
 
 
-def _nearest_point_on_segment(point, start, end):
+def _nearest_point_on_segment(point: Point, start: Point, end: Point) -> Point:
     axis = (end[0] - start[0], end[1] - start[1])
     length_squared = axis[0] ** 2 + axis[1] ** 2
     if length_squared <= 1e-12:

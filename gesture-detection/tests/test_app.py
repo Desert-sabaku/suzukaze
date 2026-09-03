@@ -2,7 +2,6 @@ import unittest
 from unittest.mock import MagicMock, call, patch
 
 import cv2
-
 from gesture_detection.app import GestureApplication
 from gesture_detection.config import CAMERA_BACKEND, CAMERA_FOURCC
 
@@ -43,9 +42,7 @@ class OpenCaptureTest(unittest.TestCase):
         configured.release.assert_called_once_with()
 
     @patch("gesture_detection.app.cv2.VideoCapture")
-    def test_raises_when_configured_and_default_settings_fail(
-        self, video_capture
-    ):
+    def test_raises_when_configured_and_default_settings_fail(self, video_capture):
         configured = MagicMock()
         configured.isOpened.return_value = False
         default = MagicMock()

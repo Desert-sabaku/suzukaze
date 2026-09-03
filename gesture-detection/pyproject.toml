@@ -14,7 +14,32 @@ version = "0.1.0"
 [project.scripts]
 gesture-detection = "gesture_detection.app:main"
 
+[dependency-groups]
+dev = [
+  "pyright>=1.1",
+  "pytest>=8.4.2",
+  "pytest-cov>=7.0.0",
+  "ruff>=0.13.0",
+]
+
+[tool.ruff]
+line-length = 100
+src = ["gesture_detection", "tests", "main.py"]
+target-version = "py312"
+
+[tool.ruff.lint]
+ignore = ["E501"]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--tb=short --cov=gesture_detection --cov-report=term-missing"
+
 [tool.pyright]
 include = ["gesture_detection", "tests", "main.py"]
+exclude = ["**/__pycache__", ".venv", "build", "dist"]
+typeCheckingMode = "standard"
+pythonVersion = "3.12"
+extraPaths = ["gesture_detection"]
 venvPath = "."
 venv = ".venv"

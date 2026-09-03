@@ -1,7 +1,6 @@
 import unittest
 
 import numpy as np
-
 from gesture_detection.signal_processing import resample_time_window
 
 
@@ -28,9 +27,7 @@ class ResampleTimeWindowTests(unittest.TestCase):
         timestamps = np.array([3.0, 3.12, 3.25, 3.4])
         values = np.array([0.0, 1.0, 0.0, -1.0], dtype=np.float32)
 
-        _, sampled_timestamps = resample_time_window(
-            values, timestamps, window_seconds=1.0
-        )
+        _, sampled_timestamps = resample_time_window(values, timestamps, window_seconds=1.0)
 
         self.assertEqual(len(sampled_timestamps), len(timestamps))
         self.assertEqual(sampled_timestamps[0], timestamps[0])

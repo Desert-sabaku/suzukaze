@@ -25,16 +25,12 @@ def make_landmarks(wrist):
 
 class WristPositionTests(unittest.TestCase):
     def test_face_position_is_closer_to_face_than_torso(self):
-        face_distance, torso_distance = normalized_wrist_distances(
-            make_landmarks((0.52, 0.22))
-        )
+        face_distance, torso_distance = normalized_wrist_distances(make_landmarks((0.52, 0.22)))
 
         self.assertLess(face_distance, torso_distance)
 
     def test_torso_position_is_closer_to_torso_than_face(self):
-        face_distance, torso_distance = normalized_wrist_distances(
-            make_landmarks((0.65, 0.55))
-        )
+        face_distance, torso_distance = normalized_wrist_distances(make_landmarks((0.65, 0.55)))
 
         self.assertLess(torso_distance, face_distance)
 

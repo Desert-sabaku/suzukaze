@@ -1,7 +1,8 @@
 import queue
+from typing import Any
 
 
-def put_latest(channel, value):
+def put_latest(channel: Any, value: Any) -> None:
     """Keep a bounded IPC queue focused on the newest frame or sentinel."""
     try:
         channel.put_nowait(value)
@@ -20,7 +21,7 @@ def put_latest(channel, value):
         pass
 
 
-def get_latest(channel, default):
+def get_latest(channel: Any, default: Any) -> Any:
     value = default
     try:
         while True:
