@@ -1,6 +1,6 @@
 import math
 
-from .config import READY_FACE_EXCLUSION_DISTANCE, READY_TORSO_DISTANCE
+from .config import READY_FACE_EXCLUSION_DISTANCE
 
 
 def normalized_wrist_distances(landmarks):
@@ -26,17 +26,28 @@ def normalized_wrist_distances(landmarks):
     )
 
 
+def is_wrist_within_torso_x(landmarks):
+    wrist_x = landmarks[16].x
+    torso_x_coordinates = (
+        landmarks[11].x,
+        landmarks[12].x,
+        landmarks[23].x,
+        landmarks[24].x,
+    )
+    return min(torso_x_coordinates) <= wrist_x <= max(torso_x_coordinates)
+
+
 def is_uchimizu_ready_motion(
     raise_motion,
     recent_speed,
     face_distance,
-    torso_distance,
+    wrist_within_torso_x,
 ):
     return (
         raise_motion > 0.04
         and recent_speed > 0.012
         and face_distance >= READY_FACE_EXCLUSION_DISTANCE
-        and torso_distance <= READY_TORSO_DISTANCE
+        and wrist_within_torso_x
     )
 
 

@@ -20,7 +20,11 @@ from .config import (
     TARGET_LANDMARKS,
     WINDOW_SECONDS,
 )
-from .gesture_position import is_uchimizu_ready_motion, normalized_wrist_distances
+from .gesture_position import (
+    is_uchimizu_ready_motion,
+    is_wrist_within_torso_x,
+    normalized_wrist_distances,
+)
 from .signal_processing import resample_time_window
 
 
@@ -143,7 +147,7 @@ class PoseAnalyzer:
         raise_motion = drop_motion = recent_speed = 0.0
         face_proximity = 0.0
         if len(self.wrist_y_history) >= 5:
-            face_distance, torso_distance = normalized_wrist_distances(landmarks)
+            face_distance, _ = normalized_wrist_distances(landmarks)
             face_proximity = max(
                 0.0,
                 1.0 - face_distance / FANNING_FACE_DISTANCE,
@@ -164,7 +168,7 @@ class PoseAnalyzer:
                 raise_motion=raise_motion,
                 recent_speed=recent_speed,
                 face_distance=face_distance,
-                torso_distance=torso_distance,
+                wrist_within_torso_x=is_wrist_within_torso_x(landmarks),
             )
             wave_score = min(
                 1.0,
