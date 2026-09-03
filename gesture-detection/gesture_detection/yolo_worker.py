@@ -10,7 +10,7 @@ from .config import (
 )
 
 
-def yolo_worker(frame_queue: mp.Queue, result_queue: mp.Queue):
+def yolo_worker(frame_queue: mp.Queue, result_queue: mp.Queue) -> None:
     """Run bottle detection in a separate process."""
     model = YOLO(str(YOLO_MODEL_PATH))
     try:
@@ -27,10 +27,7 @@ def yolo_worker(frame_queue: mp.Queue, result_queue: mp.Queue):
                 for box in boxes:
                     class_id = int(box.cls[0])
                     confidence = float(box.conf[0])
-                    if (
-                        class_id == YOLO_BOTTLE_CLASS_ID
-                        and confidence > YOLO_CONFIDENCE_THRESHOLD
-                    ):
+                    if class_id == YOLO_BOTTLE_CLASS_ID and confidence > YOLO_CONFIDENCE_THRESHOLD:
                         x1, y1, x2, y2 = box.xyxy[0].tolist()
                         result_data["boxes"].append(
                             (int(x1), int(y1), int(x2), int(y2), confidence)
