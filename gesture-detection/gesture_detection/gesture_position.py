@@ -1,9 +1,10 @@
 import math
-from typing import Protocol, TypeAlias
+from collections.abc import Sequence
+from typing import Protocol
 
 from .config import READY_FACE_EXCLUSION_DISTANCE
 
-Point: TypeAlias = tuple[float, float]
+type Point = tuple[float, float]
 
 
 class LandmarkLike(Protocol):
@@ -11,7 +12,7 @@ class LandmarkLike(Protocol):
     y: float
 
 
-type Landmarks = list[LandmarkLike]
+type Landmarks = Sequence[LandmarkLike]
 
 
 def normalized_wrist_distances(landmarks: Landmarks) -> tuple[float, float]:

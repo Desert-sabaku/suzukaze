@@ -4,7 +4,6 @@ import numpy.typing as npt
 
 from .config import RIGHT_WRIST_INDEX
 
-
 type Landmark = tuple[float, float, float]
 type PixelPoint = tuple[int, int]
 type Message = tuple[str, PixelPoint, tuple[int, int, int], float]

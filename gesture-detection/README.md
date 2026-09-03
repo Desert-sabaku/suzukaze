@@ -36,7 +36,7 @@ Run formatter, linter, type checker, and tests:
 uv run ruff format --check $(git ls-files '*.py')
 uv run ruff check $(git ls-files '*.py')
 uv run pyright
-uv run pytest
+uv run python -m pytest
 ```
 
 Optional syntax check:

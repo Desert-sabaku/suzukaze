@@ -19,11 +19,11 @@ from .pose_worker import pose_worker
 from .rendering import draw_landmarks, draw_messages, right_wrist_pixel
 from .yolo_worker import yolo_worker
 
-
 type Landmark = tuple[float, float, float]
 type PixelPoint = tuple[int, int]
 type PixelBox = tuple[int, int, int, int]
 type ScoredPixelBox = tuple[int, int, int, int, float]
+type Frame = npt.NDArray[Any]
 
 
 class PoseResult(TypedDict):
@@ -156,16 +156,18 @@ class GestureApplication:
         if state["box"] is None or now - state["last_seen"] > YOLO_TTL_SECONDS:
             state["box"] = current_box
         else:
-            state["box"] = YOLO_EMA_ALPHA * current_box + (1 - YOLO_EMA_ALPHA) * state["box"]
+            state["box"] = (
+                YOLO_EMA_ALPHA * current_box + (1 - YOLO_EMA_ALPHA) * state["box"]
+            ).astype(np.float32)
         state["confidence"] = best_box[4]
         state["last_seen"] = now
 
     @staticmethod
     def _annotate_frame(
-        frame: npt.NDArray[np.uint8],
+        frame: Frame,
         pose_result: PoseResult,
         bottle_state: BottleState,
-    ) -> npt.NDArray[np.uint8]:
+    ) -> Frame:
         image = frame.copy()
         height, width, _ = image.shape
         landmarks = pose_result.get("landmarks", [])
@@ -182,7 +184,8 @@ class GestureApplication:
     def _active_bottle_box(state: BottleState) -> PixelBox | None:
         if state["box"] is None or time.monotonic() - state["last_seen"] >= YOLO_TTL_SECONDS:
             return None
-        return tuple(map(int, state["box"]))
+        box = tuple(map(int, state["box"]))
+        return box[0], box[1], box[2], box[3]
 
     @staticmethod
     def _primary_action(
@@ -205,7 +208,7 @@ class GestureApplication:
 
     @staticmethod
     def _draw_bottle(
-        image: npt.NDArray[np.uint8],
+        image: Frame,
         box: PixelBox | None,
         state: BottleState,
         wrist: PixelPoint | None,
@@ -227,7 +230,7 @@ class GestureApplication:
         )
 
     @staticmethod
-    def _draw_action(image: npt.NDArray[np.uint8], action: str) -> None:
+    def _draw_action(image: Frame, action: str) -> None:
         labels = {
             "FANNING": ("Action: Fanning!", (0, 165, 255)),
             "SPRINKLING": ("Action: Sprinkling Water!", (255, 100, 100)),

@@ -1,6 +1,5 @@
 import multiprocessing as mp
 import queue
-from typing import Any
 
 from ultralytics import YOLO
 
@@ -11,7 +10,7 @@ from .config import (
 )
 
 
-def yolo_worker(frame_queue: mp.Queue[Any], result_queue: mp.Queue[dict[str, Any]]) -> None:
+def yolo_worker(frame_queue: mp.Queue, result_queue: mp.Queue) -> None:
     """Run bottle detection in a separate process."""
     model = YOLO(str(YOLO_MODEL_PATH))
     try:

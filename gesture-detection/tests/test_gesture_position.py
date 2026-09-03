@@ -1,5 +1,5 @@
 import unittest
-from types import SimpleNamespace
+from dataclasses import dataclass
 
 from gesture_detection.gesture_position import (
     is_uchimizu_ready_motion,
@@ -8,8 +8,14 @@ from gesture_detection.gesture_position import (
 )
 
 
+@dataclass
+class Landmark:
+    x: float
+    y: float
+
+
 def make_landmarks(wrist):
-    landmarks = [SimpleNamespace(x=0.0, y=0.0) for _ in range(33)]
+    landmarks = [Landmark(x=0.0, y=0.0) for _ in range(33)]
     positions = {
         0: (0.5, 0.2),
         11: (0.4, 0.4),
@@ -19,7 +25,7 @@ def make_landmarks(wrist):
         24: (0.57, 0.7),
     }
     for index, (x, y) in positions.items():
-        landmarks[index] = SimpleNamespace(x=x, y=y)
+        landmarks[index] = Landmark(x=x, y=y)
     return landmarks
 
 
