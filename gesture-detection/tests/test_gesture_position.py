@@ -3,6 +3,7 @@ from types import SimpleNamespace
 
 from gesture_detection.gesture_position import (
     is_uchimizu_ready_motion,
+    is_wrist_within_torso_x,
     normalized_wrist_distances,
 )
 
@@ -37,13 +38,22 @@ class WristPositionTests(unittest.TestCase):
 
         self.assertLess(torso_distance, face_distance)
 
+    def test_wrist_between_torso_sides_is_inside(self):
+        self.assertTrue(is_wrist_within_torso_x(make_landmarks((0.5, 0.8))))
+
+    def test_wrist_outside_torso_sides_is_not_inside(self):
+        self.assertFalse(is_wrist_within_torso_x(make_landmarks((0.65, 0.55))))
+
 
 class UchimizuStateTests(unittest.TestCase):
     def test_motion_near_face_does_not_enter_ready(self):
-        self.assertFalse(is_uchimizu_ready_motion(0.05, 0.02, 0.5, 0.8))
+        self.assertFalse(is_uchimizu_ready_motion(0.05, 0.02, 0.5, True))
 
-    def test_motion_near_torso_enters_ready(self):
-        self.assertTrue(is_uchimizu_ready_motion(0.05, 0.02, 1.2, 0.8))
+    def test_motion_with_wrist_inside_torso_width_enters_ready(self):
+        self.assertTrue(is_uchimizu_ready_motion(0.05, 0.02, 1.2, True))
+
+    def test_motion_with_wrist_outside_torso_width_does_not_enter_ready(self):
+        self.assertFalse(is_uchimizu_ready_motion(0.05, 0.02, 1.2, False))
 
 
 if __name__ == "__main__":
