@@ -79,6 +79,36 @@ class OpenCaptureTest(unittest.TestCase):
         configured.release.assert_called_once_with()
         default.release.assert_called_once_with()
 
+    @patch("gesture_detection.app.VIDEO_SOURCE", "/tmp/sample.mp4")
+    @patch("gesture_detection.app.VIDEO_OUTPUT_PATH", "/tmp/output.mp4")
+    @patch("gesture_detection.app.cv2.VideoWriter")
+    def test_opens_output_for_video_source(self, video_writer):
+        capture = MagicMock()
+        capture.get.side_effect = {
+            cv2.CAP_PROP_FRAME_WIDTH: 640,
+            cv2.CAP_PROP_FRAME_HEIGHT: 480,
+            cv2.CAP_PROP_FPS: 30,
+        }.get
+        output = MagicMock()
+        output.isOpened.return_value = True
+        video_writer.return_value = output
+
+        result = GestureApplication._open_output(capture)
+
+        self.assertIs(result, output)
+        video_writer.assert_called_once_with(
+            "/tmp/output.mp4",
+            cv2.VideoWriter.fourcc(*"mp4v"),
+            30,
+            (640, 480),
+        )
+
+    @patch("gesture_detection.app.VIDEO_SOURCE", None)
+    @patch("gesture_detection.app.cv2.VideoWriter")
+    def test_does_not_open_output_for_camera_source(self, video_writer):
+        self.assertIsNone(GestureApplication._open_output(MagicMock()))
+        video_writer.assert_not_called()
+
 
 class BothHandsRamuneTests(unittest.TestCase):
     def test_either_visible_hand_can_touch_bottle(self):

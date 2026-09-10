@@ -16,6 +16,7 @@ CAMERA_FOURCC = "MJPG"
 # Set this to a video file path to use a file instead of the camera.
 # `None` keeps the default camera input.
 VIDEO_SOURCE: str | Path | None = None
+VIDEO_OUTPUT_PATH = PROJECT_ROOT / "output.mp4"
 
 FPS = 60
 WINDOW_SECONDS = 1

@@ -9,7 +9,9 @@ import numpy.typing as npt
 from .config import (
     CAMERA_BACKEND,
     CAMERA_FOURCC,
+    FPS,
     POSE_CONNECTIONS,
+    VIDEO_OUTPUT_PATH,
     VIDEO_SOURCE,
     WINDOW_TITLE,
     YOLO_EMA_ALPHA,
@@ -56,6 +58,11 @@ class GestureApplication:
 
     def run(self) -> None:
         capture = self._open_capture()
+        try:
+            output = self._open_output(capture)
+        except Exception:
+            capture.release()
+            raise
 
         latest_pose: PoseResult = {
             "landmarks": [],
@@ -97,10 +104,14 @@ class GestureApplication:
                     (200, 200, 200),
                     2,
                 )
+                if output is not None:
+                    output.write(annotated)
                 cv2.imshow(WINDOW_TITLE, annotated)
                 if cv2.waitKey(1) & 0xFF == 27:
                     break
         finally:
+            if output is not None:
+                output.release()
             capture.release()
             cv2.destroyAllWindows()
             self._stop_workers()
@@ -127,6 +138,27 @@ class GestureApplication:
             f"Unable to open camera {self.camera_index} with either the configured "
             "or default settings"
         )
+
+    @staticmethod
+    def _open_output(capture: cv2.VideoCapture) -> cv2.VideoWriter | None:
+        if VIDEO_SOURCE is None:
+            return None
+
+        width = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        fps = capture.get(cv2.CAP_PROP_FPS)
+        if fps <= 0:
+            fps = FPS
+        output = cv2.VideoWriter(
+            str(VIDEO_OUTPUT_PATH),
+            cv2.VideoWriter.fourcc(*"mp4v"),
+            fps,
+            (width, height),
+        )
+        if output.isOpened():
+            return output
+        output.release()
+        raise RuntimeError(f"Unable to open output video file {VIDEO_OUTPUT_PATH}")
 
     def _start_workers(self) -> None:
         self.pose_process = mp.Process(

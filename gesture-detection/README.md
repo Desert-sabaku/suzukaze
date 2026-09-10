@@ -32,7 +32,9 @@ VIDEO_SOURCE = PROJECT_ROOT / "sample.mp4"
 ```
 
 Set it back to `None` to use the camera again. The application exits when the
-video reaches its end.
+video reaches its end. When a video file is used, the annotated output is saved
+to `VIDEO_OUTPUT_PATH` (by default, `output.mp4` in the project root). The
+output does not contain the source video's audio track.
 
 ## Quality checks (local)
 
