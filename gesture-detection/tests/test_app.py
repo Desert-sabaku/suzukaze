@@ -54,3 +54,23 @@ class OpenCaptureTest(unittest.TestCase):
 
         configured.release.assert_called_once_with()
         default.release.assert_called_once_with()
+
+
+class BothHandsRamuneTests(unittest.TestCase):
+    def test_either_visible_hand_can_touch_bottle(self):
+        import numpy as np
+
+        for index in (15, 16):
+            with self.subTest(wrist_index=index):
+                landmarks = [(0.0, 0.0, 0.0)] * 33
+                landmarks[index] = (0.5, 0.5, 1.0)
+                pose = {"landmarks": landmarks}
+                with (
+                    patch.object(GestureApplication, "_active_bottle_box", return_value=(40, 40, 60, 60)),
+                    patch.object(GestureApplication, "_draw_bottle"),
+                    patch.object(GestureApplication, "_draw_action") as draw_action,
+                ):
+                    GestureApplication._annotate_frame(
+                        np.zeros((100, 100, 3), dtype=np.uint8), pose, {},
+                    )
+                self.assertEqual(draw_action.call_args.args[1], "RAMUNE")
