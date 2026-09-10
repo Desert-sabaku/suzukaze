@@ -57,6 +57,7 @@ class GestureApplication:
         self.yolo_process = None
 
     def run(self) -> None:
+        """Process input frames until the source ends or the user exits."""
         capture = self._open_capture()
         try:
             output = self._open_output(capture)
@@ -117,6 +118,7 @@ class GestureApplication:
             self._stop_workers()
 
     def _open_capture(self) -> cv2.VideoCapture:
+        """Open the configured video file or the selected camera."""
         if VIDEO_SOURCE is not None:
             capture = cv2.VideoCapture(str(VIDEO_SOURCE))
             if capture.isOpened():
@@ -141,6 +143,7 @@ class GestureApplication:
 
     @staticmethod
     def _open_output(capture: cv2.VideoCapture) -> cv2.VideoWriter | None:
+        """Create an output writer when processing a video file."""
         if VIDEO_SOURCE is None:
             return None
 
