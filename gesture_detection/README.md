@@ -17,7 +17,7 @@ uv run gesture-detection
 Alternatively, you can run the Python module directly:
 
 ```bash
-uv run python -m gesture_detection.app
+uv run python -m modules.app
 ```
 
 Press `Esc` in the camera window to exit.
@@ -25,7 +25,7 @@ Press `Esc` in the camera window to exit.
 ## Input source
 
 By default, the application uses camera `0`. To process a video file, set
-`VIDEO_SOURCE` in `gesture_detection/config.py`:
+`VIDEO_SOURCE` in `modules/config.py`:
 
 ```python
 VIDEO_SOURCE = PROJECT_ROOT / "sample.mp4"
@@ -56,7 +56,7 @@ uv run python -m pytest
 Optional syntax check:
 
 ```bash
-uv run python -m compileall gesture_detection
+uv run python -m compileall modules
 ```
 
 **Model requirements:**
@@ -65,12 +65,12 @@ uv run python -m compileall gesture_detection
 
 ## Structure
 
-- `gesture_detection/app.py`: input loop, worker lifecycle, action integration
-- `gesture_detection/pose_worker.py`: MediaPipe inference and temporal gesture state
-- `gesture_detection/yolo_worker.py`: bottle detection
-- `gesture_detection/rendering.py`: OpenCV drawing helpers
-- `gesture_detection/config.py`: model paths and thresholds
-- `gesture_detection/ipc.py`: latest-value queue operations
+- `modules/app.py`: input loop, worker lifecycle, action integration
+- `modules/pose_worker.py`: MediaPipe inference and temporal gesture state
+- `modules/yolo_worker.py`: bottle detection
+- `modules/rendering.py`: OpenCV drawing helpers
+- `modules/config.py`: model paths and thresholds
+- `modules/ipc.py`: latest-value queue operations
 
 ## CI
 

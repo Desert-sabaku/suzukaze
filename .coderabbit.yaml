@@ -75,7 +75,7 @@ reviews:
     - "!coverage/**"
   # Source: defaults
   path_instructions:
-    - path: "gesture-detection"
+    - path: "gesture_detection"
       instructions: "細かい閾値などはひとまず無視し，全体としてどういうロジックで推定しているか，流れを把握してください．閾値について別個検討が必要なら，検討してください．"
   
   # Source: defaults

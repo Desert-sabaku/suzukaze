@@ -2,7 +2,7 @@ from multiprocessing import freeze_support
 
 
 def main():
-    from gesture_detection.app import main as run_application
+    from modules.app import main as run_application
 
     run_application()
 
