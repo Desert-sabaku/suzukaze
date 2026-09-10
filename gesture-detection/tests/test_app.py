@@ -117,6 +117,43 @@ class OpenCaptureTest(unittest.TestCase):
         video_writer.assert_not_called()
 
 
+class RunCleanupTest(unittest.TestCase):
+    def test_cleans_up_when_second_worker_fails_to_start(self):
+        """Release resources and stop the first worker after partial startup."""
+        application = GestureApplication()
+        capture = MagicMock()
+        output = MagicMock()
+        started_process = MagicMock()
+        started_process.pid = 123
+        started_process.is_alive.return_value = True
+        unstarted_process = MagicMock()
+        unstarted_process.pid = None
+
+        def fail_after_starting_first_worker():
+            application.pose_process = started_process
+            application.yolo_process = unstarted_process
+            raise RuntimeError("YOLO worker failed to start")
+
+        with (
+            patch.object(application, "_open_capture", return_value=capture),
+            patch.object(application, "_open_output", return_value=output),
+            patch.object(
+                application,
+                "_start_workers",
+                side_effect=fail_after_starting_first_worker,
+            ),
+            patch("gesture_detection.app.cv2.destroyAllWindows"),
+            self.assertRaisesRegex(RuntimeError, "YOLO worker failed to start"),
+        ):
+            application.run()
+
+        output.release.assert_called_once_with()
+        capture.release.assert_called_once_with()
+        started_process.join.assert_has_calls([call(timeout=5), call()])
+        started_process.terminate.assert_called_once_with()
+        unstarted_process.join.assert_not_called()
+
+
 class BothHandsRamuneTests(unittest.TestCase):
     def test_either_visible_hand_can_touch_bottle(self):
         import numpy as np

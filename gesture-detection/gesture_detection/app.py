@@ -59,24 +59,24 @@ class GestureApplication:
     def run(self) -> None:
         """Process input frames until the source ends or the user exits."""
         capture = self._open_capture()
+        output: cv2.VideoWriter | None = None
         try:
             output = self._open_output(capture)
-        except Exception:
-            capture.release()
-            raise
-
-        latest_pose: PoseResult = {
-            "landmarks": [],
-            "messages": [],
-            "selected_action": "NONE",
-            "relaxing_state": False,
-        }
-        bottle_state: BottleState = {"box": None, "confidence": 0.0, "last_seen": 0.0}
-        previous_time = time.monotonic()
-        self._start_workers()
-        assert self.pose_process is not None
-        assert self.yolo_process is not None
-        try:
+            latest_pose: PoseResult = {
+                "landmarks": [],
+                "messages": [],
+                "selected_action": "NONE",
+                "relaxing_state": False,
+            }
+            bottle_state: BottleState = {
+                "box": None,
+                "confidence": 0.0,
+                "last_seen": 0.0,
+            }
+            previous_time = time.monotonic()
+            self._start_workers()
+            assert self.pose_process is not None
+            assert self.yolo_process is not None
             while capture.isOpened():
                 success, frame = capture.read()
                 if not success:
@@ -181,7 +181,7 @@ class GestureApplication:
         put_latest(self.pose_frame_queue, None)
         put_latest(self.yolo_frame_queue, None)
         for process in (self.pose_process, self.yolo_process):
-            if process is None:
+            if process is None or process.pid is None:
                 continue
             process.join(timeout=5)
             if process.is_alive():
