@@ -174,8 +174,11 @@ class GestureApplication:
         bottle_box = GestureApplication._active_bottle_box(bottle_state)
         wrists = [wrist_pixel(landmarks, width, height, index) for index in (15, 16)]
         wrist = next(
-            (point for point in wrists if point and bottle_box
-             and GestureApplication._contains(bottle_box, point)),
+            (
+                point
+                for point in wrists
+                if point and bottle_box and GestureApplication._contains(bottle_box, point)
+            ),
             None,
         )
         action = GestureApplication._primary_action(pose_result, bottle_box, wrist)
