@@ -48,6 +48,7 @@ document `uv run pytest` in the README.
 
 Recent history favors short, imperative subjects with Conventional Commit-style
 prefixes such as `feat:` and `fix:`. Keep each commit scoped to one concern.
+Create a branch or a worktree for each feature or bugfix.
 Pull requests should explain the behavior change, list verification steps, and
 link relevant issues. Include a screenshot or short recording for changes to
 rendered overlays or gesture feedback, and call out new model files, dependency
