@@ -13,6 +13,10 @@ YOLO_MODEL_PATH = PROJECT_ROOT / "yolov8n.pt"
 # Camera settings may need to be changed to match the capture device/driver.
 CAMERA_BACKEND = cv2.CAP_V4L2
 CAMERA_FOURCC = "MJPG"
+# Set this to a video file path to use a file instead of the camera.
+# `None` keeps the default camera input.
+VIDEO_SOURCE: str | Path | None = None
+VIDEO_OUTPUT_PATH = PROJECT_ROOT / "output.mp4"
 
 FPS = 60
 WINDOW_SECONDS = 1

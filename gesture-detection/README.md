@@ -1,6 +1,6 @@
 # Gesture Detection
 
-OpenCV camera input is processed by two independent workers:
+OpenCV camera or video-file input is processed by two independent workers:
 
 - MediaPipe Pose detects body landmarks and classifies fanning, sprinkling water, and relaxing.
 - YOLO detects a Ramune bottle; touching the detected bottle with the right wrist selects the Ramune action.
@@ -21,6 +21,20 @@ uv run python -m gesture_detection.app
 ```
 
 Press `Esc` in the camera window to exit.
+
+## Input source
+
+By default, the application uses camera `0`. To process a video file, set
+`VIDEO_SOURCE` in `gesture_detection/config.py`:
+
+```python
+VIDEO_SOURCE = PROJECT_ROOT / "sample.mp4"
+```
+
+Set it back to `None` to use the camera again. The application exits when the
+video reaches its end. When a video file is used, the annotated output is saved
+to `VIDEO_OUTPUT_PATH` (by default, `output.mp4` in the project root). The
+output does not contain the source video's audio track.
 
 ## Quality checks (local)
 
@@ -51,7 +65,7 @@ uv run python -m compileall gesture_detection
 
 ## Structure
 
-- `gesture_detection/app.py`: camera loop, worker lifecycle, action integration
+- `gesture_detection/app.py`: input loop, worker lifecycle, action integration
 - `gesture_detection/pose_worker.py`: MediaPipe inference and temporal gesture state
 - `gesture_detection/yolo_worker.py`: bottle detection
 - `gesture_detection/rendering.py`: OpenCV drawing helpers

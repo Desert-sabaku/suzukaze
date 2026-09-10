@@ -9,7 +9,10 @@ import numpy.typing as npt
 from .config import (
     CAMERA_BACKEND,
     CAMERA_FOURCC,
+    FPS,
     POSE_CONNECTIONS,
+    VIDEO_OUTPUT_PATH,
+    VIDEO_SOURCE,
     WINDOW_TITLE,
     YOLO_EMA_ALPHA,
     YOLO_TTL_SECONDS,
@@ -54,20 +57,26 @@ class GestureApplication:
         self.yolo_process = None
 
     def run(self) -> None:
+        """Process input frames until the source ends or the user exits."""
         capture = self._open_capture()
-
-        latest_pose: PoseResult = {
-            "landmarks": [],
-            "messages": [],
-            "selected_action": "NONE",
-            "relaxing_state": False,
-        }
-        bottle_state: BottleState = {"box": None, "confidence": 0.0, "last_seen": 0.0}
-        previous_time = time.monotonic()
-        self._start_workers()
-        assert self.pose_process is not None
-        assert self.yolo_process is not None
+        output: cv2.VideoWriter | None = None
         try:
+            output = self._open_output(capture)
+            latest_pose: PoseResult = {
+                "landmarks": [],
+                "messages": [],
+                "selected_action": "NONE",
+                "relaxing_state": False,
+            }
+            bottle_state: BottleState = {
+                "box": None,
+                "confidence": 0.0,
+                "last_seen": 0.0,
+            }
+            previous_time = time.monotonic()
+            self._start_workers()
+            assert self.pose_process is not None
+            assert self.yolo_process is not None
             while capture.isOpened():
                 success, frame = capture.read()
                 if not success:
@@ -96,15 +105,27 @@ class GestureApplication:
                     (200, 200, 200),
                     2,
                 )
+                if output is not None:
+                    output.write(annotated)
                 cv2.imshow(WINDOW_TITLE, annotated)
                 if cv2.waitKey(1) & 0xFF == 27:
                     break
         finally:
+            if output is not None:
+                output.release()
             capture.release()
             cv2.destroyAllWindows()
             self._stop_workers()
 
     def _open_capture(self) -> cv2.VideoCapture:
+        """Open the configured video file or the selected camera."""
+        if VIDEO_SOURCE is not None:
+            capture = cv2.VideoCapture(str(VIDEO_SOURCE))
+            if capture.isOpened():
+                return capture
+            capture.release()
+            raise RuntimeError(f"Unable to open video file {VIDEO_SOURCE}")
+
         capture = cv2.VideoCapture(self.camera_index, CAMERA_BACKEND)
         fourcc = cv2.VideoWriter.fourcc(*CAMERA_FOURCC)
         if capture.isOpened() and capture.set(cv2.CAP_PROP_FOURCC, fourcc):
@@ -119,6 +140,28 @@ class GestureApplication:
             f"Unable to open camera {self.camera_index} with either the configured "
             "or default settings"
         )
+
+    @staticmethod
+    def _open_output(capture: cv2.VideoCapture) -> cv2.VideoWriter | None:
+        """Create an output writer when processing a video file."""
+        if VIDEO_SOURCE is None:
+            return None
+
+        width = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        fps = capture.get(cv2.CAP_PROP_FPS)
+        if fps <= 0:
+            fps = FPS
+        output = cv2.VideoWriter(
+            str(VIDEO_OUTPUT_PATH),
+            cv2.VideoWriter.fourcc(*"mp4v"),
+            fps,
+            (width, height),
+        )
+        if output.isOpened():
+            return output
+        output.release()
+        raise RuntimeError(f"Unable to open output video file {VIDEO_OUTPUT_PATH}")
 
     def _start_workers(self) -> None:
         self.pose_process = mp.Process(
@@ -138,7 +181,7 @@ class GestureApplication:
         put_latest(self.pose_frame_queue, None)
         put_latest(self.yolo_frame_queue, None)
         for process in (self.pose_process, self.yolo_process):
-            if process is None:
+            if process is None or process.pid is None:
                 continue
             process.join(timeout=5)
             if process.is_alive():
