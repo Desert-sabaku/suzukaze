@@ -34,14 +34,15 @@ def draw_landmarks(
             cv2.circle(image, (int(x * width), int(y * height)), 3, (0, 0, 255), -1)
 
 
-def right_wrist_pixel(
+def wrist_pixel(
     landmarks: list[Landmark],
     width: int,
     height: int,
+    wrist_index: int = RIGHT_WRIST_INDEX,
 ) -> PixelPoint | None:
-    if len(landmarks) <= RIGHT_WRIST_INDEX:
+    if len(landmarks) <= wrist_index:
         return None
-    x, y, visibility = landmarks[RIGHT_WRIST_INDEX]
+    x, y, visibility = landmarks[wrist_index]
     if visibility <= 0.5:
         return None
     return int(x * width), int(y * height)
