@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import MagicMock, call, patch
 
 import cv2
-from gesture_detection.app import GestureApplication
+from gesture_detection.app import BottleState, GestureApplication, Landmark, PoseResult
 from gesture_detection.config import CAMERA_BACKEND, CAMERA_FOURCC
 
 
@@ -54,3 +54,39 @@ class OpenCaptureTest(unittest.TestCase):
 
         configured.release.assert_called_once_with()
         default.release.assert_called_once_with()
+
+
+class BothHandsRamuneTests(unittest.TestCase):
+    def test_either_visible_hand_can_touch_bottle(self):
+        import numpy as np
+
+        for index in (15, 16):
+            with self.subTest(wrist_index=index):
+                landmarks: list[Landmark] = [(0.0, 0.0, 0.0)] * 33
+                landmarks[index] = (0.5, 0.5, 1.0)
+                pose: PoseResult = {
+                    "landmarks": landmarks,
+                    "messages": [],
+                    "selected_action": "NONE",
+                    "relaxing_state": False,
+                }
+                bottle_state: BottleState = {
+                    "box": None,
+                    "confidence": 0.0,
+                    "last_seen": 0.0,
+                }
+                with (
+                    patch.object(
+                        GestureApplication,
+                        "_active_bottle_box",
+                        return_value=(40, 40, 60, 60),
+                    ),
+                    patch.object(GestureApplication, "_draw_bottle"),
+                    patch.object(GestureApplication, "_draw_action") as draw_action,
+                ):
+                    GestureApplication._annotate_frame(
+                        np.zeros((100, 100, 3), dtype=np.uint8),
+                        pose,
+                        bottle_state,
+                    )
+                self.assertEqual(draw_action.call_args.args[1], "RAMUNE")

@@ -15,8 +15,8 @@ class LandmarkLike(Protocol):
 type Landmarks = Sequence[LandmarkLike]
 
 
-def normalized_wrist_distances(landmarks: Landmarks) -> tuple[float, float]:
-    wrist = (landmarks[16].x, landmarks[16].y)
+def normalized_wrist_distances(landmarks: Landmarks, wrist_index: int = 16) -> tuple[float, float]:
+    wrist = (landmarks[wrist_index].x, landmarks[wrist_index].y)
     nose = (landmarks[0].x, landmarks[0].y)
     left_shoulder = (landmarks[11].x, landmarks[11].y)
     right_shoulder = (landmarks[12].x, landmarks[12].y)
@@ -38,8 +38,8 @@ def normalized_wrist_distances(landmarks: Landmarks) -> tuple[float, float]:
     )
 
 
-def is_wrist_within_torso_x(landmarks: Landmarks) -> bool:
-    wrist_x = landmarks[16].x
+def is_wrist_within_torso_x(landmarks: Landmarks, wrist_index: int = 16) -> bool:
+    wrist_x = landmarks[wrist_index].x
     torso_x_coordinates = (
         landmarks[11].x,
         landmarks[12].x,

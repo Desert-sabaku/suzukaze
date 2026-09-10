@@ -28,88 +28,16 @@ from .gesture_position import (
 from .signal_processing import resample_time_window
 
 
-class PoseAnalyzer:
-    """Owns MediaPipe pose inference and all temporal gesture state."""
+class HandGestureAnalyzer:
+    """Track one wrist without mixing motion or cooldowns with the other hand."""
 
-    def __init__(self):
-        self.landmarker = self._create_landmarker()
+    def __init__(self, wrist_index: int):
+        self.wrist_index = wrist_index
         self.wrist_y_history = deque(maxlen=BUFFER_SIZE)
         self.wrist_t_history = deque(maxlen=BUFFER_SIZE)
         self.wrist_dy_history = deque(maxlen=max(3, int(FPS * 0.3)))
-        self.motion_history = deque(maxlen=FPS)
-        self.previous_landmarks = None
-
         self.relaxing_state = False
-        self.relaxing_low_count = 0
-        self.uchimizu_state = "IDLE"
-        self.uchimizu_cooldown = 0
-        self.uchimizu_ready_frames = 0
-        self.selected_action = "NONE"
-        self.action_hold_count = 0
-        self.uchimizu_score = 0.0
-        self.fanning_score = 0.0
-
-    @staticmethod
-    def _create_landmarker():
-        if not POSE_MODEL_PATH.exists():
-            temp_path = POSE_MODEL_PATH.parent / f".{POSE_MODEL_PATH.name}.tmp"
-            try:
-                urllib.request.urlretrieve(POSE_MODEL_URL, temp_path)
-                temp_path.rename(POSE_MODEL_PATH)
-            except Exception:
-                if temp_path.exists():
-                    temp_path.unlink()
-                raise
-
-        options = vision.PoseLandmarkerOptions(
-            base_options=python.BaseOptions(model_asset_path=str(POSE_MODEL_PATH)),
-            output_segmentation_masks=False,
-            min_pose_detection_confidence=0.5,
-            min_pose_presence_confidence=0.5,
-            min_tracking_confidence=0.5,
-        )
-        return vision.PoseLandmarker.create_from_options(options)
-
-    def close(self):
-        self.landmarker.close()
-
-    def process(self, frame):
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        mp_image = mp_core.Image(
-            image_format=mp_core.ImageFormat.SRGB,
-            data=rgb_frame,
-        )
-        detection_result = self.landmarker.detect(mp_image)
-        result: dict[str, Any] = {"landmarks": [], "messages": []}
-
-        if detection_result.pose_landmarks:
-            landmarks = detection_result.pose_landmarks[0]
-            result["landmarks"] = [
-                (landmark.x, landmark.y, landmark.visibility) for landmark in landmarks
-            ]
-            self._update_motion(landmarks)
-            if landmarks[16].visibility > 0.5:
-                self._update_gesture_scores(landmarks)
-            else:
-                self._reset_gesture_state()
-            self._update_relaxing_state()
-        else:
-            self._reset_tracking_state()
-
-        result["selected_action"] = self.selected_action
-        result["relaxing_state"] = self.relaxing_state
-        result["fanning_score"] = self.fanning_score
-        result["uchimizu_score"] = self.uchimizu_score
-        result["uchimizu_state"] = self.uchimizu_state
-        self._append_status_messages(result)
-        return result
-
-    def _update_motion(self, landmarks):
-        current = np.array([[landmarks[index].x, landmarks[index].y] for index in TARGET_LANDMARKS])
-        if self.previous_landmarks is not None:
-            motion = np.linalg.norm(current - self.previous_landmarks, axis=1)
-            self.motion_history.append(float(np.mean(motion)))
-        self.previous_landmarks = current
+        self._reset_gesture_state()
 
     def _reset_gesture_state(self):
         self.wrist_y_history.clear()
@@ -123,18 +51,8 @@ class PoseAnalyzer:
         self.selected_action = "NONE"
         self.action_hold_count = 0
 
-    def _reset_tracking_state(self):
-        self._reset_gesture_state()
-        self.wrist_y_history.clear()
-        self.wrist_t_history.clear()
-        self.wrist_dy_history.clear()
-        self.motion_history.clear()
-        self.previous_landmarks = None
-        self.relaxing_state = False
-        self.relaxing_low_count = 0
-
     def _update_gesture_scores(self, landmarks):
-        wrist = landmarks[16]
+        wrist = landmarks[self.wrist_index]
         previous_y = self.wrist_y_history[-1] if self.wrist_y_history else None
         self.wrist_y_history.append(wrist.y)
         self.wrist_t_history.append(time.monotonic())
@@ -145,7 +63,7 @@ class PoseAnalyzer:
         raise_motion = drop_motion = recent_speed = 0.0
         face_proximity = 0.0
         if len(self.wrist_y_history) >= 5:
-            face_distance, _ = normalized_wrist_distances(landmarks)
+            face_distance, _ = normalized_wrist_distances(landmarks, self.wrist_index)
             face_proximity = max(
                 0.0,
                 1.0 - face_distance / FANNING_FACE_DISTANCE,
@@ -162,7 +80,7 @@ class PoseAnalyzer:
                 raise_motion=raise_motion,
                 recent_speed=recent_speed,
                 face_distance=face_distance,
-                wrist_within_torso_x=is_wrist_within_torso_x(landmarks),
+                wrist_within_torso_x=is_wrist_within_torso_x(landmarks, self.wrist_index),
             )
             wave_score = min(
                 1.0,
@@ -304,6 +222,111 @@ class PoseAnalyzer:
         ):
             candidate = self.selected_action
         self.selected_action = candidate
+
+
+class PoseAnalyzer:
+    """Owns MediaPipe pose inference and all temporal gesture state."""
+
+    def __init__(self):
+        self.landmarker = self._create_landmarker()
+        self.hands = [HandGestureAnalyzer(15), HandGestureAnalyzer(16)]
+        self.motion_history = deque(maxlen=FPS)
+        self.previous_landmarks = None
+
+        self.relaxing_state = False
+        self.relaxing_low_count = 0
+        self._reset_gesture_state()
+
+    @staticmethod
+    def _create_landmarker():
+        if not POSE_MODEL_PATH.exists():
+            temp_path = POSE_MODEL_PATH.parent / f".{POSE_MODEL_PATH.name}.tmp"
+            try:
+                urllib.request.urlretrieve(POSE_MODEL_URL, temp_path)
+                temp_path.rename(POSE_MODEL_PATH)
+            except Exception:
+                if temp_path.exists():
+                    temp_path.unlink()
+                raise
+
+        options = vision.PoseLandmarkerOptions(
+            base_options=python.BaseOptions(model_asset_path=str(POSE_MODEL_PATH)),
+            output_segmentation_masks=False,
+            min_pose_detection_confidence=0.5,
+            min_pose_presence_confidence=0.5,
+            min_tracking_confidence=0.5,
+        )
+        return vision.PoseLandmarker.create_from_options(options)
+
+    def close(self):
+        self.landmarker.close()
+
+    def process(self, frame):
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        mp_image = mp_core.Image(
+            image_format=mp_core.ImageFormat.SRGB,
+            data=rgb_frame,
+        )
+        detection_result = self.landmarker.detect(mp_image)
+        result: dict[str, Any] = {"landmarks": [], "messages": []}
+
+        if detection_result.pose_landmarks:
+            landmarks = detection_result.pose_landmarks[0]
+            result["landmarks"] = [
+                (landmark.x, landmark.y, landmark.visibility) for landmark in landmarks
+            ]
+            self._update_motion(landmarks)
+            self._update_gesture_scores(landmarks)
+            self._update_relaxing_state()
+        else:
+            self._reset_tracking_state()
+
+        result["selected_action"] = self.selected_action
+        result["relaxing_state"] = self.relaxing_state
+        result["fanning_score"] = self.fanning_score
+        result["uchimizu_score"] = self.uchimizu_score
+        result["uchimizu_state"] = self.uchimizu_state
+        self._append_status_messages(result)
+        return result
+
+    def _update_motion(self, landmarks):
+        current = np.array([[landmarks[index].x, landmarks[index].y] for index in TARGET_LANDMARKS])
+        if self.previous_landmarks is not None:
+            motion = np.linalg.norm(current - self.previous_landmarks, axis=1)
+            self.motion_history.append(float(np.mean(motion)))
+        self.previous_landmarks = current
+
+    def _reset_gesture_state(self):
+        for hand in self.hands:
+            hand._reset_gesture_state()
+        self.selected_action = "NONE"
+        self.uchimizu_state = "IDLE"
+        self.uchimizu_score = 0.0
+        self.fanning_score = 0.0
+
+    def _update_gesture_scores(self, landmarks):
+        for hand in self.hands:
+            if landmarks[hand.wrist_index].visibility > 0.5:
+                hand._update_gesture_scores(landmarks)
+            else:
+                hand._reset_gesture_state()
+        # Preserve the existing priority when hands perform different gestures.
+        priority = {"NONE": 0, "FANNING": 1, "UCHIMIZU": 2}
+        selected = max(self.hands, key=lambda hand: priority[hand.selected_action])
+        self.selected_action = selected.selected_action
+        self.fanning_score = max(hand.fanning_score for hand in self.hands)
+        self.uchimizu_score = max(hand.uchimizu_score for hand in self.hands)
+        self.uchimizu_state = max(
+            self.hands,
+            key=lambda hand: {"IDLE": 0, "READY": 1, "SWING": 2}[hand.uchimizu_state],
+        ).uchimizu_state
+
+    def _reset_tracking_state(self):
+        self._reset_gesture_state()
+        self.motion_history.clear()
+        self.previous_landmarks = None
+        self.relaxing_state = False
+        self.relaxing_low_count = 0
 
     def _update_relaxing_state(self):
         if not self.motion_history:

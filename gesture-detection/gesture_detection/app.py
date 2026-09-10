@@ -16,7 +16,7 @@ from .config import (
 )
 from .ipc import get_latest, put_latest
 from .pose_worker import pose_worker
-from .rendering import draw_landmarks, draw_messages, right_wrist_pixel
+from .rendering import draw_landmarks, draw_messages, wrist_pixel
 from .yolo_worker import yolo_worker
 
 type Landmark = tuple[float, float, float]
@@ -171,8 +171,16 @@ class GestureApplication:
         image = frame.copy()
         height, width, _ = image.shape
         landmarks = pose_result.get("landmarks", [])
-        wrist = right_wrist_pixel(landmarks, width, height)
         bottle_box = GestureApplication._active_bottle_box(bottle_state)
+        wrists = [wrist_pixel(landmarks, width, height, index) for index in (15, 16)]
+        wrist = next(
+            (
+                point
+                for point in wrists
+                if point and bottle_box and GestureApplication._contains(bottle_box, point)
+            ),
+            None,
+        )
         action = GestureApplication._primary_action(pose_result, bottle_box, wrist)
         draw_landmarks(image, landmarks, POSE_CONNECTIONS)
         draw_messages(image, pose_result.get("messages", []))
