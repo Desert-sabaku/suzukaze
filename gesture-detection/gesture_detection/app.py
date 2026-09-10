@@ -10,6 +10,7 @@ from .config import (
     CAMERA_BACKEND,
     CAMERA_FOURCC,
     POSE_CONNECTIONS,
+    VIDEO_SOURCE,
     WINDOW_TITLE,
     YOLO_EMA_ALPHA,
     YOLO_TTL_SECONDS,
@@ -105,6 +106,13 @@ class GestureApplication:
             self._stop_workers()
 
     def _open_capture(self) -> cv2.VideoCapture:
+        if VIDEO_SOURCE is not None:
+            capture = cv2.VideoCapture(str(VIDEO_SOURCE))
+            if capture.isOpened():
+                return capture
+            capture.release()
+            raise RuntimeError(f"Unable to open video file {VIDEO_SOURCE}")
+
         capture = cv2.VideoCapture(self.camera_index, CAMERA_BACKEND)
         fourcc = cv2.VideoWriter.fourcc(*CAMERA_FOURCC)
         if capture.isOpened() and capture.set(cv2.CAP_PROP_FOURCC, fourcc):

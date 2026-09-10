@@ -7,6 +7,30 @@ from gesture_detection.config import CAMERA_BACKEND, CAMERA_FOURCC
 
 
 class OpenCaptureTest(unittest.TestCase):
+    @patch("gesture_detection.app.VIDEO_SOURCE", "/tmp/sample.mp4")
+    @patch("gesture_detection.app.cv2.VideoCapture")
+    def test_uses_configured_video_source(self, video_capture):
+        configured = MagicMock()
+        configured.isOpened.return_value = True
+        video_capture.return_value = configured
+
+        result = GestureApplication()._open_capture()
+
+        self.assertIs(result, configured)
+        video_capture.assert_called_once_with("/tmp/sample.mp4")
+
+    @patch("gesture_detection.app.VIDEO_SOURCE", "/tmp/missing.mp4")
+    @patch("gesture_detection.app.cv2.VideoCapture")
+    def test_raises_when_configured_video_source_cannot_be_opened(self, video_capture):
+        configured = MagicMock()
+        configured.isOpened.return_value = False
+        video_capture.return_value = configured
+
+        with self.assertRaisesRegex(RuntimeError, "Unable to open video file /tmp/missing.mp4"):
+            GestureApplication()._open_capture()
+
+        configured.release.assert_called_once_with()
+
     @patch("gesture_detection.app.cv2.VideoCapture")
     def test_uses_configured_camera_settings(self, video_capture):
         configured = MagicMock()
