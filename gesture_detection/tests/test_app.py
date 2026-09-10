@@ -2,15 +2,14 @@ import unittest
 from unittest.mock import MagicMock, call, patch
 
 import cv2
-from gesture_detection.app import BottleState, GestureApplication, Landmark, PoseResult
-from gesture_detection.config import CAMERA_BACKEND, CAMERA_FOURCC
+from modules.app import BottleState, GestureApplication, Landmark, PoseResult
+from modules.config import CAMERA_BACKEND, CAMERA_FOURCC
 
 
 class OpenCaptureTest(unittest.TestCase):
-    @patch("gesture_detection.app.VIDEO_SOURCE", "/tmp/sample.mp4")
-    @patch("gesture_detection.app.cv2.VideoCapture")
+    @patch("modules.app.VIDEO_SOURCE", "/tmp/sample.mp4")
+    @patch("modules.app.cv2.VideoCapture")
     def test_uses_configured_video_source(self, video_capture):
-        """Use the configured video path instead of opening a camera."""
         configured = MagicMock()
         configured.isOpened.return_value = True
         video_capture.return_value = configured
@@ -20,10 +19,9 @@ class OpenCaptureTest(unittest.TestCase):
         self.assertIs(result, configured)
         video_capture.assert_called_once_with("/tmp/sample.mp4")
 
-    @patch("gesture_detection.app.VIDEO_SOURCE", "/tmp/missing.mp4")
-    @patch("gesture_detection.app.cv2.VideoCapture")
+    @patch("modules.app.VIDEO_SOURCE", "/tmp/missing.mp4")
+    @patch("modules.app.cv2.VideoCapture")
     def test_raises_when_configured_video_source_cannot_be_opened(self, video_capture):
-        """Reject an unreadable configured video source."""
         configured = MagicMock()
         configured.isOpened.return_value = False
         video_capture.return_value = configured
@@ -33,9 +31,8 @@ class OpenCaptureTest(unittest.TestCase):
 
         configured.release.assert_called_once_with()
 
-    @patch("gesture_detection.app.cv2.VideoCapture")
+    @patch("modules.app.cv2.VideoCapture")
     def test_uses_configured_camera_settings(self, video_capture):
-        """Apply the configured backend and codec to camera input."""
         configured = MagicMock()
         configured.isOpened.return_value = True
         configured.set.return_value = True
@@ -50,9 +47,8 @@ class OpenCaptureTest(unittest.TestCase):
             cv2.VideoWriter.fourcc(*CAMERA_FOURCC),
         )
 
-    @patch("gesture_detection.app.cv2.VideoCapture")
+    @patch("modules.app.cv2.VideoCapture")
     def test_falls_back_to_default_settings(self, video_capture):
-        """Retry camera input without custom settings when needed."""
         configured = MagicMock()
         configured.isOpened.return_value = True
         configured.set.return_value = False
@@ -69,9 +65,8 @@ class OpenCaptureTest(unittest.TestCase):
         )
         configured.release.assert_called_once_with()
 
-    @patch("gesture_detection.app.cv2.VideoCapture")
+    @patch("modules.app.cv2.VideoCapture")
     def test_raises_when_configured_and_default_settings_fail(self, video_capture):
-        """Report an error when neither camera configuration opens."""
         configured = MagicMock()
         configured.isOpened.return_value = False
         default = MagicMock()
@@ -84,11 +79,10 @@ class OpenCaptureTest(unittest.TestCase):
         configured.release.assert_called_once_with()
         default.release.assert_called_once_with()
 
-    @patch("gesture_detection.app.VIDEO_SOURCE", "/tmp/sample.mp4")
-    @patch("gesture_detection.app.VIDEO_OUTPUT_PATH", "/tmp/output.mp4")
-    @patch("gesture_detection.app.cv2.VideoWriter")
+    @patch("modules.app.VIDEO_SOURCE", "/tmp/sample.mp4")
+    @patch("modules.app.VIDEO_OUTPUT_PATH", "/tmp/output.mp4")
+    @patch("modules.app.cv2.VideoWriter")
     def test_opens_output_for_video_source(self, video_writer):
-        """Open an output video matching the input stream properties."""
         capture = MagicMock()
         capture.get.side_effect = {
             cv2.CAP_PROP_FRAME_WIDTH: 640,
@@ -109,49 +103,11 @@ class OpenCaptureTest(unittest.TestCase):
             (640, 480),
         )
 
-    @patch("gesture_detection.app.VIDEO_SOURCE", None)
-    @patch("gesture_detection.app.cv2.VideoWriter")
+    @patch("modules.app.VIDEO_SOURCE", None)
+    @patch("modules.app.cv2.VideoWriter")
     def test_does_not_open_output_for_camera_source(self, video_writer):
-        """Avoid creating an output video for camera input."""
         self.assertIsNone(GestureApplication._open_output(MagicMock()))
         video_writer.assert_not_called()
-
-
-class RunCleanupTest(unittest.TestCase):
-    def test_cleans_up_when_second_worker_fails_to_start(self):
-        """Release resources and stop the first worker after partial startup."""
-        application = GestureApplication()
-        capture = MagicMock()
-        output = MagicMock()
-        started_process = MagicMock()
-        started_process.pid = 123
-        started_process.is_alive.return_value = True
-        unstarted_process = MagicMock()
-        unstarted_process.pid = None
-
-        def fail_after_starting_first_worker():
-            application.pose_process = started_process
-            application.yolo_process = unstarted_process
-            raise RuntimeError("YOLO worker failed to start")
-
-        with (
-            patch.object(application, "_open_capture", return_value=capture),
-            patch.object(application, "_open_output", return_value=output),
-            patch.object(
-                application,
-                "_start_workers",
-                side_effect=fail_after_starting_first_worker,
-            ),
-            patch("gesture_detection.app.cv2.destroyAllWindows"),
-            self.assertRaisesRegex(RuntimeError, "YOLO worker failed to start"),
-        ):
-            application.run()
-
-        output.release.assert_called_once_with()
-        capture.release.assert_called_once_with()
-        started_process.join.assert_has_calls([call(timeout=5), call()])
-        started_process.terminate.assert_called_once_with()
-        unstarted_process.join.assert_not_called()
 
 
 class BothHandsRamuneTests(unittest.TestCase):

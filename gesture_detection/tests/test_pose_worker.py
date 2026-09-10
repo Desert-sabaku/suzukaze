@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import numpy as np
 import pytest
-from gesture_detection.pose_worker import PoseAnalyzer
+from modules.pose_worker import PoseAnalyzer
 
 
 def landmarks():
@@ -30,7 +30,7 @@ def test_fanning_with_either_or_both_hands(analyzer, wrist_indices):
     points = landmarks()
     for index in (15, 16):
         points[index].visibility = float(index in wrist_indices)
-    with patch("gesture_detection.pose_worker.time.monotonic") as clock:
+    with patch("modules.pose_worker.time.monotonic") as clock:
         for frame in range(90):
             clock.return_value = frame / 30
             for index in wrist_indices:
@@ -43,7 +43,7 @@ def test_fanning_with_either_or_both_hands(analyzer, wrist_indices):
 def test_uchimizu_with_either_hand(analyzer, wrist_index):
     points = landmarks()
     points[31 - wrist_index].visibility = 0
-    with patch("gesture_detection.pose_worker.time.monotonic") as clock:
+    with patch("modules.pose_worker.time.monotonic") as clock:
         for frame, y in enumerate([0.8, 0.8, 0.8, 0.8, 0.6, 0.7]):
             clock.return_value = frame / 30
             points[wrist_index].y = y

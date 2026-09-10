@@ -2,24 +2,24 @@
 
 ## Project Structure & Module Organization
 
-The runnable project lives in `gesture-detection/`. Application code is in the
-`gesture_detection/` package: `app.py` owns the camera loop and worker lifecycle,
+The runnable project lives in `gesture_detection/`. Application code is in the
+`modules/` package: `app.py` owns the camera loop and worker lifecycle,
 `pose_worker.py` and `yolo_worker.py` run inference, `rendering.py` draws OpenCV
 overlays, `ipc.py` handles latest-value queues, and `config.py` centralizes model
 paths and thresholds. `main.py` is a lightweight entry point. Model assets
 (`pose_landmarker_lite.task` and `yolov8n.pt`) sit beside `pyproject.toml`.
-There is currently no test directory; add tests under `gesture-detection/tests/`
+Tests live under `gesture_detection/tests/`.
 and mirror package module names where practical.
 
 ## Build, Test, and Development Commands
 
-Run commands from `gesture-detection/`:
+Run commands from `gesture_detection/`:
 
 ```bash
 uv sync                         # Create/update the environment from uv.lock
 uv run gesture-detection        # Start the camera-based application
-uv run python -m gesture_detection.app  # Equivalent module entry point
-uv run python -m compileall gesture_detection  # Basic syntax check
+uv run python -m modules.app  # Equivalent module entry point
+uv run python -m compileall modules  # Basic syntax check
 ```
 
 Python 3.12 or newer is required by `pyproject.toml`. The application needs a

@@ -1,7 +1,7 @@
 import unittest
 
 import numpy as np
-from gesture_detection.signal_processing import resample_time_window
+from modules.signal_processing import resample_time_window
 
 
 class ResampleTimeWindowTests(unittest.TestCase):
