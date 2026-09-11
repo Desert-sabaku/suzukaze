@@ -10,3 +10,6 @@ wheels/
 .venv
 
 *.task
+
+sample_movies/
+output/
