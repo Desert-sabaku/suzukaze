@@ -32,6 +32,7 @@ class OpenCaptureTest(unittest.TestCase):
         configured.release.assert_called_once_with()
 
     @patch("modules.app.cv2.VideoCapture")
+    @patch("modules.app.VIDEO_SOURCE", None)
     def test_uses_configured_camera_settings(self, video_capture):
         configured = MagicMock()
         configured.isOpened.return_value = True
@@ -48,6 +49,7 @@ class OpenCaptureTest(unittest.TestCase):
         )
 
     @patch("modules.app.cv2.VideoCapture")
+    @patch("modules.app.VIDEO_SOURCE", None)
     def test_falls_back_to_default_settings(self, video_capture):
         configured = MagicMock()
         configured.isOpened.return_value = True
@@ -66,6 +68,7 @@ class OpenCaptureTest(unittest.TestCase):
         configured.release.assert_called_once_with()
 
     @patch("modules.app.cv2.VideoCapture")
+    @patch("modules.app.VIDEO_SOURCE", None)
     def test_raises_when_configured_and_default_settings_fail(self, video_capture):
         configured = MagicMock()
         configured.isOpened.return_value = False
@@ -144,3 +147,50 @@ class BothHandsRamuneTests(unittest.TestCase):
                         bottle_state,
                     )
                 self.assertEqual(draw_action.call_args.args[1], "RAMUNE")
+
+
+class RunLifecycleTests(unittest.TestCase):
+    def test_escape_flushes_output_and_stops_workers(self):
+        import numpy as np
+
+        app = GestureApplication()
+        capture = MagicMock()
+        capture.read.return_value = (True, np.zeros((4, 5, 3), dtype=np.uint8))
+        app.pose_process = MagicMock()
+        app.yolo_process = MagicMock()
+        with (
+            patch.object(app, "_open_capture", return_value=capture),
+            patch.object(app, "_open_output", return_value=MagicMock()),
+            patch.object(app, "_start_workers"),
+            patch.object(app, "_stop_workers") as stop,
+            patch("modules.app.AsyncVideoWriter") as writer,
+            patch("modules.app.cv2.imshow"),
+            patch("modules.app.cv2.waitKey", return_value=27),
+            patch("modules.app.cv2.destroyAllWindows"),
+        ):
+            app.run()
+        writer.return_value.write.assert_called_once()
+        writer.return_value.release.assert_called_once()
+        capture.release.assert_called_once()
+        stop.assert_called_once()
+        app.pose_result_queue.close()
+        app.yolo_result_queue.close()
+
+    def test_partial_worker_start_failure_cleans_up(self):
+        import numpy as np
+
+        app = GestureApplication()
+        capture = MagicMock()
+        capture.read.return_value = (True, np.zeros((4, 5, 3), dtype=np.uint8))
+        with (
+            patch.object(app, "_open_capture", return_value=capture),
+            patch.object(app, "_start_workers", side_effect=RuntimeError("start failed")),
+            patch.object(app, "_stop_workers") as stop,
+            patch("modules.app.cv2.destroyAllWindows"),
+        ):
+            with self.assertRaisesRegex(RuntimeError, "start failed"):
+                app.run()
+        capture.release.assert_called_once()
+        stop.assert_called_once()
+        app.pose_result_queue.close()
+        app.yolo_result_queue.close()

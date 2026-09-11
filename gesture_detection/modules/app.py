@@ -1,5 +1,6 @@
 import multiprocessing as mp
 import time
+from pathlib import Path
 from typing import Any, TypedDict
 
 import cv2
@@ -12,15 +13,17 @@ from .config import (
     CAMERA_INDEX,
     FPS,
     POSE_CONNECTIONS,
+    VIDEO_OUTPUT_BUFFER_FRAMES,
     VIDEO_OUTPUT_PATH,
     VIDEO_SOURCE,
     WINDOW_TITLE,
     YOLO_EMA_ALPHA,
     YOLO_TTL_SECONDS,
 )
-from .ipc import get_latest, put_latest
+from .ipc import SharedLatestFrame, get_latest
 from .pose_worker import pose_worker
 from .rendering import draw_landmarks, draw_messages, wrist_pixel
+from .video_output import AsyncVideoWriter
 from .yolo_worker import yolo_worker
 
 type Landmark = tuple[float, float, float]
@@ -50,20 +53,16 @@ class BottleState(TypedDict):
 class GestureApplication:
     def __init__(self, camera_index: int = CAMERA_INDEX) -> None:
         self.camera_index = camera_index
-        self.pose_frame_queue = mp.Queue(maxsize=1)
+        self.pose_frame_queue: SharedLatestFrame | None = None
         self.pose_result_queue = mp.Queue(maxsize=1)
-        self.yolo_frame_queue = mp.Queue(maxsize=1)
+        self.yolo_frame_queue: SharedLatestFrame | None = None
         self.yolo_result_queue = mp.Queue(maxsize=1)
         self.pose_process = None
         self.yolo_process = None
 
     def run(self) -> None:
         capture = self._open_capture()
-        try:
-            output = self._open_output(capture)
-        except Exception:
-            capture.release()
-            raise
+        output: AsyncVideoWriter | None = None
 
         latest_pose: PoseResult = {
             "landmarks": [],
@@ -73,20 +72,29 @@ class GestureApplication:
         }
         bottle_state: BottleState = {"box": None, "confidence": 0.0, "last_seen": 0.0}
         previous_time = time.monotonic()
-        self._start_workers()
-        assert self.pose_process is not None
-        assert self.yolo_process is not None
         try:
-            while capture.isOpened():
-                success, frame = capture.read()
-                if not success:
-                    break
+            success, frame = capture.read()
+            if not success:
+                return
+            self.pose_frame_queue = SharedLatestFrame(frame.shape)
+            self.yolo_frame_queue = SharedLatestFrame(frame.shape)
+            self._start_workers()
+            assert self.pose_process is not None
+            assert self.yolo_process is not None
+            writer = self._open_output(capture)
+            if writer is not None:
+                try:
+                    output = AsyncVideoWriter(writer, VIDEO_OUTPUT_BUFFER_FRAMES)
+                except Exception:
+                    writer.release()
+                    raise
+            while success:
                 if not self.pose_process.is_alive():
                     raise RuntimeError("Pose worker process has exited unexpectedly")
                 if not self.yolo_process.is_alive():
                     raise RuntimeError("YOLO worker process has exited unexpectedly")
-                put_latest(self.pose_frame_queue, frame.copy())
-                put_latest(self.yolo_frame_queue, frame.copy())
+                self.pose_frame_queue.publish(frame)
+                self.yolo_frame_queue.publish(frame)
                 latest_pose = get_latest(self.pose_result_queue, latest_pose)
                 bottle_result: BottleResult | None = get_latest(self.yolo_result_queue, None)
                 if bottle_result is not None:
@@ -110,12 +118,15 @@ class GestureApplication:
                 cv2.imshow(WINDOW_TITLE, annotated)
                 if cv2.waitKey(1) & 0xFF == 27:
                     break
+                success, frame = capture.read()
         finally:
-            if output is not None:
-                output.release()
             capture.release()
             cv2.destroyAllWindows()
-            self._stop_workers()
+            try:
+                self._stop_workers()
+            finally:
+                if output is not None:
+                    output.release()
 
     def _open_capture(self) -> cv2.VideoCapture:
         if VIDEO_SOURCE is not None:
@@ -150,6 +161,7 @@ class GestureApplication:
         fps = capture.get(cv2.CAP_PROP_FPS)
         if fps <= 0:
             fps = FPS
+        Path(VIDEO_OUTPUT_PATH).parent.mkdir(parents=True, exist_ok=True)
         output = cv2.VideoWriter(
             str(VIDEO_OUTPUT_PATH),
             cv2.VideoWriter.fourcc(*"mp4v"),
@@ -176,15 +188,19 @@ class GestureApplication:
         self.yolo_process.start()
 
     def _stop_workers(self) -> None:
-        put_latest(self.pose_frame_queue, None)
-        put_latest(self.yolo_frame_queue, None)
+        for channel in (self.pose_frame_queue, self.yolo_frame_queue):
+            if channel is not None:
+                channel.close()
         for process in (self.pose_process, self.yolo_process):
-            if process is None:
+            if process is None or process.pid is None:
                 continue
             process.join(timeout=5)
             if process.is_alive():
                 process.terminate()
                 process.join()
+        for channel in (self.pose_result_queue, self.yolo_result_queue):
+            channel.close()
+            channel.cancel_join_thread()
 
     @staticmethod
     def _update_bottle_state(state: BottleState, result: BottleResult) -> None:

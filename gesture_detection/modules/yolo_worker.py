@@ -8,9 +8,10 @@ from .config import (
     YOLO_CONFIDENCE_THRESHOLD,
     YOLO_MODEL_PATH,
 )
+from .ipc import SharedLatestFrame
 
 
-def yolo_worker(frame_queue: mp.Queue, result_queue: mp.Queue) -> None:
+def yolo_worker(frame_queue: SharedLatestFrame, result_queue: mp.Queue) -> None:
     """Run bottle detection in a separate process."""
     model = YOLO(str(YOLO_MODEL_PATH))
     try:
