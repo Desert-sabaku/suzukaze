@@ -9,6 +9,7 @@ import numpy.typing as npt
 from .config import (
     CAMERA_BACKEND,
     CAMERA_FOURCC,
+    CAMERA_INDEX,
     FPS,
     POSE_CONNECTIONS,
     VIDEO_OUTPUT_PATH,
@@ -47,7 +48,7 @@ class BottleState(TypedDict):
 
 
 class GestureApplication:
-    def __init__(self, camera_index: int = 0) -> None:
+    def __init__(self, camera_index: int = CAMERA_INDEX) -> None:
         self.camera_index = camera_index
         self.pose_frame_queue = mp.Queue(maxsize=1)
         self.pose_result_queue = mp.Queue(maxsize=1)
