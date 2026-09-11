@@ -25,6 +25,7 @@ from .gesture_position import (
     is_wrist_within_torso_x,
     normalized_wrist_distances,
 )
+from .ipc import SharedLatestFrame
 from .signal_processing import resample_time_window
 
 
@@ -387,7 +388,7 @@ class PoseAnalyzer:
         )
 
 
-def pose_worker(frame_queue: mp.Queue, result_queue: mp.Queue) -> None:
+def pose_worker(frame_queue: SharedLatestFrame, result_queue: mp.Queue) -> None:
     analyzer = PoseAnalyzer()
     try:
         while True:

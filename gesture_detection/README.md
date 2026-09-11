@@ -36,6 +36,14 @@ video reaches its end. When a video file is used, the annotated output is saved
 to `VIDEO_OUTPUT_PATH` (by default, `output.mp4` in the project root). The
 output does not contain the source video's audio track.
 
+Inference workers receive the latest frame through shared memory. Encoding runs
+on a separate thread with a bounded buffer (`VIDEO_OUTPUT_BUFFER_FRAMES`, default
+8). Every frame accepted for saving is written in order, including when exiting
+with `Esc`; closing may wait for pending frames to finish. If encoding cannot
+keep up and the buffer fills, playback waits rather than dropping output frames.
+This reduces display-loop overhead but does not guarantee real-time playback.
+At 1080×720, eight buffered BGR frames use about 18 MiB, excluding active frames.
+
 ## Quality checks (local)
 
 Install development dependencies:
@@ -70,7 +78,8 @@ uv run python -m compileall modules
 - `modules/yolo_worker.py`: bottle detection
 - `modules/rendering.py`: OpenCV drawing helpers
 - `modules/config.py`: model paths and thresholds
-- `modules/ipc.py`: latest-value queue operations
+- `modules/ipc.py`: shared-memory frames and latest-value result queues
+- `modules/video_output.py`: bounded background video encoding
 
 ## CI
 

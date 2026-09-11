@@ -1,3 +1,5 @@
+import datetime
+from os import makedirs, path
 from pathlib import Path
 
 import cv2
@@ -15,10 +17,22 @@ CAMERA_BACKEND = cv2.CAP_V4L2
 CAMERA_FOURCC = "MJPG"
 # Set this to a video file path to use a file instead of the camera.
 # `None` keeps the default camera input.
-VIDEO_SOURCE: str | Path | None = None
-VIDEO_OUTPUT_PATH = PROJECT_ROOT / "output.mp4"
+FILE_NAME = "kohara_fanning_01-おいしいかにかま.mov"
 
-FPS = 60
+VIDEO_SOURCE: str | Path | None = PROJECT_ROOT / "sample_movies" / FILE_NAME
+OUTPUT_DIR = PROJECT_ROOT / "output"
+print(path.basename(FILE_NAME))
+VIDEO_OUTPUT_PATH = (
+    OUTPUT_DIR / f"{path.basename(FILE_NAME)}{datetime.date.today()}.output.mp4"
+)
+
+if FILE_NAME is not None and not VIDEO_SOURCE.exists():
+    makedirs(OUTPUT_DIR)
+
+# Maximum queued output frames; full buffers apply backpressure without dropping.
+VIDEO_OUTPUT_BUFFER_FRAMES = 8
+
+FPS = 30
 WINDOW_SECONDS = 1
 BUFFER_SIZE = FPS * WINDOW_SECONDS
 TARGET_LANDMARKS = (0, 11, 12, 15, 16)
