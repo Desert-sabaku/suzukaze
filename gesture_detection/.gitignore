@@ -13,3 +13,8 @@ wheels/
 
 sample_movies/
 output/
+
+# Local environment settings
+.env
+.env.*
+!.env.example

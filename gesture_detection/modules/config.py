@@ -1,36 +1,51 @@
 import datetime
-from os import makedirs, path
+import os
 from pathlib import Path
 
 import cv2
+from dotenv import load_dotenv
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-POSE_MODEL_PATH = PROJECT_ROOT / "pose_landmarker_lite.task"
+load_dotenv(PROJECT_ROOT / ".env", override=False)
+
+
+def _env_path(name: str, default: str) -> Path:
+    """Resolve relative paths from the project root, regardless of working directory."""
+    value = Path(os.environ.get(name) or default).expanduser()
+    return value if value.is_absolute() else PROJECT_ROOT / value
+
+
+POSE_MODEL_PATH = _env_path("POSE_MODEL_PATH", "pose_landmarker_lite.task")
 POSE_MODEL_URL = (
     "https://storage.googleapis.com/mediapipe-models/pose_landmarker/"
     "pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
 )
-YOLO_MODEL_PATH = PROJECT_ROOT / "yolov8n.pt"
+YOLO_MODEL_PATH = _env_path("YOLO_MODEL_PATH", "yolov8n.pt")
 
-# Camera settings may need to be changed to match the capture device/driver.
-CAMERA_BACKEND = cv2.CAP_V4L2
-CAMERA_FOURCC = "MJPG"
-# Set this to a video file path to use a file instead of the camera.
-# `None` keeps the default camera input.
-FILE_NAME = "kohara_fanning_01-おいしいかにかま.mov"
+FPS = 60
+CAMERA_INDEX = int(os.environ.get("CAMERA_INDEX", "0"))
+CAMERA_BACKEND = int(os.environ.get("CAMERA_BACKEND", str(cv2.CAP_ANY)))
+CAMERA_FOURCC = os.environ.get("CAMERA_FOURCC", "MJPG")
+if len(CAMERA_FOURCC) != 4:
+    raise ValueError("CAMERA_FOURCC must contain exactly four characters")
 
-VIDEO_SOURCE: str | Path | None = PROJECT_ROOT / "sample_movies" / FILE_NAME
-OUTPUT_DIR = PROJECT_ROOT / "output"
-print(path.basename(FILE_NAME))
-VIDEO_OUTPUT_PATH = OUTPUT_DIR / f"{path.basename(FILE_NAME)}{datetime.date.today()}.output.mp4"
-
-if FILE_NAME is not None and not VIDEO_SOURCE.exists():
-    makedirs(OUTPUT_DIR)
+# An empty source selects camera input.
+VIDEO_SOURCE: Path | None = (
+    _env_path("VIDEO_SOURCE", "") if os.environ.get("VIDEO_SOURCE") else None
+)
+OUTPUT_DIR = _env_path("OUTPUT_DIR", "output")
+_output_name = VIDEO_SOURCE.name if VIDEO_SOURCE is not None else "camera"
+VIDEO_OUTPUT_PATH = _env_path(
+    "VIDEO_OUTPUT_PATH",
+    str(OUTPUT_DIR / f"{_output_name}{datetime.date.today()}.output.mp4"),
+)
 
 # Maximum queued output frames; full buffers apply backpressure without dropping.
-VIDEO_OUTPUT_BUFFER_FRAMES = 8
+VIDEO_OUTPUT_BUFFER_FRAMES = int(os.environ.get("VIDEO_OUTPUT_BUFFER_FRAMES", "8"))
+FPS = int(os.environ.get("FPS", "30"))
+if FPS <= 0 or VIDEO_OUTPUT_BUFFER_FRAMES <= 0:
+    raise ValueError("FPS and VIDEO_OUTPUT_BUFFER_FRAMES must be positive integers")
 
-FPS = 30
 WINDOW_SECONDS = 1
 BUFFER_SIZE = FPS * WINDOW_SECONDS
 TARGET_LANDMARKS = (0, 11, 12, 15, 16)

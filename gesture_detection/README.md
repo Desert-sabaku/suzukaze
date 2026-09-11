@@ -11,6 +11,7 @@ The project uses Python 3.12+ and `uv`:
 
 ```bash
 uv sync
+cp .env.example .env
 uv run gesture-detection
 ```
 
@@ -24,17 +25,27 @@ Press `Esc` in the camera window to exit.
 
 ## Input source
 
-By default, the application uses camera `0`. To process a video file, set
-`VIDEO_SOURCE` in `modules/config.py`:
+Copy `.env.example` to `.env` and adjust the local settings there. `.env` and
+`.env.*` are ignored by Git, except for the tracked `.env.example` template.
+Existing environment variables take precedence over `.env`. The file is loaded
+from the project root, regardless of the working directory.
 
-```python
-VIDEO_SOURCE = PROJECT_ROOT / "sample.mp4"
+By default, the application uses camera `0`. To process a video file, set:
+
+```dotenv
+VIDEO_SOURCE="sample_movies/sample.mp4"
 ```
 
-Set it back to `None` to use the camera again. The application exits when the
-video reaches its end. When a video file is used, the annotated output is saved
-to `VIDEO_OUTPUT_PATH` (by default, `output.mp4` in the project root). The
-output does not contain the source video's audio track.
+Leave `VIDEO_SOURCE` empty to use the camera. The application exits when the
+video reaches its end. Annotated output is saved to `VIDEO_OUTPUT_PATH`, or to
+`<OUTPUT_DIR>/<source filename><YYYY-MM-DD>.output.mp4` when that setting is empty.
+`OUTPUT_DIR` defaults to `output`. Relative paths are resolved from the project
+root; absolute paths and `~` are also supported. Output has no audio track.
+
+The template also documents camera index/backend/FourCC, model paths, FPS, and
+output buffer size. `CAMERA_BACKEND=0` selects OpenCV's automatic backend;
+Linux V4L2 devices can use `200`. Gesture thresholds and model definitions remain
+in `modules/config.py`.
 
 Inference workers receive the latest frame through shared memory. Encoding runs
 on a separate thread with a bounded buffer (`VIDEO_OUTPUT_BUFFER_FRAMES`, default
@@ -78,8 +89,7 @@ uv run python -m compileall modules
 - `modules/yolo_worker.py`: bottle detection
 - `modules/rendering.py`: OpenCV drawing helpers
 - `modules/config.py`: model paths and thresholds
-- `modules/ipc.py`: shared-memory frames and latest-value result queues
-- `modules/video_output.py`: bounded background video encoding
+- `modules/ipc.py`: latest-value queue operations
 
 ## CI
 
