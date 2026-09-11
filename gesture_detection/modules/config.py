@@ -22,9 +22,7 @@ FILE_NAME = "kohara_fanning_01-おいしいかにかま.mov"
 VIDEO_SOURCE: str | Path | None = PROJECT_ROOT / "sample_movies" / FILE_NAME
 OUTPUT_DIR = PROJECT_ROOT / "output"
 print(path.basename(FILE_NAME))
-VIDEO_OUTPUT_PATH = (
-    OUTPUT_DIR / f"{path.basename(FILE_NAME)}{datetime.date.today()}.output.mp4"
-)
+VIDEO_OUTPUT_PATH = OUTPUT_DIR / f"{path.basename(FILE_NAME)}{datetime.date.today()}.output.mp4"
 
 if FILE_NAME is not None and not VIDEO_SOURCE.exists():
     makedirs(OUTPUT_DIR)
