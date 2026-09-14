@@ -14,6 +14,7 @@ from mediapipe.tasks.python import vision
 from .config import (
     BUFFER_SIZE,
     FANNING_FACE_DISTANCE,
+    FANNING_POSITION_DWELL_SECONDS,
     FPS,
     POSE_MODEL_PATH,
     POSE_MODEL_URL,
@@ -21,6 +22,7 @@ from .config import (
     WINDOW_SECONDS,
 )
 from .gesture_position import (
+    is_fanning_position,
     is_uchimizu_ready_motion,
     is_wrist_within_torso_x,
     normalized_wrist_distances,
@@ -49,6 +51,7 @@ class HandGestureAnalyzer:
         self.uchimizu_ready_frames = 0
         self.uchimizu_score = 0.0
         self.fanning_score = 0.0
+        self.fanning_position_since: float | None = None
         self.selected_action = "NONE"
         self.action_hold_count = 0
 
@@ -56,7 +59,8 @@ class HandGestureAnalyzer:
         wrist = landmarks[self.wrist_index]
         previous_y = self.wrist_y_history[-1] if self.wrist_y_history else None
         self.wrist_y_history.append(wrist.y)
-        self.wrist_t_history.append(time.monotonic())
+        now = time.monotonic()
+        self.wrist_t_history.append(now)
         if previous_y is not None:
             self.wrist_dy_history.append(abs(wrist.y - previous_y))
 
@@ -105,7 +109,22 @@ class HandGestureAnalyzer:
         smoothing = 0.35 if raw_fanning_score > self.fanning_score else 0.55
         self.fanning_score += smoothing * (raw_fanning_score - self.fanning_score)
         self.fanning_score = min(1.0, self.fanning_score + face_proximity * 0.08)
+        # Sprinkling leaves energy in the same FFT band as fanning. Require
+        # a sustained raised hand and discard the score when the arm lowers.
+        if not is_fanning_position(landmarks, self.wrist_index):
+            self.fanning_position_since = None
+        elif self.fanning_position_since is None:
+            self.fanning_position_since = now
+        fanning_allowed = (
+            self.fanning_position_since is not None
+            and now - self.fanning_position_since >= FANNING_POSITION_DWELL_SECONDS
+        )
+        if not fanning_allowed:
+            self.fanning_score = 0.0
         self._select_action(raise_motion, drop_motion, recent_speed)
+        # Action hysteresis must not retain fanning outside its valid posture.
+        if not fanning_allowed and self.selected_action == "FANNING":
+            self.selected_action = "NONE"
 
     def _advance_uchimizu_state(
         self,

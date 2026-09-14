@@ -61,3 +61,68 @@ def test_losing_one_hand_only_resets_its_history(analyzer):
     analyzer._reset_tracking_state()
     assert all(not hand.wrist_y_history for hand in analyzer.hands)
     assert analyzer.selected_action == "NONE"
+
+
+@pytest.mark.parametrize("wrist_index", [15, 16])
+def test_uchimizu_finish_does_not_become_fanning(analyzer, wrist_index):
+    points = landmarks()
+    points[31 - wrist_index].visibility = 0
+    actions = []
+    # Include a brief pass through the upper torso and a lingering FFT score.
+    trajectory = [0.8] * 4 + [0.6, 0.7] + [0.45] * 4 + [0.8] * 60
+    with (
+        patch("modules.pose_worker.time.monotonic") as clock,
+        patch("modules.pose_worker.HandGestureAnalyzer._calculate_fanning_score", return_value=0.9),
+    ):
+        for frame, y in enumerate(trajectory):
+            clock.return_value = frame / 30
+            points[wrist_index].y = y
+            analyzer._update_gesture_scores(points)
+            actions.append(analyzer.selected_action)
+    assert "UCHIMIZU" in actions
+    assert "FANNING" not in actions
+    assert actions[-1] == "NONE"
+
+
+@pytest.mark.parametrize("wrist_index", [15, 16])
+def test_fanning_after_uchimizu_is_still_detected(analyzer, wrist_index):
+    points = landmarks()
+    points[31 - wrist_index].visibility = 0
+    with patch("modules.pose_worker.time.monotonic") as clock:
+        for frame in range(150):
+            clock.return_value = frame / 30
+            points[wrist_index].y = (
+                [0.8, 0.8, 0.8, 0.8, 0.6, 0.7][frame]
+                if frame < 6
+                else 0.45 + 0.04 * np.sin(2 * np.pi * 2 * frame / 30)
+            )
+            analyzer._update_gesture_scores(points)
+    assert analyzer.selected_action == "FANNING"
+
+
+def test_lowering_hand_clears_fanning_and_position_timer(analyzer):
+    points = landmarks()
+    points[16].visibility = 0
+    with patch("modules.pose_worker.time.monotonic") as clock:
+        for frame in range(90):
+            clock.return_value = frame / 30
+            points[15].y = 0.22 + 0.04 * np.sin(2 * np.pi * 2 * frame / 30)
+            analyzer._update_gesture_scores(points)
+        assert analyzer.selected_action == "FANNING"
+        clock.return_value = 3.0
+        points[15].y = 0.8
+        analyzer._update_gesture_scores(points)
+    assert analyzer.selected_action != "FANNING"
+    assert analyzer.hands[0].fanning_score == 0.0
+    assert analyzer.hands[0].fanning_position_since is None
+
+
+def test_lost_hand_must_reestablish_fanning_position(analyzer):
+    points = landmarks()
+    points[15].y = 0.22
+    with patch("modules.pose_worker.time.monotonic", return_value=1.0):
+        analyzer._update_gesture_scores(points)
+    assert analyzer.hands[0].fanning_position_since == 1.0
+    points[15].visibility = 0
+    analyzer._update_gesture_scores(points)
+    assert analyzer.hands[0].fanning_position_since is None
