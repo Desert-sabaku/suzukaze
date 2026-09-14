@@ -2,6 +2,7 @@ import unittest
 from dataclasses import dataclass
 
 from modules.gesture_position import (
+    is_fanning_position,
     is_uchimizu_ready_motion,
     is_wrist_within_torso_x,
     normalized_wrist_distances,
@@ -30,6 +31,22 @@ def make_landmarks(wrist):
 
 
 class WristPositionTests(unittest.TestCase):
+    def test_fanning_allows_hand_beside_chest_at_different_scales(self):
+        for scale in (0.5, 1.0, 1.5):
+            points = make_landmarks((0.9, 0.5))
+            for point in points:
+                point.x = point.x * scale + 0.1
+                point.y = point.y * scale + 0.1
+            self.assertTrue(is_fanning_position(points, 16))
+
+    def test_fanning_excludes_lowered_hand(self):
+        self.assertFalse(is_fanning_position(make_landmarks((0.5, 0.8)), 16))
+
+    def test_fanning_excludes_degenerate_torso(self):
+        points = make_landmarks((0.5, 0.2))
+        points[23].y = points[24].y = 0.4
+        self.assertFalse(is_fanning_position(points, 16))
+
     def test_face_position_is_closer_to_face_than_torso(self):
         face_distance, torso_distance = normalized_wrist_distances(make_landmarks((0.52, 0.22)))
 

@@ -57,6 +57,9 @@ YOLO_EMA_ALPHA = 0.3
 
 READY_FACE_EXCLUSION_DISTANCE = 1.0
 FANNING_FACE_DISTANCE = 1.5
+# Wrist must stay in the upper half of the torso (or higher) before fanning.
+FANNING_MAX_TORSO_HEIGHT = 0.5
+FANNING_POSITION_DWELL_SECONDS = 0.2
 
 WINDOW_TITLE = "Gesture Recognition (Async Pipeline)"
 POSE_CONNECTIONS = (
