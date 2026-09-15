@@ -154,3 +154,24 @@ def test_lost_hand_must_reestablish_fanning_position(analyzer):
         analyzer._update_gesture_scores(points)
     assert analyzer.fanning_score == 0.0
     assert analyzer.selected_action != "FANNING"
+
+
+@pytest.mark.parametrize("base_index", [15, 16])
+def test_ramune_takes_priority_and_resets_on_tracking_loss(analyzer, base_index):
+    points = landmarks()
+    points[base_index].y = 0.6
+    points[31 - base_index].y = 0.5
+    with patch("modules.pose_worker.time.monotonic") as clock:
+        for now in (0.0, 0.1, 0.3):
+            clock.return_value = now
+            analyzer._update_gesture_scores(points)
+            assert analyzer.selected_action == "NONE"
+        points[31 - base_index].y = 0.58
+        clock.return_value = 0.4
+        analyzer._update_gesture_scores(points)
+    assert analyzer.selected_action == "RAMUNE"
+    assert analyzer.uchimizu_score == 0
+    assert all(not hand.wrist_y_history for hand in analyzer.hands)
+    analyzer._reset_tracking_state()
+    assert analyzer.ramune.state == "IDLE"
+    assert analyzer.selected_action == "NONE"
