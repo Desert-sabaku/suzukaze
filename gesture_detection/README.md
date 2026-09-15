@@ -1,9 +1,38 @@
 # Gesture Detection
 
-OpenCV camera or video-file input is processed by two independent workers:
+OpenCV camera or video-file input is processed by a MediaPipe Pose worker.
+It classifies fanning, sprinkling water, relaxing, and a two-hand Ramune opening
+motion. No bottle or other prop is required; the application does not start YOLO.
 
-- MediaPipe Pose detects body landmarks and classifies fanning, sprinkling water, and relaxing.
-- YOLO detects a Ramune bottle; touching the detected bottle with the right wrist selects the Ramune action.
+## Ramune gesture
+
+1. Make a ring representing the bottle mouth with either hand, in front of your torso.
+2. Place the other hand above it and hold briefly (0.25 seconds).
+3. Keep the lower hand still and press the upper hand down toward it within 1.5 seconds.
+4. The opening feedback stays visible for 0.8 seconds. Lift the upper hand and
+   prepare again to perform another opening.
+
+The bottom panel guides preparation, pressing, success, and retry. Text is in
+English to work with the existing OpenCV font. Finger shape is an instruction,
+not a recognition requirement: recognition uses wrist positions and their order
+of movement. Either hand can play either role. Both hands moving down together,
+sideways motions, or contact without preparation do not count. Tracking loss
+cancels preparation. Ramune preparation takes priority over the single-hand
+classifiers to prevent a press being interpreted as sprinkling water.
+
+Keep both wrists, shoulders, and hips visible, facing the camera. Distances are
+relative to shoulder width in normalized image coordinates; thresholds in
+`modules/config.py` are initial values and need calibration with real footage,
+including different camera aspect ratios and users.
+
+### Manual verification
+
+Run the camera app and try both hand assignments, repeat an opening after
+lifting the upper hand, then try moving both hands down and bringing them
+together without preparation. Check that only the intended sequence opens
+Ramune, and that fanning/sprinkling still work outside the Ramune posture.
+A synthetic overlay example is in [docs/ramune-guide.png](docs/ramune-guide.png);
+it demonstrates the UI, not camera recognition accuracy.
 
 ## Run
 
@@ -47,7 +76,7 @@ output buffer size. `CAMERA_BACKEND=0` selects OpenCV's automatic backend;
 Linux V4L2 devices can use `200`. Gesture thresholds and model definitions remain
 in `modules/config.py`.
 
-Inference workers receive the latest frame through shared memory. Encoding runs
+The inference worker receives the latest frame through shared memory. Encoding runs
 on a separate thread with a bounded buffer (`VIDEO_OUTPUT_BUFFER_FRAMES`, default
 8). Every frame accepted for saving is written in order, including when exiting
 with `Esc`; closing may wait for pending frames to finish. If encoding cannot
@@ -80,13 +109,14 @@ uv run python -m compileall modules
 
 **Model requirements:**
 - The MediaPipe pose model (`pose_landmarker_lite.task`) downloads automatically when missing.
-- The YOLO model (`yolov8n.pt`) must be obtained separately and placed in the project root. You can download it from the [Ultralytics repository](https://github.com/ultralytics/assets/releases) or it will be downloaded automatically by the ultralytics library on first use.
+- The retained `yolo_worker.py` module and YOLO dependency are unused by the application; no YOLO model is required to run it.
 
 ## Structure
 
 - `modules/app.py`: input loop, worker lifecycle, action integration
 - `modules/pose_worker.py`: MediaPipe inference and temporal gesture state
-- `modules/yolo_worker.py`: bottle detection
+- `modules/ramune.py`: two-hand preparation and press state machine
+- `modules/yolo_worker.py`: legacy bottle detection (unused)
 - `modules/rendering.py`: OpenCV drawing helpers
 - `modules/config.py`: model paths and thresholds
 - `modules/ipc.py`: latest-value queue operations
