@@ -26,9 +26,7 @@ class OpenCaptureTest(unittest.TestCase):
         configured.isOpened.return_value = False
         video_capture.return_value = configured
 
-        with self.assertRaisesRegex(
-            RuntimeError, "Unable to open video file /tmp/missing.mp4"
-        ):
+        with self.assertRaisesRegex(RuntimeError, "Unable to open video file /tmp/missing.mp4"):
             GestureApplication()._open_capture()
 
         configured.release.assert_called_once_with()
@@ -130,9 +128,7 @@ class RamuneActionTests(unittest.TestCase):
             patch.object(GestureApplication, "_draw_action") as draw,
             patch("modules.app.draw_ramune_guide") as guide,
         ):
-            GestureApplication._annotate_frame(
-                np.zeros((480, 640, 3), dtype=np.uint8), pose
-            )
+            GestureApplication._annotate_frame(np.zeros((480, 640, 3), dtype=np.uint8), pose)
         self.assertEqual(draw.call_args.args[1], "RAMUNE")
         guide.assert_called_once()
         self.assertEqual(guide.call_args.args[1], "OPENED")
@@ -180,9 +176,7 @@ class RunLifecycleTests(unittest.TestCase):
         capture.read.return_value = (True, np.zeros((4, 5, 3), dtype=np.uint8))
         with (
             patch.object(app, "_open_capture", return_value=capture),
-            patch.object(
-                app, "_start_workers", side_effect=RuntimeError("start failed")
-            ),
+            patch.object(app, "_start_workers", side_effect=RuntimeError("start failed")),
             patch.object(app, "_stop_workers") as stop,
             patch("modules.app.cv2.destroyAllWindows"),
         ):
