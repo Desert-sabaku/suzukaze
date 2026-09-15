@@ -2,7 +2,7 @@ import math
 from collections.abc import Sequence
 from typing import Protocol
 
-from .config import READY_FACE_EXCLUSION_DISTANCE
+from .config import FANNING_MAX_TORSO_HEIGHT, READY_FACE_EXCLUSION_DISTANCE
 
 type Point = tuple[float, float]
 
@@ -13,6 +13,17 @@ class LandmarkLike(Protocol):
 
 
 type Landmarks = Sequence[LandmarkLike]
+
+
+def is_fanning_position(landmarks: Landmarks, wrist_index: int) -> bool:
+    """Allow hands beside the chest or face, but exclude a lowered arm."""
+    shoulder_y = (landmarks[11].y + landmarks[12].y) * 0.5
+    hip_y = (landmarks[23].y + landmarks[24].y) * 0.5
+    torso_height = hip_y - shoulder_y
+    return (
+        torso_height > 1e-6
+        and landmarks[wrist_index].y <= shoulder_y + FANNING_MAX_TORSO_HEIGHT * torso_height
+    )
 
 
 def normalized_wrist_distances(landmarks: Landmarks, wrist_index: int = 16) -> tuple[float, float]:
