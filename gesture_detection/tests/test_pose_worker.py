@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 import numpy as np
 import pytest
+from modules.config import FANNING_POSITION_DWELL_SECONDS
 from modules.pose_worker import PoseAnalyzer
 
 
@@ -119,6 +120,7 @@ def test_lowering_hand_clears_fanning_and_position_timer(analyzer):
 
 def test_lost_hand_must_reestablish_fanning_position(analyzer):
     points = landmarks()
+    points[16].visibility = 0
     points[15].y = 0.22
     with patch("modules.pose_worker.time.monotonic", return_value=1.0):
         analyzer._update_gesture_scores(points)
@@ -126,3 +128,29 @@ def test_lost_hand_must_reestablish_fanning_position(analyzer):
     points[15].visibility = 0
     analyzer._update_gesture_scores(points)
     assert analyzer.hands[0].fanning_position_since is None
+    points[15].visibility = 1
+    with (
+        patch("modules.pose_worker.time.monotonic", return_value=2.0),
+        patch(
+            "modules.pose_worker.HandGestureAnalyzer._calculate_fanning_score",
+            return_value=0.9,
+        ),
+    ):
+        analyzer._update_gesture_scores(points)
+    assert analyzer.hands[0].fanning_position_since == 2.0
+    assert analyzer.hands[0].fanning_score == 0.0
+    assert analyzer.selected_action != "FANNING"
+
+    with (
+        patch(
+            "modules.pose_worker.time.monotonic",
+            return_value=2.0 + FANNING_POSITION_DWELL_SECONDS / 2,
+        ),
+        patch(
+            "modules.pose_worker.HandGestureAnalyzer._calculate_fanning_score",
+            return_value=0.9,
+        ),
+    ):
+        analyzer._update_gesture_scores(points)
+    assert analyzer.fanning_score == 0.0
+    assert analyzer.selected_action != "FANNING"
