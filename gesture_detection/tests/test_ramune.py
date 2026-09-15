@@ -93,3 +93,49 @@ def test_missing_pose_resets_preparation():
     prepare(analyzer, points())
     assert not analyzer.update([], 0.4)
     assert analyzer.state == "IDLE"
+
+
+@pytest.mark.parametrize("base_index", [15, 16])
+@pytest.mark.parametrize("drift_during_preparation", [False, True])
+def test_hand_landmark_drift_and_offset_contact_are_allowed(base_index, drift_during_preparation):
+    analyzer = RamuneAnalyzer()
+    landmarks = points(base_index)
+    upper_index = 31 - base_index
+    assert not analyzer.update(landmarks, 0.0)
+    if drift_during_preparation:
+        landmarks[base_index].x += 0.14
+        landmarks[base_index].y += 0.08
+        landmarks[upper_index].x -= 0.04
+    for now in (0.1, 0.3):
+        assert not analyzer.update(landmarks, now)
+    assert analyzer.state == "READY"
+    landmarks[base_index].x = 0.64
+    landmarks[base_index].y = 0.73
+    landmarks[upper_index].x = 0.46
+    # Hands need not coincide: the final vertical offset is 0.25 shoulder widths.
+    landmarks[upper_index].y = 0.63 if drift_during_preparation else 0.66
+    assert analyzer.update(landmarks, 0.4)
+
+
+@pytest.mark.parametrize("base_index", [15, 16])
+def test_nearly_shared_downward_motion_does_not_count_as_press(base_index):
+    analyzer = RamuneAnalyzer()
+    landmarks = points(base_index)
+    upper_index = 31 - base_index
+    landmarks[upper_index].y = 0.526
+    prepare(analyzer, landmarks)
+    # Both move within the relaxed base tolerance and finish near each other.
+    # The upper hand descends far enough, but hardly closes the relative gap.
+    landmarks[base_index].y += 0.104
+    landmarks[upper_index].y += 0.124
+    assert not analyzer.update(landmarks, 0.4)
+    assert analyzer.state == "READY"
+
+
+def test_lower_hand_rising_without_upper_hand_press_does_not_open():
+    analyzer = RamuneAnalyzer()
+    landmarks = points()
+    prepare(analyzer, landmarks)
+    landmarks[15].y -= 0.11
+    assert not analyzer.update(landmarks, 0.4)
+    assert analyzer.state == "READY"

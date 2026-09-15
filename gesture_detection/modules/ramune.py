@@ -7,6 +7,7 @@ from typing import Protocol
 from .config import (
     RAMUNE_ALIGN_TOLERANCE,
     RAMUNE_BASE_TOLERANCE,
+    RAMUNE_BASE_X_TOLERANCE,
     RAMUNE_CONTACT_GAP,
     RAMUNE_DWELL_SECONDS,
     RAMUNE_HOLD_SECONDS,
@@ -35,6 +36,7 @@ class RamuneAnalyzer:
         self.base_index: int | None = None
         self.base = (0.0, 0.0)
         self.upper_y = 0.0
+        self.ready_gap = 0.0
         self.scale = 1.0
         self.since = 0.0
         self.last_time: float | None = None
@@ -87,7 +89,10 @@ class RamuneAnalyzer:
         assert self.base_index is not None
         base = landmarks[self.base_index]
         pressing = landmarks[31 - self.base_index]
-        stable = math.dist(self.base, (base.x, base.y)) / self.scale <= RAMUNE_BASE_TOLERANCE
+        stable = (
+            abs(base.x - self.base[0]) / self.scale <= RAMUNE_BASE_X_TOLERANCE
+            and abs(base.y - self.base[1]) / self.scale <= RAMUNE_BASE_TOLERANCE
+        )
         if not stable or not aligned or not in_torso:
             self.reset()
             return False
@@ -97,6 +102,7 @@ class RamuneAnalyzer:
             elif now - self.since >= RAMUNE_DWELL_SECONDS:
                 self.state = "READY"
                 self.upper_y = pressing.y
+                self.ready_gap = (base.y - pressing.y) / self.scale
                 self.since = now
             return False
         if now - self.since > RAMUNE_PRESS_TIMEOUT:
@@ -107,7 +113,14 @@ class RamuneAnalyzer:
         if press < -RAMUNE_BASE_TOLERANCE or remaining < -RAMUNE_CONTACT_GAP:
             self.reset()
             return False
-        if press >= RAMUNE_MIN_PRESS and abs(remaining) <= RAMUNE_CONTACT_GAP:
+        # Require the upper hand to descend AND close the gap. Wider positional
+        # tolerances must not turn common downward motion into a press.
+        closing = self.ready_gap - remaining
+        if (
+            press >= RAMUNE_MIN_PRESS
+            and closing >= RAMUNE_MIN_PRESS
+            and abs(remaining) <= RAMUNE_CONTACT_GAP
+        ):
             self.state = "OPENED"
             self.since = now
             return True

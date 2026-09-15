@@ -20,6 +20,15 @@ sideways motions, or contact without preparation do not count. Tracking loss
 cancels preparation. Ramune preparation takes priority over the single-hand
 classifiers to prevent a press being interpreted as sprinkling water.
 
+Landmark drift between palm and wrist is allowed: horizontal hand separation
+can reach 0.60 shoulder widths, and the lower hand may drift 0.50 shoulder
+widths horizontally or 0.30 vertically from its initial position. The hands
+need only come within 0.30 shoulder widths vertically at the end. To avoid
+counting both hands moving down together, the upper hand must descend at least
+0.25 shoulder widths and reduce the vertical gap by at least the same amount
+from the end of preparation. These are initial tolerances, not measured accuracy
+guarantees.
+
 Keep both wrists, shoulders, and hips visible, facing the camera. Distances are
 relative to shoulder width in normalized image coordinates; thresholds in
 `modules/config.py` are initial values and need calibration with real footage,
