@@ -28,6 +28,7 @@ from .gesture_position import (
     normalized_wrist_distances,
 )
 from .ipc import SharedLatestFrame
+from .ramune import RamuneAnalyzer
 from .signal_processing import resample_time_window
 
 
@@ -250,6 +251,7 @@ class PoseAnalyzer:
     def __init__(self):
         self.landmarker = self._create_landmarker()
         self.hands = [HandGestureAnalyzer(15), HandGestureAnalyzer(16)]
+        self.ramune = RamuneAnalyzer()
         self.motion_history = deque(maxlen=FPS)
         self.previous_landmarks = None
 
@@ -301,6 +303,7 @@ class PoseAnalyzer:
         else:
             self._reset_tracking_state()
 
+        result["ramune_state"] = self.ramune.state
         result["selected_action"] = self.selected_action
         result["relaxing_state"] = self.relaxing_state
         result["fanning_score"] = self.fanning_score
@@ -317,6 +320,7 @@ class PoseAnalyzer:
         self.previous_landmarks = current
 
     def _reset_gesture_state(self):
+        self.ramune.reset()
         for hand in self.hands:
             hand._reset_gesture_state()
         self.selected_action = "NONE"
@@ -325,6 +329,15 @@ class PoseAnalyzer:
         self.fanning_score = 0.0
 
     def _update_gesture_scores(self, landmarks):
+        opened = self.ramune.update(landmarks, time.monotonic())
+        if opened or self.ramune.state in ("FORMING", "READY"):
+            # Keep the press from leaking into the single-hand classifiers.
+            for hand in self.hands:
+                hand._reset_gesture_state()
+            self.selected_action = "RAMUNE" if opened else "NONE"
+            self.fanning_score = self.uchimizu_score = 0.0
+            self.uchimizu_state = "IDLE"
+            return
         for hand in self.hands:
             if landmarks[hand.wrist_index].visibility > 0.5:
                 hand._update_gesture_scores(landmarks)

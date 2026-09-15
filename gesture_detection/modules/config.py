@@ -99,3 +99,18 @@ POSE_CONNECTIONS = (
     (27, 31),
     (28, 32),
 )
+
+# Ramune distances are measured in shoulder widths; times use monotonic seconds.
+RAMUNE_ALIGN_TOLERANCE = 0.60
+# Allow landmark drift across the hand, especially sideways. Relative closing
+# motion still distinguishes a press from moving both hands down together.
+RAMUNE_BASE_X_TOLERANCE = 0.50
+RAMUNE_BASE_TOLERANCE = 0.30
+RAMUNE_MIN_READY_GAP = 0.30
+RAMUNE_MAX_READY_GAP = 0.90
+RAMUNE_CONTACT_GAP = 0.30
+RAMUNE_MIN_PRESS = 0.25
+RAMUNE_DWELL_SECONDS = 0.25
+RAMUNE_PRESS_TIMEOUT = 1.5
+RAMUNE_HOLD_SECONDS = 0.8
+RAMUNE_MAX_FRAME_GAP = 0.5
