@@ -175,3 +175,36 @@ def test_ramune_takes_priority_and_resets_on_tracking_loss(analyzer, base_index)
     analyzer._reset_tracking_state()
     assert analyzer.ramune.state == "IDLE"
     assert analyzer.selected_action == "NONE"
+
+
+@pytest.mark.parametrize("wrist_index", [15, 16])
+@pytest.mark.parametrize("base_y", [0.48, 0.54, 0.56])
+def test_repeated_fanning_across_torso_boundary(analyzer, wrist_index, base_y):
+    points = landmarks()
+    points[31 - wrist_index].visibility = 0
+    actions = []
+    with patch("modules.pose_worker.time.monotonic") as clock:
+        for frame in range(150):
+            clock.return_value = frame / 30
+            points[wrist_index].y = base_y + 0.04 * np.sin(2 * np.pi * 2 * frame / 30)
+            analyzer._update_gesture_scores(points)
+            if frame >= 90:
+                actions.append(analyzer.selected_action)
+    assert set(actions) == {"FANNING"}
+
+
+def test_boundary_grace_expires_when_hand_stays_low(analyzer):
+    points = landmarks()
+    points[16].visibility = 0
+    with patch("modules.pose_worker.time.monotonic") as clock:
+        for frame in range(90):
+            clock.return_value = frame / 30
+            points[15].y = 0.48 + 0.04 * np.sin(2 * np.pi * 2 * frame / 30)
+            analyzer._update_gesture_scores(points)
+        points[15].y = 0.6
+        for now in (3.0, 3.15, 3.4):
+            clock.return_value = now
+            analyzer._update_gesture_scores(points)
+    assert analyzer.hands[0].fanning_position_since is None
+    assert analyzer.hands[0].fanning_score == 0.0
+    assert analyzer.selected_action != "FANNING"
