@@ -33,6 +33,23 @@ without switching to fanning, and that deliberate fanning afterward still
 works. Automated tests use synthetic landmarks; camera accuracy needs a
 separate manual check.
 
+## Fanning near the torso midpoint
+
+Fanning allows a brief excursion below the torso midpoint for up to 0.35
+seconds. Lowering the wrist beyond 0.75 torso heights clears the posture
+immediately; keeping it below the midpoint longer than the grace period also
+clears it. Three substantial direction reversals in the last second, together
+with a sufficient fanning score and valid posture, take priority over sprinkling.
+This lets sustained fanning settle into Fanning even when its first cycle
+resembles a scoop. A single scoop/release does not establish this priority.
+The relevant tolerances are `FANNING_*` constants in `modules/config.py`.
+
+Manual verification: fan continuously around the torso midpoint, then lower
+and hold the hand still. Check that fanning remains stable during the repeated
+motion and clears after lowering. Also check that a single scoop still detects
+sprinkling. The first cycle can remain ambiguous; real footage is needed to
+calibrate these heuristic boundaries.
+
 ## Ramune gesture
 
 1. Make a ring representing the bottle mouth with either hand, in front of your torso.

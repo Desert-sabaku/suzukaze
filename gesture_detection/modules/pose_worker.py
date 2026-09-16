@@ -13,8 +13,12 @@ from mediapipe.tasks.python import vision
 
 from .config import (
     BUFFER_SIZE,
+    FANNING_EXIT_TORSO_HEIGHT,
     FANNING_FACE_DISTANCE,
+    FANNING_MIN_REVERSALS,
     FANNING_POSITION_DWELL_SECONDS,
+    FANNING_POSITION_GRACE_SECONDS,
+    FANNING_REVERSAL_DISTANCE,
     FPS,
     POSE_MODEL_PATH,
     POSE_MODEL_URL,
@@ -51,6 +55,8 @@ class HandGestureAnalyzer:
         self.uchimizu_score = 0.0
         self.fanning_score = 0.0
         self.fanning_position_since: float | None = None
+        self.fanning_position_last_seen: float | None = None
+        self.fanning_height_history: deque[tuple[float, float]] = deque()
         self.selected_action = "NONE"
         self.action_hold_count = 0
 
@@ -72,22 +78,65 @@ class HandGestureAnalyzer:
         smoothing = 0.35 if raw_fanning_score > self.fanning_score else 0.55
         self.fanning_score += smoothing * (raw_fanning_score - self.fanning_score)
         self.fanning_score = min(1.0, self.fanning_score + face_proximity * 0.08)
-        # Sprinkling leaves energy in the same FFT band as fanning. Require
-        # a sustained raised hand and discard the score when the arm lowers.
-        if not is_fanning_position(landmarks, self.wrist_index):
+        shoulder_y = (landmarks[11].y + landmarks[12].y) / 2
+        torso_height = (landmarks[23].y + landmarks[24].y) / 2 - shoulder_y
+        height = (wrist.y - shoulder_y) / torso_height if torso_height > 1e-6 else float("inf")
+        if is_fanning_position(landmarks, self.wrist_index):
+            if self.fanning_position_since is None:
+                self.fanning_position_since = now
+            self.fanning_position_last_seen = now
+        elif (
+            height > FANNING_EXIT_TORSO_HEIGHT
+            or self.fanning_position_last_seen is None
+            or now - self.fanning_position_last_seen > FANNING_POSITION_GRACE_SECONDS
+        ):
             self.fanning_position_since = None
-        elif self.fanning_position_since is None:
-            self.fanning_position_since = now
+            self.fanning_position_last_seen = None
+            self.fanning_height_history.clear()
+        if self.fanning_position_since is not None:
+            self.fanning_height_history.append((now, height))
+        while (
+            self.fanning_height_history and now - self.fanning_height_history[0][0] > WINDOW_SECONDS
+        ):
+            self.fanning_height_history.popleft()
         fanning_allowed = (
             self.fanning_position_since is not None
             and now - self.fanning_position_since >= FANNING_POSITION_DWELL_SECONDS
         )
         if not fanning_allowed:
             self.fanning_score = 0.0
+        repeated_fanning = (
+            fanning_allowed and self.fanning_score > 0.45 and self._has_repeated_fanning()
+        )
+        if repeated_fanning:
+            self.uchimizu.reset()
+            self.uchimizu_state = "IDLE"
+            self.uchimizu_score = 0.0
         self._select_action()
         # Action hysteresis must not retain fanning outside its valid posture.
         if not fanning_allowed and self.selected_action == "FANNING":
             self.selected_action = "NONE"
+
+    def _has_repeated_fanning(self) -> bool:
+        """Require several substantial reversals, not a single scoop/release."""
+        if not self.fanning_height_history:
+            return False
+        extreme = self.fanning_height_history[0][1]
+        direction = 0
+        reversals = 0
+        for _, height in self.fanning_height_history:
+            delta = height - extreme
+            if direction == 0:
+                if abs(delta) >= FANNING_REVERSAL_DISTANCE:
+                    direction = 1 if delta > 0 else -1
+                    extreme = height
+            elif delta * direction >= 0:
+                extreme = height
+            elif abs(delta) >= FANNING_REVERSAL_DISTANCE:
+                reversals += 1
+                direction *= -1
+                extreme = height
+        return reversals >= FANNING_MIN_REVERSALS
 
     def _calculate_fanning_score(self):
         if len(self.wrist_y_history) < 8:
