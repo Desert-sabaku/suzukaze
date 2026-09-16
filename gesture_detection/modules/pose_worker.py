@@ -23,13 +23,12 @@ from .config import (
 )
 from .gesture_position import (
     is_fanning_position,
-    is_uchimizu_ready_motion,
-    is_wrist_within_torso_x,
     normalized_wrist_distances,
 )
 from .ipc import SharedLatestFrame
 from .ramune import RamuneAnalyzer
 from .signal_processing import resample_time_window
+from .uchimizu import UchimizuAnalyzer
 
 
 class HandGestureAnalyzer:
@@ -48,8 +47,7 @@ class HandGestureAnalyzer:
         self.wrist_t_history.clear()
         self.wrist_dy_history.clear()
         self.uchimizu_state = "IDLE"
-        self.uchimizu_cooldown = 0
-        self.uchimizu_ready_frames = 0
+        self.uchimizu = UchimizuAnalyzer(self.wrist_index)
         self.uchimizu_score = 0.0
         self.fanning_score = 0.0
         self.fanning_position_since: float | None = None
@@ -65,47 +63,11 @@ class HandGestureAnalyzer:
         if previous_y is not None:
             self.wrist_dy_history.append(abs(wrist.y - previous_y))
 
-        self.uchimizu_score = 0.0
-        raise_motion = drop_motion = recent_speed = 0.0
-        face_proximity = 0.0
-        if len(self.wrist_y_history) >= 5:
-            face_distance, _ = normalized_wrist_distances(landmarks, self.wrist_index)
-            face_proximity = max(
-                0.0,
-                1.0 - face_distance / FANNING_FACE_DISTANCE,
-            )
-            recent_y = np.asarray(list(self.wrist_y_history)[-8:], dtype=np.float32)
-            recent_t = np.asarray(list(self.wrist_t_history)[-8:], dtype=np.float64)
-            raise_motion = max(0.0, float(np.max(recent_y) - recent_y[-1]))
-            drop_motion = max(0.0, float(recent_y[-1] - np.min(recent_y)))
-            intervals = np.diff(recent_t)
-            valid_intervals = intervals[intervals > 0]
-            average_dt = float(np.mean(valid_intervals)) if len(valid_intervals) else 1.0 / FPS
-            recent_speed = float(np.mean(np.abs(np.diff(recent_y))) / max(average_dt, 1e-6))
-            ready_motion = is_uchimizu_ready_motion(
-                raise_motion=raise_motion,
-                recent_speed=recent_speed,
-                face_distance=face_distance,
-                wrist_within_torso_x=is_wrist_within_torso_x(landmarks, self.wrist_index),
-            )
-            wave_score = min(
-                1.0,
-                (raise_motion / 0.08) * 0.45
-                + (drop_motion / 0.08) * 0.55
-                + min(recent_speed / 0.02, 1.0) * 0.20,
-            )
-            self._advance_uchimizu_state(
-                raise_motion,
-                drop_motion,
-                recent_speed,
-                ready_motion,
-            )
-            if self.uchimizu_state == "READY":
-                self.uchimizu_score = max(0.62, wave_score)
-            elif self.uchimizu_state == "SWING":
-                self.uchimizu_score = max(0.90, wave_score)
-            if raise_motion <= 0.05 or drop_motion <= 0.07 or recent_speed <= 0.02:
-                self.uchimizu_score *= 0.5
+        detected = self.uchimizu.update(landmarks, now)
+        self.uchimizu_state = self.uchimizu.state
+        self.uchimizu_score = 0.9 if detected else 0.0
+        face_distance, _ = normalized_wrist_distances(landmarks, self.wrist_index)
+        face_proximity = max(0.0, 1.0 - face_distance / FANNING_FACE_DISTANCE)
         raw_fanning_score = self._calculate_fanning_score()
         smoothing = 0.35 if raw_fanning_score > self.fanning_score else 0.55
         self.fanning_score += smoothing * (raw_fanning_score - self.fanning_score)
@@ -122,38 +84,10 @@ class HandGestureAnalyzer:
         )
         if not fanning_allowed:
             self.fanning_score = 0.0
-        self._select_action(raise_motion, drop_motion, recent_speed)
+        self._select_action()
         # Action hysteresis must not retain fanning outside its valid posture.
         if not fanning_allowed and self.selected_action == "FANNING":
             self.selected_action = "NONE"
-
-    def _advance_uchimizu_state(
-        self,
-        raise_motion,
-        drop_motion,
-        recent_speed,
-        ready_motion,
-    ):
-        if self.uchimizu_cooldown > 0:
-            self.uchimizu_cooldown -= 1
-            if self.uchimizu_cooldown == 0:
-                self.uchimizu_state = "IDLE"
-                self.uchimizu_ready_frames = 0
-            return
-        if self.uchimizu_state == "IDLE":
-            if raise_motion > 0.04 and recent_speed > 0.012 and ready_motion:
-                self.uchimizu_state = "READY"
-                self.uchimizu_ready_frames = 1
-        elif self.uchimizu_state == "READY":
-            if drop_motion > 0.06 and recent_speed > 0.015:
-                self.uchimizu_state = "SWING"
-                self.uchimizu_cooldown = int(FPS * 1.5)
-                self.uchimizu_ready_frames = 0
-            else:
-                self.uchimizu_ready_frames += 1
-                if self.uchimizu_ready_frames > max(2, int(FPS * 0.2)):
-                    self.uchimizu_state = "IDLE"
-                    self.uchimizu_ready_frames = 0
 
     def _calculate_fanning_score(self):
         if len(self.wrist_y_history) < 8:
@@ -209,14 +143,8 @@ class HandGestureAnalyzer:
             speed_score * 0.35 + amplitude_score * 0.35 + frequency_score * 0.30
         )
 
-    def _select_action(self, raise_motion, drop_motion, recent_speed):
-        if (self.uchimizu_state == "SWING" and self.uchimizu_score > 0.75) or (
-            raise_motion > 0.05
-            and drop_motion > 0.07
-            and recent_speed > 0.02
-            and self.uchimizu_state != "IDLE"
-            and self.uchimizu_score > 0.6
-        ):
+    def _select_action(self):
+        if self.uchimizu_state == "SWING":
             candidate = "UCHIMIZU"
         elif (self.fanning_score > 0.55 and self.uchimizu_score < 0.5) or (
             self.fanning_score > 0.45 and self.uchimizu_score < 0.35

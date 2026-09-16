@@ -4,6 +4,35 @@ OpenCV camera or video-file input is processed by a MediaPipe Pose worker.
 It classifies fanning, sprinkling water, relaxing, and a two-hand Ramune opening
 motion. No bottle or other prop is required; the application does not start YOLO.
 
+## Sprinkling water (Uchimizu)
+
+Start with either wrist low in front of your torso, lift it to scoop, then
+lower it to release the water. The wrist may move sideways during the release;
+horizontal movement is optional because the camera does not measure depth.
+Keep your face, shoulders, hips, and the moving wrist visible.
+
+The detector remembers an upward movement of at least 0.10 torso heights
+within 1.2 seconds, starting below 0.55 torso heights from the shoulders.
+Lower the wrist at least 0.15 torso heights from its highest point and finish
+at or below the torso midpoint (0.50 torso heights from the shoulders).
+The release window is 1.5 seconds and restarts when the wrist reaches a new
+highest point during preparation. Preparation must stay away from the face
+and within the torso's horizontal span plus 0.25 shoulder widths on either side. A brief pause at the top is allowed. Raising alone or lowering without
+preparation does not count. Tracking loss or an expired preparation cancels
+the sequence. These are initial thresholds, not measured accuracy guarantees.
+
+Successful feedback lasts 0.35 seconds. A new scoop is required after a
+0.6-second cooldown measured from success. Distances use shoulder-to-hip
+height and timing uses elapsed seconds rather than frame counts. Tune the
+`UCHIMIZU_*` constants in `modules/config.py` using real footage.
+
+Manual verification: try both hands, a brief pause before release, and a
+sideways release. Then try face/chest-level fanning, raising only, lowering
+only, and losing tracking during preparation. Check that sprinkling finishes
+without switching to fanning, and that deliberate fanning afterward still
+works. Automated tests use synthetic landmarks; camera accuracy needs a
+separate manual check.
+
 ## Ramune gesture
 
 1. Make a ring representing the bottle mouth with either hand, in front of your torso.
@@ -124,6 +153,7 @@ uv run python -m compileall modules
 
 - `modules/app.py`: input loop, worker lifecycle, action integration
 - `modules/pose_worker.py`: MediaPipe inference and temporal gesture state
+- `modules/uchimizu.py`: scoop and downward-release sequence detection
 - `modules/ramune.py`: two-hand preparation and press state machine
 - `modules/yolo_worker.py`: legacy bottle detection (unused)
 - `modules/rendering.py`: OpenCV drawing helpers
