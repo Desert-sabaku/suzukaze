@@ -4,6 +4,54 @@ OpenCV camera or video-file input is processed by a MediaPipe Pose worker.
 It classifies fanning, sprinkling water, relaxing, and a two-hand Ramune opening
 motion. No bottle or other prop is required; the application does not start YOLO.
 
+## Relaxing (whole-body stillness)
+
+Relaxing requires one continuous second of stillness in source time. It monitors
+the nose, shoulders, elbows, wrists, hips, knees, ankles, heels, and toes when
+they are visible inside the image. Both shoulders and hips must be tracked.
+A change in which major parts can be tracked restarts the stillness period;
+unobserved body parts are not assumed still.
+
+The largest movement of any monitored part is used, rather than an average that
+can hide a moving hip or foot among stationary points. Positions remain in image
+coordinates, so whole-body translation, leaning, and approaching the camera are
+not cancelled out by recentering the body. Horizontal distances account for the
+image aspect ratio; distances are normalized by shoulder-to-hip length.
+
+The current frame turns Relaxing off immediately if speed exceeds 0.20 torso
+lengths/second or displacement from the fixed stillness reference exceeds 0.035
+torso lengths. The fixed reference also prevents sustained slow movement from
+being treated as stationary solely because each frame-to-frame change is small.
+No moving average or release hold delays the exit. Re-entry requires a fresh
+second of stillness. Small landmark jitter within the tolerances is allowed;
+motion below both thresholds is indistinguishable from tracking noise.
+
+Missing torso tracking, changed visibility, non-increasing timestamps, and gaps
+over 0.25 source seconds cancel the state. Feet outside the camera image cannot
+be assessed: for such recordings the guarantee covers the tracked torso and
+visible body parts, not the entire unseen body. Camera movement is also image
+motion and can cancel Relaxing. Camera display lag still depends on the existing
+latest-frame pipeline; “immediate” means the first processed frame that detects
+motion, not zero camera-to-display latency.
+
+Tune `RELAXING_*` in `modules/config.py`. CI uses synthetic landmarks and mocked
+inference to check whole-body movement, individual limb movement, immediate exit,
+slow drift, visibility loss, source timing, and small tracking jitter.
+
+A full replay with identical VIDEO-mode landmarks supplied to the old and new
+classifiers gave these Relaxing-state counts (not frame-level accuracy scores):
+
+| Recording | Frames | Before | After |
+| --- | ---: | ---: | ---: |
+| sabaku_other_01.mp4 | 821 | 794 | 0 |
+| kohara_relaxing_01 | 365 | 353 | 132 |
+
+The static reference still enters Relaxing, but the stricter rules also reduce
+its active duration. Thresholds may need calibration for other cameras and
+tracking noise. [The before/after overlay at 5.024 seconds](docs/relaxing-motion-release.jpg)
+shows movement in sabaku_other_01 no longer labelled Relaxing.
+This was an offline video replay; live-camera behavior has not been manually tested.
+
 ## Sprinkling water (Uchimizu)
 
 Start with either wrist low in front of your torso, lift it to scoop, then
@@ -214,8 +262,8 @@ processing time separately from source video duration, and inspect recognition
 onset/offset, missed actions, false positives, and recovery after tracking loss.
 Use frame-level labels to measure accuracy; action frame counts alone do not
 establish which mode is better. Both modes retain the application's wrist
-histories and Ramune/Uchimizu state machines. Frame-count-based smoothing
-and relaxing detection are unchanged by the mode switch.
+histories and Ramune/Uchimizu state machines. Gesture score smoothing remains
+frame-based; relaxing detection uses the source-time stillness rules above.
 
 Compatibility with the input pipeline:
 
@@ -268,6 +316,7 @@ uv run python -m compileall modules
 
 - `modules/app.py`: input loop, worker lifecycle, action integration
 - `modules/pose_worker.py`: MediaPipe inference and temporal gesture state
+- `modules/relaxing.py`: source-time stillness and immediate motion release
 - `modules/uchimizu.py`: scoop and downward-release sequence detection
 - `modules/ramune.py`: two-hand preparation and press state machine
 - `modules/yolo_worker.py`: legacy bottle detection (unused)

@@ -375,3 +375,21 @@ def test_other_hand_score_does_not_interrupt_sprinkling(analyzer, wrist_index):
                 actions.append(analyzer.selected_action)
     assert "UCHIMIZU" in actions
     assert "FANNING" not in actions
+
+
+def test_process_clears_relaxing_on_first_moving_frame(process_analyzer):
+    analyzer = process_analyzer
+    points = landmarks()
+    detection = SimpleNamespace(pose_landmarks=[points])
+    analyzer.landmarker.detect.return_value = detection
+    analyzer.landmarker.detect_for_video.return_value = detection
+    frame = np.zeros((100, 100, 3), dtype=np.uint8)
+    result = {}
+    for frame_id in range(32):
+        result = analyzer.process(frame, frame_id / 30, frame_id)
+    assert result["relaxing_state"]
+    points[23].x += 0.03
+    result = analyzer.process(frame, 32 / 30, 32)
+    assert not result["relaxing_state"]
+    assert result["frame_id"] == 32
+    assert result["timestamp"] == 32 / 30
