@@ -146,3 +146,17 @@ def test_horizontal_and_vertical_speeds_use_same_pixel_units():
         analyzer.update(points, 1 / 30, 2.0)
         speeds.append(analyzer.motion_speed)
     assert speeds[0] == pytest.approx(speeds[1])
+
+
+def test_moderate_tracking_jitter_allows_stillness_but_motion_still_exits():
+    analyzer = RelaxingAnalyzer()
+    for frame_id in range(61):
+        points = body()
+        # Alternating 0.26 torso lengths/s is small tracking jitter: the previous
+        # 0.20 cutoff continually restarted the stillness timer.
+        points[15].x += 0.0013 * (-1 if frame_id % 2 else 1)
+        analyzer.update(points, frame_id / 30, 1.0)
+    assert analyzer.state
+    points = body()
+    points[23].x += 0.02
+    assert not analyzer.update(points, 61 / 30, 1.0)

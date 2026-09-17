@@ -18,8 +18,8 @@ coordinates, so whole-body translation, leaning, and approaching the camera are
 not cancelled out by recentering the body. Horizontal distances account for the
 image aspect ratio; distances are normalized by shoulder-to-hip length.
 
-The current frame turns Relaxing off immediately if speed exceeds 0.20 torso
-lengths/second or displacement from the fixed stillness reference exceeds 0.035
+The current frame turns Relaxing off immediately if speed exceeds 0.30 torso
+lengths/second or displacement from the fixed stillness reference exceeds 0.05
 torso lengths. The fixed reference also prevents sustained slow movement from
 being treated as stationary solely because each frame-to-frame change is small.
 No moving average or release hold delays the exit. Re-entry requires a fresh
@@ -44,8 +44,12 @@ classifiers gave these Relaxing-state counts (not frame-level accuracy scores):
 | Recording | Frames | Before | After |
 | --- | ---: | ---: | ---: |
 | sabaku_other_01.mp4 | 821 | 794 | 0 |
-| kohara_relaxing_01 | 365 | 353 | 132 |
+| kohara_relaxing_01 | 365 | 353 | 201 |
 
+The speed/drift tolerances were relaxed from 0.20/0.035 to 0.30/0.05 after
+manual feedback. Replaying the same cached landmarks increased the static
+reference from 132 to 201 Relaxing frames while sabaku_other_01 stayed at zero.
+The one-second dwell and immediate threshold-crossing release are unchanged.
 The static reference still enters Relaxing, but the stricter rules also reduce
 its active duration. Thresholds may need calibration for other cameras and
 tracking noise. [The before/after overlay at 5.024 seconds](docs/relaxing-motion-release.jpg)
