@@ -21,8 +21,8 @@ POSE_MODEL_URL = (
     "https://storage.googleapis.com/mediapipe-models/pose_landmarker/"
     "pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
 )
-# Keep IMAGE as the baseline until VIDEO recognition accuracy has been validated.
-POSE_RUNNING_MODE = getenv("POSE_RUNNING_MODE", "IMAGE").strip().upper()
+# Use temporal tracking by default; retain IMAGE for baseline comparisons.
+POSE_RUNNING_MODE = getenv("POSE_RUNNING_MODE", "VIDEO").strip().upper()
 if POSE_RUNNING_MODE not in {"IMAGE", "VIDEO"}:
     raise ValueError("POSE_RUNNING_MODE must be IMAGE or VIDEO")
 

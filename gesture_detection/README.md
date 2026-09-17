@@ -166,7 +166,7 @@ At 1080×720, eight buffered BGR frames use about 18 MiB, excluding active frame
 
 ## Comparing MediaPipe IMAGE and VIDEO modes
 
-Set `POSE_RUNNING_MODE=IMAGE` (default) or `POSE_RUNNING_MODE=VIDEO` in
+Set `POSE_RUNNING_MODE=VIDEO` (default) or `POSE_RUNNING_MODE=IMAGE` in
 `.env`. IMAGE uses `detect(image)` independently for each frame.
 VIDEO creates the landmarker with `RunningMode.VIDEO` and calls
 `detect_for_video(image, timestamp_ms)`. Both calls are synchronous.

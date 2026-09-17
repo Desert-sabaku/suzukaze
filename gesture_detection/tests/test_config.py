@@ -82,8 +82,8 @@ def test_pose_running_mode(value, expected):
     assert read_config({"POSE_RUNNING_MODE": value})["POSE_RUNNING_MODE"] == expected
 
 
-def test_pose_mode_defaults_to_image():
-    assert read_config({})["POSE_RUNNING_MODE"] == "IMAGE"
+def test_pose_mode_defaults_to_video():
+    assert read_config({})["POSE_RUNNING_MODE"] == "VIDEO"
 
 
 def test_invalid_pose_mode():

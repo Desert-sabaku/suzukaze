@@ -1,5 +1,10 @@
 # IMAGE / VIDEO comparison (2026-09-17)
 
+Subsequent decision: after additional manual testing, the user selected VIDEO
+for its tracking behavior. VIDEO is now the application default; IMAGE remains
+available for comparisons. The observations and initial recommendation below
+describe the earlier exploratory run, not the current default.
+
 This exploratory run supports keeping IMAGE as the default while making VIDEO
 available for evaluation. VIDEO was faster in these runs, but gesture outputs
 changed substantially. The clips have no frame-level ground-truth annotations;
