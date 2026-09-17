@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, call, patch
 
 import cv2
 from modules.app import GestureApplication, PoseResult
-from modules.config import CAMERA_BACKEND, CAMERA_FOURCC
+from modules.config import CAMERA_BACKEND, CAMERA_FOURCC, WINDOW_TITLE
 
 
 class OpenCaptureTest(unittest.TestCase):
@@ -169,6 +169,39 @@ class RunLifecycleTests(unittest.TestCase):
         stop.assert_called_once()
         app.pose_result_queue.close()
 
+    def test_window_close_stops_workers(self):
+        import numpy as np
+
+        app = GestureApplication()
+        capture = MagicMock()
+        capture.read.return_value = (True, np.zeros((4, 5, 3), dtype=np.uint8))
+        app.pose_process = MagicMock()
+        with (
+            patch.object(app, "_open_capture", return_value=capture),
+            patch.object(app, "_open_output", return_value=None),
+            patch.object(app, "_start_workers"),
+            patch.object(app, "_stop_workers") as stop,
+            patch("modules.app.cv2.imshow"),
+            patch("modules.app.cv2.waitKey", return_value=-1),
+            patch("modules.app.cv2.getWindowProperty", return_value=0) as visibility,
+            patch("modules.app.cv2.destroyAllWindows"),
+        ):
+            app.run()
+        visibility.assert_called_once_with(WINDOW_TITLE, cv2.WND_PROP_VISIBLE)
+        capture.release.assert_called_once()
+        stop.assert_called_once()
+        app.pose_result_queue.close()
+
+    def test_missing_closed_window_is_treated_as_close(self):
+        app = GestureApplication()
+        app._window_created = True
+        with (
+            patch("modules.app.cv2.waitKey", return_value=-1),
+            patch("modules.app.cv2.getWindowProperty", side_effect=cv2.error),
+        ):
+            self.assertTrue(app._exit_requested())
+        app.pose_result_queue.close()
+
     def test_partial_worker_start_failure_cleans_up(self):
         import numpy as np
 
@@ -297,6 +330,7 @@ class SequentialVideoTests(unittest.TestCase):
             patch("modules.app.cv2.putText"),
             patch("modules.app.cv2.imshow"),
             patch("modules.app.cv2.waitKey", return_value=-1),
+            patch("modules.app.cv2.getWindowProperty", return_value=1),
             patch("modules.app.cv2.destroyAllWindows"),
         ):
             writer.return_value.write.side_effect = lambda frame: saved.append(int(frame[0, 0, 0]))

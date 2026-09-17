@@ -25,6 +25,7 @@ from .config import (
     POSE_MODEL_URL,
     POSE_RUNNING_MODE,
     RELAXING_DWELL_SECONDS,
+    SUPPRESS_MEDIAPIPE_STARTUP_LOGS,
     WINDOW_SECONDS,
 )
 from .gesture_position import (
@@ -32,6 +33,7 @@ from .gesture_position import (
     normalized_wrist_distances,
 )
 from .ipc import SharedLatestFrame
+from .native_logging import suppress_native_stderr
 from .ramune import RamuneAnalyzer
 from .relaxing import RelaxingAnalyzer
 from .signal_processing import resample_time_window
@@ -247,7 +249,8 @@ class PoseAnalyzer:
         self.running_mode = running_mode
         self._last_source_timestamp: float | None = None
         self._last_video_timestamp_ms = -1
-        self.landmarker = self._create_landmarker(running_mode)
+        with suppress_native_stderr(SUPPRESS_MEDIAPIPE_STARTUP_LOGS):
+            self.landmarker = self._create_landmarker(running_mode)
         self.hands = [HandGestureAnalyzer(15), HandGestureAnalyzer(16)]
         self.ramune = RamuneAnalyzer()
         self.relaxing = RelaxingAnalyzer()
@@ -286,11 +289,12 @@ class PoseAnalyzer:
             image_format=mp_core.ImageFormat.SRGB,
             data=rgb_frame,
         )
-        if self.running_mode == "VIDEO":
-            timestamp_ms = self._video_timestamp_ms(timestamp)
-            detection_result = self.landmarker.detect_for_video(mp_image, timestamp_ms)
-        else:
-            detection_result = self.landmarker.detect(mp_image)
+        with suppress_native_stderr(SUPPRESS_MEDIAPIPE_STARTUP_LOGS):
+            if self.running_mode == "VIDEO":
+                timestamp_ms = self._video_timestamp_ms(timestamp)
+                detection_result = self.landmarker.detect_for_video(mp_image, timestamp_ms)
+            else:
+                detection_result = self.landmarker.detect(mp_image)
         result: dict[str, Any] = {
             "landmarks": [],
             "messages": [],
