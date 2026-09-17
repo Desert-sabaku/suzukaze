@@ -23,11 +23,12 @@ def landmarks():
 @pytest.fixture
 def analyzer():
     with patch.object(PoseAnalyzer, "_create_landmarker"):
-        return PoseAnalyzer()
+        return PoseAnalyzer(running_mode="IMAGE")
 
 
-@pytest.fixture
-def process_analyzer(analyzer):
+@pytest.fixture(params=["IMAGE", "VIDEO"])
+def process_analyzer(analyzer, request):
+    analyzer.running_mode = request.param
     # Test Python state/metadata without invoking native image conversion.
     with (
         patch("modules.pose_worker.cv2.cvtColor"),
@@ -212,7 +213,9 @@ def test_boundary_grace_expires_when_hand_stays_low(analyzer):
 def test_process_passes_source_timestamp_to_all_detectors(process_analyzer):
     analyzer = process_analyzer
     points = landmarks()
-    analyzer.landmarker.detect.return_value = SimpleNamespace(pose_landmarks=[points])
+    detection = SimpleNamespace(pose_landmarks=[points])
+    analyzer.landmarker.detect.return_value = detection
+    analyzer.landmarker.detect_for_video.return_value = detection
     with (
         # Guard the analyzer without replacing pytest or third-party clocks.
         patch(
@@ -250,9 +253,63 @@ def test_worker_forwards_frame_timestamp():
 @pytest.mark.parametrize("detected", [True, False])
 def test_result_identifies_source_frame_even_without_pose(process_analyzer, detected):
     analyzer = process_analyzer
-    analyzer.landmarker.detect.return_value = SimpleNamespace(
-        pose_landmarks=[landmarks()] if detected else []
-    )
+    detection = SimpleNamespace(pose_landmarks=[landmarks()] if detected else [])
+    analyzer.landmarker.detect.return_value = detection
+    analyzer.landmarker.detect_for_video.return_value = detection
     result = analyzer.process(np.zeros((4, 5, 3), dtype=np.uint8), 2.5, 75)
     assert result["frame_id"] == 75
     assert result["timestamp"] == 2.5
+
+
+@pytest.mark.parametrize("mode", ["IMAGE", "VIDEO"])
+def test_landmarker_options_select_running_mode(mode, tmp_path):
+    from modules.pose_worker import vision
+
+    model = tmp_path / "pose.task"
+    model.touch()
+    with (
+        patch("modules.pose_worker.POSE_MODEL_PATH", model),
+        patch("modules.pose_worker.python.BaseOptions"),
+        patch("modules.pose_worker.vision.PoseLandmarkerOptions") as options,
+        patch("modules.pose_worker.vision.PoseLandmarker.create_from_options") as create,
+    ):
+        PoseAnalyzer(running_mode=mode)
+    assert options.call_args.kwargs["running_mode"] == vision.RunningMode[mode]
+    create.assert_called_once_with(options.return_value)
+
+
+def test_process_selects_api_and_preserves_source_times(process_analyzer):
+    analyzer = process_analyzer
+    detection = SimpleNamespace(pose_landmarks=[])
+    analyzer.landmarker.detect.return_value = detection
+    analyzer.landmarker.detect_for_video.return_value = detection
+    # Include a millisecond collision, tracking loss, and a skipped-frame gap.
+    timestamps = [100.0, 100.0001, 100.033, 101.0]
+    for frame_id, timestamp in zip([0, 1, 2, 30], timestamps, strict=True):
+        result = analyzer.process(np.zeros((4, 5, 3), dtype=np.uint8), timestamp, frame_id)
+        assert result["timestamp"] == timestamp
+        assert result["frame_id"] == frame_id
+    if analyzer.running_mode == "VIDEO":
+        analyzer.landmarker.detect.assert_not_called()
+        assert [call.args[1] for call in analyzer.landmarker.detect_for_video.call_args_list] == [
+            100000,
+            100001,
+            100033,
+            101000,
+        ]
+    else:
+        analyzer.landmarker.detect_for_video.assert_not_called()
+        assert analyzer.landmarker.detect.call_count == 4
+
+
+@pytest.mark.parametrize("timestamp", [-1.0, float("nan"), float("inf")])
+def test_video_rejects_invalid_source_times(analyzer, timestamp):
+    with pytest.raises(ValueError, match="finite and non-negative"):
+        analyzer._video_timestamp_ms(timestamp)
+
+
+@pytest.mark.parametrize("timestamp", [1.0, 0.5])
+def test_video_rejects_repeated_or_backward_source_times(analyzer, timestamp):
+    assert analyzer._video_timestamp_ms(1.0) == 1000
+    with pytest.raises(ValueError, match="strictly increase"):
+        analyzer._video_timestamp_ms(timestamp)

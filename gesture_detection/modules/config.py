@@ -20,6 +20,11 @@ POSE_MODEL_URL = (
     "https://storage.googleapis.com/mediapipe-models/pose_landmarker/"
     "pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
 )
+# Keep IMAGE as the baseline until VIDEO recognition accuracy has been validated.
+POSE_RUNNING_MODE = os.environ.get("POSE_RUNNING_MODE", "IMAGE").strip().upper()
+if POSE_RUNNING_MODE not in {"IMAGE", "VIDEO"}:
+    raise ValueError("POSE_RUNNING_MODE must be IMAGE or VIDEO")
+
 YOLO_MODEL_PATH = _env_path("YOLO_MODEL_PATH", "yolov8n.pt")
 
 FPS = 60
@@ -100,7 +105,7 @@ POSE_CONNECTIONS = (
     (28, 32),
 )
 
-# Ramune distances are measured in shoulder widths; times use monotonic seconds.
+# Ramune distances are measured in shoulder widths; times use source seconds.
 RAMUNE_ALIGN_TOLERANCE = 0.60
 # Allow landmark drift across the hand, especially sideways. Relative closing
 # motion still distinguishes a press from moving both hands down together.

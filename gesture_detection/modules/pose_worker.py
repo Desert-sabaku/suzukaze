@@ -1,3 +1,4 @@
+import math
 import multiprocessing as mp
 import queue
 import urllib.request
@@ -21,6 +22,7 @@ from .config import (
     FPS,
     POSE_MODEL_PATH,
     POSE_MODEL_URL,
+    POSE_RUNNING_MODE,
     TARGET_LANDMARKS,
     WINDOW_SECONDS,
 )
@@ -224,8 +226,13 @@ class HandGestureAnalyzer:
 class PoseAnalyzer:
     """Owns MediaPipe pose inference and all temporal gesture state."""
 
-    def __init__(self):
-        self.landmarker = self._create_landmarker()
+    def __init__(self, running_mode: str = POSE_RUNNING_MODE):
+        if running_mode not in {"IMAGE", "VIDEO"}:
+            raise ValueError("running_mode must be IMAGE or VIDEO")
+        self.running_mode = running_mode
+        self._last_source_timestamp: float | None = None
+        self._last_video_timestamp_ms = -1
+        self.landmarker = self._create_landmarker(running_mode)
         self.hands = [HandGestureAnalyzer(15), HandGestureAnalyzer(16)]
         self.ramune = RamuneAnalyzer()
         self.motion_history = deque(maxlen=FPS)
@@ -236,7 +243,7 @@ class PoseAnalyzer:
         self._reset_gesture_state()
 
     @staticmethod
-    def _create_landmarker():
+    def _create_landmarker(running_mode: str):
         if not POSE_MODEL_PATH.exists():
             temp_path = POSE_MODEL_PATH.parent / f".{POSE_MODEL_PATH.name}.tmp"
             try:
@@ -249,6 +256,7 @@ class PoseAnalyzer:
 
         options = vision.PoseLandmarkerOptions(
             base_options=python.BaseOptions(model_asset_path=str(POSE_MODEL_PATH)),
+            running_mode=vision.RunningMode[running_mode],
             output_segmentation_masks=False,
             min_pose_detection_confidence=0.5,
             min_pose_presence_confidence=0.5,
@@ -265,7 +273,11 @@ class PoseAnalyzer:
             image_format=mp_core.ImageFormat.SRGB,
             data=rgb_frame,
         )
-        detection_result = self.landmarker.detect(mp_image)
+        if self.running_mode == "VIDEO":
+            timestamp_ms = self._video_timestamp_ms(timestamp)
+            detection_result = self.landmarker.detect_for_video(mp_image, timestamp_ms)
+        else:
+            detection_result = self.landmarker.detect(mp_image)
         result: dict[str, Any] = {
             "landmarks": [],
             "messages": [],
@@ -292,6 +304,18 @@ class PoseAnalyzer:
         result["uchimizu_state"] = self.uchimizu_state
         self._append_status_messages(result)
         return result
+
+    def _video_timestamp_ms(self, timestamp: float) -> int:
+        """Adapt source seconds without changing gesture or result timestamps."""
+        if not math.isfinite(timestamp) or timestamp < 0:
+            raise ValueError("VIDEO timestamps must be finite and non-negative")
+        if self._last_source_timestamp is not None and timestamp <= self._last_source_timestamp:
+            raise ValueError("VIDEO source timestamps must strictly increase")
+        # Distinct source times can truncate to the same integer millisecond.
+        timestamp_ms = max(int(timestamp * 1000), self._last_video_timestamp_ms + 1)
+        self._last_source_timestamp = timestamp
+        self._last_video_timestamp_ms = timestamp_ms
+        return timestamp_ms
 
     def _update_motion(self, landmarks):
         current = np.array([[landmarks[index].x, landmarks[index].y] for index in TARGET_LANDMARKS])

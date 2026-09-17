@@ -75,3 +75,17 @@ def test_dotenv_loading_preserves_environment(tmp_path: Path) -> None:
 def test_invalid_settings(values: dict[str, str]) -> None:
     with pytest.raises(ValueError):
         read_config(values)
+
+
+@pytest.mark.parametrize("value, expected", [("IMAGE", "IMAGE"), (" video ", "VIDEO")])
+def test_pose_running_mode(value, expected):
+    assert read_config({"POSE_RUNNING_MODE": value})["POSE_RUNNING_MODE"] == expected
+
+
+def test_pose_mode_defaults_to_image():
+    assert read_config({})["POSE_RUNNING_MODE"] == "IMAGE"
+
+
+def test_invalid_pose_mode():
+    with pytest.raises(ValueError, match="POSE_RUNNING_MODE"):
+        read_config({"POSE_RUNNING_MODE": "LIVE_STREAM"})

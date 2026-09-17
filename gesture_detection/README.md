@@ -164,6 +164,57 @@ keep up and the buffer fills, playback waits rather than dropping output frames.
 This reduces display-loop overhead but does not guarantee real-time playback.
 At 1080×720, eight buffered BGR frames use about 18 MiB, excluding active frames.
 
+## Comparing MediaPipe IMAGE and VIDEO modes
+
+Set `POSE_RUNNING_MODE=IMAGE` (default) or `POSE_RUNNING_MODE=VIDEO` in
+`.env`. IMAGE uses `detect(image)` independently for each frame.
+VIDEO creates the landmarker with `RunningMode.VIDEO` and calls
+`detect_for_video(image, timestamp_ms)`. Both calls are synchronous.
+According to the [MediaPipe guide](https://ai.google.dev/edge/mediapipe/solutions/vision/pose_landmarker/python),
+VIDEO uses tracking to reduce repeated detection work. This may improve
+throughput but can change landmark trajectories and gesture decisions;
+it is not an accuracy guarantee.
+
+For an A/B comparison, run the same video in two fresh application processes
+with separate output paths:
+
+```bash
+POSE_RUNNING_MODE=IMAGE VIDEO_SOURCE=sample_movies/sample.mp4 VIDEO_OUTPUT_PATH=output/image.mp4 uv run gesture-detection
+POSE_RUNNING_MODE=VIDEO VIDEO_SOURCE=sample_movies/sample.mp4 VIDEO_OUTPUT_PATH=output/video.mp4 uv run gesture-detection
+```
+
+An initial three-clip comparison is recorded in
+[the evaluation notes](docs/pose-mode-comparison.md). The Ramune clip follows
+an older specification and is used only for runtime/pipeline checks.
+
+Keep the model, thresholds, FPS setting, input, and machine fixed. Compare
+processing time separately from source video duration, and inspect recognition
+onset/offset, missed actions, false positives, and recovery after tracking loss.
+Use frame-level labels to measure accuracy; action frame counts alone do not
+establish which mode is better. Both modes retain the application's wrist
+histories and Ramune/Uchimizu state machines. Frame-count-based smoothing
+and relaxing detection are unchanged by the mode switch.
+
+Compatibility with the input pipeline:
+
+- File input still processes every frame in order and waits for its own result.
+  VIDEO mode does not introduce asynchronous result callbacks or frame dropping.
+- Camera input still uses the latest available frame; VIDEO tracks the frames
+  actually delivered to the worker, using their capture times, including gaps.
+  It does not remove camera overlay lag or recover skipped frames.
+- MediaPipe receives source seconds converted to integer milliseconds. If two
+  increasing source timestamps map to the same millisecond, only MediaPipe's
+  timestamp advances to at least the previous value plus one. Gesture timers
+  and returned `frame_id`/`timestamp` retain the original values.
+- Repeated, backward, negative, or non-finite source timestamps are rejected in
+  VIDEO mode. Normal input is already made increasing by the frame clock.
+  Seeking/restarting a source requires a new analyzer; the app currently does
+  neither within a run.
+- Missing poses reset the application's gesture history as before, but do not
+  rewind the MediaPipe clock. MediaPipe manages its own tracking/reacquisition.
+- CI covers both modes using mocked image conversion and inference. Native
+  model comparisons are separate manual checks, not CI requirements.
+
 ## Quality checks (local)
 
 Install development dependencies:
