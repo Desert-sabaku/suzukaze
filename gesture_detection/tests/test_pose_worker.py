@@ -1,5 +1,5 @@
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import numpy as np
 import pytest
@@ -24,6 +24,16 @@ def landmarks():
 def analyzer():
     with patch.object(PoseAnalyzer, "_create_landmarker"):
         return PoseAnalyzer()
+
+
+@pytest.fixture
+def process_analyzer(analyzer):
+    # Test Python state/metadata without invoking native image conversion.
+    with (
+        patch("modules.pose_worker.cv2.cvtColor"),
+        patch("modules.pose_worker.mp_core.Image"),
+    ):
+        yield analyzer
 
 
 @pytest.mark.parametrize("wrist_indices", [(15,), (16,), (15, 16)])
@@ -199,11 +209,17 @@ def test_boundary_grace_expires_when_hand_stays_low(analyzer):
     assert analyzer.selected_action != "FANNING"
 
 
-def test_process_passes_source_timestamp_to_all_detectors(analyzer):
+def test_process_passes_source_timestamp_to_all_detectors(process_analyzer):
+    analyzer = process_analyzer
     points = landmarks()
     analyzer.landmarker.detect.return_value = SimpleNamespace(pose_landmarks=[points])
     with (
-        patch("time.monotonic", side_effect=AssertionError("Wall clock used")),
+        # Guard the analyzer without replacing pytest or third-party clocks.
+        patch(
+            "modules.pose_worker.time",
+            SimpleNamespace(monotonic=Mock(side_effect=AssertionError("Wall clock used"))),
+            create=True,
+        ),
         patch.object(analyzer.ramune, "update", return_value=False) as ramune,
         patch.object(analyzer.hands[0].uchimizu, "update", return_value=False) as left,
         patch.object(analyzer.hands[1].uchimizu, "update", return_value=False) as right,
@@ -232,7 +248,8 @@ def test_worker_forwards_frame_timestamp():
 
 
 @pytest.mark.parametrize("detected", [True, False])
-def test_result_identifies_source_frame_even_without_pose(analyzer, detected):
+def test_result_identifies_source_frame_even_without_pose(process_analyzer, detected):
+    analyzer = process_analyzer
     analyzer.landmarker.detect.return_value = SimpleNamespace(
         pose_landmarks=[landmarks()] if detected else []
     )
