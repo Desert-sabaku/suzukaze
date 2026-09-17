@@ -138,10 +138,16 @@ one frame at the source FPS (configured `FPS` if source FPS is invalid).
 Camera input uses monotonic time recorded immediately after capture. Each frame
 and its timestamp travel together through shared memory to all gesture detectors.
 
-Video reading is not paced to the original playback speed. The inference worker
-receives the latest frame through shared memory, so intermediate frames can be
-skipped. Sparse samples can still affect detection accuracy; sampling-dependent
-smoothing and relaxing detection remain unchanged. Encoding runs
+Video files are evaluated sequentially: each decoded frame waits for inference,
+then its own result is drawn and saved before the next frame is read. Only one
+frame is in flight, so the shared mailbox cannot overwrite pending video frames.
+Processing is not paced to playback speed; gesture timing still uses source time.
+The final frame is inferred and saved before normal end-of-file shutdown.
+Pressing `Esc` during inference cancels evaluation; the pending frame is not saved.
+Worker failure stops evaluation with an error rather than saving stale results.
+
+Camera input retains the latest-frame policy and may skip intermediate frames.
+Encoding runs
 on a separate thread with a bounded buffer (`VIDEO_OUTPUT_BUFFER_FRAMES`, default
 8). Every frame accepted for saving is written in order, including when exiting
 with `Esc`; closing may wait for pending frames to finish. If encoding cannot
