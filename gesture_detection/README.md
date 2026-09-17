@@ -131,7 +131,17 @@ output buffer size. `CAMERA_BACKEND=0` selects OpenCV's automatic backend;
 Linux V4L2 devices can use `200`. Gesture thresholds and model definitions remain
 in `modules/config.py`.
 
-The inference worker receives the latest frame through shared memory. Encoding runs
+Gesture timing uses decoded video positions in seconds (`CAP_PROP_POS_MSEC`).
+Frequency estimates, preparation holds, and cooldowns therefore use source time
+regardless of processing speed. Invalid or non-increasing positions advance by
+one frame at the source FPS (configured `FPS` if source FPS is invalid).
+Camera input uses monotonic time recorded immediately after capture. Each frame
+and its timestamp travel together through shared memory to all gesture detectors.
+
+Video reading is not paced to the original playback speed. The inference worker
+receives the latest frame through shared memory, so intermediate frames can be
+skipped. Sparse samples can still affect detection accuracy; sampling-dependent
+smoothing and relaxing detection remain unchanged. Encoding runs
 on a separate thread with a bounded buffer (`VIDEO_OUTPUT_BUFFER_FRAMES`, default
 8). Every frame accepted for saving is written in order, including when exiting
 with `Esc`; closing may wait for pending frames to finish. If encoding cannot

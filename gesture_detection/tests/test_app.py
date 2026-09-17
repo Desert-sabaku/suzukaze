@@ -185,3 +185,39 @@ class RunLifecycleTests(unittest.TestCase):
         capture.release.assert_called_once()
         stop.assert_called_once()
         app.pose_result_queue.close()
+
+
+class FrameClockTests(unittest.TestCase):
+    def test_video_positions_and_fallback(self):
+        import numpy as np
+        from modules.app import FrameClock
+
+        capture = MagicMock()
+        positions = iter([0.0, 40.0, 40.0, float("nan"), -1.0, 240.0])
+        capture.get.side_effect = lambda prop: (
+            next(positions) if prop == cv2.CAP_PROP_POS_MSEC else 25.0
+        )
+        clock = FrameClock(is_video=True)
+        with patch("modules.app.time.monotonic", side_effect=AssertionError):
+            actual = [clock.timestamp(capture) for _ in range(6)]
+        np.testing.assert_allclose(actual, [0.0, 0.04, 0.08, 0.12, 0.16, 0.24])
+
+    def test_invalid_fps(self):
+        from modules.app import FPS, FrameClock
+
+        for fps in (0.0, -1.0, float("nan"), float("inf")):
+            capture = MagicMock()
+            capture.get.side_effect = lambda prop, fps=fps: (
+                float("nan") if prop == cv2.CAP_PROP_POS_MSEC else fps
+            )
+            clock = FrameClock(is_video=True)
+            self.assertEqual(clock.timestamp(capture), 0.0)
+            self.assertAlmostEqual(clock.timestamp(capture), 1 / FPS)
+
+    def test_camera_capture_time(self):
+        from modules.app import FrameClock
+
+        capture = MagicMock()
+        with patch("modules.app.time.monotonic", return_value=123.45):
+            self.assertEqual(FrameClock(is_video=False).timestamp(capture), 123.45)
+        capture.get.assert_not_called()

@@ -1,6 +1,5 @@
 import multiprocessing as mp
 import queue
-import time
 import urllib.request
 from collections import deque
 from typing import Any
@@ -60,11 +59,11 @@ class HandGestureAnalyzer:
         self.selected_action = "NONE"
         self.action_hold_count = 0
 
-    def _update_gesture_scores(self, landmarks):
+    def _update_gesture_scores(self, landmarks, timestamp: float) -> None:
         wrist = landmarks[self.wrist_index]
         previous_y = self.wrist_y_history[-1] if self.wrist_y_history else None
         self.wrist_y_history.append(wrist.y)
-        now = time.monotonic()
+        now = timestamp
         self.wrist_t_history.append(now)
         if previous_y is not None:
             self.wrist_dy_history.append(abs(wrist.y - previous_y))
@@ -260,7 +259,7 @@ class PoseAnalyzer:
     def close(self):
         self.landmarker.close()
 
-    def process(self, frame):
+    def process(self, frame, timestamp: float):
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         mp_image = mp_core.Image(
             image_format=mp_core.ImageFormat.SRGB,
@@ -275,7 +274,7 @@ class PoseAnalyzer:
                 (landmark.x, landmark.y, landmark.visibility) for landmark in landmarks
             ]
             self._update_motion(landmarks)
-            self._update_gesture_scores(landmarks)
+            self._update_gesture_scores(landmarks, timestamp)
             self._update_relaxing_state()
         else:
             self._reset_tracking_state()
@@ -305,8 +304,8 @@ class PoseAnalyzer:
         self.uchimizu_score = 0.0
         self.fanning_score = 0.0
 
-    def _update_gesture_scores(self, landmarks):
-        opened = self.ramune.update(landmarks, time.monotonic())
+    def _update_gesture_scores(self, landmarks, timestamp: float) -> None:
+        opened = self.ramune.update(landmarks, timestamp)
         if opened or self.ramune.state in ("FORMING", "READY"):
             # Keep the press from leaking into the single-hand classifiers.
             for hand in self.hands:
@@ -317,7 +316,7 @@ class PoseAnalyzer:
             return
         for hand in self.hands:
             if landmarks[hand.wrist_index].visibility > 0.5:
-                hand._update_gesture_scores(landmarks)
+                hand._update_gesture_scores(landmarks, timestamp)
             else:
                 hand._reset_gesture_state()
         # Preserve the existing priority when hands perform different gestures.
@@ -401,10 +400,11 @@ def pose_worker(frame_queue: SharedLatestFrame, result_queue: mp.Queue) -> None:
     analyzer = PoseAnalyzer()
     try:
         while True:
-            frame = frame_queue.get()
-            if frame is None:
+            sample = frame_queue.get()
+            if sample is None:
                 break
-            result = analyzer.process(frame)
+            frame, timestamp = sample
+            result = analyzer.process(frame, timestamp)
             while not result_queue.empty():
                 try:
                     result_queue.get_nowait()

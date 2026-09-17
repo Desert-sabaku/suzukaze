@@ -44,23 +44,25 @@ class SharedLatestFrame:
     def __init__(self, shape: tuple[int, ...]) -> None:
         self.shape = shape
         self._buffer = mp.RawArray("B", int(np.prod(shape)))
+        self._timestamp = mp.RawValue("d", 0.0)
         self._lock = mp.Lock()
         self._ready = mp.Event()
         self._closed = mp.Event()
 
-    def publish(self, frame: npt.NDArray[Any]) -> bool:
+    def publish(self, frame: npt.NDArray[Any], timestamp: float) -> bool:
         if frame.shape != self.shape or frame.dtype != np.uint8:
             raise ValueError("Frame shape or dtype does not match shared buffer")
         if self._closed.is_set() or not self._lock.acquire(False):
             return False
         try:
             np.copyto(np.frombuffer(self._buffer, dtype=np.uint8).reshape(self.shape), frame)
+            self._timestamp.value = timestamp
             self._ready.set()
             return True
         finally:
             self._lock.release()
 
-    def get(self) -> npt.NDArray[np.uint8] | None:
+    def get(self) -> tuple[npt.NDArray[np.uint8], float] | None:
         if self._closed.is_set():
             return None
         self._ready.wait()
@@ -69,7 +71,7 @@ class SharedLatestFrame:
                 return None
             frame = np.frombuffer(self._buffer, dtype=np.uint8).reshape(self.shape).copy()
             self._ready.clear()
-            return frame
+            return frame, self._timestamp.value
 
     def close(self) -> None:
         self._closed.set()

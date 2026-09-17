@@ -1,3 +1,4 @@
+import math
 import multiprocessing as mp
 import time
 from pathlib import Path
@@ -36,6 +37,30 @@ class PoseResult(TypedDict):
     ramune_state: NotRequired[str]
 
 
+class FrameClock:
+    """Timestamp decoded frames in source seconds, or camera capture time."""
+
+    def __init__(self, is_video: bool) -> None:
+        self.is_video = is_video
+        self.previous: float | None = None
+
+    def timestamp(self, capture: cv2.VideoCapture) -> float:
+        if not self.is_video:
+            return time.monotonic()
+        timestamp = capture.get(cv2.CAP_PROP_POS_MSEC) / 1000.0
+        if (
+            not math.isfinite(timestamp)
+            or timestamp < 0
+            or (self.previous is not None and timestamp <= self.previous)
+        ):
+            fps = capture.get(cv2.CAP_PROP_FPS)
+            if not math.isfinite(fps) or fps <= 0:
+                fps = FPS
+            timestamp = 0.0 if self.previous is None else self.previous + 1.0 / fps
+        self.previous = timestamp
+        return timestamp
+
+
 class GestureApplication:
     def __init__(self, camera_index: int = CAMERA_INDEX) -> None:
         self.camera_index = camera_index
@@ -54,10 +79,12 @@ class GestureApplication:
             "relaxing_state": False,
         }
         previous_time = time.monotonic()
+        frame_clock = FrameClock(is_video=VIDEO_SOURCE is not None)
         try:
             success, frame = capture.read()
             if not success:
                 return
+            timestamp = frame_clock.timestamp(capture)
             self.pose_frame_queue = SharedLatestFrame(frame.shape)
             self._start_workers()
             assert self.pose_process is not None
@@ -71,7 +98,7 @@ class GestureApplication:
             while success:
                 if not self.pose_process.is_alive():
                     raise RuntimeError("Pose worker process has exited unexpectedly")
-                self.pose_frame_queue.publish(frame)
+                self.pose_frame_queue.publish(frame, timestamp)
                 latest_pose = get_latest(self.pose_result_queue, latest_pose)
                 annotated = self._annotate_frame(frame, latest_pose)
                 current_time = time.monotonic()
@@ -92,6 +119,8 @@ class GestureApplication:
                 if cv2.waitKey(1) & 0xFF == 27:
                     break
                 success, frame = capture.read()
+                if success:
+                    timestamp = frame_clock.timestamp(capture)
         finally:
             capture.release()
             cv2.destroyAllWindows()
