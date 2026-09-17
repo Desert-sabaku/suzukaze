@@ -183,6 +183,8 @@ MediaPipe and its graphics backend normally print diagnostics directly to
 stderr. The application suppresses those messages around model initialization
 and inference. Set
 `SUPPRESS_MEDIAPIPE_STARTUP_LOGS=false` in `.env` to expose them while debugging.
+OpenCV's Qt backend is also pointed at an installed system font directory when
+its bundled font path does not exist.
 
 Press `Esc` in the camera window to exit.
 
