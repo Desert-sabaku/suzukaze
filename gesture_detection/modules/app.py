@@ -71,6 +71,7 @@ class GestureApplication:
         self.pose_frame_queue: SharedLatestFrame | None = None
         self.pose_result_queue = mp.Queue(maxsize=1)
         self.pose_process = None
+        self._window_created = False
 
     def run(self) -> None:
         capture = self._open_capture()
@@ -127,7 +128,8 @@ class GestureApplication:
                 if output is not None:
                     output.write(annotated)
                 cv2.imshow(WINDOW_TITLE, annotated)
-                if cv2.waitKey(1) & 0xFF == 27:
+                self._window_created = True
+                if self._exit_requested():
                     break
                 success, frame = capture.read()
                 if success:
@@ -165,8 +167,21 @@ class GestureApplication:
             else:
                 # A reader briefly holding the mailbox lock must not drop a frame.
                 time.sleep(0.001)
-            if cv2.waitKey(1) & 0xFF == 27:
+            if self._exit_requested():
                 return None
+
+    def _exit_requested(self) -> bool:
+        """Return true for Escape or after the user closes the HighGUI window."""
+        if cv2.waitKey(1) & 0xFF == 27:
+            return True
+        if not self._window_created:
+            return False
+        try:
+            return cv2.getWindowProperty(WINDOW_TITLE, cv2.WND_PROP_VISIBLE) < 1
+        except cv2.error:
+            # Some HighGUI backends remove the native window before reporting
+            # its visibility. Treat the missing-window error as a close event.
+            return True
 
     def _open_capture(self) -> cv2.VideoCapture:
         if VIDEO_SOURCE is not None:
