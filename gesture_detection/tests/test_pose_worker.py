@@ -208,7 +208,7 @@ def test_process_passes_source_timestamp_to_all_detectors(analyzer):
         patch.object(analyzer.hands[0].uchimizu, "update", return_value=False) as left,
         patch.object(analyzer.hands[1].uchimizu, "update", return_value=False) as right,
     ):
-        analyzer.process(np.zeros((4, 5, 3), dtype=np.uint8), 12.5)
+        analyzer.process(np.zeros((4, 5, 3), dtype=np.uint8), 12.5, 375)
     for detector in (ramune, left, right):
         detector.assert_called_once_with(points, 12.5)
     for hand in analyzer.hands:
@@ -222,10 +222,20 @@ def test_worker_forwards_frame_timestamp():
 
     frame = np.zeros((4, 5, 3), dtype=np.uint8)
     channel = MagicMock()
-    channel.get.side_effect = [(frame, 3.25), None]
+    channel.get.side_effect = [(frame, 3.25, 97), None]
     results = MagicMock()
     results.empty.return_value = True
     with patch("modules.pose_worker.PoseAnalyzer") as factory:
         pose_worker(channel, results)
-    factory.return_value.process.assert_called_once_with(frame, 3.25)
+    factory.return_value.process.assert_called_once_with(frame, 3.25, 97)
     factory.return_value.close.assert_called_once()
+
+
+@pytest.mark.parametrize("detected", [True, False])
+def test_result_identifies_source_frame_even_without_pose(analyzer, detected):
+    analyzer.landmarker.detect.return_value = SimpleNamespace(
+        pose_landmarks=[landmarks()] if detected else []
+    )
+    result = analyzer.process(np.zeros((4, 5, 3), dtype=np.uint8), 2.5, 75)
+    assert result["frame_id"] == 75
+    assert result["timestamp"] == 2.5

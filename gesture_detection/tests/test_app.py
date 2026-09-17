@@ -260,10 +260,13 @@ class SequentialVideoTests(unittest.TestCase):
                 sample = app.pose_frame_queue.get()
                 if sample is None:
                     return
-                frame, timestamp = sample
+                frame, timestamp, frame_id = sample
                 inferred.append(int(frame[0, 0, 0]))
+                self.assertEqual(frame_id, inferred[-1])
                 timestamps.append(timestamp)
-                results.put({"frame_index": inferred[-1]})
+                results.put(
+                    {"frame_index": inferred[-1], "frame_id": frame_id, "timestamp": timestamp}
+                )
 
         def start():
             nonlocal worker
@@ -317,10 +320,10 @@ class SequentialVideoTests(unittest.TestCase):
 
         app, frames, results, process = self.make_app()
         frames.publish.side_effect = [False, True]
-        expected = {"selected_action": "RAMUNE"}
+        expected = {"selected_action": "RAMUNE", "frame_id": 7, "timestamp": 0.25}
         results.get.side_effect = [queue.Empty, expected]
         with patch("modules.app.cv2.waitKey", return_value=-1):
-            self.assertIs(app._process_video_frame(MagicMock(), 0.25), expected)
+            self.assertIs(app._process_video_frame(MagicMock(), 0.25, 7), expected)
         self.assertEqual(frames.publish.call_count, 2)
         self.assertEqual(results.get.call_count, 2)
 
@@ -332,7 +335,7 @@ class SequentialVideoTests(unittest.TestCase):
         results.get.side_effect = queue.Empty
         with patch("modules.app.cv2.waitKey", return_value=-1):
             with self.assertRaisesRegex(RuntimeError, "Pose worker process"):
-                app._process_video_frame(MagicMock(), 0.0)
+                app._process_video_frame(MagicMock(), 0.0, 0)
 
     def test_escape_while_waiting_cancels_pending_frame(self):
         import queue
@@ -340,4 +343,14 @@ class SequentialVideoTests(unittest.TestCase):
         app, frames, results, process = self.make_app()
         results.get.side_effect = queue.Empty
         with patch("modules.app.cv2.waitKey", return_value=27):
-            self.assertIsNone(app._process_video_frame(MagicMock(), 0.0))
+            self.assertIsNone(app._process_video_frame(MagicMock(), 0.0, 0))
+
+    def test_video_rejects_result_from_another_frame(self):
+        app, frames, results, process = self.make_app()
+        for result in (
+            {"frame_id": 6, "timestamp": 0.25},
+            {"frame_id": 7, "timestamp": 0.2},
+        ):
+            results.get.return_value = result
+            with self.assertRaisesRegex(RuntimeError, "does not match"):
+                app._process_video_frame(MagicMock(), 0.25, 7)

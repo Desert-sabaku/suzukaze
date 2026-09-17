@@ -137,6 +137,15 @@ regardless of processing speed. Invalid or non-increasing positions advance by
 one frame at the source FPS (configured `FPS` if source FPS is invalid).
 Camera input uses monotonic time recorded immediately after capture. Each frame
 and its timestamp travel together through shared memory to all gesture detectors.
+Input samples also carry a zero-based `frame_id`, incremented for every
+successfully read frame, including camera frames skipped by inference.
+Every pose result echoes the input `frame_id` and `timestamp`, even when no
+person is detected. Pixels and metadata are copied under the same mailbox lock.
+Video evaluation checks both fields before drawing or saving a result.
+Camera overlays still use the latest available result; its metadata identifies
+the older source frame rather than claiming it belongs to the displayed image.
+Timestamps are source seconds for videos and monotonic capture seconds for
+cameras, not wall-clock dates or inference completion times.
 
 Video files are evaluated sequentially: each decoded frame waits for inference,
 then its own result is drawn and saved before the next frame is read. Only one

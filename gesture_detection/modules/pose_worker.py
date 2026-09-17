@@ -259,14 +259,19 @@ class PoseAnalyzer:
     def close(self):
         self.landmarker.close()
 
-    def process(self, frame, timestamp: float):
+    def process(self, frame, timestamp: float, frame_id: int):
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         mp_image = mp_core.Image(
             image_format=mp_core.ImageFormat.SRGB,
             data=rgb_frame,
         )
         detection_result = self.landmarker.detect(mp_image)
-        result: dict[str, Any] = {"landmarks": [], "messages": []}
+        result: dict[str, Any] = {
+            "landmarks": [],
+            "messages": [],
+            "frame_id": frame_id,
+            "timestamp": timestamp,
+        }
 
         if detection_result.pose_landmarks:
             landmarks = detection_result.pose_landmarks[0]
@@ -403,8 +408,8 @@ def pose_worker(frame_queue: SharedLatestFrame, result_queue: mp.Queue) -> None:
             sample = frame_queue.get()
             if sample is None:
                 break
-            frame, timestamp = sample
-            result = analyzer.process(frame, timestamp)
+            frame, timestamp, frame_id = sample
+            result = analyzer.process(frame, timestamp, frame_id)
             while not result_queue.empty():
                 try:
                     result_queue.get_nowait()

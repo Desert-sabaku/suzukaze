@@ -35,6 +35,9 @@ class PoseResult(TypedDict):
     selected_action: str
     relaxing_state: bool
 
+    # Absent only in the initial placeholder before any inference completes.
+    frame_id: NotRequired[int]
+    timestamp: NotRequired[float]
     ramune_state: NotRequired[str]
 
 
@@ -86,6 +89,7 @@ class GestureApplication:
             if not success:
                 return
             timestamp = frame_clock.timestamp(capture)
+            frame_id = 0
             self.pose_frame_queue = SharedLatestFrame(frame.shape)
             self._start_workers()
             assert self.pose_process is not None
@@ -100,12 +104,12 @@ class GestureApplication:
                 if not self.pose_process.is_alive():
                     raise RuntimeError("Pose worker process has exited unexpectedly")
                 if frame_clock.is_video:
-                    result = self._process_video_frame(frame, timestamp)
+                    result = self._process_video_frame(frame, timestamp, frame_id)
                     if result is None:
                         break
                     latest_pose = result
                 else:
-                    self.pose_frame_queue.publish(frame, timestamp)
+                    self.pose_frame_queue.publish(frame, timestamp, frame_id)
                     latest_pose = get_latest(self.pose_result_queue, latest_pose)
                 annotated = self._annotate_frame(frame, latest_pose)
                 current_time = time.monotonic()
@@ -127,6 +131,7 @@ class GestureApplication:
                     break
                 success, frame = capture.read()
                 if success:
+                    frame_id += 1
                     timestamp = frame_clock.timestamp(capture)
         finally:
             capture.release()
@@ -137,7 +142,9 @@ class GestureApplication:
                 if output is not None:
                     output.release()
 
-    def _process_video_frame(self, frame: Frame, timestamp: float) -> PoseResult | None:
+    def _process_video_frame(
+        self, frame: Frame, timestamp: float, frame_id: int
+    ) -> PoseResult | None:
         """Keep exactly one frame in flight; its result precedes the next read."""
         assert self.pose_frame_queue is not None
         assert self.pose_process is not None
@@ -146,10 +153,13 @@ class GestureApplication:
             if not self.pose_process.is_alive():
                 raise RuntimeError("Pose worker process has exited unexpectedly")
             if not published:
-                published = self.pose_frame_queue.publish(frame, timestamp)
+                published = self.pose_frame_queue.publish(frame, timestamp, frame_id)
             if published:
                 try:
-                    return self.pose_result_queue.get(timeout=0.05)
+                    result = self.pose_result_queue.get(timeout=0.05)
+                    if result["frame_id"] != frame_id or result["timestamp"] != timestamp:
+                        raise RuntimeError("Pose result does not match the pending video frame")
+                    return result
                 except queue.Empty:
                     pass
             else:
