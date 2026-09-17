@@ -35,13 +35,9 @@ if len(CAMERA_FOURCC) != 4:
     raise ValueError("CAMERA_FOURCC must contain exactly four characters")
 
 # An empty source selects camera input.
-VIDEO_SOURCE: Path | None = (
-    _env_path("VIDEO_SOURCE", "") if getenv("VIDEO_SOURCE") else None
-)
+VIDEO_SOURCE: Path | None = _env_path("VIDEO_SOURCE", "") if getenv("VIDEO_SOURCE") else None
 OUTPUT_DIR = _env_path("OUTPUT_DIR", "output")
-_output_name = (
-    os.path.splitext(VIDEO_SOURCE.name)[0] if VIDEO_SOURCE is not None else "camera"
-)
+_output_name = os.path.splitext(VIDEO_SOURCE.name)[0] if VIDEO_SOURCE is not None else "camera"
 VIDEO_OUTPUT_PATH = _env_path(
     "VIDEO_OUTPUT_PATH",
     str(OUTPUT_DIR / f"{_output_name}{int(datetime.now().timestamp())}.output.mp4"),
