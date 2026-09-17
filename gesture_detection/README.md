@@ -179,6 +179,11 @@ Alternatively, you can run the Python module directly:
 uv run python -m modules.app
 ```
 
+MediaPipe and its graphics backend normally print diagnostics directly to
+stderr. The application suppresses those messages around model initialization
+and inference. Set
+`SUPPRESS_MEDIAPIPE_STARTUP_LOGS=false` in `.env` to expose them while debugging.
+
 Press `Esc` in the camera window to exit.
 
 ## Input source

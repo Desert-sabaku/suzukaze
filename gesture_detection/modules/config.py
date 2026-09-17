@@ -25,6 +25,9 @@ POSE_MODEL_URL = (
 POSE_RUNNING_MODE = getenv("POSE_RUNNING_MODE", "VIDEO").strip().upper()
 if POSE_RUNNING_MODE not in {"IMAGE", "VIDEO"}:
     raise ValueError("POSE_RUNNING_MODE must be IMAGE or VIDEO")
+SUPPRESS_MEDIAPIPE_STARTUP_LOGS = getenv(
+    "SUPPRESS_MEDIAPIPE_STARTUP_LOGS", "true"
+).strip().lower() not in {"0", "false", "no", "off"}
 
 YOLO_MODEL_PATH = _env_path("YOLO_MODEL_PATH", "yolov8n.pt")
 
