@@ -38,17 +38,39 @@ separate manual check.
 Fanning allows a brief excursion below the torso midpoint for up to 0.35
 seconds. Lowering the wrist beyond 0.75 torso heights clears the posture
 immediately; keeping it below the midpoint longer than the grace period also
-clears it. Three substantial direction reversals in the last second, together
-with a sufficient fanning score and valid posture, take priority over sprinkling.
+clears it. During sprinkling preparation (READY), fanning scores alone cannot
+select FANNING. After release, the same protection lasts one second from success,
+letting the scoop/release leave the FFT window. A transient score from the other
+hand cannot interrupt this sequence either. This does not extend the sprinkling feedback. Three substantial direction reversals
+in the last second, together with a sufficient fanning score and valid posture,
+can override this protection and take priority over sprinkling.
 This lets sustained fanning settle into Fanning even when its first cycle
 resembles a scoop. A single scoop/release does not establish this priority.
-The relevant tolerances are `FANNING_*` constants in `modules/config.py`.
+Outside preparation and the post-release grace period, normal fanning sensitivity
+is unchanged. The grace period uses source time, not processing time, and is
+configured by `FANNING_UCHIMIZU_GRACE_SECONDS` in `modules/config.py`.
+The other relevant tolerances are `FANNING_*` constants there.
 
 Manual verification: fan continuously around the torso midpoint, then lower
 and hold the hand still. Check that fanning remains stable during the repeated
 motion and clears after lowering. Also check that a single scoop still detects
 sprinkling. The first cycle can remain ambiguous; real footage is needed to
 calibrate these heuristic boundaries.
+
+A before/after replay using identical VIDEO-mode landmarks for every decoded
+frame produced the following counts (not accuracy scores):
+
+| Recording | Frames | FANNING before → after | UCHIMIZU before → after |
+| --- | ---: | ---: | ---: |
+| kohara_uchimizu_01 | 700 | 3 → 0 | 33 → 33 |
+| kohara_fanning_01 | 1495 | 196 → 141 | 0 → 0 |
+
+The stricter priority also suppresses some fanning feedback near ambiguous
+preparation/recovery motions. It does not guarantee zero interference on other
+recordings. Compare [this frame at 3.563 seconds](docs/uchimizu-fanning-priority.jpg):
+READY is preserved and the FANNING overlay is removed. The existing RELAXING
+fallback can still be displayed when no primary action is selected.
+Camera behavior has not been manually tested for this change.
 
 ## Ramune gesture
 

@@ -19,6 +19,7 @@ from .config import (
     FANNING_POSITION_DWELL_SECONDS,
     FANNING_POSITION_GRACE_SECONDS,
     FANNING_REVERSAL_DISTANCE,
+    FANNING_UCHIMIZU_GRACE_SECONDS,
     FPS,
     POSE_MODEL_PATH,
     POSE_MODEL_URL,
@@ -55,6 +56,7 @@ class HandGestureAnalyzer:
         self.uchimizu = UchimizuAnalyzer(self.wrist_index)
         self.uchimizu_score = 0.0
         self.fanning_score = 0.0
+        self.fanning_suppressed_until = 0.0
         self.fanning_position_since: float | None = None
         self.fanning_position_last_seen: float | None = None
         self.fanning_height_history: deque[tuple[float, float]] = deque()
@@ -110,12 +112,24 @@ class HandGestureAnalyzer:
             fanning_allowed and self.fanning_score > 0.45 and self._has_repeated_fanning()
         )
         if repeated_fanning:
+            self.fanning_suppressed_until = 0.0
             self.uchimizu.reset()
             self.uchimizu_state = "IDLE"
             self.uchimizu_score = 0.0
+        elif self.uchimizu.completed_at is not None:
+            self.fanning_suppressed_until = (
+                self.uchimizu.completed_at + FANNING_UCHIMIZU_GRACE_SECONDS
+            )
         self._select_action()
-        # Action hysteresis must not retain fanning outside its valid posture.
-        if not fanning_allowed and self.selected_action == "FANNING":
+        # Reserve preparation and the post-release window for the scoop sequence.
+        # Only confirmed repeated fanning may override it; a residual FFT score
+        # must not do so, including through action hysteresis.
+        fanning_blocked = (
+            not fanning_allowed
+            or self.uchimizu_state == "READY"
+            or now < self.fanning_suppressed_until
+        )
+        if fanning_blocked and self.selected_action == "FANNING":
             self.selected_action = "NONE"
 
     def _has_repeated_fanning(self) -> bool:
@@ -352,6 +366,18 @@ class PoseAnalyzer:
         priority = {"NONE": 0, "FANNING": 1, "UCHIMIZU": 2}
         selected = max(self.hands, key=lambda hand: priority[hand.selected_action])
         self.selected_action = selected.selected_action
+        # The other hand can also produce a transient fanning score while one
+        # hand prepares/releases water. Apply the same priority at pose level.
+        preparing_or_recovering = any(
+            hand.uchimizu_state == "READY" or timestamp < hand.fanning_suppressed_until
+            for hand in self.hands
+        )
+        confirmed_fanning = any(
+            hand.selected_action == "FANNING" and hand._has_repeated_fanning()
+            for hand in self.hands
+        )
+        if self.selected_action == "FANNING" and preparing_or_recovering and not confirmed_fanning:
+            self.selected_action = "NONE"
         self.fanning_score = max(hand.fanning_score for hand in self.hands)
         self.uchimizu_score = max(hand.uchimizu_score for hand in self.hands)
         self.uchimizu_state = max(
