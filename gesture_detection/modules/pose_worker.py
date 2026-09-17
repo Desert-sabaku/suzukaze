@@ -19,11 +19,12 @@ from .config import (
     FANNING_POSITION_DWELL_SECONDS,
     FANNING_POSITION_GRACE_SECONDS,
     FANNING_REVERSAL_DISTANCE,
+    FANNING_UCHIMIZU_GRACE_SECONDS,
     FPS,
     POSE_MODEL_PATH,
     POSE_MODEL_URL,
     POSE_RUNNING_MODE,
-    TARGET_LANDMARKS,
+    RELAXING_DWELL_SECONDS,
     WINDOW_SECONDS,
 )
 from .gesture_position import (
@@ -32,6 +33,7 @@ from .gesture_position import (
 )
 from .ipc import SharedLatestFrame
 from .ramune import RamuneAnalyzer
+from .relaxing import RelaxingAnalyzer
 from .signal_processing import resample_time_window
 from .uchimizu import UchimizuAnalyzer
 
@@ -55,6 +57,7 @@ class HandGestureAnalyzer:
         self.uchimizu = UchimizuAnalyzer(self.wrist_index)
         self.uchimizu_score = 0.0
         self.fanning_score = 0.0
+        self.fanning_suppressed_until = 0.0
         self.fanning_position_since: float | None = None
         self.fanning_position_last_seen: float | None = None
         self.fanning_height_history: deque[tuple[float, float]] = deque()
@@ -110,12 +113,24 @@ class HandGestureAnalyzer:
             fanning_allowed and self.fanning_score > 0.45 and self._has_repeated_fanning()
         )
         if repeated_fanning:
+            self.fanning_suppressed_until = 0.0
             self.uchimizu.reset()
             self.uchimizu_state = "IDLE"
             self.uchimizu_score = 0.0
+        elif self.uchimizu.completed_at is not None:
+            self.fanning_suppressed_until = (
+                self.uchimizu.completed_at + FANNING_UCHIMIZU_GRACE_SECONDS
+            )
         self._select_action()
-        # Action hysteresis must not retain fanning outside its valid posture.
-        if not fanning_allowed and self.selected_action == "FANNING":
+        # Reserve preparation and the post-release window for the scoop sequence.
+        # Only confirmed repeated fanning may override it; a residual FFT score
+        # must not do so, including through action hysteresis.
+        fanning_blocked = (
+            not fanning_allowed
+            or self.uchimizu_state == "READY"
+            or now < self.fanning_suppressed_until
+        )
+        if fanning_blocked and self.selected_action == "FANNING":
             self.selected_action = "NONE"
 
     def _has_repeated_fanning(self) -> bool:
@@ -235,11 +250,9 @@ class PoseAnalyzer:
         self.landmarker = self._create_landmarker(running_mode)
         self.hands = [HandGestureAnalyzer(15), HandGestureAnalyzer(16)]
         self.ramune = RamuneAnalyzer()
-        self.motion_history = deque(maxlen=FPS)
-        self.previous_landmarks = None
+        self.relaxing = RelaxingAnalyzer()
 
         self.relaxing_state = False
-        self.relaxing_low_count = 0
         self._reset_gesture_state()
 
     @staticmethod
@@ -290,9 +303,10 @@ class PoseAnalyzer:
             result["landmarks"] = [
                 (landmark.x, landmark.y, landmark.visibility) for landmark in landmarks
             ]
-            self._update_motion(landmarks)
             self._update_gesture_scores(landmarks, timestamp)
-            self._update_relaxing_state()
+            self.relaxing_state = self.relaxing.update(
+                landmarks, timestamp, aspect_ratio=frame.shape[1] / frame.shape[0]
+            )
         else:
             self._reset_tracking_state()
 
@@ -316,13 +330,6 @@ class PoseAnalyzer:
         self._last_source_timestamp = timestamp
         self._last_video_timestamp_ms = timestamp_ms
         return timestamp_ms
-
-    def _update_motion(self, landmarks):
-        current = np.array([[landmarks[index].x, landmarks[index].y] for index in TARGET_LANDMARKS])
-        if self.previous_landmarks is not None:
-            motion = np.linalg.norm(current - self.previous_landmarks, axis=1)
-            self.motion_history.append(float(np.mean(motion)))
-        self.previous_landmarks = current
 
     def _reset_gesture_state(self):
         self.ramune.reset()
@@ -352,6 +359,18 @@ class PoseAnalyzer:
         priority = {"NONE": 0, "FANNING": 1, "UCHIMIZU": 2}
         selected = max(self.hands, key=lambda hand: priority[hand.selected_action])
         self.selected_action = selected.selected_action
+        # The other hand can also produce a transient fanning score while one
+        # hand prepares/releases water. Apply the same priority at pose level.
+        preparing_or_recovering = any(
+            hand.uchimizu_state == "READY" or timestamp < hand.fanning_suppressed_until
+            for hand in self.hands
+        )
+        confirmed_fanning = any(
+            hand.selected_action == "FANNING" and hand._has_repeated_fanning()
+            for hand in self.hands
+        )
+        if self.selected_action == "FANNING" and preparing_or_recovering and not confirmed_fanning:
+            self.selected_action = "NONE"
         self.fanning_score = max(hand.fanning_score for hand in self.hands)
         self.uchimizu_score = max(hand.uchimizu_score for hand in self.hands)
         self.uchimizu_state = max(
@@ -361,31 +380,13 @@ class PoseAnalyzer:
 
     def _reset_tracking_state(self):
         self._reset_gesture_state()
-        self.motion_history.clear()
-        self.previous_landmarks = None
+        self.relaxing.reset()
         self.relaxing_state = False
-        self.relaxing_low_count = 0
-
-    def _update_relaxing_state(self):
-        if not self.motion_history:
-            return
-        average_motion = np.mean(self.motion_history)
-        if not self.relaxing_state:
-            if average_motion < 0.0200:
-                self.relaxing_low_count += 1
-            else:
-                self.relaxing_low_count = 0
-            if self.relaxing_low_count >= max(1, int(FPS * 0.4)):
-                self.relaxing_state = True
-        elif average_motion > 0.0240:
-            self.relaxing_state = False
-            self.relaxing_low_count = 0
 
     def _append_status_messages(self, result):
-        if self.motion_history:
-            average_motion = np.mean(self.motion_history)
+        if self.relaxing.motion_speed is not None:
             result["messages"].append(
-                (f"Motion: {average_motion:.4f}", (10, 55), (255, 200, 0), 0.7)
+                (f"Body speed: {self.relaxing.motion_speed:.3f}/s", (10, 55), (255, 200, 0), 0.7)
             )
         result["messages"].extend(
             [
@@ -409,14 +410,12 @@ class PoseAnalyzer:
                 ),
             ]
         )
-        if not self.motion_history:
-            return
         result["messages"].append(
             (
                 (
                     "Relaxing: ON"
                     if self.relaxing_state
-                    else f"Relaxing: OFF (warmup {max(0, int(FPS * 0.4) - self.relaxing_low_count)})"
+                    else f"Relaxing: OFF (still {self.relaxing.still_seconds:.1f}/{RELAXING_DWELL_SECONDS:.1f}s)"
                 ),
                 (10, 155),
                 (255, 255, 180),

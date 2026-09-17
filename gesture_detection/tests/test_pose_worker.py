@@ -313,3 +313,83 @@ def test_video_rejects_repeated_or_backward_source_times(analyzer, timestamp):
     assert analyzer._video_timestamp_ms(1.0) == 1000
     with pytest.raises(ValueError, match="strictly increase"):
         analyzer._video_timestamp_ms(timestamp)
+
+
+@pytest.mark.parametrize("wrist_index", [15, 16])
+@pytest.mark.parametrize("sample_fps", [15, 30, 60])
+def test_scoop_preparation_and_recovery_grace_do_not_select_fanning(
+    analyzer, wrist_index, sample_fps
+):
+    points = landmarks()
+    points[31 - wrist_index].visibility = 0
+    actions = []
+    states = []
+    # Stay within fanning posture long enough to pass its dwell gate, both
+    # before release and afterward. A high FFT score alone must not suffice.
+    trajectory = (
+        [0.8] * sample_fps
+        + [0.48] * sample_fps
+        + [0.56] * (sample_fps // 5)
+        + [0.48] * (sample_fps * 7 // 10)
+    )
+    with patch(
+        "modules.pose_worker.HandGestureAnalyzer._calculate_fanning_score", return_value=0.9
+    ):
+        for frame_id, y in enumerate(trajectory):
+            points[wrist_index].y = y
+            analyzer._update_gesture_scores(points, frame_id / sample_fps)
+            actions.append(analyzer.selected_action)
+            states.append(analyzer.uchimizu_state)
+    assert "READY" in states
+    assert "SWING" in states
+    assert "UCHIMIZU" in actions
+    assert "FANNING" not in actions
+
+
+@pytest.mark.parametrize("wrist_index", [15, 16])
+def test_tracking_loss_clears_post_uchimizu_suppression(analyzer, wrist_index):
+    points = landmarks()
+    points[31 - wrist_index].visibility = 0
+    hand = analyzer.hands[wrist_index - 15]
+    for frame_id, y in enumerate([0.8, 0.6, 0.7]):
+        points[wrist_index].y = y
+        analyzer._update_gesture_scores(points, frame_id / 30)
+    assert hand.fanning_suppressed_until > 0
+    points[wrist_index].visibility = 0
+    analyzer._update_gesture_scores(points, 0.1)
+    assert hand.fanning_suppressed_until == 0
+
+
+@pytest.mark.parametrize("wrist_index", [15, 16])
+def test_other_hand_score_does_not_interrupt_sprinkling(analyzer, wrist_index):
+    points = landmarks()
+    points[31 - wrist_index].y = 0.22
+    actions = []
+    with patch(
+        "modules.pose_worker.HandGestureAnalyzer._calculate_fanning_score", return_value=0.9
+    ):
+        for frame_id, y in enumerate([0.8] * 30 + [0.48] * 30 + [0.56] * 6 + [0.48] * 21):
+            points[wrist_index].y = y
+            analyzer._update_gesture_scores(points, frame_id / 30)
+            if frame_id >= 30:
+                actions.append(analyzer.selected_action)
+    assert "UCHIMIZU" in actions
+    assert "FANNING" not in actions
+
+
+def test_process_clears_relaxing_on_first_moving_frame(process_analyzer):
+    analyzer = process_analyzer
+    points = landmarks()
+    detection = SimpleNamespace(pose_landmarks=[points])
+    analyzer.landmarker.detect.return_value = detection
+    analyzer.landmarker.detect_for_video.return_value = detection
+    frame = np.zeros((100, 100, 3), dtype=np.uint8)
+    result = {}
+    for frame_id in range(32):
+        result = analyzer.process(frame, frame_id / 30, frame_id)
+    assert result["relaxing_state"]
+    points[23].x += 0.03
+    result = analyzer.process(frame, 32 / 30, 32)
+    assert not result["relaxing_state"]
+    assert result["frame_id"] == 32
+    assert result["timestamp"] == 32 / 30

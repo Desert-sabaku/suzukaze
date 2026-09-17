@@ -4,6 +4,58 @@ OpenCV camera or video-file input is processed by a MediaPipe Pose worker.
 It classifies fanning, sprinkling water, relaxing, and a two-hand Ramune opening
 motion. No bottle or other prop is required; the application does not start YOLO.
 
+## Relaxing (whole-body stillness)
+
+Relaxing requires one continuous second of stillness in source time. It monitors
+the nose, shoulders, elbows, wrists, hips, knees, ankles, heels, and toes when
+they are visible inside the image. Both shoulders and hips must be tracked.
+A change in which major parts can be tracked restarts the stillness period;
+unobserved body parts are not assumed still.
+
+The largest movement of any monitored part is used, rather than an average that
+can hide a moving hip or foot among stationary points. Positions remain in image
+coordinates, so whole-body translation, leaning, and approaching the camera are
+not cancelled out by recentering the body. Horizontal distances account for the
+image aspect ratio; distances are normalized by shoulder-to-hip length.
+
+The current frame turns Relaxing off immediately if speed exceeds 0.30 torso
+lengths/second or displacement from the fixed stillness reference exceeds 0.05
+torso lengths. The fixed reference also prevents sustained slow movement from
+being treated as stationary solely because each frame-to-frame change is small.
+No moving average or release hold delays the exit. Re-entry requires a fresh
+second of stillness. Small landmark jitter within the tolerances is allowed;
+motion below both thresholds is indistinguishable from tracking noise.
+
+Missing torso tracking, changed visibility, non-increasing timestamps, and gaps
+over 0.25 source seconds cancel the state. Feet outside the camera image cannot
+be assessed: for such recordings the guarantee covers the tracked torso and
+visible body parts, not the entire unseen body. Camera movement is also image
+motion and can cancel Relaxing. Camera display lag still depends on the existing
+latest-frame pipeline; “immediate” means the first processed frame that detects
+motion, not zero camera-to-display latency.
+
+Tune `RELAXING_*` in `modules/config.py`. CI uses synthetic landmarks and mocked
+inference to check whole-body movement, individual limb movement, immediate exit,
+slow drift, visibility loss, source timing, and small tracking jitter.
+
+A full replay with identical VIDEO-mode landmarks supplied to the old and new
+classifiers gave these Relaxing-state counts (not frame-level accuracy scores):
+
+| Recording | Frames | Before | After |
+| --- | ---: | ---: | ---: |
+| sabaku_other_01.mp4 | 821 | 794 | 0 |
+| kohara_relaxing_01 | 365 | 353 | 201 |
+
+The speed/drift tolerances were relaxed from 0.20/0.035 to 0.30/0.05 after
+manual feedback. Replaying the same cached landmarks increased the static
+reference from 132 to 201 Relaxing frames while sabaku_other_01 stayed at zero.
+The one-second dwell and immediate threshold-crossing release are unchanged.
+The static reference still enters Relaxing, but the stricter rules also reduce
+its active duration. Thresholds may need calibration for other cameras and
+tracking noise. [The before/after overlay at 5.024 seconds](docs/relaxing-motion-release.jpg)
+shows movement in sabaku_other_01 no longer labelled Relaxing.
+This was an offline video replay; live-camera behavior has not been manually tested.
+
 ## Sprinkling water (Uchimizu)
 
 Start with either wrist low in front of your torso, lift it to scoop, then
@@ -38,17 +90,39 @@ separate manual check.
 Fanning allows a brief excursion below the torso midpoint for up to 0.35
 seconds. Lowering the wrist beyond 0.75 torso heights clears the posture
 immediately; keeping it below the midpoint longer than the grace period also
-clears it. Three substantial direction reversals in the last second, together
-with a sufficient fanning score and valid posture, take priority over sprinkling.
+clears it. During sprinkling preparation (READY), fanning scores alone cannot
+select FANNING. After release, the same protection lasts one second from success,
+letting the scoop/release leave the FFT window. A transient score from the other
+hand cannot interrupt this sequence either. This does not extend the sprinkling feedback. Three substantial direction reversals
+in the last second, together with a sufficient fanning score and valid posture,
+can override this protection and take priority over sprinkling.
 This lets sustained fanning settle into Fanning even when its first cycle
 resembles a scoop. A single scoop/release does not establish this priority.
-The relevant tolerances are `FANNING_*` constants in `modules/config.py`.
+Outside preparation and the post-release grace period, normal fanning sensitivity
+is unchanged. The grace period uses source time, not processing time, and is
+configured by `FANNING_UCHIMIZU_GRACE_SECONDS` in `modules/config.py`.
+The other relevant tolerances are `FANNING_*` constants there.
 
 Manual verification: fan continuously around the torso midpoint, then lower
 and hold the hand still. Check that fanning remains stable during the repeated
 motion and clears after lowering. Also check that a single scoop still detects
 sprinkling. The first cycle can remain ambiguous; real footage is needed to
 calibrate these heuristic boundaries.
+
+A before/after replay using identical VIDEO-mode landmarks for every decoded
+frame produced the following counts (not accuracy scores):
+
+| Recording | Frames | FANNING before → after | UCHIMIZU before → after |
+| --- | ---: | ---: | ---: |
+| kohara_uchimizu_01 | 700 | 3 → 0 | 33 → 33 |
+| kohara_fanning_01 | 1495 | 196 → 141 | 0 → 0 |
+
+The stricter priority also suppresses some fanning feedback near ambiguous
+preparation/recovery motions. It does not guarantee zero interference on other
+recordings. Compare [this frame at 3.563 seconds](docs/uchimizu-fanning-priority.jpg):
+READY is preserved and the FANNING overlay is removed. The existing RELAXING
+fallback can still be displayed when no primary action is selected.
+Camera behavior has not been manually tested for this change.
 
 ## Ramune gesture
 
@@ -192,8 +266,8 @@ processing time separately from source video duration, and inspect recognition
 onset/offset, missed actions, false positives, and recovery after tracking loss.
 Use frame-level labels to measure accuracy; action frame counts alone do not
 establish which mode is better. Both modes retain the application's wrist
-histories and Ramune/Uchimizu state machines. Frame-count-based smoothing
-and relaxing detection are unchanged by the mode switch.
+histories and Ramune/Uchimizu state machines. Gesture score smoothing remains
+frame-based; relaxing detection uses the source-time stillness rules above.
 
 Compatibility with the input pipeline:
 
@@ -246,6 +320,7 @@ uv run python -m compileall modules
 
 - `modules/app.py`: input loop, worker lifecycle, action integration
 - `modules/pose_worker.py`: MediaPipe inference and temporal gesture state
+- `modules/relaxing.py`: source-time stillness and immediate motion release
 - `modules/uchimizu.py`: scoop and downward-release sequence detection
 - `modules/ramune.py`: two-hand preparation and press state machine
 - `modules/yolo_worker.py`: legacy bottle detection (unused)
