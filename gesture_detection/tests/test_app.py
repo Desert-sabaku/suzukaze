@@ -143,6 +143,7 @@ class RamuneActionTests(unittest.TestCase):
         self.assertEqual(GestureApplication._primary_action(pose), "NONE")
 
 
+@patch("modules.app.VIDEO_SOURCE", None)
 class RunLifecycleTests(unittest.TestCase):
     def test_escape_flushes_output_and_stops_workers(self):
         import numpy as np
@@ -185,3 +186,171 @@ class RunLifecycleTests(unittest.TestCase):
         capture.release.assert_called_once()
         stop.assert_called_once()
         app.pose_result_queue.close()
+
+
+class FrameClockTests(unittest.TestCase):
+    def test_video_positions_and_fallback(self):
+        import numpy as np
+        from modules.app import FrameClock
+
+        capture = MagicMock()
+        positions = iter([0.0, 40.0, 40.0, float("nan"), -1.0, 240.0])
+        capture.get.side_effect = lambda prop: (
+            next(positions) if prop == cv2.CAP_PROP_POS_MSEC else 25.0
+        )
+        clock = FrameClock(is_video=True)
+        with patch("modules.app.time.monotonic", side_effect=AssertionError):
+            actual = [clock.timestamp(capture) for _ in range(6)]
+        np.testing.assert_allclose(actual, [0.0, 0.04, 0.08, 0.12, 0.16, 0.24])
+
+    def test_invalid_fps(self):
+        from modules.app import FPS, FrameClock
+
+        for fps in (0.0, -1.0, float("nan"), float("inf")):
+            capture = MagicMock()
+            capture.get.side_effect = lambda prop, fps=fps: (
+                float("nan") if prop == cv2.CAP_PROP_POS_MSEC else fps
+            )
+            clock = FrameClock(is_video=True)
+            self.assertEqual(clock.timestamp(capture), 0.0)
+            self.assertAlmostEqual(clock.timestamp(capture), 1 / FPS)
+
+    def test_camera_capture_time(self):
+        from modules.app import FrameClock
+
+        capture = MagicMock()
+        with patch("modules.app.time.monotonic", return_value=123.45):
+            self.assertEqual(FrameClock(is_video=False).timestamp(capture), 123.45)
+        capture.get.assert_not_called()
+
+
+class SequentialVideoTests(unittest.TestCase):
+    def test_every_frame_is_inferred_and_saved_with_its_own_result(self):
+        import queue
+        import threading
+
+        import numpy as np
+
+        app = GestureApplication()
+        app.pose_result_queue.close()
+        results = queue.Queue()
+        app.pose_result_queue = MagicMock(wraps=results)
+        app.pose_process = MagicMock()
+        inferred = []
+        saved = []
+        timestamps = []
+        worker = None
+        frames = [np.full((4, 5, 3), index, dtype=np.uint8) for index in range(4)]
+        capture = MagicMock()
+        reads = 0
+
+        def read():
+            nonlocal reads
+            # Reading ahead before inference AND saving would violate evaluation order.
+            self.assertEqual(len(saved), reads)
+            if reads == len(frames):
+                return False, None
+            frame = frames[reads]
+            reads += 1
+            return True, frame
+
+        def infer():
+            assert app.pose_frame_queue is not None
+            while True:
+                sample = app.pose_frame_queue.get()
+                if sample is None:
+                    return
+                frame, timestamp, frame_id = sample
+                inferred.append(int(frame[0, 0, 0]))
+                self.assertEqual(frame_id, inferred[-1])
+                timestamps.append(timestamp)
+                results.put(
+                    {"frame_index": inferred[-1], "frame_id": frame_id, "timestamp": timestamp}
+                )
+
+        def start():
+            nonlocal worker
+            worker = threading.Thread(target=infer, daemon=True)
+            worker.start()
+
+        def stop():
+            assert app.pose_frame_queue is not None
+            assert worker is not None
+            app.pose_frame_queue.close()
+            worker.join(timeout=5)
+            self.assertFalse(worker.is_alive())
+
+        def annotate(frame, result):
+            self.assertEqual(int(frame[0, 0, 0]), result["frame_index"])
+            return frame.copy()
+
+        capture.read.side_effect = read
+        capture.get.side_effect = lambda prop: (reads - 1) * 40.0
+        with (
+            patch("modules.app.VIDEO_SOURCE", "/tmp/video.mp4"),
+            patch.object(app, "_open_capture", return_value=capture),
+            patch.object(app, "_open_output", return_value=MagicMock()),
+            patch.object(app, "_start_workers", side_effect=start),
+            patch.object(app, "_stop_workers", side_effect=stop),
+            patch.object(app, "_annotate_frame", side_effect=annotate),
+            patch("modules.app.AsyncVideoWriter") as writer,
+            patch("modules.app.cv2.putText"),
+            patch("modules.app.cv2.imshow"),
+            patch("modules.app.cv2.waitKey", return_value=-1),
+            patch("modules.app.cv2.destroyAllWindows"),
+        ):
+            writer.return_value.write.side_effect = lambda frame: saved.append(int(frame[0, 0, 0]))
+            app.run()
+        self.assertEqual(inferred, [0, 1, 2, 3])
+        self.assertEqual(saved, inferred)
+        np.testing.assert_allclose(timestamps, [0.0, 0.04, 0.08, 0.12])
+        writer.return_value.release.assert_called_once()
+        capture.release.assert_called_once()
+
+    def make_app(self):
+        app = GestureApplication()
+        app.pose_result_queue.close()
+        app.pose_result_queue = MagicMock()
+        app.pose_frame_queue = MagicMock()
+        app.pose_process = MagicMock()
+        return app, app.pose_frame_queue, app.pose_result_queue, app.pose_process
+
+    def test_busy_mailbox_and_slow_inference_do_not_skip_or_republish(self):
+        import queue
+
+        app, frames, results, process = self.make_app()
+        frames.publish.side_effect = [False, True]
+        expected = {"selected_action": "RAMUNE", "frame_id": 7, "timestamp": 0.25}
+        results.get.side_effect = [queue.Empty, expected]
+        with patch("modules.app.cv2.waitKey", return_value=-1):
+            self.assertIs(app._process_video_frame(MagicMock(), 0.25, 7), expected)
+        self.assertEqual(frames.publish.call_count, 2)
+        self.assertEqual(results.get.call_count, 2)
+
+    def test_worker_failure_while_waiting_raises(self):
+        import queue
+
+        app, frames, results, process = self.make_app()
+        process.is_alive.side_effect = [True, False]
+        results.get.side_effect = queue.Empty
+        with patch("modules.app.cv2.waitKey", return_value=-1):
+            with self.assertRaisesRegex(RuntimeError, "Pose worker process"):
+                app._process_video_frame(MagicMock(), 0.0, 0)
+
+    def test_escape_while_waiting_cancels_pending_frame(self):
+        import queue
+
+        app, frames, results, process = self.make_app()
+        results.get.side_effect = queue.Empty
+        with patch("modules.app.cv2.waitKey", return_value=27):
+            self.assertIsNone(app._process_video_frame(MagicMock(), 0.0, 0))
+
+    def test_video_rejects_result_from_another_frame(self):
+        app, frames, results, process = self.make_app()
+        for result in (
+            {"frame_id": 6, "timestamp": 0.25},
+            {"frame_id": 7, "timestamp": 0.2},
+        ):
+            results.get.return_value = result
+            with self.assertRaisesRegex(RuntimeError, "does not match"):
+                app._process_video_frame(MagicMock(), 0.25, 7)

@@ -1,5 +1,6 @@
-import datetime
 import os
+from datetime import datetime
+from os import getenv
 from pathlib import Path
 
 import cv2
@@ -11,7 +12,7 @@ load_dotenv(PROJECT_ROOT / ".env", override=False)
 
 def _env_path(name: str, default: str) -> Path:
     """Resolve relative paths from the project root, regardless of working directory."""
-    value = Path(os.environ.get(name) or default).expanduser()
+    value = Path(getenv(name) or default).expanduser()
     return value if value.is_absolute() else PROJECT_ROOT / value
 
 
@@ -20,29 +21,31 @@ POSE_MODEL_URL = (
     "https://storage.googleapis.com/mediapipe-models/pose_landmarker/"
     "pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
 )
+# Use temporal tracking by default; retain IMAGE for baseline comparisons.
+POSE_RUNNING_MODE = getenv("POSE_RUNNING_MODE", "VIDEO").strip().upper()
+if POSE_RUNNING_MODE not in {"IMAGE", "VIDEO"}:
+    raise ValueError("POSE_RUNNING_MODE must be IMAGE or VIDEO")
+
 YOLO_MODEL_PATH = _env_path("YOLO_MODEL_PATH", "yolov8n.pt")
 
-FPS = 60
-CAMERA_INDEX = int(os.environ.get("CAMERA_INDEX", "0"))
-CAMERA_BACKEND = int(os.environ.get("CAMERA_BACKEND", str(cv2.CAP_ANY)))
-CAMERA_FOURCC = os.environ.get("CAMERA_FOURCC", "MJPG")
+CAMERA_INDEX = int(getenv("CAMERA_INDEX", "0"))
+CAMERA_BACKEND = int(getenv("CAMERA_BACKEND", str(cv2.CAP_ANY)))
+CAMERA_FOURCC = getenv("CAMERA_FOURCC", "MJPG")
 if len(CAMERA_FOURCC) != 4:
     raise ValueError("CAMERA_FOURCC must contain exactly four characters")
 
 # An empty source selects camera input.
-VIDEO_SOURCE: Path | None = (
-    _env_path("VIDEO_SOURCE", "") if os.environ.get("VIDEO_SOURCE") else None
-)
+VIDEO_SOURCE: Path | None = _env_path("VIDEO_SOURCE", "") if getenv("VIDEO_SOURCE") else None
 OUTPUT_DIR = _env_path("OUTPUT_DIR", "output")
-_output_name = VIDEO_SOURCE.name if VIDEO_SOURCE is not None else "camera"
+_output_name = os.path.splitext(VIDEO_SOURCE.name)[0] if VIDEO_SOURCE is not None else "camera"
 VIDEO_OUTPUT_PATH = _env_path(
     "VIDEO_OUTPUT_PATH",
-    str(OUTPUT_DIR / f"{_output_name}{datetime.date.today()}.output.mp4"),
+    str(OUTPUT_DIR / f"{_output_name}{int(datetime.now().timestamp())}.output.mp4"),
 )
 
 # Maximum queued output frames; full buffers apply backpressure without dropping.
-VIDEO_OUTPUT_BUFFER_FRAMES = int(os.environ.get("VIDEO_OUTPUT_BUFFER_FRAMES", "8"))
-FPS = int(os.environ.get("FPS", "30"))
+VIDEO_OUTPUT_BUFFER_FRAMES = int(getenv("VIDEO_OUTPUT_BUFFER_FRAMES", "8"))
+FPS = int(getenv("FPS", "30"))
 if FPS <= 0 or VIDEO_OUTPUT_BUFFER_FRAMES <= 0:
     raise ValueError("FPS and VIDEO_OUTPUT_BUFFER_FRAMES must be positive integers")
 
@@ -100,7 +103,7 @@ POSE_CONNECTIONS = (
     (28, 32),
 )
 
-# Ramune distances are measured in shoulder widths; times use monotonic seconds.
+# Ramune distances are measured in shoulder widths; times use source seconds.
 RAMUNE_ALIGN_TOLERANCE = 0.60
 # Allow landmark drift across the hand, especially sideways. Relative closing
 # motion still distinguishes a press from moving both hands down together.

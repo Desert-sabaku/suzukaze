@@ -1,4 +1,6 @@
+import math
 import multiprocessing as mp
+import queue
 import time
 from pathlib import Path
 from typing import Any, NotRequired, TypedDict
@@ -33,7 +35,34 @@ class PoseResult(TypedDict):
     selected_action: str
     relaxing_state: bool
 
+    # Absent only in the initial placeholder before any inference completes.
+    frame_id: NotRequired[int]
+    timestamp: NotRequired[float]
     ramune_state: NotRequired[str]
+
+
+class FrameClock:
+    """Timestamp decoded frames in source seconds, or camera capture time."""
+
+    def __init__(self, is_video: bool) -> None:
+        self.is_video = is_video
+        self.previous: float | None = None
+
+    def timestamp(self, capture: cv2.VideoCapture) -> float:
+        if not self.is_video:
+            return time.monotonic()
+        timestamp = capture.get(cv2.CAP_PROP_POS_MSEC) / 1000.0
+        if (
+            not math.isfinite(timestamp)
+            or timestamp < 0
+            or (self.previous is not None and timestamp <= self.previous)
+        ):
+            fps = capture.get(cv2.CAP_PROP_FPS)
+            if not math.isfinite(fps) or fps <= 0:
+                fps = FPS
+            timestamp = 0.0 if self.previous is None else self.previous + 1.0 / fps
+        self.previous = timestamp
+        return timestamp
 
 
 class GestureApplication:
@@ -54,10 +83,13 @@ class GestureApplication:
             "relaxing_state": False,
         }
         previous_time = time.monotonic()
+        frame_clock = FrameClock(is_video=VIDEO_SOURCE is not None)
         try:
             success, frame = capture.read()
             if not success:
                 return
+            timestamp = frame_clock.timestamp(capture)
+            frame_id = 0
             self.pose_frame_queue = SharedLatestFrame(frame.shape)
             self._start_workers()
             assert self.pose_process is not None
@@ -71,8 +103,14 @@ class GestureApplication:
             while success:
                 if not self.pose_process.is_alive():
                     raise RuntimeError("Pose worker process has exited unexpectedly")
-                self.pose_frame_queue.publish(frame)
-                latest_pose = get_latest(self.pose_result_queue, latest_pose)
+                if frame_clock.is_video:
+                    result = self._process_video_frame(frame, timestamp, frame_id)
+                    if result is None:
+                        break
+                    latest_pose = result
+                else:
+                    self.pose_frame_queue.publish(frame, timestamp, frame_id)
+                    latest_pose = get_latest(self.pose_result_queue, latest_pose)
                 annotated = self._annotate_frame(frame, latest_pose)
                 current_time = time.monotonic()
                 frame_rate = 1.0 / max(current_time - previous_time, 1e-6)
@@ -92,6 +130,9 @@ class GestureApplication:
                 if cv2.waitKey(1) & 0xFF == 27:
                     break
                 success, frame = capture.read()
+                if success:
+                    frame_id += 1
+                    timestamp = frame_clock.timestamp(capture)
         finally:
             capture.release()
             cv2.destroyAllWindows()
@@ -100,6 +141,32 @@ class GestureApplication:
             finally:
                 if output is not None:
                     output.release()
+
+    def _process_video_frame(
+        self, frame: Frame, timestamp: float, frame_id: int
+    ) -> PoseResult | None:
+        """Keep exactly one frame in flight; its result precedes the next read."""
+        assert self.pose_frame_queue is not None
+        assert self.pose_process is not None
+        published = False
+        while True:
+            if not self.pose_process.is_alive():
+                raise RuntimeError("Pose worker process has exited unexpectedly")
+            if not published:
+                published = self.pose_frame_queue.publish(frame, timestamp, frame_id)
+            if published:
+                try:
+                    result = self.pose_result_queue.get(timeout=0.05)
+                    if result["frame_id"] != frame_id or result["timestamp"] != timestamp:
+                        raise RuntimeError("Pose result does not match the pending video frame")
+                    return result
+                except queue.Empty:
+                    pass
+            else:
+                # A reader briefly holding the mailbox lock must not drop a frame.
+                time.sleep(0.001)
+            if cv2.waitKey(1) & 0xFF == 27:
+                return None
 
     def _open_capture(self) -> cv2.VideoCapture:
         if VIDEO_SOURCE is not None:

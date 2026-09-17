@@ -1,6 +1,6 @@
+import math
 import multiprocessing as mp
 import queue
-import time
 import urllib.request
 from collections import deque
 from typing import Any
@@ -22,6 +22,7 @@ from .config import (
     FPS,
     POSE_MODEL_PATH,
     POSE_MODEL_URL,
+    POSE_RUNNING_MODE,
     TARGET_LANDMARKS,
     WINDOW_SECONDS,
 )
@@ -60,11 +61,11 @@ class HandGestureAnalyzer:
         self.selected_action = "NONE"
         self.action_hold_count = 0
 
-    def _update_gesture_scores(self, landmarks):
+    def _update_gesture_scores(self, landmarks, timestamp: float) -> None:
         wrist = landmarks[self.wrist_index]
         previous_y = self.wrist_y_history[-1] if self.wrist_y_history else None
         self.wrist_y_history.append(wrist.y)
-        now = time.monotonic()
+        now = timestamp
         self.wrist_t_history.append(now)
         if previous_y is not None:
             self.wrist_dy_history.append(abs(wrist.y - previous_y))
@@ -225,8 +226,13 @@ class HandGestureAnalyzer:
 class PoseAnalyzer:
     """Owns MediaPipe pose inference and all temporal gesture state."""
 
-    def __init__(self):
-        self.landmarker = self._create_landmarker()
+    def __init__(self, running_mode: str = POSE_RUNNING_MODE):
+        if running_mode not in {"IMAGE", "VIDEO"}:
+            raise ValueError("running_mode must be IMAGE or VIDEO")
+        self.running_mode = running_mode
+        self._last_source_timestamp: float | None = None
+        self._last_video_timestamp_ms = -1
+        self.landmarker = self._create_landmarker(running_mode)
         self.hands = [HandGestureAnalyzer(15), HandGestureAnalyzer(16)]
         self.ramune = RamuneAnalyzer()
         self.motion_history = deque(maxlen=FPS)
@@ -237,7 +243,7 @@ class PoseAnalyzer:
         self._reset_gesture_state()
 
     @staticmethod
-    def _create_landmarker():
+    def _create_landmarker(running_mode: str):
         if not POSE_MODEL_PATH.exists():
             temp_path = POSE_MODEL_PATH.parent / f".{POSE_MODEL_PATH.name}.tmp"
             try:
@@ -250,6 +256,7 @@ class PoseAnalyzer:
 
         options = vision.PoseLandmarkerOptions(
             base_options=python.BaseOptions(model_asset_path=str(POSE_MODEL_PATH)),
+            running_mode=vision.RunningMode[running_mode],
             output_segmentation_masks=False,
             min_pose_detection_confidence=0.5,
             min_pose_presence_confidence=0.5,
@@ -260,14 +267,23 @@ class PoseAnalyzer:
     def close(self):
         self.landmarker.close()
 
-    def process(self, frame):
+    def process(self, frame, timestamp: float, frame_id: int):
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         mp_image = mp_core.Image(
             image_format=mp_core.ImageFormat.SRGB,
             data=rgb_frame,
         )
-        detection_result = self.landmarker.detect(mp_image)
-        result: dict[str, Any] = {"landmarks": [], "messages": []}
+        if self.running_mode == "VIDEO":
+            timestamp_ms = self._video_timestamp_ms(timestamp)
+            detection_result = self.landmarker.detect_for_video(mp_image, timestamp_ms)
+        else:
+            detection_result = self.landmarker.detect(mp_image)
+        result: dict[str, Any] = {
+            "landmarks": [],
+            "messages": [],
+            "frame_id": frame_id,
+            "timestamp": timestamp,
+        }
 
         if detection_result.pose_landmarks:
             landmarks = detection_result.pose_landmarks[0]
@@ -275,7 +291,7 @@ class PoseAnalyzer:
                 (landmark.x, landmark.y, landmark.visibility) for landmark in landmarks
             ]
             self._update_motion(landmarks)
-            self._update_gesture_scores(landmarks)
+            self._update_gesture_scores(landmarks, timestamp)
             self._update_relaxing_state()
         else:
             self._reset_tracking_state()
@@ -288,6 +304,18 @@ class PoseAnalyzer:
         result["uchimizu_state"] = self.uchimizu_state
         self._append_status_messages(result)
         return result
+
+    def _video_timestamp_ms(self, timestamp: float) -> int:
+        """Adapt source seconds without changing gesture or result timestamps."""
+        if not math.isfinite(timestamp) or timestamp < 0:
+            raise ValueError("VIDEO timestamps must be finite and non-negative")
+        if self._last_source_timestamp is not None and timestamp <= self._last_source_timestamp:
+            raise ValueError("VIDEO source timestamps must strictly increase")
+        # Distinct source times can truncate to the same integer millisecond.
+        timestamp_ms = max(int(timestamp * 1000), self._last_video_timestamp_ms + 1)
+        self._last_source_timestamp = timestamp
+        self._last_video_timestamp_ms = timestamp_ms
+        return timestamp_ms
 
     def _update_motion(self, landmarks):
         current = np.array([[landmarks[index].x, landmarks[index].y] for index in TARGET_LANDMARKS])
@@ -305,8 +333,8 @@ class PoseAnalyzer:
         self.uchimizu_score = 0.0
         self.fanning_score = 0.0
 
-    def _update_gesture_scores(self, landmarks):
-        opened = self.ramune.update(landmarks, time.monotonic())
+    def _update_gesture_scores(self, landmarks, timestamp: float) -> None:
+        opened = self.ramune.update(landmarks, timestamp)
         if opened or self.ramune.state in ("FORMING", "READY"):
             # Keep the press from leaking into the single-hand classifiers.
             for hand in self.hands:
@@ -317,7 +345,7 @@ class PoseAnalyzer:
             return
         for hand in self.hands:
             if landmarks[hand.wrist_index].visibility > 0.5:
-                hand._update_gesture_scores(landmarks)
+                hand._update_gesture_scores(landmarks, timestamp)
             else:
                 hand._reset_gesture_state()
         # Preserve the existing priority when hands perform different gestures.
@@ -401,10 +429,11 @@ def pose_worker(frame_queue: SharedLatestFrame, result_queue: mp.Queue) -> None:
     analyzer = PoseAnalyzer()
     try:
         while True:
-            frame = frame_queue.get()
-            if frame is None:
+            sample = frame_queue.get()
+            if sample is None:
                 break
-            result = analyzer.process(frame)
+            frame, timestamp, frame_id = sample
+            result = analyzer.process(frame, timestamp, frame_id)
             while not result_queue.empty():
                 try:
                     result_queue.get_nowait()
