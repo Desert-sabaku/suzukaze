@@ -1,0 +1,803 @@
+{
+  "environment": {
+    "python": "3.12.3",
+    "mediapipe": "0.10.35",
+    "opencv": "5.0.0",
+    "running_mode": "VIDEO",
+    "important_landmark_indices": [
+      0,
+      11,
+      12,
+      15,
+      16,
+      23,
+      24
+    ]
+  },
+  "models": {
+    "lite": {
+      "file": "pose_landmarker_lite.task",
+      "sha256": "59929e1d1ee95287735ddd833b19cf4ac46d29bc7afddbbf6753c459690d574a"
+    },
+    "full": {
+      "file": "pose_landmarker_full.task",
+      "sha256": "5134a3aad27a58b93da0088d431f366da362b44e3ccfbe3462b3827a839011b1"
+    }
+  },
+  "conditions": [
+    {
+      "id": "lite",
+      "description": "Lite / no preprocessing",
+      "clips": [
+        {
+          "source": "ラムネbtn.mp4",
+          "expected_action": "RAMUNE",
+          "frames": 309,
+          "pose_frames": 309,
+          "pose_frame_ratio": 1.0,
+          "mean_landmark_visibility": 0.7150169048500628,
+          "important_landmarks_visible_frames": 284,
+          "important_landmarks_visible_ratio": 0.919093851132686,
+          "expected_action_frames": 0,
+          "expected_action_ratio": 0.0,
+          "first_expected_action_seconds": null,
+          "actions": {
+            "FANNING": 63,
+            "NONE": 188,
+            "SPRINKLING": 58
+          },
+          "transitions": [
+            [
+              0.0,
+              "NONE"
+            ],
+            [
+              0.77,
+              "SPRINKLING"
+            ],
+            [
+              1.237,
+              "NONE"
+            ],
+            [
+              1.904,
+              "FANNING"
+            ],
+            [
+              2.704,
+              "NONE"
+            ],
+            [
+              2.904,
+              "SPRINKLING"
+            ],
+            [
+              3.272,
+              "FANNING"
+            ],
+            [
+              3.705,
+              "NONE"
+            ],
+            [
+              4.24,
+              "FANNING"
+            ],
+            [
+              4.973,
+              "NONE"
+            ],
+            [
+              6.042,
+              "SPRINKLING"
+            ],
+            [
+              6.409,
+              "NONE"
+            ],
+            [
+              7.043,
+              "FANNING"
+            ],
+            [
+              7.175,
+              "NONE"
+            ],
+            [
+              7.444,
+              "SPRINKLING"
+            ],
+            [
+              7.81,
+              "NONE"
+            ],
+            [
+              8.611,
+              "SPRINKLING"
+            ],
+            [
+              8.978,
+              "NONE"
+            ]
+          ],
+          "inference_seconds": 13.062782915999833,
+          "elapsed_seconds": 13.997538649999797
+        },
+        {
+          "source": "夕涼みbtn.mp4",
+          "expected_action": "RELAXING",
+          "frames": 323,
+          "pose_frames": 168,
+          "pose_frame_ratio": 0.5201238390092879,
+          "mean_landmark_visibility": 0.5806518379386519,
+          "important_landmarks_visible_frames": 0,
+          "important_landmarks_visible_ratio": 0.0,
+          "expected_action_frames": 0,
+          "expected_action_ratio": 0.0,
+          "first_expected_action_seconds": null,
+          "actions": {
+            "NONE": 323
+          },
+          "transitions": [
+            [
+              0.0,
+              "NONE"
+            ]
+          ],
+          "inference_seconds": 16.769948231000853,
+          "elapsed_seconds": 17.654714424000076
+        },
+        {
+          "source": "扇ぎbtn.mp4",
+          "expected_action": "FANNING",
+          "frames": 321,
+          "pose_frames": 0,
+          "pose_frame_ratio": 0.0,
+          "mean_landmark_visibility": 0.0,
+          "important_landmarks_visible_frames": 0,
+          "important_landmarks_visible_ratio": 0.0,
+          "expected_action_frames": 0,
+          "expected_action_ratio": 0.0,
+          "first_expected_action_seconds": null,
+          "actions": {
+            "NONE": 321
+          },
+          "transitions": [
+            [
+              0.0,
+              "NONE"
+            ]
+          ],
+          "inference_seconds": 12.717441047999728,
+          "elapsed_seconds": 13.700513489000059
+        },
+        {
+          "source": "打ち水btn.mp4",
+          "expected_action": "SPRINKLING",
+          "frames": 905,
+          "pose_frames": 469,
+          "pose_frame_ratio": 0.518232044198895,
+          "mean_landmark_visibility": 0.6358273605832134,
+          "important_landmarks_visible_frames": 71,
+          "important_landmarks_visible_ratio": 0.07845303867403315,
+          "expected_action_frames": 11,
+          "expected_action_ratio": 0.012154696132596685,
+          "first_expected_action_seconds": 1.2719999999999998,
+          "actions": {
+            "FANNING": 151,
+            "NONE": 743,
+            "SPRINKLING": 11
+          },
+          "transitions": [
+            [
+              0.0,
+              "NONE"
+            ],
+            [
+              1.272,
+              "SPRINKLING"
+            ],
+            [
+              1.639,
+              "NONE"
+            ],
+            [
+              5.509,
+              "FANNING"
+            ],
+            [
+              6.109,
+              "NONE"
+            ],
+            [
+              6.576,
+              "FANNING"
+            ],
+            [
+              7.653,
+              "NONE"
+            ],
+            [
+              7.921,
+              "FANNING"
+            ],
+            [
+              7.954,
+              "NONE"
+            ],
+            [
+              23.528,
+              "FANNING"
+            ],
+            [
+              23.864,
+              "NONE"
+            ],
+            [
+              24.468,
+              "FANNING"
+            ],
+            [
+              25.862,
+              "NONE"
+            ],
+            [
+              27.998,
+              "FANNING"
+            ],
+            [
+              28.232,
+              "NONE"
+            ],
+            [
+              28.832,
+              "FANNING"
+            ]
+          ],
+          "inference_seconds": 93.29399871100213,
+          "elapsed_seconds": 97.80099159399992
+        }
+      ]
+    },
+    {
+      "id": "full",
+      "description": "Full / no preprocessing",
+      "clips": [
+        {
+          "source": "ラムネbtn.mp4",
+          "expected_action": "RAMUNE",
+          "frames": 309,
+          "pose_frames": 309,
+          "pose_frame_ratio": 1.0,
+          "mean_landmark_visibility": 0.7006379117176288,
+          "important_landmarks_visible_frames": 306,
+          "important_landmarks_visible_ratio": 0.9902912621359223,
+          "expected_action_frames": 0,
+          "expected_action_ratio": 0.0,
+          "first_expected_action_seconds": null,
+          "actions": {
+            "FANNING": 47,
+            "NONE": 262
+          },
+          "transitions": [
+            [
+              0.0,
+              "NONE"
+            ],
+            [
+              0.67,
+              "FANNING"
+            ],
+            [
+              0.702,
+              "NONE"
+            ],
+            [
+              2.804,
+              "FANNING"
+            ],
+            [
+              3.94,
+              "NONE"
+            ],
+            [
+              7.344,
+              "FANNING"
+            ],
+            [
+              7.742,
+              "NONE"
+            ]
+          ],
+          "inference_seconds": 42.194148784002664,
+          "elapsed_seconds": 44.35117435800021
+        },
+        {
+          "source": "夕涼みbtn.mp4",
+          "expected_action": "RELAXING",
+          "frames": 323,
+          "pose_frames": 143,
+          "pose_frame_ratio": 0.44272445820433437,
+          "mean_landmark_visibility": 0.7064083511146776,
+          "important_landmarks_visible_frames": 118,
+          "important_landmarks_visible_ratio": 0.3653250773993808,
+          "expected_action_frames": 0,
+          "expected_action_ratio": 0.0,
+          "first_expected_action_seconds": null,
+          "actions": {
+            "NONE": 322,
+            "SPRINKLING": 1
+          },
+          "transitions": [
+            [
+              0.0,
+              "NONE"
+            ],
+            [
+              9.98,
+              "SPRINKLING"
+            ],
+            [
+              10.012,
+              "NONE"
+            ]
+          ],
+          "inference_seconds": 71.79724224000165,
+          "elapsed_seconds": 74.23437503100013
+        },
+        {
+          "source": "扇ぎbtn.mp4",
+          "expected_action": "FANNING",
+          "frames": 321,
+          "pose_frames": 0,
+          "pose_frame_ratio": 0.0,
+          "mean_landmark_visibility": 0.0,
+          "important_landmarks_visible_frames": 0,
+          "important_landmarks_visible_ratio": 0.0,
+          "expected_action_frames": 0,
+          "expected_action_ratio": 0.0,
+          "first_expected_action_seconds": null,
+          "actions": {
+            "NONE": 321
+          },
+          "transitions": [
+            [
+              0.0,
+              "NONE"
+            ]
+          ],
+          "inference_seconds": 37.286639910004396,
+          "elapsed_seconds": 39.79204889000039
+        },
+        {
+          "source": "打ち水btn.mp4",
+          "expected_action": "SPRINKLING",
+          "frames": 905,
+          "pose_frames": 555,
+          "pose_frame_ratio": 0.6132596685082873,
+          "mean_landmark_visibility": 0.6494353600738348,
+          "important_landmarks_visible_frames": 344,
+          "important_landmarks_visible_ratio": 0.38011049723756907,
+          "expected_action_frames": 61,
+          "expected_action_ratio": 0.06740331491712707,
+          "first_expected_action_seconds": 3.0709999999999997,
+          "actions": {
+            "FANNING": 32,
+            "NONE": 812,
+            "SPRINKLING": 61
+          },
+          "transitions": [
+            [
+              0.0,
+              "NONE"
+            ],
+            [
+              3.071,
+              "SPRINKLING"
+            ],
+            [
+              3.105,
+              "NONE"
+            ],
+            [
+              5.776,
+              "FANNING"
+            ],
+            [
+              6.012,
+              "NONE"
+            ],
+            [
+              6.609,
+              "FANNING"
+            ],
+            [
+              6.912,
+              "NONE"
+            ],
+            [
+              7.416,
+              "FANNING"
+            ],
+            [
+              7.484,
+              "NONE"
+            ],
+            [
+              18.686,
+              "SPRINKLING"
+            ],
+            [
+              19.053,
+              "NONE"
+            ],
+            [
+              19.12,
+              "FANNING"
+            ],
+            [
+              19.457,
+              "NONE"
+            ],
+            [
+              19.856,
+              "SPRINKLING"
+            ],
+            [
+              20.223,
+              "NONE"
+            ],
+            [
+              20.523,
+              "SPRINKLING"
+            ],
+            [
+              20.891,
+              "NONE"
+            ],
+            [
+              23.594,
+              "FANNING"
+            ],
+            [
+              23.728,
+              "NONE"
+            ],
+            [
+              24.302,
+              "SPRINKLING"
+            ],
+            [
+              24.367,
+              "NONE"
+            ],
+            [
+              24.873,
+              "SPRINKLING"
+            ],
+            [
+              25.234,
+              "NONE"
+            ],
+            [
+              26.429,
+              "SPRINKLING"
+            ],
+            [
+              26.531,
+              "NONE"
+            ],
+            [
+              29.198,
+              "SPRINKLING"
+            ],
+            [
+              29.564,
+              "NONE"
+            ]
+          ],
+          "inference_seconds": 81.55595261501048,
+          "elapsed_seconds": 85.61976438600004
+        }
+      ]
+    },
+    {
+      "id": "lite_blur",
+      "description": "Lite / Gaussian blur 5x5, sigma=1.2",
+      "clips": [
+        {
+          "source": "ラムネbtn.mp4",
+          "expected_action": "RAMUNE",
+          "frames": 309,
+          "pose_frames": 309,
+          "pose_frame_ratio": 1.0,
+          "mean_landmark_visibility": 0.7200880824978966,
+          "important_landmarks_visible_frames": 306,
+          "important_landmarks_visible_ratio": 0.9902912621359223,
+          "expected_action_frames": 0,
+          "expected_action_ratio": 0.0,
+          "first_expected_action_seconds": null,
+          "actions": {
+            "FANNING": 74,
+            "NONE": 180,
+            "SPRINKLING": 55
+          },
+          "transitions": [
+            [
+              0.0,
+              "NONE"
+            ],
+            [
+              0.804,
+              "SPRINKLING"
+            ],
+            [
+              1.169,
+              "NONE"
+            ],
+            [
+              2.639,
+              "SPRINKLING"
+            ],
+            [
+              3.005,
+              "FANNING"
+            ],
+            [
+              3.038,
+              "NONE"
+            ],
+            [
+              3.106,
+              "FANNING"
+            ],
+            [
+              3.772,
+              "NONE"
+            ],
+            [
+              4.374,
+              "FANNING"
+            ],
+            [
+              4.941,
+              "NONE"
+            ],
+            [
+              5.34,
+              "SPRINKLING"
+            ],
+            [
+              5.708,
+              "FANNING"
+            ],
+            [
+              6.308,
+              "NONE"
+            ],
+            [
+              6.342,
+              "FANNING"
+            ],
+            [
+              6.376,
+              "NONE"
+            ],
+            [
+              6.709,
+              "SPRINKLING"
+            ],
+            [
+              7.075,
+              "FANNING"
+            ],
+            [
+              7.643,
+              "NONE"
+            ],
+            [
+              9.377,
+              "SPRINKLING"
+            ],
+            [
+              9.747,
+              "NONE"
+            ]
+          ],
+          "inference_seconds": 14.490619217996937,
+          "elapsed_seconds": 16.850602768000044
+        },
+        {
+          "source": "夕涼みbtn.mp4",
+          "expected_action": "RELAXING",
+          "frames": 323,
+          "pose_frames": 294,
+          "pose_frame_ratio": 0.9102167182662538,
+          "mean_landmark_visibility": 0.5675900368118041,
+          "important_landmarks_visible_frames": 12,
+          "important_landmarks_visible_ratio": 0.03715170278637771,
+          "expected_action_frames": 0,
+          "expected_action_ratio": 0.0,
+          "first_expected_action_seconds": null,
+          "actions": {
+            "NONE": 323
+          },
+          "transitions": [
+            [
+              0.0,
+              "NONE"
+            ]
+          ],
+          "inference_seconds": 17.45484806800141,
+          "elapsed_seconds": 20.211259745000007
+        },
+        {
+          "source": "扇ぎbtn.mp4",
+          "expected_action": "FANNING",
+          "frames": 321,
+          "pose_frames": 4,
+          "pose_frame_ratio": 0.012461059190031152,
+          "mean_landmark_visibility": 0.6498755358836867,
+          "important_landmarks_visible_frames": 0,
+          "important_landmarks_visible_ratio": 0.0,
+          "expected_action_frames": 0,
+          "expected_action_ratio": 0.0,
+          "first_expected_action_seconds": null,
+          "actions": {
+            "NONE": 321
+          },
+          "transitions": [
+            [
+              0.0,
+              "NONE"
+            ]
+          ],
+          "inference_seconds": 15.982040079996295,
+          "elapsed_seconds": 18.75453679500015
+        },
+        {
+          "source": "打ち水btn.mp4",
+          "expected_action": "SPRINKLING",
+          "frames": 905,
+          "pose_frames": 879,
+          "pose_frame_ratio": 0.9712707182320443,
+          "mean_landmark_visibility": 0.6196262997483095,
+          "important_landmarks_visible_frames": 124,
+          "important_landmarks_visible_ratio": 0.13701657458563535,
+          "expected_action_frames": 21,
+          "expected_action_ratio": 0.023204419889502763,
+          "first_expected_action_seconds": 1.2719999999999998,
+          "actions": {
+            "FANNING": 196,
+            "NONE": 688,
+            "SPRINKLING": 21
+          },
+          "transitions": [
+            [
+              0.0,
+              "NONE"
+            ],
+            [
+              1.272,
+              "SPRINKLING"
+            ],
+            [
+              1.605,
+              "NONE"
+            ],
+            [
+              3.772,
+              "FANNING"
+            ],
+            [
+              3.973,
+              "NONE"
+            ],
+            [
+              5.709,
+              "FANNING"
+            ],
+            [
+              6.043,
+              "NONE"
+            ],
+            [
+              6.609,
+              "FANNING"
+            ],
+            [
+              6.945,
+              "NONE"
+            ],
+            [
+              8.926,
+              "FANNING"
+            ],
+            [
+              9.823,
+              "NONE"
+            ],
+            [
+              12.594,
+              "FANNING"
+            ],
+            [
+              13.125,
+              "NONE"
+            ],
+            [
+              14.79,
+              "FANNING"
+            ],
+            [
+              14.953,
+              "NONE"
+            ],
+            [
+              15.656,
+              "FANNING"
+            ],
+            [
+              16.117,
+              "NONE"
+            ],
+            [
+              18.852,
+              "FANNING"
+            ],
+            [
+              20.024,
+              "NONE"
+            ],
+            [
+              20.358,
+              "SPRINKLING"
+            ],
+            [
+              20.723,
+              "NONE"
+            ],
+            [
+              21.893,
+              "FANNING"
+            ],
+            [
+              22.727,
+              "NONE"
+            ],
+            [
+              23.528,
+              "FANNING"
+            ],
+            [
+              23.794,
+              "NONE"
+            ],
+            [
+              25.268,
+              "FANNING"
+            ],
+            [
+              25.862,
+              "NONE"
+            ],
+            [
+              27.964,
+              "FANNING"
+            ],
+            [
+              28.197,
+              "NONE"
+            ],
+            [
+              29.698,
+              "FANNING"
+            ]
+          ],
+          "inference_seconds": 45.28871048899282,
+          "elapsed_seconds": 52.55265319499995
+        }
+      ]
+    }
+  ]
+}
