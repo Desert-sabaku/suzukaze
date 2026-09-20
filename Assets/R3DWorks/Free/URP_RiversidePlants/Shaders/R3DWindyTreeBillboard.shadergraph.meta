@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 88b7198f6a50d334cbec5437aba80ca1
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 625f186215c104763be7675aa2d941aa, type: 3}
+AssetOrigin:
+  serializedVersion: 1
+  productId: 389712
+  packageName: Free URP Riverside Plants & Trees
+  packageVersion: 1.0
+  assetPath: Assets/R3DWorks/Free/URP_RiversidePlants/Shaders/R3DWindyTreeBillboard.shadergraph
+  uploadId: 944088
