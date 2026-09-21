@@ -16,6 +16,16 @@ sample_movies/
 output/
 shared/
 
+# Local datasets; retain the directory layout and its documentation.
+shared/*/
+!shared/videos/
+!shared/annotations/
+!shared/results/
+shared/videos/*
+shared/annotations/*
+shared/results/*
+!shared/**/.gitkeep
+
 # Local environment settings
 .env
 .env.*
