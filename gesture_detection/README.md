@@ -21,6 +21,7 @@ uv run gesture-detection
 
 - [ジェスチャー仕様](docs/gestures.md) — 現在の判定仕様の正本
 - [アーキテクチャ](docs/architecture.md) — 入出力、時刻、並行処理、設定
+- [Unityへの通知](docs/unity-delivery.md) — 状態・成立イベント・ACKと接続手順
 - [手動テスト](docs/manual-testing.md) — カメラ・動画で確認する項目
 - [過去の評価](docs/evaluations.md) — 検証結果、生データ、現在の採否
 - [関節位置の手動ラベル付け](docs/landmark-annotation.md) — 評価用の正解データ作成
