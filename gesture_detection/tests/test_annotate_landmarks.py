@@ -55,9 +55,7 @@ def test_extract_save_resume_without_model_or_camera(tmp_path, monkeypatch):
     # select a point, clear it, change frame and close.
     callbacks = {}
     monkeypatch.setattr(cv2, "namedWindow", lambda *args: None)
-    monkeypatch.setattr(
-        cv2, "setMouseCallback", lambda name, cb: callbacks.update(click=cb)
-    )
+    monkeypatch.setattr(cv2, "setMouseCallback", lambda name, cb: callbacks.update(click=cb))
     monkeypatch.setattr(cv2, "imshow", lambda *args: None)
     monkeypatch.setattr(cv2, "destroyAllWindows", lambda: None)
     monkeypatch.setattr(cv2, "getWindowProperty", lambda *args: 1)
