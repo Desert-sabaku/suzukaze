@@ -11,6 +11,10 @@ paths and thresholds. `main.py` is a lightweight entry point. Model assets
 Tests live under `gesture_detection/tests/`.
 and mirror package module names where practical.
 
+Firmware for the Raspberry Pi Pico (fan control, TinyGo) lives in
+`firmware/`. See `firmware/README.md` for structure, build, and flashing
+instructions.
+
 ## Build, Test, and Development Commands
 
 Run commands from `gesture_detection/`:
@@ -25,6 +29,8 @@ uv run python -m compileall modules  # Basic syntax check
 Python 3.12 or newer is required by `pyproject.toml`. The application needs a
 working camera and displays an OpenCV window; press `Esc` to exit. Keep
 `uv.lock` synchronized whenever dependencies change.
+
+See `firmware/README.md` for TinyGo build and flashing commands.
 
 ## Coding Style & Naming Conventions
 

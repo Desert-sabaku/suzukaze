@@ -1,0 +1,41 @@
+[project]
+dependencies = ["pyserial>=3.5"]
+description = "Serial client for the fan-controller firmware (firmware/)"
+name = "mcu"
+readme = "README.md"
+requires-python = ">=3.12"
+version = "0.1.0"
+
+[project.scripts]
+mcu = "mcu.cli:main"
+
+[dependency-groups]
+dev = [
+  "pyright>=1.1",
+  "pytest>=8.4.2",
+  "ruff>=0.13.0",
+]
+
+[tool.ruff]
+line-length = 100
+src = ["mcu", "tests"]
+target-version = "py312"
+
+[tool.ruff.lint]
+ignore = ["E501"]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.pyright]
+include = ["mcu", "tests"]
+exclude = ["**/__pycache__", ".venv", "build", "dist"]
+typeCheckingMode = "standard"
+pythonVersion = "3.12"
+venvPath = "."
+venv = ".venv"
+
+[build-system]
+build-backend = "hatchling.build"
+requires = ["hatchling"]
