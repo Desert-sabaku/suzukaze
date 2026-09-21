@@ -5,6 +5,8 @@ dependencies = [
   "opencv-python>=5.0.0.93",
   "python-dotenv>=1.2.3",
   "ultralytics>=8.4.121",
+  "pyserial>=3.5",
+  "websockets>=15.0",
 ]
 description = "カメラまたは動画を MediaPipe Pose で解析し、「扇ぎ」「打ち水」「夕涼み」 「ラムネ開栓」の4動作を判定するアプリケーション"
 name = "gesture-detection"
