@@ -243,14 +243,29 @@ class HandGestureAnalyzer:
 class PoseAnalyzer:
     """Owns MediaPipe pose inference and all temporal gesture state."""
 
-    def __init__(self, running_mode: str = POSE_RUNNING_MODE):
+    def __init__(
+        self,
+        running_mode: str = POSE_RUNNING_MODE,
+        *,
+        detection_confidence: float = 0.5,
+        presence_confidence: float = 0.5,
+        tracking_confidence: float = 0.5,
+    ):
         if running_mode not in {"IMAGE", "VIDEO"}:
             raise ValueError("running_mode must be IMAGE or VIDEO")
+        confidences = (detection_confidence, presence_confidence, tracking_confidence)
+        if any(not 0.0 <= confidence <= 1.0 for confidence in confidences):
+            raise ValueError("pose confidence thresholds must be between 0 and 1")
         self.running_mode = running_mode
         self._last_source_timestamp: float | None = None
         self._last_video_timestamp_ms = -1
         with suppress_native_stderr(SUPPRESS_MEDIAPIPE_STARTUP_LOGS):
-            self.landmarker = self._create_landmarker(running_mode)
+            self.landmarker = self._create_landmarker(
+                running_mode,
+                detection_confidence,
+                presence_confidence,
+                tracking_confidence,
+            )
         self.hands = [HandGestureAnalyzer(15), HandGestureAnalyzer(16)]
         self.ramune = RamuneAnalyzer()
         self.relaxing = RelaxingAnalyzer()
@@ -259,7 +274,12 @@ class PoseAnalyzer:
         self._reset_gesture_state()
 
     @staticmethod
-    def _create_landmarker(running_mode: str):
+    def _create_landmarker(
+        running_mode: str,
+        detection_confidence: float = 0.5,
+        presence_confidence: float = 0.5,
+        tracking_confidence: float = 0.5,
+    ):
         if not POSE_MODEL_PATH.exists():
             temp_path = POSE_MODEL_PATH.parent / f".{POSE_MODEL_PATH.name}.tmp"
             try:
@@ -274,9 +294,9 @@ class PoseAnalyzer:
             base_options=python.BaseOptions(model_asset_path=str(POSE_MODEL_PATH)),
             running_mode=vision.RunningMode[running_mode],
             output_segmentation_masks=False,
-            min_pose_detection_confidence=0.5,
-            min_pose_presence_confidence=0.5,
-            min_tracking_confidence=0.5,
+            min_pose_detection_confidence=detection_confidence,
+            min_pose_presence_confidence=presence_confidence,
+            min_tracking_confidence=tracking_confidence,
         )
         return vision.PoseLandmarker.create_from_options(options)
 

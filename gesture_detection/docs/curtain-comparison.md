@@ -101,3 +101,6 @@ separate failure modes:
 The tested 5x5 blur should not be enabled in the application globally: its
 higher pose coverage comes with more Fanning false positives and no successful
 Ramune, Relaxing, or Fanning recognition.
+
+The confidence, preprocessing, foreground-pose, and current-spec Ramune
+follow-up is recorded in [curtain-followup.md](curtain-followup.md).

@@ -278,6 +278,32 @@ def test_landmarker_options_select_running_mode(mode, tmp_path):
     create.assert_called_once_with(options.return_value)
 
 
+def test_landmarker_options_accept_confidence_overrides(tmp_path):
+    model = tmp_path / "pose.task"
+    model.touch()
+    with (
+        patch("modules.pose_worker.POSE_MODEL_PATH", model),
+        patch("modules.pose_worker.python.BaseOptions"),
+        patch("modules.pose_worker.vision.PoseLandmarkerOptions") as options,
+        patch("modules.pose_worker.vision.PoseLandmarker.create_from_options"),
+    ):
+        PoseAnalyzer(
+            running_mode="VIDEO",
+            detection_confidence=0.2,
+            presence_confidence=0.35,
+            tracking_confidence=0.4,
+        )
+    assert options.call_args.kwargs["min_pose_detection_confidence"] == 0.2
+    assert options.call_args.kwargs["min_pose_presence_confidence"] == 0.35
+    assert options.call_args.kwargs["min_tracking_confidence"] == 0.4
+
+
+@pytest.mark.parametrize("confidence", [-0.1, 1.1])
+def test_pose_analyzer_rejects_invalid_confidence(confidence):
+    with pytest.raises(ValueError, match="between 0 and 1"):
+        PoseAnalyzer(running_mode="VIDEO", detection_confidence=confidence)
+
+
 def test_process_selects_api_and_preserves_source_times(process_analyzer):
     analyzer = process_analyzer
     detection = SimpleNamespace(pose_landmarks=[])
