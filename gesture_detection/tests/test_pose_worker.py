@@ -47,8 +47,8 @@ def test_fanning_with_either_or_both_hands(analyzer, wrist_indices):
         timestamp = frame / 30
         for index in wrist_indices:
             points[index].y = 0.22 + 0.04 * np.sin(2 * np.pi * 2 * frame / 30)
-        analyzer._update_gesture_scores(points, timestamp)
-    assert analyzer.selected_action == "FANNING"
+        analyzer.recognition._update_gesture_scores(points, timestamp)
+    assert analyzer.recognition.selected_action == "FANNING"
 
 
 @pytest.mark.parametrize("wrist_index", [15, 16])
@@ -59,20 +59,20 @@ def test_uchimizu_with_either_hand(analyzer, wrist_index):
     for frame, y in enumerate([0.8, 0.8, 0.8, 0.8, 0.6, 0.7]):
         timestamp = frame / 30
         points[wrist_index].y = y
-        analyzer._update_gesture_scores(points, timestamp)
-    assert analyzer.selected_action == "UCHIMIZU"
+        analyzer.recognition._update_gesture_scores(points, timestamp)
+    assert analyzer.recognition.selected_action == "UCHIMIZU"
 
 
 def test_losing_one_hand_only_resets_its_history(analyzer):
     points = landmarks()
-    analyzer._update_gesture_scores(points, 0.0)
+    analyzer.recognition._update_gesture_scores(points, 0.0)
     points[15].visibility = 0
-    analyzer._update_gesture_scores(points, 0.0)
-    assert len(analyzer.hands[0].wrist_y_history) == 0
-    assert len(analyzer.hands[1].wrist_y_history) == 2
-    analyzer._reset_tracking_state()
-    assert all(not hand.wrist_y_history for hand in analyzer.hands)
-    assert analyzer.selected_action == "NONE"
+    analyzer.recognition._update_gesture_scores(points, 0.0)
+    assert len(analyzer.recognition.hands[0].wrist_y_history) == 0
+    assert len(analyzer.recognition.hands[1].wrist_y_history) == 2
+    analyzer.recognition._reset_tracking_state()
+    assert all(not hand.wrist_y_history for hand in analyzer.recognition.hands)
+    assert analyzer.recognition.selected_action == "NONE"
 
 
 @pytest.mark.parametrize("wrist_index", [15, 16])
@@ -83,13 +83,13 @@ def test_uchimizu_finish_does_not_become_fanning(analyzer, wrist_index):
     trajectory = [0.8] * 4 + [0.6, 0.7] + [0.45] * 4 + [0.8] * 60
     timestamp = 0.0
     with patch(
-        "modules.pose_worker.HandGestureAnalyzer._calculate_fanning_score", return_value=0.9
+        "modules.hand_gesture.HandGestureAnalyzer._calculate_fanning_score", return_value=0.9
     ):
         for frame, y in enumerate(trajectory):
             timestamp = frame / 30
             points[wrist_index].y = y
-            analyzer._update_gesture_scores(points, timestamp)
-            actions.append(analyzer.selected_action)
+            analyzer.recognition._update_gesture_scores(points, timestamp)
+            actions.append(analyzer.recognition.selected_action)
     assert "UCHIMIZU" in actions
     assert "FANNING" not in actions
     assert actions[-1] == "NONE"
@@ -107,8 +107,8 @@ def test_fanning_after_uchimizu_is_still_detected(analyzer, wrist_index):
             if frame < 6
             else 0.45 + 0.04 * np.sin(2 * np.pi * 2 * frame / 30)
         )
-        analyzer._update_gesture_scores(points, timestamp)
-    assert analyzer.selected_action == "FANNING"
+        analyzer.recognition._update_gesture_scores(points, timestamp)
+    assert analyzer.recognition.selected_action == "FANNING"
 
 
 def test_lowering_hand_clears_fanning_and_position_timer(analyzer):
@@ -118,14 +118,14 @@ def test_lowering_hand_clears_fanning_and_position_timer(analyzer):
     for frame in range(90):
         timestamp = frame / 30
         points[15].y = 0.22 + 0.04 * np.sin(2 * np.pi * 2 * frame / 30)
-        analyzer._update_gesture_scores(points, timestamp)
-    assert analyzer.selected_action == "FANNING"
+        analyzer.recognition._update_gesture_scores(points, timestamp)
+    assert analyzer.recognition.selected_action == "FANNING"
     timestamp = 3.0
     points[15].y = 0.8
-    analyzer._update_gesture_scores(points, timestamp)
-    assert analyzer.selected_action != "FANNING"
-    assert analyzer.hands[0].fanning_score == 0.0
-    assert analyzer.hands[0].fanning_position_since is None
+    analyzer.recognition._update_gesture_scores(points, timestamp)
+    assert analyzer.recognition.selected_action != "FANNING"
+    assert analyzer.recognition.hands[0].fanning_score == 0.0
+    assert analyzer.recognition.hands[0].fanning_position_since is None
 
 
 def test_lost_hand_must_reestablish_fanning_position(analyzer):
@@ -133,27 +133,27 @@ def test_lost_hand_must_reestablish_fanning_position(analyzer):
     points[16].visibility = 0
     points[15].y = 0.22
     timestamp = 1.0
-    analyzer._update_gesture_scores(points, timestamp)
-    assert analyzer.hands[0].fanning_position_since == 1.0
+    analyzer.recognition._update_gesture_scores(points, timestamp)
+    assert analyzer.recognition.hands[0].fanning_position_since == 1.0
     points[15].visibility = 0
-    analyzer._update_gesture_scores(points, timestamp)
-    assert analyzer.hands[0].fanning_position_since is None
+    analyzer.recognition._update_gesture_scores(points, timestamp)
+    assert analyzer.recognition.hands[0].fanning_position_since is None
     points[15].visibility = 1
     timestamp = 2.0
     with patch(
-        "modules.pose_worker.HandGestureAnalyzer._calculate_fanning_score", return_value=0.9
+        "modules.hand_gesture.HandGestureAnalyzer._calculate_fanning_score", return_value=0.9
     ):
-        analyzer._update_gesture_scores(points, timestamp)
-    assert analyzer.hands[0].fanning_position_since == 2.0
-    assert analyzer.hands[0].fanning_score == 0.0
-    assert analyzer.selected_action != "FANNING"
+        analyzer.recognition._update_gesture_scores(points, timestamp)
+    assert analyzer.recognition.hands[0].fanning_position_since == 2.0
+    assert analyzer.recognition.hands[0].fanning_score == 0.0
+    assert analyzer.recognition.selected_action != "FANNING"
     timestamp = 2.0 + FANNING_POSITION_DWELL_SECONDS / 2
     with patch(
-        "modules.pose_worker.HandGestureAnalyzer._calculate_fanning_score", return_value=0.9
+        "modules.hand_gesture.HandGestureAnalyzer._calculate_fanning_score", return_value=0.9
     ):
-        analyzer._update_gesture_scores(points, timestamp)
-    assert analyzer.fanning_score == 0.0
-    assert analyzer.selected_action != "FANNING"
+        analyzer.recognition._update_gesture_scores(points, timestamp)
+    assert analyzer.recognition.fanning_score == 0.0
+    assert analyzer.recognition.selected_action != "FANNING"
 
 
 @pytest.mark.parametrize("base_index", [15, 16])
@@ -164,17 +164,17 @@ def test_ramune_takes_priority_and_resets_on_tracking_loss(analyzer, base_index)
     timestamp = 0.0
     for now in (0.0, 0.1, 0.3):
         timestamp = now
-        analyzer._update_gesture_scores(points, timestamp)
-        assert analyzer.selected_action == "NONE"
+        analyzer.recognition._update_gesture_scores(points, timestamp)
+        assert analyzer.recognition.selected_action == "NONE"
     points[31 - base_index].y = 0.58
     timestamp = 0.4
-    analyzer._update_gesture_scores(points, timestamp)
-    assert analyzer.selected_action == "RAMUNE"
-    assert analyzer.uchimizu_score == 0
-    assert all(not hand.wrist_y_history for hand in analyzer.hands)
-    analyzer._reset_tracking_state()
-    assert analyzer.ramune.state == "IDLE"
-    assert analyzer.selected_action == "NONE"
+    analyzer.recognition._update_gesture_scores(points, timestamp)
+    assert analyzer.recognition.selected_action == "RAMUNE"
+    assert analyzer.recognition.uchimizu_score == 0
+    assert all(not hand.wrist_y_history for hand in analyzer.recognition.hands)
+    analyzer.recognition._reset_tracking_state()
+    assert analyzer.recognition.ramune.state == "IDLE"
+    assert analyzer.recognition.selected_action == "NONE"
 
 
 @pytest.mark.parametrize("wrist_index", [15, 16])
@@ -187,9 +187,9 @@ def test_repeated_fanning_across_torso_boundary(analyzer, wrist_index, base_y):
     for frame in range(150):
         timestamp = frame / 30
         points[wrist_index].y = base_y + 0.04 * np.sin(2 * np.pi * 2 * frame / 30)
-        analyzer._update_gesture_scores(points, timestamp)
+        analyzer.recognition._update_gesture_scores(points, timestamp)
         if frame >= 90:
-            actions.append(analyzer.selected_action)
+            actions.append(analyzer.recognition.selected_action)
     assert set(actions) == {"FANNING"}
 
 
@@ -200,14 +200,14 @@ def test_boundary_grace_expires_when_hand_stays_low(analyzer):
     for frame in range(90):
         timestamp = frame / 30
         points[15].y = 0.48 + 0.04 * np.sin(2 * np.pi * 2 * frame / 30)
-        analyzer._update_gesture_scores(points, timestamp)
+        analyzer.recognition._update_gesture_scores(points, timestamp)
     points[15].y = 0.6
     for now in (3.0, 3.15, 3.4):
         timestamp = now
-        analyzer._update_gesture_scores(points, timestamp)
-    assert analyzer.hands[0].fanning_position_since is None
-    assert analyzer.hands[0].fanning_score == 0.0
-    assert analyzer.selected_action != "FANNING"
+        analyzer.recognition._update_gesture_scores(points, timestamp)
+    assert analyzer.recognition.hands[0].fanning_position_since is None
+    assert analyzer.recognition.hands[0].fanning_score == 0.0
+    assert analyzer.recognition.selected_action != "FANNING"
 
 
 def test_process_passes_source_timestamp_to_all_detectors(process_analyzer):
@@ -223,14 +223,14 @@ def test_process_passes_source_timestamp_to_all_detectors(process_analyzer):
             SimpleNamespace(monotonic=Mock(side_effect=AssertionError("Wall clock used"))),
             create=True,
         ),
-        patch.object(analyzer.ramune, "update", return_value=False) as ramune,
-        patch.object(analyzer.hands[0].uchimizu, "update", return_value=False) as left,
-        patch.object(analyzer.hands[1].uchimizu, "update", return_value=False) as right,
+        patch.object(analyzer.recognition.ramune, "update", return_value=False) as ramune,
+        patch.object(analyzer.recognition.hands[0].uchimizu, "update", return_value=False) as left,
+        patch.object(analyzer.recognition.hands[1].uchimizu, "update", return_value=False) as right,
     ):
         analyzer.process(np.zeros((4, 5, 3), dtype=np.uint8), 12.5, 375)
     for detector in (ramune, left, right):
         detector.assert_called_once_with(points, 12.5)
-    for hand in analyzer.hands:
+    for hand in analyzer.recognition.hands:
         assert list(hand.wrist_t_history) == [12.5]
 
 
@@ -359,13 +359,13 @@ def test_scoop_preparation_and_recovery_grace_do_not_select_fanning(
         + [0.48] * (sample_fps * 7 // 10)
     )
     with patch(
-        "modules.pose_worker.HandGestureAnalyzer._calculate_fanning_score", return_value=0.9
+        "modules.hand_gesture.HandGestureAnalyzer._calculate_fanning_score", return_value=0.9
     ):
         for frame_id, y in enumerate(trajectory):
             points[wrist_index].y = y
-            analyzer._update_gesture_scores(points, frame_id / sample_fps)
-            actions.append(analyzer.selected_action)
-            states.append(analyzer.uchimizu_state)
+            analyzer.recognition._update_gesture_scores(points, frame_id / sample_fps)
+            actions.append(analyzer.recognition.selected_action)
+            states.append(analyzer.recognition.uchimizu_state)
     assert "READY" in states
     assert "SWING" in states
     assert "UCHIMIZU" in actions
@@ -376,13 +376,13 @@ def test_scoop_preparation_and_recovery_grace_do_not_select_fanning(
 def test_tracking_loss_clears_post_uchimizu_suppression(analyzer, wrist_index):
     points = landmarks()
     points[31 - wrist_index].visibility = 0
-    hand = analyzer.hands[wrist_index - 15]
+    hand = analyzer.recognition.hands[wrist_index - 15]
     for frame_id, y in enumerate([0.8, 0.6, 0.7]):
         points[wrist_index].y = y
-        analyzer._update_gesture_scores(points, frame_id / 30)
+        analyzer.recognition._update_gesture_scores(points, frame_id / 30)
     assert hand.fanning_suppressed_until > 0
     points[wrist_index].visibility = 0
-    analyzer._update_gesture_scores(points, 0.1)
+    analyzer.recognition._update_gesture_scores(points, 0.1)
     assert hand.fanning_suppressed_until == 0
 
 
@@ -392,13 +392,13 @@ def test_other_hand_score_does_not_interrupt_sprinkling(analyzer, wrist_index):
     points[31 - wrist_index].y = 0.22
     actions = []
     with patch(
-        "modules.pose_worker.HandGestureAnalyzer._calculate_fanning_score", return_value=0.9
+        "modules.hand_gesture.HandGestureAnalyzer._calculate_fanning_score", return_value=0.9
     ):
         for frame_id, y in enumerate([0.8] * 30 + [0.48] * 30 + [0.56] * 6 + [0.48] * 21):
             points[wrist_index].y = y
-            analyzer._update_gesture_scores(points, frame_id / 30)
+            analyzer.recognition._update_gesture_scores(points, frame_id / 30)
             if frame_id >= 30:
-                actions.append(analyzer.selected_action)
+                actions.append(analyzer.recognition.selected_action)
     assert "UCHIMIZU" in actions
     assert "FANNING" not in actions
 
