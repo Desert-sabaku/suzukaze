@@ -121,7 +121,7 @@ def load_rows(directory: Path) -> list[dict[str, str]]:
     if [(row["frame_id"], row["landmark"]) for row in rows] != expected:
         raise ValueError("CSV does not match session frames/landmarks")
     for row in rows:
-        if row["status"] not in {"pending", "marked", "uncertain"}:
+        if row["status"] not in {"pending", "marked", "uncertain", "absent"}:
             raise ValueError("Invalid annotation status")
         if row["status"] == "marked":
             if not all(math.isfinite(float(row[key])) for key in ("x_px", "y_px")):
@@ -196,7 +196,7 @@ def annotate(directory: Path, max_width: int, max_height: int) -> None:
                         2,
                     )
             canvas = cv2.copyMakeBorder(
-                canvas, 0, 115, 0, max(0, 850 - display_width), cv2.BORDER_CONSTANT
+                canvas, 0, 141, 0, max(0, 850 - display_width), cv2.BORDER_CONSTANT
             )
             pending = sum(item["status"] == "pending" for item in rows)
             lines = [
@@ -204,6 +204,7 @@ def annotate(directory: Path, max_width: int, max_height: int) -> None:
                 f"{float(row['timestamp']):.3f}s | pending points: {pending}",
                 f"{cursor % 6 + 1}: {row['landmark']} [{row['status']}] | subject's left/right",
                 "Click: mark | U: uncertain | 1-6: select point | C: clear | Z: previous point",
+                "A: subject absent (all points) | R: reset all points in this frame",
                 "N/P: next/previous frame | Q/Esc: quit | Every edit is saved automatically",
             ]
             for index, line in enumerate(lines):
@@ -226,6 +227,12 @@ def annotate(directory: Path, max_width: int, max_height: int) -> None:
                 record("uncertain")
             elif key == ord("c"):
                 record("pending")
+            elif key in (ord("a"), ord("r")):
+                status = "absent" if key == ord("a") else "pending"
+                for item in rows[start : start + len(LANDMARKS)]:
+                    item.update(status=status, x_px="", y_px="")
+                save_rows(directory, rows)
+                cursor = start
             elif key == ord("z"):
                 cursor = max(0, cursor - 1)
             elif key == ord("n"):
