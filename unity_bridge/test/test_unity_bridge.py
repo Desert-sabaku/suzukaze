@@ -1,4 +1,4 @@
-from modules.unity_bridge import iter_lines
+from src.core import iter_lines
 
 
 def test_iter_lines_keeps_partial_message():
