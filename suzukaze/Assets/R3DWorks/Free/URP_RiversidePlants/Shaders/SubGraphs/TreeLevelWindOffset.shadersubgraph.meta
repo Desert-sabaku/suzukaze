@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 05fee7df404ae9f40b9c549e140e0d14
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 60072b568d64c40a485e0fc55012dc9f, type: 3}
+AssetOrigin:
+  serializedVersion: 1
+  productId: 389712
+  packageName: Free URP Riverside Plants & Trees
+  packageVersion: 1.0
+  assetPath: Assets/R3DWorks/Free/URP_RiversidePlants/Shaders/SubGraphs/TreeLevelWindOffset.shadersubgraph
+  uploadId: 944088

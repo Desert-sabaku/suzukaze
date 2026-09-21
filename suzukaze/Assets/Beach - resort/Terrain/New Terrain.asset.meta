@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 20fbd6b2fda150d4aa0c059f51d345b6
+timeCreated: 1535908414
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 15600000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 127625
+  packageName: Beach - resort
+  packageVersion: 2.0
+  assetPath: Assets/Beach - resort/Terrain/New Terrain.asset
+  uploadId: 634525
