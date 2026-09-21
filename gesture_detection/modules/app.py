@@ -13,6 +13,7 @@ from .config import (
     CAMERA_FOURCC,
     CAMERA_INDEX,
     FPS,
+    GESTURE_DELIVERY_ENABLED,
     POSE_CONNECTIONS,
     VIDEO_OUTPUT_BUFFER_FRAMES,
     VIDEO_OUTPUT_PATH,
@@ -217,7 +218,11 @@ class GestureApplication:
     def _start_workers(self) -> None:
         self.pose_process = mp.Process(
             target=pose_worker,
-            args=(self.pose_frame_queue, self.pose_result_queue),
+            args=(
+                self.pose_frame_queue,
+                self.pose_result_queue,
+                GESTURE_DELIVERY_ENABLED and VIDEO_SOURCE is None,
+            ),
             name="pose-worker",
         )
         self.pose_process.start()

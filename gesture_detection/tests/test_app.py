@@ -6,6 +6,23 @@ from modules.app import GestureApplication, PoseResult
 from modules.config import CAMERA_BACKEND, CAMERA_FOURCC, WINDOW_TITLE
 
 
+def test_delivery_is_disabled_for_video_even_when_enabled():
+    with patch("modules.app.mp.Process") as process:
+        for source, enabled, expected in [
+            (None, True, True),
+            (None, False, False),
+            ("movie.mp4", True, False),
+        ]:
+            with (
+                patch("modules.app.VIDEO_SOURCE", source),
+                patch("modules.app.GESTURE_DELIVERY_ENABLED", enabled),
+                patch("modules.app.mp.Queue"),
+            ):
+                app = GestureApplication()
+                app._start_workers()
+                assert process.call_args.kwargs["args"][2] is expected
+
+
 class OpenCaptureTest(unittest.TestCase):
     @patch("modules.app.VIDEO_SOURCE", "/tmp/sample.mp4")
     @patch("modules.app.cv2.VideoCapture")

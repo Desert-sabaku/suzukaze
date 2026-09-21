@@ -250,6 +250,34 @@ def test_worker_forwards_frame_timestamp():
     factory.return_value.close.assert_called_once()
 
 
+def test_worker_publishes_occurrence_before_lossy_display_queue():
+    from unittest.mock import MagicMock
+
+    from modules.pose_worker import pose_worker
+
+    channel = MagicMock()
+    channel.get.side_effect = [(MagicMock(), 10.0, 1), None]
+    results = MagicMock()
+    results.empty.return_value = True
+    with (
+        patch("modules.pose_worker.PoseAnalyzer") as analyzer,
+        patch("modules.pose_worker.DeliveryOutbox") as outbox,
+        patch("modules.pose_worker.GestureServer") as server,
+        patch("modules.pose_worker.time.monotonic", return_value=10.1),
+    ):
+        order = Mock()
+        order.attach_mock(outbox.return_value.publish, "notify")
+        order.attach_mock(results.put, "display")
+        pose_worker(channel, results, True)
+    assert [entry[0] for entry in order.mock_calls] == ["notify", "display"]
+    outbox.return_value.publish.assert_called_once_with(
+        analyzer.return_value.process.return_value, observed_at=10.0, now=10.1
+    )
+    server.return_value.start.assert_called_once()
+    server.return_value.close.assert_called_once()
+    analyzer.return_value.close.assert_called_once()
+
+
 @pytest.mark.parametrize("detected", [True, False])
 def test_result_identifies_source_frame_even_without_pose(process_analyzer, detected):
     analyzer = process_analyzer

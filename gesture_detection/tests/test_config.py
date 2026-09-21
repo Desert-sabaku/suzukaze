@@ -89,3 +89,18 @@ def test_pose_mode_defaults_to_video():
 def test_invalid_pose_mode():
     with pytest.raises(ValueError, match="POSE_RUNNING_MODE"):
         read_config({"POSE_RUNNING_MODE": "LIVE_STREAM"})
+
+
+@pytest.mark.parametrize(
+    "values",
+    [
+        {"GESTURE_DELIVERY_PORT": "0"},
+        {"GESTURE_MAX_PENDING": "0"},
+        {"GESTURE_EVENT_TTL": "nan"},
+        {"GESTURE_RETRY_INTERVAL": "-1"},
+        {"GESTURE_STATE_INTERVAL": "0.5"},
+    ],
+)
+def test_invalid_delivery_settings(values):
+    with pytest.raises(ValueError):
+        read_config(values)
