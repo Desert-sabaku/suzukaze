@@ -13,9 +13,9 @@ and mirror package module names where practical.
 
 ## Project Architecture
 
-Input: `gesture-detection`
-Output: Fan and speaker via the microcontroller. In addition, Unity footage is output directly via the projector.
-Control: Unity is used for overall management. `unity_bridge` is used as a supplementary tool. Furthermore, a separate control app is used specifically for controlling the microcontroller.
+- Input: `gesture-detection` via the camera.
+- Output: Fan and speaker via the microcontroller. In addition, Unity footage is output directly via the projector.
+- Control: Unity is used for overall management. `unity_bridge` is used as a supplementary tool. Furthermore, a separate control app is used specifically for controlling the microcontroller.
 
 ## Build, Test, and Development Commands
 
