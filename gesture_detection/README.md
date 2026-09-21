@@ -1,5 +1,8 @@
 # Gesture Detection
 
+For manual reference landmarks, see the [annotation tool instructions](docs/landmark-annotation.md)
+(Japanese): extract video frames, click six joints, and save/resume CSV annotations.
+
 OpenCV camera or video-file input is processed by a MediaPipe Pose worker.
 It classifies fanning, sprinkling water, relaxing, and a two-hand Ramune opening
 motion. No bottle or other prop is required; the application does not start YOLO.
