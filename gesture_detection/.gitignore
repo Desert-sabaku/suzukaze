@@ -14,6 +14,7 @@ yolov8n-pose.pt
 
 sample_movies/
 output/
+shared/
 
 # Local environment settings
 .env
