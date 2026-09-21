@@ -10,9 +10,11 @@ wheels/
 .venv
 
 *.task
+yolov8n-pose.pt
 
 sample_movies/
 output/
+shared/
 
 # Local datasets; retain the directory layout and its documentation.
 shared/*/

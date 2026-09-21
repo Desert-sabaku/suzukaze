@@ -1,4 +1,4 @@
-"""Extract reference frames and annotate six body landmarks without inference."""
+"""Extract reference frames and annotate body landmarks without inference."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ import hashlib
 import json
 import math
 from pathlib import Path
+from typing import Any, cast
 
 import cv2
 import numpy as np
@@ -20,7 +21,7 @@ LANDMARKS = (
     "left_hip",
     "right_hip",
 )
-FIELDS: tuple[str, ...] = ("video", "frame_id", "timestamp", "landmark", "x_px", "y_px", "status")
+FIELDS = ("video", "frame_id", "timestamp", "landmark", "x_px", "y_px", "status")
 WINDOW = "Reference landmarks"
 
 
@@ -30,8 +31,16 @@ def sample_indices(total: int, count: int) -> list[int]:
     return np.linspace(0, total - 1, min(total, count), dtype=int).tolist()
 
 
+def save_rows(directory: Path, rows: list[dict[str, str]]) -> None:
+    temporary = directory / "annotations.csv.tmp"
+    with temporary.open("w", encoding="utf-8", newline="") as output:
+        writer = csv.DictWriter(output, fieldnames=FIELDS)
+        writer.writeheader()
+        writer.writerows(cast(Any, rows))
+    temporary.replace(directory / "annotations.csv")
+
+
 def prepare(video: Path, directory: Path, count: int, frames: list[int] | None) -> None:
-    """Decode sequentially; count actual frames rather than trusting container metadata."""
     if directory.exists():
         raise ValueError(f"Output already exists; use --resume: {directory}")
     capture = cv2.VideoCapture(str(video))
@@ -49,6 +58,7 @@ def prepare(video: Path, directory: Path, count: int, frames: list[int] | None) 
             raise ValueError("Video has no valid FPS for timestamp fallback")
     finally:
         capture.release()
+
     directory.mkdir(parents=True)
     capture = cv2.VideoCapture(str(video))
     rows: list[dict[str, str]] = []
@@ -101,15 +111,6 @@ def prepare(video: Path, directory: Path, count: int, frames: list[int] | None) 
     save_rows(directory, rows)
 
 
-def save_rows(directory: Path, rows: list[dict[str, str]]) -> None:
-    temporary = directory / "annotations.csv.tmp"
-    with temporary.open("w", encoding="utf-8", newline="") as output:
-        writer = csv.DictWriter(output, fieldnames=FIELDS)
-        writer.writeheader()
-        writer.writerows(rows)
-    temporary.replace(directory / "annotations.csv")
-
-
 def load_rows(directory: Path) -> list[dict[str, str]]:
     with (directory / "annotations.csv").open(encoding="utf-8", newline="") as source:
         reader = csv.DictReader(source)
@@ -123,19 +124,19 @@ def load_rows(directory: Path) -> list[dict[str, str]]:
     for row in rows:
         if row["status"] not in {"pending", "marked", "uncertain", "absent"}:
             raise ValueError("Invalid annotation status")
-        if row["status"] == "marked":
-            if not all(math.isfinite(float(row[key])) for key in ("x_px", "y_px")):
-                raise ValueError("Invalid landmark coordinates")
+        if row["status"] == "marked" and not all(
+            math.isfinite(float(row[key])) for key in ("x_px", "y_px")
+        ):
+            raise ValueError("Invalid landmark coordinates")
     return rows
 
 
-def original_point(
-    x: int, y: int, width: int, height: int, display_width: int, display_height: int
-) -> tuple[int, int] | None:
+def original_point(x, y, width, height, display_width, display_height):
     if not (0 <= x < display_width and 0 <= y < display_height):
         return None
-    return min(width - 1, round(x * width / display_width)), min(
-        height - 1, round(y * height / display_height)
+    return (
+        min(width - 1, round(x * width / display_width)),
+        min(height - 1, round(y * height / display_height)),
     )
 
 
@@ -146,17 +147,16 @@ def annotate(directory: Path, max_width: int, max_height: int) -> None:
     loaded_id = None
     display_width = display_height = 0
 
-    def record(status: str, point: tuple[int, int] | None = None) -> None:
+    def record(status: str, point=None) -> None:
         nonlocal cursor
         rows[cursor].update(
             status=status, x_px=str(point[0]) if point else "", y_px=str(point[1]) if point else ""
         )
         save_rows(directory, rows)
-        # Stay on the same frame so a double click cannot label the next image.
-        if status != "pending" and cursor % 6 < 5:
+        if status != "pending" and cursor % len(LANDMARKS) < len(LANDMARKS) - 1:
             cursor += 1
 
-    def click(event: int, x: int, y: int, flags: int, userdata: object) -> None:
+    def click(event, x, y, flags, userdata) -> None:
         if event != cv2.EVENT_LBUTTONDOWN or image is None:
             return
         point = original_point(x, y, image.shape[1], image.shape[0], display_width, display_height)
@@ -178,8 +178,8 @@ def annotate(directory: Path, max_width: int, max_height: int) -> None:
                 display_height = max(1, round(image.shape[0] * scale))
             assert image is not None
             canvas = cv2.resize(image, (display_width, display_height))
-            start = cursor // 6 * 6
-            for offset, item in enumerate(rows[start : start + 6]):
+            start = cursor // len(LANDMARKS) * len(LANDMARKS)
+            for offset, item in enumerate(rows[start : start + len(LANDMARKS)]):
                 if item["status"] == "marked":
                     point = (
                         round(float(item["x_px"]) * display_width / image.shape[1]),
@@ -236,9 +236,9 @@ def annotate(directory: Path, max_width: int, max_height: int) -> None:
             elif key == ord("z"):
                 cursor = max(0, cursor - 1)
             elif key == ord("n"):
-                cursor = min(len(rows) - 6, start + 6)
+                cursor = min(len(rows) - len(LANDMARKS), start + len(LANDMARKS))
             elif key == ord("p"):
-                cursor = max(0, start - 6)
+                cursor = max(0, start - len(LANDMARKS))
     finally:
         cv2.destroyAllWindows()
 
@@ -246,14 +246,10 @@ def annotate(directory: Path, max_width: int, max_height: int) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("video", type=Path, nargs="?")
-    parser.add_argument(
-        "--output",
-        type=Path,
-        help="New session directory (default: project shared/annotations/<video stem>)",
-    )
-    parser.add_argument("--resume", type=Path, help="Resume an existing session")
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--resume", type=Path)
     parser.add_argument("--count", type=int, default=8)
-    parser.add_argument("--frames", type=int, nargs="+", help="Explicit zero-based frame IDs")
+    parser.add_argument("--frames", type=int, nargs="+")
     parser.add_argument("--extract-only", action="store_true")
     parser.add_argument("--max-width", type=int, default=1280)
     parser.add_argument("--max-height", type=int, default=720)
@@ -268,7 +264,7 @@ def main() -> None:
         if not args.video:
             parser.error("Provide video, or --resume")
         directory = args.output or (
-            Path(__file__).resolve().parents[1] / "shared" / "annotations" / args.video.stem
+            Path(__file__).resolve().parents[1] / "output" / "annotations" / args.video.stem
         )
         prepare(args.video, directory, args.count, args.frames)
     if not args.extract_only:
