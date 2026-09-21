@@ -3,11 +3,14 @@
 ## 構成
 
 - `modules/app.py`: 入力ループ、ワーカーの生存期間、描画と保存
-- `modules/pose_worker.py`: MediaPipe 推論、時系列ジェスチャー状態
+- `modules/pose_worker.py`: MediaPipe 推論、入力時刻の変換、ワーカー実行
+- `modules/recognition.py`: 認識状態の所有、各判定器の更新・リセット、認識上の競合調停
+- `modules/hand_gesture.py`: 片手ごとの履歴、扇ぎ判定と打ち水の誤認識抑制
+- `modules/recognition_types.py`: 現在の認識状態と内部診断用の結果型
 - `modules/relaxing.py`: 入力元時刻による静止判定
 - `modules/uchimizu.py`: すくい上げと振り下ろしの状態機械
 - `modules/ramune.py`: 両手の準備と押下の状態機械
-- `modules/rendering.py`: OpenCV 描画
+- `modules/rendering.py`: 診断値から表示メッセージへの変換、OpenCV 描画
 - `modules/config.py`: パス、入力設定、しきい値
 - `modules/ipc.py`: 最新フレームを共有するメールボックス
 - `modules/video_output.py`: 動画書き出し用の有界バッファ
@@ -15,6 +18,27 @@
 
 通常のアプリケーションは MediaPipe のみを起動します。YOLO モデルは実行に不要です。
 MediaPipe の Lite モデルがない場合は自動取得します。
+
+## 状態の責任境界
+
+`PoseAnalyzer` は推論器と `RecognitionCoordinator` を保持します。認識側には
+ランドマーク、入力元時刻、フレーム番号、画像の縦横比だけを渡すため、カメラや
+MediaPipe を起動せずに認識処理を検証できます。各判定器の履歴とクールダウンは
+認識側に残し、認識上の優先順位と履歴リセットの順序を維持しています。
+体験のシーン、演出完了待ち、入力の受理可否は統括役の Unity が管理します。
+
+結果の `current` は `gesture` と `tracking` を持つ現在値です。姿勢欠落時には
+認識履歴をリセットし、`gesture="NONE", tracking=False` を返します。
+`frame_id` と `timestamp` はその状態を判定した入力を示します。
+`selected_action`、個別判定器の状態、スコアなどは既存の評価・デバッグ用に
+保持しており、外部連携はこれらの内部詳細へ依存しないようにします。
+表示文字列・座標・色は認識結果に含めず、描画側で生成します。
+
+現在値はイベント配送を保証しません。カメラの結果キューは最新値優先なので、
+短時間の動作や開始・終了の遷移は受信側で観測できない場合があります。
+一度だけ実行する演出を接続する際には、認識側でイベントを生成し、
+現在値とは別に欠落させない配送・重複防止を設計する必要があります。
+現段階では通信や演出制御は追加していません。
 
 ## 設定と入力
 
