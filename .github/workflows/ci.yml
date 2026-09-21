@@ -7,6 +7,28 @@ permissions:
   contents: read
 
 jobs:
+  unity-bridge:
+    name: Unity bridge (lint, types, protocol tests)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: unity_bridge
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.14"
+      - name: Install dependencies
+        run: uv sync --group dev
+      - name: Format and lint
+        run: |
+          uv run ruff format --check src test
+          uv run ruff check src test
+      - name: Type-check
+        run: uv run pyright
+      - name: Test TCP and WebSocket delivery
+        run: uv run python -m pytest
+
   ruff:
     name: Ruff (format + lint)
     runs-on: ubuntu-latest

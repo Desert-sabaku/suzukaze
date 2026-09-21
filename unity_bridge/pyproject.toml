@@ -19,8 +19,9 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-pythonpath = ["."]
+pythonpath = [".", "../gesture_detection"]
 
 [tool.pyright]
+extraPaths = ["../gesture_detection"]
 venvPath = "."
 venv = ".venv"
