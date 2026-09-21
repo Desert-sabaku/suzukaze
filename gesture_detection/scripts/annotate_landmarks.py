@@ -249,7 +249,7 @@ def main() -> None:
     parser.add_argument(
         "--output",
         type=Path,
-        help="New session directory (default: project output/annotations/<video stem>)",
+        help="New session directory (default: project shared/annotations/<video stem>)",
     )
     parser.add_argument("--resume", type=Path, help="Resume an existing session")
     parser.add_argument("--count", type=int, default=8)
@@ -268,7 +268,7 @@ def main() -> None:
         if not args.video:
             parser.error("Provide video, or --resume")
         directory = args.output or (
-            Path(__file__).resolve().parents[1] / "output" / "annotations" / args.video.stem
+            Path(__file__).resolve().parents[1] / "shared" / "annotations" / args.video.stem
         )
         prepare(args.video, directory, args.count, args.frames)
     if not args.extract_only:

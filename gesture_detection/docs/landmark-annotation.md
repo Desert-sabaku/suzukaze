@@ -4,7 +4,7 @@
 OpenCVのウィンドウを開くため、画面のあるデスクトップ環境が必要です。
 
 ```bash
-uv run python -m scripts.annotate_landmarks sample_movies/打ち水btn.mp4
+uv run python -m scripts.annotate_landmarks shared/videos/打ち水btn.mp4
 ```
 
 最初に動画を全走査し、先頭と末尾を含めて均等に8フレームを抽出します。
@@ -12,16 +12,16 @@ uv run python -m scripts.annotate_landmarks sample_movies/打ち水btn.mp4
 所作の場面に合わせて選ぶ場合は、0始まりのフレーム番号を指定してください。
 
 ```bash
-uv run python -m scripts.annotate_landmarks sample_movies/打ち水btn.mp4 --frames 0 30 60 90 120 --output output/annotations/uchimizu-selected
+uv run python -m scripts.annotate_landmarks shared/videos/打ち水btn.mp4 --frames 0 30 60 90 120 --output shared/annotations/uchimizu-selected
 ```
 
-出力先の既定値はプロジェクト内の `output/annotations/<動画名（拡張子なし）>/` です。
+出力先の既定値はプロジェクト内の `shared/annotations/<動画名（拡張子なし）>/` です。
 `--output` で別の新しいディレクトリも指定できます。既存セッションの上書きは拒否します。
 抽出だけ行う場合は `--extract-only` を付けます。抽出画像はPNGなので、以降の
 作業は元動画がなくても再開できます。
 
 ```bash
-uv run python -m scripts.annotate_landmarks --resume output/annotations/打ち水btn
+uv run python -m scripts.annotate_landmarks --resume shared/annotations/打ち水btn
 ```
 
 ## 操作
@@ -70,5 +70,9 @@ Nで次へ進めます。被写体がいるが幕などで点が判別できな�
 同じCSVと画像をLite／Full／ぼかし条件すべてに使用してください。
 失敗例だけを選ぶと評価が偏るため、追加の失敗例は別セッションとして記録します。
 
-`output/` はGit管理対象外です。注釈データを共有・保管する際はセッションの
+`shared/` 内のデータはGit管理対象外です。注釈データを共有・保管する際はセッションの
 ディレクトリ全体をコピーしてください。
+
+既存の `sample_movies/` の動画も入力できます。以前の `output/annotations/` にある
+セッションは、そのパスを `--resume` に指定すれば引き続き使えます。
+データ全体の構成は [sharedの案内](../shared/README.md) を参照してください。
