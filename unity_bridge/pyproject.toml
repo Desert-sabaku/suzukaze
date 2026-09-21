@@ -1,0 +1,26 @@
+[project]
+name = "unity-bridge"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "dotenv>=0.9.9",
+    "pyserial>=3.5",
+    "websockets>=17.1",
+]
+
+[dependency-groups]
+dev = [
+  "pyright>=1.1",
+  "pytest>=8.4.2",
+  "pytest-cov>=7.0.0",
+  "ruff>=0.13.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
