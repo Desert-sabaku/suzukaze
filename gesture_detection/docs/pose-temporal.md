@@ -54,7 +54,7 @@ PYTHONPATH=. uv run python -m scripts.evaluate_pose_temporal --model /tmp/yolov8
 `report.json` と動画ごとの `.npz`、代表フレーム画像。モデル・動画は別途必要。
 今回確認した扇ぎ画像は `output/pose-temporal/fanning-review.jpg`。
 
-## 判断
+## 結論
 
 短い欠落への補間は一部有効だが、誤った人体形状や長い欠落を解決しない。
 次の比較では、実演者の肩・手首・腰を代表フレームに手動注釈し、
