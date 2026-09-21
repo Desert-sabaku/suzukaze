@@ -51,3 +51,33 @@ def test_overlay_formats_diagnostics_without_mutating_snapshot():
     ]
     assert messages[-1][0].startswith("Relaxing: OFF")
     assert result == saved
+
+
+def test_uchimizu_occurrence_is_a_single_pulse_during_feedback():
+    coordinator = RecognitionCoordinator()
+    points = landmarks()
+    points[16].visibility = 0
+    events = []
+    actions = []
+    for frame_id, y in enumerate([0.8] * 4 + [0.6, 0.7] + [0.7] * 5):
+        points[15].y = y
+        result = coordinator.process(points, frame_id / 30, frame_id, aspect_ratio=1.0)
+        events.extend(result.get("occurrences", ()))
+        actions.append(result["selected_action"])
+    assert events == ["UCHIMIZU"]
+    assert actions.count("UCHIMIZU") > 1
+
+
+def test_ramune_occurrence_is_not_reissued_during_hold():
+    coordinator = RecognitionCoordinator()
+    points = landmarks()
+    points[15].y, points[16].y = 0.6, 0.5
+    events = []
+    result = coordinator.process([], 0.0, 0, aspect_ratio=1.0)
+    for frame_id, now in enumerate([0.0, 0.1, 0.3, 0.4, 0.5, 0.6]):
+        if now >= 0.4:
+            points[16].y = 0.58
+        result = coordinator.process(points, now, frame_id, aspect_ratio=1.0)
+        events.extend(result.get("occurrences", ()))
+    assert events == ["RAMUNE"]
+    assert result["selected_action"] == "RAMUNE"

@@ -74,6 +74,8 @@ class RecognitionCoordinator:
     def process(
         self, landmarks: Any, timestamp: float, frame_id: int, *, aspect_ratio: float
     ) -> PoseResult:
+        previous_ramune = self.ramune.state
+        previous_water = [hand.uchimizu.completed_at for hand in self.hands]
         if landmarks:
             self._update_gesture_scores(landmarks, timestamp)
             self.relaxing_state = self.relaxing.update(
@@ -84,11 +86,21 @@ class RecognitionCoordinator:
         current = self.selected_action
         if current == "NONE" and self.relaxing_state:
             current = "RELAXING"
+        occurrences: tuple[str, ...] = ()
+        if self.selected_action == "RAMUNE" and previous_ramune != "OPENED":
+            occurrences = ("RAMUNE",)
+        elif self.selected_action == "UCHIMIZU" and any(
+            hand.uchimizu.completed_at is not None and hand.uchimizu.completed_at != previous
+            for hand, previous in zip(self.hands, previous_water, strict=True)
+        ):
+            # Simultaneous releases retain the existing single-action policy.
+            occurrences = ("UCHIMIZU",)
         return {
             "landmarks": [(p.x, p.y, p.visibility) for p in landmarks],
             "frame_id": frame_id,
             "timestamp": timestamp,
             "current": {"gesture": current, "tracking": bool(landmarks)},
+            "occurrences": occurrences,
             "selected_action": self.selected_action,
             "relaxing_state": self.relaxing_state,
             "ramune_state": self.ramune.state,

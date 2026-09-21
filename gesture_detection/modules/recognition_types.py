@@ -24,6 +24,8 @@ class PoseResult(TypedDict):
     selected_action: str
     relaxing_state: bool
     current: NotRequired[RecognitionState]
+    # Per-input occurrence pulses; consume before the latest-value IPC queue.
+    occurrences: NotRequired[tuple[str, ...]]
     frame_id: NotRequired[int]
     timestamp: NotRequired[float]
     ramune_state: NotRequired[str]
