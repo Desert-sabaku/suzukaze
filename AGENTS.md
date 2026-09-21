@@ -46,6 +46,7 @@ document `uv run pytest` in the README.
 
 ## Commit & Pull Request Guidelines
 
+Be sure to create a branch from the “main” branch before working on it. Commit messages can be in either Japanese or English, but it is important that the content be clear.
 Recent history favors short, imperative subjects with Conventional Commit-style
 prefixes such as `feat:` and `fix:`. Keep each commit scoped to one concern.
 Create a branch or a worktree for each feature or bugfix.
