@@ -2,7 +2,8 @@ import cv2
 import numpy as np
 import numpy.typing as npt
 
-from .config import RIGHT_WRIST_INDEX
+from .config import RELAXING_DWELL_SECONDS, RIGHT_WRIST_INDEX
+from .recognition_types import PoseResult
 
 type Landmark = tuple[float, float, float]
 type PixelPoint = tuple[int, int]
@@ -81,3 +82,46 @@ def draw_ramune_guide(image: npt.NDArray[np.uint8], state: str) -> None:
     scale = min(0.6, max(0.1, (width - 20) / 1000))
     cv2.rectangle(image, (0, max(0, height - 44)), (width, height), (35, 35, 35), -1)
     cv2.putText(image, text, (10, height - 16), cv2.FONT_HERSHEY_SIMPLEX, scale, color, 1)
+
+
+def status_messages(result: PoseResult) -> list[Message]:
+    """Format diagnostics locally; recognition never constructs overlay text."""
+    messages: list[Message] = []
+    motion_speed = result.get("motion_speed")
+    if motion_speed is not None:
+        messages.append((f"Body speed: {motion_speed:.3f}/s", (10, 55), (255, 200, 0), 0.7))
+    messages.extend(
+        [
+            (
+                f"Fanning score: {result.get('fanning_score', 0.0):.3f}",
+                (10, 80),
+                (0, 165, 255),
+                0.65,
+            ),
+            (
+                f"Uchimizu score: {result.get('uchimizu_score', 0.0):.3f}",
+                (10, 105),
+                (255, 100, 100),
+                0.65,
+            ),
+            (
+                f"Uchimizu state: {result.get('uchimizu_state', 'IDLE')}",
+                (10, 130),
+                (255, 100, 100),
+                0.65,
+            ),
+        ]
+    )
+    messages.append(
+        (
+            (
+                "Relaxing: ON"
+                if result.get("relaxing_state", False)
+                else f"Relaxing: OFF (still {result.get('still_seconds', 0.0):.1f}/{RELAXING_DWELL_SECONDS:.1f}s)"
+            ),
+            (10, 155),
+            (255, 255, 180),
+            0.65,
+        )
+    )
+    return messages

@@ -3,7 +3,7 @@ import multiprocessing as mp
 import queue
 import time
 from pathlib import Path
-from typing import Any, NotRequired, TypedDict
+from typing import Any
 
 import cv2
 import numpy.typing as npt
@@ -21,24 +21,11 @@ from .config import (
 )
 from .ipc import SharedLatestFrame, get_latest
 from .pose_worker import pose_worker
-from .rendering import draw_landmarks, draw_messages, draw_ramune_guide
+from .recognition_types import PoseResult
+from .rendering import draw_landmarks, draw_messages, draw_ramune_guide, status_messages
 from .video_output import AsyncVideoWriter
 
-type Landmark = tuple[float, float, float]
-type PixelPoint = tuple[int, int]
 type Frame = npt.NDArray[Any]
-
-
-class PoseResult(TypedDict):
-    landmarks: list[Landmark]
-    messages: list[tuple[str, PixelPoint, tuple[int, int, int], float]]
-    selected_action: str
-    relaxing_state: bool
-
-    # Absent only in the initial placeholder before any inference completes.
-    frame_id: NotRequired[int]
-    timestamp: NotRequired[float]
-    ramune_state: NotRequired[str]
 
 
 class FrameClock:
@@ -79,7 +66,6 @@ class GestureApplication:
 
         latest_pose: PoseResult = {
             "landmarks": [],
-            "messages": [],
             "selected_action": "NONE",
             "relaxing_state": False,
         }
@@ -255,13 +241,17 @@ class GestureApplication:
     def _annotate_frame(frame: Frame, pose_result: PoseResult) -> Frame:
         image = frame.copy()
         draw_landmarks(image, pose_result.get("landmarks", []), POSE_CONNECTIONS)
-        draw_messages(image, pose_result.get("messages", []))
+        draw_messages(image, status_messages(pose_result))
         draw_ramune_guide(image, pose_result.get("ramune_state", "IDLE"))
         GestureApplication._draw_action(image, GestureApplication._primary_action(pose_result))
         return image
 
     @staticmethod
     def _primary_action(pose_result: PoseResult) -> str:
+        current = pose_result.get("current")
+        if current is not None:
+            gesture = current["gesture"]
+            return "SPRINKLING" if gesture == "UCHIMIZU" else gesture
         selected = pose_result.get("selected_action", "NONE")
         return {"RAMUNE": "RAMUNE", "UCHIMIZU": "SPRINKLING", "FANNING": "FANNING"}.get(
             selected, "RELAXING" if pose_result.get("relaxing_state") else "NONE"

@@ -119,7 +119,6 @@ class RamuneActionTests(unittest.TestCase):
 
         pose: PoseResult = {
             "landmarks": [],
-            "messages": [],
             "selected_action": "RAMUNE",
             "relaxing_state": False,
             "ramune_state": "OPENED",
@@ -136,7 +135,6 @@ class RamuneActionTests(unittest.TestCase):
     def test_no_motion_does_not_select_ramune(self):
         pose: PoseResult = {
             "landmarks": [],
-            "messages": [],
             "selected_action": "NONE",
             "relaxing_state": False,
         }
