@@ -283,3 +283,7 @@ class GestureApplication:
 
 def main() -> None:
     GestureApplication().run()
+
+
+if __name__ == "__main__":
+    main()
