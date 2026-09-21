@@ -11,6 +11,12 @@ paths and thresholds. `main.py` is a lightweight entry point. Model assets
 Tests live under `gesture_detection/tests/`.
 and mirror package module names where practical.
 
+## Project Architecture
+
+Input: `gesture-detection`
+Output: Fan and speaker via the microcontroller. In addition, Unity footage is output directly via the projector.
+Control: Unity is used for overall management. `unity_bridge` is used as a supplementary tool. Furthermore, a separate control app is used specifically for controlling the microcontroller.
+
 ## Build, Test, and Development Commands
 
 Run commands from `gesture_detection/`:
