@@ -8,7 +8,11 @@ dependencies = [
     "dotenv>=0.9.9",
     "pyserial>=3.5",
     "websockets>=17.1",
+    "gesture_detection",
 ]
+
+[tool.uv.sources]
+gesture_detection = { path = "../gesture_detection", editable = true }
 
 [project.scripts]
 unity-bridge = "unity_bridge.core:main"
