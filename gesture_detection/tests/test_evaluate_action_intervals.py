@@ -1,7 +1,13 @@
 from pathlib import Path
 
 import pytest
-from scripts.evaluate_action_intervals import aggregate, parse_clip_name
+from scripts.evaluate_action_intervals import (
+    RamunePoseCandidate,
+    RelaxingPoseCandidate,
+    aggregate,
+    parse_clip_name,
+    ramune_geometry,
+)
 
 
 @pytest.mark.parametrize(
@@ -58,3 +64,54 @@ def test_aggregates_frame_and_clip_metrics():
     assert result["pose_interval_ratio"] == 0.5
     assert result["expected_action_frame_ratio"] == 0.1
     assert result["outside_action_ratio"] == 0.1
+
+
+def test_ramune_geometry_reports_ready_hands():
+    landmarks = [(0.0, 0.0, 1.0)] * 25
+    landmarks[11] = (0.4, 0.3, 1.0)
+    landmarks[12] = (0.6, 0.3, 1.0)
+    landmarks[15] = (0.49, 0.4, 1.0)
+    landmarks[16] = (0.51, 0.5, 1.0)
+    landmarks[23] = (0.4, 0.7, 1.0)
+    landmarks[24] = (0.6, 0.7, 1.0)
+
+    result = ramune_geometry(landmarks)
+
+    assert result is not None
+    assert result["gap"] == pytest.approx(0.5)
+    assert result["alignment"] == pytest.approx(0.1)
+    assert result["ready"] == 1
+
+
+def test_ramune_pose_candidate_emits_once_per_sustained_setup():
+    landmarks = [(0.0, 0.0, 1.0)] * 25
+    landmarks[11] = (0.4, 0.3, 1.0)
+    landmarks[12] = (0.6, 0.3, 1.0)
+    landmarks[15] = (0.49, 0.4, 1.0)
+    landmarks[16] = (0.51, 0.5, 1.0)
+    landmarks[23] = (0.4, 0.7, 1.0)
+    landmarks[24] = (0.6, 0.7, 1.0)
+    candidate = RamunePoseCandidate(0.5, 1.0, dwell=0.25)
+
+    assert not candidate.update(landmarks, 0.0)
+    assert candidate.update(landmarks, 0.25)
+    assert not candidate.update(landmarks, 0.5)
+
+
+def test_relaxing_pose_candidate_accepts_smoothed_stillness():
+    landmarks = [(0.0, 0.0, 1.0)] * 25
+    for index, point in {
+        11: (0.4, 0.3, 1.0),
+        12: (0.6, 0.3, 1.0),
+        15: (0.4, 0.5, 1.0),
+        16: (0.6, 0.5, 1.0),
+        23: (0.4, 0.7, 1.0),
+        24: (0.6, 0.7, 1.0),
+    }.items():
+        landmarks[index] = point
+    candidate = RelaxingPoseCandidate(ema_alpha=0.35, max_speed=0.3, max_drift=0.08)
+
+    assert not candidate.update(landmarks, 0.0, 1.0)
+    for timestamp in (0.2, 0.4, 0.6, 0.8):
+        assert not candidate.update(landmarks, timestamp, 1.0)
+    assert candidate.update(landmarks, 1.0, 1.0)
