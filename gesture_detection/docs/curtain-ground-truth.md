@@ -246,6 +246,29 @@ uv run python -m scripts.evaluate_action_intervals \
 ラムネを解決するには、Poseの手首だけで掌の押下を推定する方式をやめ、手のランドマーク、物体、
 またはUnity側の段階的演出との組合せが必要である。
 
+手専用モデルとしてMediaPipe Hand Landmarkerも約10 FPSで評価した。
+
+| 条件 | 幕なし・片手以上 | 幕なし・両手 | 幕越し・片手以上 | 幕越し・両手 |
+|---|---:|---:|---:|---:|
+| confidence 0.50、生画像 | 40.5% | 0.0% | 0.0% | 0.0% |
+| confidence 0.20、生画像 | 45.9% | 8.1% | 0.0% | 0.0% |
+| confidence 0.20、背景マスク | — | — | 0.0% | 0.0% |
+
+掌が重なるため幕なしでも両手をほとんど分離できず、幕越しでは片手も検出できない。既成Hand
+Landmarkerへの単純な置換も不採用とする。現在の映像だけから開栓完了を安定して観測できる方式は
+確認できず、物体マーカー、物理入力、または視覚的に識別可能な所作への変更を優先する。
+
+再実行例：
+
+```bash
+uv run python -m scripts.evaluate_hand_landmarker \
+  --model /path/to/hand_landmarker.task \
+  --detection-confidence 0.2 \
+  --presence-confidence 0.2 \
+  --tracking-confidence 0.2 \
+  --output shared/results/hand-landmarker-raw-conf020.json
+```
+
 ### 夕涼み
 
 既存判定は顔・手足を含む17点の最大速度を使う。幕なし動画でも速度中央値は0.39～1.52で、
