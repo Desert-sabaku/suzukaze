@@ -128,3 +128,37 @@ uv run python -m scripts.evaluate_action_intervals \
   --sample-fps 30 \
   --output shared/results/action-intervals-ramune-30fps.json
 ```
+
+## YOLO Poseの手動座標評価
+
+MediaPipeとは別の姿勢入力として、YOLOv8n Pose、YOLO11n Pose、YOLOv8m Poseを同じ96枚・
+335点で評価した。物体confidenceは0.05、入力640、画面面積8%以上の人物候補を対象とし、
+関節confidence 0.5以上を有効とした。
+
+通常運用に近い最大面積候補に加え、画面中央に最も近い候補と、手動正解に最も近い候補を
+選ぶオラクルも比較した。オラクルは実運用できないが、人物選択だけを改善した場合の上限を
+示す。
+
+| モデル・候補選択 | 人物検出率 | 不在時誤検出率 | 関節取得率 | PCK@0.2 | 左／右手首PCK |
+|---|---:|---:|---:|---:|---:|
+| YOLOv8n・最大面積 | 98.4% | 35.3% | 87.2% | 23.6% | 2.0% / 2.2% |
+| YOLOv8n・オラクル | 98.4% | 35.3% | 87.8% | 23.9% | 2.0% / 2.2% |
+| YOLO11n・最大面積 | 95.2% | 73.5% | 80.3% | 9.3% | 0.0% / 2.2% |
+| YOLO11n・オラクル | 95.2% | 73.5% | 80.9% | 9.6% | 2.0% / 2.2% |
+| YOLOv8m・最大面積 | 100.0% | 61.8% | 76.7% | 5.1% | 0.0% / 2.2% |
+| YOLOv8m・オラクル | 100.0% | 61.8% | 76.7% | 5.1% | 0.0% / 2.2% |
+
+YOLOv8nの関節confidence閾値を0.1へ下げると関節取得率は99.4%になったが、PCK@0.2は
+23.6%のままだった。低信頼点を採用しても正しい座標は増えない。
+
+YOLOv8nはMediaPipeより人物と関節を多く返すものの、ジェスチャー判定の中心となる手首が
+ほぼ正しい位置にない。オラクルでも改善が約0.3ポイントしかなく、追跡や候補選択では
+解決しない。世代変更とモデル大型化も悪化したため、既成YOLO Poseへの単純な置換は採用しない。
+
+再実行例：
+
+```bash
+uv run python -m scripts.evaluate_yolo_annotations \
+  --model /path/to/yolov8n-pose.pt \
+  --output shared/results/yolo-landmark-annotations.json
+```
