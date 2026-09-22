@@ -6,7 +6,8 @@ from unittest.mock import patch
 import pytest
 from dotenv import load_dotenv
 
-CONFIG_PATH = Path(__file__).resolve().parents[1] / "modules" / "config.py"
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+CONFIG_PATH = PROJECT_ROOT / "src" / "gesture_detection" / "config.py"
 
 
 def read_config(values: dict[str, str]) -> dict:
@@ -20,7 +21,7 @@ def test_defaults_select_camera_without_creating_output() -> None:
     assert config["VIDEO_SOURCE"] is None
     assert config["CAMERA_INDEX"] == 0
     assert config["CAMERA_BACKEND"] == 0
-    assert config["VIDEO_OUTPUT_PATH"].parent == CONFIG_PATH.parents[1] / "output"
+    assert config["VIDEO_OUTPUT_PATH"].parent == PROJECT_ROOT / "output"
     mkdir.assert_not_called()
 
 
@@ -38,8 +39,8 @@ def test_paths_and_device_settings(tmp_path: Path, monkeypatch: pytest.MonkeyPat
             "VIDEO_OUTPUT_BUFFER_FRAMES": "4",
         }
     )
-    assert config["VIDEO_SOURCE"] == CONFIG_PATH.parents[1] / "sample_movies/example.mp4"
-    assert config["POSE_MODEL_PATH"] == CONFIG_PATH.parents[1] / "models/pose.task"
+    assert config["VIDEO_SOURCE"] == PROJECT_ROOT / "sample_movies/example.mp4"
+    assert config["POSE_MODEL_PATH"] == PROJECT_ROOT / "models/pose.task"
     assert config["YOLO_MODEL_PATH"] == tmp_path / "yolo.pt"
     assert config["VIDEO_OUTPUT_PATH"].parent == tmp_path
     assert config["CAMERA_INDEX"] == 2
@@ -51,7 +52,16 @@ def test_paths_and_device_settings(tmp_path: Path, monkeypatch: pytest.MonkeyPat
 def test_empty_source_and_explicit_output() -> None:
     config = read_config({"VIDEO_SOURCE": "", "VIDEO_OUTPUT_PATH": "custom/out.mp4"})
     assert config["VIDEO_SOURCE"] is None
-    assert config["VIDEO_OUTPUT_PATH"] == CONFIG_PATH.parents[1] / "custom/out.mp4"
+    assert config["VIDEO_OUTPUT_PATH"] == PROJECT_ROOT / "custom/out.mp4"
+
+
+def test_explicit_project_root_controls_dotenv_and_relative_assets(tmp_path: Path) -> None:
+    with patch("dotenv.load_dotenv") as loader:
+        with patch.dict(os.environ, {"GESTURE_PROJECT_ROOT": str(tmp_path)}, clear=True):
+            config = runpy.run_path(str(CONFIG_PATH))
+    loader.assert_called_once_with(tmp_path / ".env", override=False)
+    assert config["PROJECT_ROOT"] == tmp_path
+    assert config["POSE_MODEL_PATH"] == tmp_path / "pose_landmarker_lite.task"
 
 
 def test_dotenv_loading_preserves_environment(tmp_path: Path) -> None:
@@ -64,9 +74,9 @@ def test_dotenv_loading_preserves_environment(tmp_path: Path) -> None:
         ) as loader,
     ):
         config = runpy.run_path(str(CONFIG_PATH))
-    loader.assert_called_once_with(CONFIG_PATH.parents[1] / ".env", override=False)
+    loader.assert_called_once_with(PROJECT_ROOT / ".env", override=False)
     assert config["CAMERA_INDEX"] == 7
-    assert config["VIDEO_SOURCE"] == CONFIG_PATH.parents[1] / "sample movies/example.mp4"
+    assert config["VIDEO_SOURCE"] == PROJECT_ROOT / "sample movies/example.mp4"
 
 
 @pytest.mark.parametrize(

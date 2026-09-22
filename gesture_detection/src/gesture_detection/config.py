@@ -19,7 +19,11 @@ for _qt_font_directory in (
         os.environ["QT_QPA_FONTDIR"] = str(_qt_font_directory)
         break
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Editable src layout keeps models and .env at the project root. A wheel
+# installation uses an explicit data root, or the working directory.
+_source_root = Path(__file__).resolve().parents[2]
+_default_root = _source_root if (_source_root / "pyproject.toml").is_file() else Path.cwd()
+PROJECT_ROOT = Path(getenv("GESTURE_PROJECT_ROOT") or _default_root).expanduser().resolve()
 load_dotenv(PROJECT_ROOT / ".env", override=False)
 
 

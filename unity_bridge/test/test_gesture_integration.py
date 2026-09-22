@@ -3,12 +3,12 @@ import json
 import time
 
 import websockets
-from modules.gesture_delivery import DeliveryOutbox
-from modules.gesture_server import GestureServer
+from gesture_detection.gesture_delivery import DeliveryOutbox
+from gesture_detection.gesture_server import GestureServer
 from websockets.asyncio.server import serve
 
-from src.gesture_probe import GestureReceiver
-from src.gesture_relay import GestureRelay
+from unity_bridge.gesture_probe import GestureReceiver
+from unity_bridge.gesture_relay import GestureRelay
 
 
 def test_recognition_outbox_through_bridge_to_receiver_and_back():

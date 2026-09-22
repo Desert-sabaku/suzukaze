@@ -13,14 +13,14 @@ requires-python = ">=3.12"
 version = "0.1.0"
 
 [project.scripts]
-gesture-detection = "modules.app:main"
+gesture-detection = "gesture_detection.app:main"
 
 [build-system]
 requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-packages = ["modules"]
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [dependency-groups]
 dev = [
@@ -32,7 +32,7 @@ dev = [
 
 [tool.ruff]
 line-length = 100
-src = ["modules", "tests", "main.py"]
+src = ["src", "tests", "main.py"]
 target-version = "py312"
 
 [tool.ruff.lint]
@@ -41,13 +41,13 @@ select = ["E", "F", "I", "UP", "B"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--tb=short --cov=modules --cov-report=term-missing"
+addopts = "--tb=short --cov=gesture_detection --cov-report=term-missing"
 
 [tool.pyright]
-include = ["modules", "tests", "main.py"]
+include = ["src", "tests", "main.py"]
 exclude = ["**/__pycache__", ".venv", "build", "dist"]
 typeCheckingMode = "standard"
 pythonVersion = "3.12"
-extraPaths = ["modules"]
+extraPaths = ["src"]
 venvPath = "."
 venv = ".venv"

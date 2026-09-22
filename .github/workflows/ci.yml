@@ -43,9 +43,9 @@ jobs:
       - name: Install dependencies
         run: uv sync --group dev
       - name: Format check
-        run: uv run ruff format --check $(git ls-files '*.py')
+        run: uv run ruff format --check src tests scripts main.py
       - name: Lint
-        run: uv run ruff check $(git ls-files '*.py')
+        run: uv run ruff check src tests scripts main.py
 
   pyright:
     name: Pyright (type checking)

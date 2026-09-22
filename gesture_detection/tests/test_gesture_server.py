@@ -2,9 +2,8 @@ import json
 import socket
 import time
 
-from modules.gesture_delivery import DeliveryOutbox
-from modules.gesture_server import GestureServer
-
+from gesture_detection.gesture_delivery import DeliveryOutbox
+from gesture_detection.gesture_server import GestureServer
 from test_gesture_delivery import result
 
 

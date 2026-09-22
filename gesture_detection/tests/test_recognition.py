@@ -1,9 +1,8 @@
 from copy import deepcopy
 from unittest.mock import patch
 
-from modules.recognition import RecognitionCoordinator
-from modules.rendering import status_messages
-
+from gesture_detection.recognition import RecognitionCoordinator
+from gesture_detection.rendering import status_messages
 from test_pose_worker import landmarks
 
 

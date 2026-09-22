@@ -3,8 +3,9 @@ from unittest.mock import Mock, patch
 
 import numpy as np
 import pytest
-from modules.config import FANNING_POSITION_DWELL_SECONDS
-from modules.pose_worker import PoseAnalyzer
+
+from gesture_detection.config import FANNING_POSITION_DWELL_SECONDS
+from gesture_detection.pose_worker import PoseAnalyzer
 
 
 def landmarks():
@@ -31,8 +32,8 @@ def process_analyzer(analyzer, request):
     analyzer.running_mode = request.param
     # Test Python state/metadata without invoking native image conversion.
     with (
-        patch("modules.pose_worker.cv2.cvtColor"),
-        patch("modules.pose_worker.mp_core.Image"),
+        patch("gesture_detection.pose_worker.cv2.cvtColor"),
+        patch("gesture_detection.pose_worker.mp_core.Image"),
     ):
         yield analyzer
 
@@ -83,7 +84,8 @@ def test_uchimizu_finish_does_not_become_fanning(analyzer, wrist_index):
     trajectory = [0.8] * 4 + [0.6, 0.7] + [0.45] * 4 + [0.8] * 60
     timestamp = 0.0
     with patch(
-        "modules.hand_gesture.HandGestureAnalyzer._calculate_fanning_score", return_value=0.9
+        "gesture_detection.hand_gesture.HandGestureAnalyzer._calculate_fanning_score",
+        return_value=0.9,
     ):
         for frame, y in enumerate(trajectory):
             timestamp = frame / 30
@@ -141,7 +143,8 @@ def test_lost_hand_must_reestablish_fanning_position(analyzer):
     points[15].visibility = 1
     timestamp = 2.0
     with patch(
-        "modules.hand_gesture.HandGestureAnalyzer._calculate_fanning_score", return_value=0.9
+        "gesture_detection.hand_gesture.HandGestureAnalyzer._calculate_fanning_score",
+        return_value=0.9,
     ):
         analyzer.recognition._update_gesture_scores(points, timestamp)
     assert analyzer.recognition.hands[0].fanning_position_since == 2.0
@@ -149,7 +152,8 @@ def test_lost_hand_must_reestablish_fanning_position(analyzer):
     assert analyzer.recognition.selected_action != "FANNING"
     timestamp = 2.0 + FANNING_POSITION_DWELL_SECONDS / 2
     with patch(
-        "modules.hand_gesture.HandGestureAnalyzer._calculate_fanning_score", return_value=0.9
+        "gesture_detection.hand_gesture.HandGestureAnalyzer._calculate_fanning_score",
+        return_value=0.9,
     ):
         analyzer.recognition._update_gesture_scores(points, timestamp)
     assert analyzer.recognition.fanning_score == 0.0
@@ -219,7 +223,7 @@ def test_process_passes_source_timestamp_to_all_detectors(process_analyzer):
     with (
         # Guard the analyzer without replacing pytest or third-party clocks.
         patch(
-            "modules.pose_worker.time",
+            "gesture_detection.pose_worker.time",
             SimpleNamespace(monotonic=Mock(side_effect=AssertionError("Wall clock used"))),
             create=True,
         ),
@@ -237,14 +241,14 @@ def test_process_passes_source_timestamp_to_all_detectors(process_analyzer):
 def test_worker_forwards_frame_timestamp():
     from unittest.mock import MagicMock
 
-    from modules.pose_worker import pose_worker
+    from gesture_detection.pose_worker import pose_worker
 
     frame = np.zeros((4, 5, 3), dtype=np.uint8)
     channel = MagicMock()
     channel.get.side_effect = [(frame, 3.25, 97), None]
     results = MagicMock()
     results.empty.return_value = True
-    with patch("modules.pose_worker.PoseAnalyzer") as factory:
+    with patch("gesture_detection.pose_worker.PoseAnalyzer") as factory:
         pose_worker(channel, results)
     factory.return_value.process.assert_called_once_with(frame, 3.25, 97)
     factory.return_value.close.assert_called_once()
@@ -253,17 +257,17 @@ def test_worker_forwards_frame_timestamp():
 def test_worker_publishes_occurrence_before_lossy_display_queue():
     from unittest.mock import MagicMock
 
-    from modules.pose_worker import pose_worker
+    from gesture_detection.pose_worker import pose_worker
 
     channel = MagicMock()
     channel.get.side_effect = [(MagicMock(), 10.0, 1), None]
     results = MagicMock()
     results.empty.return_value = True
     with (
-        patch("modules.pose_worker.PoseAnalyzer") as analyzer,
-        patch("modules.pose_worker.DeliveryOutbox") as outbox,
-        patch("modules.pose_worker.GestureServer") as server,
-        patch("modules.pose_worker.time.monotonic", return_value=10.1),
+        patch("gesture_detection.pose_worker.PoseAnalyzer") as analyzer,
+        patch("gesture_detection.pose_worker.DeliveryOutbox") as outbox,
+        patch("gesture_detection.pose_worker.GestureServer") as server,
+        patch("gesture_detection.pose_worker.time.monotonic", return_value=10.1),
     ):
         order = Mock()
         order.attach_mock(outbox.return_value.publish, "notify")
@@ -291,15 +295,15 @@ def test_result_identifies_source_frame_even_without_pose(process_analyzer, dete
 
 @pytest.mark.parametrize("mode", ["IMAGE", "VIDEO"])
 def test_landmarker_options_select_running_mode(mode, tmp_path):
-    from modules.pose_worker import vision
+    from gesture_detection.pose_worker import vision
 
     model = tmp_path / "pose.task"
     model.touch()
     with (
-        patch("modules.pose_worker.POSE_MODEL_PATH", model),
-        patch("modules.pose_worker.python.BaseOptions"),
-        patch("modules.pose_worker.vision.PoseLandmarkerOptions") as options,
-        patch("modules.pose_worker.vision.PoseLandmarker.create_from_options") as create,
+        patch("gesture_detection.pose_worker.POSE_MODEL_PATH", model),
+        patch("gesture_detection.pose_worker.python.BaseOptions"),
+        patch("gesture_detection.pose_worker.vision.PoseLandmarkerOptions") as options,
+        patch("gesture_detection.pose_worker.vision.PoseLandmarker.create_from_options") as create,
     ):
         PoseAnalyzer(running_mode=mode)
     assert options.call_args.kwargs["running_mode"] == vision.RunningMode[mode]
@@ -310,10 +314,10 @@ def test_landmarker_options_accept_confidence_overrides(tmp_path):
     model = tmp_path / "pose.task"
     model.touch()
     with (
-        patch("modules.pose_worker.POSE_MODEL_PATH", model),
-        patch("modules.pose_worker.python.BaseOptions"),
-        patch("modules.pose_worker.vision.PoseLandmarkerOptions") as options,
-        patch("modules.pose_worker.vision.PoseLandmarker.create_from_options"),
+        patch("gesture_detection.pose_worker.POSE_MODEL_PATH", model),
+        patch("gesture_detection.pose_worker.python.BaseOptions"),
+        patch("gesture_detection.pose_worker.vision.PoseLandmarkerOptions") as options,
+        patch("gesture_detection.pose_worker.vision.PoseLandmarker.create_from_options"),
     ):
         PoseAnalyzer(
             running_mode="VIDEO",
@@ -387,7 +391,8 @@ def test_scoop_preparation_and_recovery_grace_do_not_select_fanning(
         + [0.48] * (sample_fps * 7 // 10)
     )
     with patch(
-        "modules.hand_gesture.HandGestureAnalyzer._calculate_fanning_score", return_value=0.9
+        "gesture_detection.hand_gesture.HandGestureAnalyzer._calculate_fanning_score",
+        return_value=0.9,
     ):
         for frame_id, y in enumerate(trajectory):
             points[wrist_index].y = y
@@ -420,7 +425,8 @@ def test_other_hand_score_does_not_interrupt_sprinkling(analyzer, wrist_index):
     points[31 - wrist_index].y = 0.22
     actions = []
     with patch(
-        "modules.hand_gesture.HandGestureAnalyzer._calculate_fanning_score", return_value=0.9
+        "gesture_detection.hand_gesture.HandGestureAnalyzer._calculate_fanning_score",
+        return_value=0.9,
     ):
         for frame_id, y in enumerate([0.8] * 30 + [0.48] * 30 + [0.56] * 6 + [0.48] * 21):
             points[wrist_index].y = y

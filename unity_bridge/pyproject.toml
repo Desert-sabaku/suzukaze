@@ -10,6 +10,17 @@ dependencies = [
     "websockets>=17.1",
 ]
 
+[project.scripts]
+unity-bridge = "unity_bridge.core:main"
+unity-gesture-probe = "unity_bridge.gesture_probe:main"
+
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [dependency-groups]
 dev = [
   "pyright>=1.1",
@@ -19,9 +30,10 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-pythonpath = [".", "../gesture_detection"]
+testpaths = ["test"]
+pythonpath = ["../gesture_detection/src"]
 
 [tool.pyright]
-extraPaths = ["../gesture_detection"]
+extraPaths = ["src", "../gesture_detection/src"]
 venvPath = "."
 venv = ".venv"

@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 
 import pytest
-from modules.ramune import RamuneAnalyzer
+
+from gesture_detection.ramune import RamuneAnalyzer
 
 
 @dataclass

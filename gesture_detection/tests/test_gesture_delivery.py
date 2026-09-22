@@ -1,6 +1,7 @@
 import pytest
-from modules.gesture_delivery import DeliveryOutbox
-from modules.recognition_types import PoseResult
+
+from gesture_detection.gesture_delivery import DeliveryOutbox
+from gesture_detection.recognition_types import PoseResult
 
 
 def result(gesture: str = "FANNING", *events: str) -> PoseResult:

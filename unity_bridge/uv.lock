@@ -234,7 +234,7 @@ wheels = [
 [[package]]
 name = "unity-bridge"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "dotenv" },
     { name = "pyserial" },

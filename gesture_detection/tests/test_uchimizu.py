@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 
 import pytest
-from modules.uchimizu import UchimizuAnalyzer
+
+from gesture_detection.uchimizu import UchimizuAnalyzer
 
 
 @dataclass

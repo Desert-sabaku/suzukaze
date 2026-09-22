@@ -4,7 +4,7 @@ import json
 import websockets
 from websockets.asyncio.server import serve
 
-from src.gesture_relay import GestureRelay
+from unity_bridge.gesture_relay import GestureRelay
 
 
 def test_relay_preserves_event_and_forwards_only_unity_ack():

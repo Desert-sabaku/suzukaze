@@ -1,4 +1,4 @@
-from src.gesture_probe import GestureReceiver
+from unity_bridge.gesture_probe import GestureReceiver
 
 
 def decision(receiver, message, now, accept):

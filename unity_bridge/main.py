@@ -1,13 +1,13 @@
 from multiprocessing import freeze_support
 
 # def run_gesture_detection() -> None:
-#     from gesture_detection.modules.app import main as run_application
+#     from gesture_detection.app import main as run_application
 
 #     run_application()
 
 
 def run_unity_bridge() -> None:
-    from src.core import main as run_bridge
+    from unity_bridge.core import main as run_bridge
 
     run_bridge()
 

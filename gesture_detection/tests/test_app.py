@@ -2,21 +2,22 @@ import unittest
 from unittest.mock import MagicMock, call, patch
 
 import cv2
-from modules.app import GestureApplication, PoseResult
-from modules.config import CAMERA_BACKEND, CAMERA_FOURCC, WINDOW_TITLE
+
+from gesture_detection.app import GestureApplication, PoseResult
+from gesture_detection.config import CAMERA_BACKEND, CAMERA_FOURCC, WINDOW_TITLE
 
 
 def test_delivery_is_disabled_for_video_even_when_enabled():
-    with patch("modules.app.mp.Process") as process:
+    with patch("gesture_detection.app.mp.Process") as process:
         for source, enabled, expected in [
             (None, True, True),
             (None, False, False),
             ("movie.mp4", True, False),
         ]:
             with (
-                patch("modules.app.VIDEO_SOURCE", source),
-                patch("modules.app.GESTURE_DELIVERY_ENABLED", enabled),
-                patch("modules.app.mp.Queue"),
+                patch("gesture_detection.app.VIDEO_SOURCE", source),
+                patch("gesture_detection.app.GESTURE_DELIVERY_ENABLED", enabled),
+                patch("gesture_detection.app.mp.Queue"),
             ):
                 app = GestureApplication()
                 app._start_workers()
@@ -24,8 +25,8 @@ def test_delivery_is_disabled_for_video_even_when_enabled():
 
 
 class OpenCaptureTest(unittest.TestCase):
-    @patch("modules.app.VIDEO_SOURCE", "/tmp/sample.mp4")
-    @patch("modules.app.cv2.VideoCapture")
+    @patch("gesture_detection.app.VIDEO_SOURCE", "/tmp/sample.mp4")
+    @patch("gesture_detection.app.cv2.VideoCapture")
     def test_uses_configured_video_source(self, video_capture):
         configured = MagicMock()
         configured.isOpened.return_value = True
@@ -36,8 +37,8 @@ class OpenCaptureTest(unittest.TestCase):
         self.assertIs(result, configured)
         video_capture.assert_called_once_with("/tmp/sample.mp4")
 
-    @patch("modules.app.VIDEO_SOURCE", "/tmp/missing.mp4")
-    @patch("modules.app.cv2.VideoCapture")
+    @patch("gesture_detection.app.VIDEO_SOURCE", "/tmp/missing.mp4")
+    @patch("gesture_detection.app.cv2.VideoCapture")
     def test_raises_when_configured_video_source_cannot_be_opened(self, video_capture):
         configured = MagicMock()
         configured.isOpened.return_value = False
@@ -48,8 +49,8 @@ class OpenCaptureTest(unittest.TestCase):
 
         configured.release.assert_called_once_with()
 
-    @patch("modules.app.cv2.VideoCapture")
-    @patch("modules.app.VIDEO_SOURCE", None)
+    @patch("gesture_detection.app.cv2.VideoCapture")
+    @patch("gesture_detection.app.VIDEO_SOURCE", None)
     def test_uses_configured_camera_settings(self, video_capture):
         configured = MagicMock()
         configured.isOpened.return_value = True
@@ -65,8 +66,8 @@ class OpenCaptureTest(unittest.TestCase):
             cv2.VideoWriter.fourcc(*CAMERA_FOURCC),
         )
 
-    @patch("modules.app.cv2.VideoCapture")
-    @patch("modules.app.VIDEO_SOURCE", None)
+    @patch("gesture_detection.app.cv2.VideoCapture")
+    @patch("gesture_detection.app.VIDEO_SOURCE", None)
     def test_falls_back_to_default_settings(self, video_capture):
         configured = MagicMock()
         configured.isOpened.return_value = True
@@ -84,8 +85,8 @@ class OpenCaptureTest(unittest.TestCase):
         )
         configured.release.assert_called_once_with()
 
-    @patch("modules.app.cv2.VideoCapture")
-    @patch("modules.app.VIDEO_SOURCE", None)
+    @patch("gesture_detection.app.cv2.VideoCapture")
+    @patch("gesture_detection.app.VIDEO_SOURCE", None)
     def test_raises_when_configured_and_default_settings_fail(self, video_capture):
         configured = MagicMock()
         configured.isOpened.return_value = False
@@ -99,9 +100,9 @@ class OpenCaptureTest(unittest.TestCase):
         configured.release.assert_called_once_with()
         default.release.assert_called_once_with()
 
-    @patch("modules.app.VIDEO_SOURCE", "/tmp/sample.mp4")
-    @patch("modules.app.VIDEO_OUTPUT_PATH", "/tmp/output.mp4")
-    @patch("modules.app.cv2.VideoWriter")
+    @patch("gesture_detection.app.VIDEO_SOURCE", "/tmp/sample.mp4")
+    @patch("gesture_detection.app.VIDEO_OUTPUT_PATH", "/tmp/output.mp4")
+    @patch("gesture_detection.app.cv2.VideoWriter")
     def test_opens_output_for_video_source(self, video_writer):
         capture = MagicMock()
         capture.get.side_effect = {
@@ -123,8 +124,8 @@ class OpenCaptureTest(unittest.TestCase):
             (640, 480),
         )
 
-    @patch("modules.app.VIDEO_SOURCE", None)
-    @patch("modules.app.cv2.VideoWriter")
+    @patch("gesture_detection.app.VIDEO_SOURCE", None)
+    @patch("gesture_detection.app.cv2.VideoWriter")
     def test_does_not_open_output_for_camera_source(self, video_writer):
         self.assertIsNone(GestureApplication._open_output(MagicMock()))
         video_writer.assert_not_called()
@@ -142,7 +143,7 @@ class RamuneActionTests(unittest.TestCase):
         }
         with (
             patch.object(GestureApplication, "_draw_action") as draw,
-            patch("modules.app.draw_ramune_guide") as guide,
+            patch("gesture_detection.app.draw_ramune_guide") as guide,
         ):
             GestureApplication._annotate_frame(np.zeros((480, 640, 3), dtype=np.uint8), pose)
         self.assertEqual(draw.call_args.args[1], "RAMUNE")
@@ -158,7 +159,7 @@ class RamuneActionTests(unittest.TestCase):
         self.assertEqual(GestureApplication._primary_action(pose), "NONE")
 
 
-@patch("modules.app.VIDEO_SOURCE", None)
+@patch("gesture_detection.app.VIDEO_SOURCE", None)
 class RunLifecycleTests(unittest.TestCase):
     def test_escape_flushes_output_and_stops_workers(self):
         import numpy as np
@@ -172,10 +173,10 @@ class RunLifecycleTests(unittest.TestCase):
             patch.object(app, "_open_output", return_value=MagicMock()),
             patch.object(app, "_start_workers"),
             patch.object(app, "_stop_workers") as stop,
-            patch("modules.app.AsyncVideoWriter") as writer,
-            patch("modules.app.cv2.imshow"),
-            patch("modules.app.cv2.waitKey", return_value=27),
-            patch("modules.app.cv2.destroyAllWindows"),
+            patch("gesture_detection.app.AsyncVideoWriter") as writer,
+            patch("gesture_detection.app.cv2.imshow"),
+            patch("gesture_detection.app.cv2.waitKey", return_value=27),
+            patch("gesture_detection.app.cv2.destroyAllWindows"),
         ):
             app.run()
         writer.return_value.write.assert_called_once()
@@ -196,10 +197,10 @@ class RunLifecycleTests(unittest.TestCase):
             patch.object(app, "_open_output", return_value=None),
             patch.object(app, "_start_workers"),
             patch.object(app, "_stop_workers") as stop,
-            patch("modules.app.cv2.imshow"),
-            patch("modules.app.cv2.waitKey", return_value=-1),
-            patch("modules.app.cv2.getWindowProperty", return_value=0) as visibility,
-            patch("modules.app.cv2.destroyAllWindows"),
+            patch("gesture_detection.app.cv2.imshow"),
+            patch("gesture_detection.app.cv2.waitKey", return_value=-1),
+            patch("gesture_detection.app.cv2.getWindowProperty", return_value=0) as visibility,
+            patch("gesture_detection.app.cv2.destroyAllWindows"),
         ):
             app.run()
         visibility.assert_called_once_with(WINDOW_TITLE, cv2.WND_PROP_VISIBLE)
@@ -211,8 +212,8 @@ class RunLifecycleTests(unittest.TestCase):
         app = GestureApplication()
         app._window_created = True
         with (
-            patch("modules.app.cv2.waitKey", return_value=-1),
-            patch("modules.app.cv2.getWindowProperty", side_effect=cv2.error),
+            patch("gesture_detection.app.cv2.waitKey", return_value=-1),
+            patch("gesture_detection.app.cv2.getWindowProperty", side_effect=cv2.error),
         ):
             self.assertTrue(app._exit_requested())
         app.pose_result_queue.close()
@@ -227,7 +228,7 @@ class RunLifecycleTests(unittest.TestCase):
             patch.object(app, "_open_capture", return_value=capture),
             patch.object(app, "_start_workers", side_effect=RuntimeError("start failed")),
             patch.object(app, "_stop_workers") as stop,
-            patch("modules.app.cv2.destroyAllWindows"),
+            patch("gesture_detection.app.cv2.destroyAllWindows"),
         ):
             with self.assertRaisesRegex(RuntimeError, "start failed"):
                 app.run()
@@ -239,7 +240,8 @@ class RunLifecycleTests(unittest.TestCase):
 class FrameClockTests(unittest.TestCase):
     def test_video_positions_and_fallback(self):
         import numpy as np
-        from modules.app import FrameClock
+
+        from gesture_detection.app import FrameClock
 
         capture = MagicMock()
         positions = iter([0.0, 40.0, 40.0, float("nan"), -1.0, 240.0])
@@ -247,12 +249,12 @@ class FrameClockTests(unittest.TestCase):
             next(positions) if prop == cv2.CAP_PROP_POS_MSEC else 25.0
         )
         clock = FrameClock(is_video=True)
-        with patch("modules.app.time.monotonic", side_effect=AssertionError):
+        with patch("gesture_detection.app.time.monotonic", side_effect=AssertionError):
             actual = [clock.timestamp(capture) for _ in range(6)]
         np.testing.assert_allclose(actual, [0.0, 0.04, 0.08, 0.12, 0.16, 0.24])
 
     def test_invalid_fps(self):
-        from modules.app import FPS, FrameClock
+        from gesture_detection.app import FPS, FrameClock
 
         for fps in (0.0, -1.0, float("nan"), float("inf")):
             capture = MagicMock()
@@ -264,10 +266,10 @@ class FrameClockTests(unittest.TestCase):
             self.assertAlmostEqual(clock.timestamp(capture), 1 / FPS)
 
     def test_camera_capture_time(self):
-        from modules.app import FrameClock
+        from gesture_detection.app import FrameClock
 
         capture = MagicMock()
-        with patch("modules.app.time.monotonic", return_value=123.45):
+        with patch("gesture_detection.app.time.monotonic", return_value=123.45):
             self.assertEqual(FrameClock(is_video=False).timestamp(capture), 123.45)
         capture.get.assert_not_called()
 
@@ -335,18 +337,18 @@ class SequentialVideoTests(unittest.TestCase):
         capture.read.side_effect = read
         capture.get.side_effect = lambda prop: (reads - 1) * 40.0
         with (
-            patch("modules.app.VIDEO_SOURCE", "/tmp/video.mp4"),
+            patch("gesture_detection.app.VIDEO_SOURCE", "/tmp/video.mp4"),
             patch.object(app, "_open_capture", return_value=capture),
             patch.object(app, "_open_output", return_value=MagicMock()),
             patch.object(app, "_start_workers", side_effect=start),
             patch.object(app, "_stop_workers", side_effect=stop),
             patch.object(app, "_annotate_frame", side_effect=annotate),
-            patch("modules.app.AsyncVideoWriter") as writer,
-            patch("modules.app.cv2.putText"),
-            patch("modules.app.cv2.imshow"),
-            patch("modules.app.cv2.waitKey", return_value=-1),
-            patch("modules.app.cv2.getWindowProperty", return_value=1),
-            patch("modules.app.cv2.destroyAllWindows"),
+            patch("gesture_detection.app.AsyncVideoWriter") as writer,
+            patch("gesture_detection.app.cv2.putText"),
+            patch("gesture_detection.app.cv2.imshow"),
+            patch("gesture_detection.app.cv2.waitKey", return_value=-1),
+            patch("gesture_detection.app.cv2.getWindowProperty", return_value=1),
+            patch("gesture_detection.app.cv2.destroyAllWindows"),
         ):
             writer.return_value.write.side_effect = lambda frame: saved.append(int(frame[0, 0, 0]))
             app.run()
@@ -371,7 +373,7 @@ class SequentialVideoTests(unittest.TestCase):
         frames.publish.side_effect = [False, True]
         expected = {"selected_action": "RAMUNE", "frame_id": 7, "timestamp": 0.25}
         results.get.side_effect = [queue.Empty, expected]
-        with patch("modules.app.cv2.waitKey", return_value=-1):
+        with patch("gesture_detection.app.cv2.waitKey", return_value=-1):
             self.assertIs(app._process_video_frame(MagicMock(), 0.25, 7), expected)
         self.assertEqual(frames.publish.call_count, 2)
         self.assertEqual(results.get.call_count, 2)
@@ -382,7 +384,7 @@ class SequentialVideoTests(unittest.TestCase):
         app, frames, results, process = self.make_app()
         process.is_alive.side_effect = [True, False]
         results.get.side_effect = queue.Empty
-        with patch("modules.app.cv2.waitKey", return_value=-1):
+        with patch("gesture_detection.app.cv2.waitKey", return_value=-1):
             with self.assertRaisesRegex(RuntimeError, "Pose worker process"):
                 app._process_video_frame(MagicMock(), 0.0, 0)
 
@@ -391,7 +393,7 @@ class SequentialVideoTests(unittest.TestCase):
 
         app, frames, results, process = self.make_app()
         results.get.side_effect = queue.Empty
-        with patch("modules.app.cv2.waitKey", return_value=27):
+        with patch("gesture_detection.app.cv2.waitKey", return_value=27):
             self.assertIsNone(app._process_video_frame(MagicMock(), 0.0, 0))
 
     def test_video_rejects_result_from_another_frame(self):
