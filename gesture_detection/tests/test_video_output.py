@@ -2,7 +2,8 @@ import threading
 from unittest.mock import MagicMock
 
 import pytest
-from modules.video_output import AsyncVideoWriter
+
+from gesture_detection.video_output import AsyncVideoWriter
 
 
 def test_release_flushes_all_frames_in_order():

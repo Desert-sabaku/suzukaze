@@ -1,7 +1,8 @@
 import multiprocessing as mp
 
 import numpy as np
-from modules.ipc import SharedLatestFrame
+
+from gesture_detection.ipc import SharedLatestFrame
 
 
 def consume_frames(channel, result):

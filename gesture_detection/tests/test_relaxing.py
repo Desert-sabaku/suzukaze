@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 
 import pytest
-from modules.config import RELAXING_DWELL_SECONDS, RELAXING_LANDMARKS
-from modules.relaxing import RelaxingAnalyzer
+
+from gesture_detection.config import RELAXING_DWELL_SECONDS, RELAXING_LANDMARKS
+from gesture_detection.relaxing import RelaxingAnalyzer
 
 
 @dataclass

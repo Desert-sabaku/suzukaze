@@ -22,8 +22,9 @@ from typing import Any, cast
 import cv2
 import mediapipe
 import numpy as np
-from modules import pose_worker
-from modules.app import FrameClock, GestureApplication, PoseResult
+
+from gesture_detection import pose_worker
+from gesture_detection.app import FrameClock, GestureApplication, PoseResult
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_ACTIONS = {

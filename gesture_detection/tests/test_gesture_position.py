@@ -1,7 +1,7 @@
 import unittest
 from dataclasses import dataclass
 
-from modules.gesture_position import (
+from gesture_detection.gesture_position import (
     is_fanning_position,
     is_uchimizu_ready_motion,
     is_wrist_within_torso_x,
