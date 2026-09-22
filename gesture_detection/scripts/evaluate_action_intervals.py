@@ -19,6 +19,12 @@ from gesture_detection import pose_worker
 from gesture_detection.app import FrameClock, GestureApplication
 
 from .evaluate_curtain import PREPROCESSORS
+from .evaluate_landmark_annotations import (
+    BACKGROUND_PREPROCESSORS,
+    background_preprocess,
+    build_session_backgrounds,
+    load_frames,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 CLIP_PATTERN = re.compile(
@@ -73,6 +79,7 @@ def evaluate_clip(
     detection_confidence: float,
     presence_confidence: float,
     sample_fps: float,
+    background: Any | None = None,
 ) -> dict[str, Any]:
     expected, take, interval_start, interval_end = parse_clip_name(source)
     pose_worker.POSE_MODEL_PATH = model
@@ -85,7 +92,7 @@ def evaluate_clip(
     if not capture.isOpened():
         analyzer.close()
         raise RuntimeError(f"Unable to open {source}")
-    preprocess = PREPROCESSORS[preprocess_name]
+    preprocess = PREPROCESSORS.get(preprocess_name)
     clock = FrameClock(is_video=True)
     source_frames = evaluated_frames = interval_frames = pose_interval_frames = 0
     expected_frames = outside_frames = outside_action_frames = 0
@@ -105,7 +112,13 @@ def evaluate_clip(
             if timestamp + 1e-9 < next_sample_at:
                 continue
             next_sample_at = timestamp + 1 / sample_fps
-            result = analyzer.process(preprocess(frame), timestamp, evaluated_frames)
+            if preprocess is not None:
+                prepared = preprocess(frame)
+            else:
+                if background is None:
+                    raise ValueError("Background preprocessing requires a reference image")
+                prepared = background_preprocess(frame, background, preprocess_name)
+            result = analyzer.process(prepared, timestamp, evaluated_frames)
             evaluated_frames += 1
             action = GestureApplication._primary_action(result)
             in_interval = interval_start <= timestamp <= interval_end
@@ -197,8 +210,13 @@ def aggregate(clips: list[dict[str, Any]]) -> list[dict[str, Any]]:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--video-root", type=Path, default=PROJECT_ROOT / "shared" / "videos")
+    parser.add_argument("--annotations", type=Path, default=PROJECT_ROOT / "shared" / "annotations")
     parser.add_argument("--model", type=Path, default=PROJECT_ROOT / "pose_landmarker_lite.task")
-    parser.add_argument("--preprocess", choices=sorted(PREPROCESSORS), default="identity")
+    parser.add_argument(
+        "--preprocess",
+        choices=sorted((*PREPROCESSORS, *BACKGROUND_PREPROCESSORS)),
+        default="identity",
+    )
     parser.add_argument("--detection-confidence", type=float, default=0.5)
     parser.add_argument("--presence-confidence", type=float, default=0.5)
     parser.add_argument("--sample-fps", type=float, default=10.0)
@@ -231,6 +249,11 @@ def main() -> None:
         selected.append((environment, source))
     if not selected:
         raise ValueError("No clips match the requested filters")
+    backgrounds = None
+    if args.preprocess in BACKGROUND_PREPROCESSORS:
+        if {environment for environment, _ in selected} != {"behind"}:
+            raise ValueError("Background preprocessing is available only with --environment behind")
+        backgrounds = build_session_backgrounds(load_frames(args.annotations))
 
     clips = []
     for environment, source in selected:
@@ -244,6 +267,7 @@ def main() -> None:
                 args.detection_confidence,
                 args.presence_confidence,
                 args.sample_fps,
+                backgrounds[source.stem] if backgrounds is not None else None,
             )
         )
         report = {

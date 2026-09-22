@@ -184,6 +184,26 @@ uv run python -m scripts.evaluate_yolo_annotations \
 したがって、開始前に空幕を撮るキャリブレーションには改善方向の根拠があるが、この単純方式だけを
 本番解として採用できる精度ではない。
 
+注釈画像だけの改善に留まらないか確認するため、背景マスクを各動画の全フレームへ適用して
+動作区間評価も行った。
+
+| 条件 | 扇ぎ | ラムネ | 夕涼み | 打ち水 |
+|---|---:|---:|---:|---:|
+| 幕なし・無加工0.50 | 2/3 | 0/3 | 1/3 | 1/3 |
+| 幕越し・無加工0.50 | 0/3 | 0/3 | 0/3 | 0/3 |
+| 幕越し・背景マスク0.35 | 1/3 | 0/3 | 0/3 | 1/3 |
+| 幕越し・背景マスク0.20 | 2/3 | 0/3 | 0/3 | 0/3 |
+
+扇ぎは背景マスク＋閾値0.20で幕なしと同じ2/3になった。区間外動作率は幕なし9.7%に対して
+幕越し13.1%だった。打ち水は背景マスク＋閾値0.35で幕なしと同じ1/3となり、区間外動作率も
+幕なし2.6%に対して幕越し3.1%だった。3本ずつという小標本ではあるが、この2動作については
+空幕キャリブレーションと動作別閾値によって幕なしと同程度になったことを確認できた。
+
+閾値0.20では打ち水が扇ぎへ誤分類され、夕涼みでも打ち水の誤発火が増えた。全動作に同じ低閾値を
+適用する方式は採れない。Unity側が現在の体験シーンを把握している構成を利用し、期待する動作ごとに
+入力条件を切り替える余地がある。ただし、ラムネと夕涼みは未解決であり、幕なし側もそれぞれ0/3、
+1/3に留まるため、まず動作判定器そのものの診断が必要である。
+
 再実行例：
 
 ```bash
@@ -192,4 +212,11 @@ uv run python -m scripts.evaluate_landmark_annotations \
   --detection-confidence 0.35 \
   --presence-confidence 0.35 \
   --output shared/results/landmark-background-mask-conf035.json
+
+uv run python -m scripts.evaluate_action_intervals \
+  --environment behind \
+  --preprocess background_mask \
+  --detection-confidence 0.35 \
+  --presence-confidence 0.35 \
+  --output shared/results/action-intervals-background-mask-conf035.json
 ```
