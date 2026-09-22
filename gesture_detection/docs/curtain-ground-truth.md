@@ -162,3 +162,34 @@ uv run python -m scripts.evaluate_yolo_annotations \
   --model /path/to/yolov8n-pose.pt \
   --output shared/results/yolo-landmark-annotations.json
 ```
+
+## 空幕キャリブレーションと背景差分
+
+撮影条件側で実施可能な操作として、各動画の被写体不在フレームから空の幕画像を作り、入力との差分で
+動体領域を抽出した。次の2方式をMediaPipe Liteへ入力した。
+
+- `background_mask`: 動体領域だけ元画像を残し、その他を空幕の代表色へ置換
+- `background_difference`: 空幕との差分強度をグレースケール画像として入力
+
+| 条件 | 人物検出率 | 不在時誤検出率 | 関節取得率 | PCK@0.2 | 検出点の誤差中央値 |
+|---|---:|---:|---:|---:|---:|
+| 無加工、閾値0.50 | 11.3% | 5.9% | 11.3% | 0.0% | 1.863 |
+| 背景差分画像、閾値0.50 | 11.3% | 11.8% | 11.6% | 0.0% | 1.141 |
+| 背景マスク、閾値0.50 | 4.8% | 0.0% | 5.1% | 2.4% | 0.207 |
+| 背景マスク、閾値0.35 | 11.3% | 5.9% | 12.2% | 3.9% | 0.444 |
+| 背景マスク、閾値0.20 | 17.7% | 14.7% | 18.8% | 5.7% | 0.572 |
+
+背景マスクは無加工で0%だったPCKを最大5.7%へ改善し、正しい骨格が出るフレームを増やした。
+一方で全関節の94%以上は依然として許容誤差外であり、閾値を下げると不在時誤検出も増える。
+したがって、開始前に空幕を撮るキャリブレーションには改善方向の根拠があるが、この単純方式だけを
+本番解として採用できる精度ではない。
+
+再実行例：
+
+```bash
+uv run python -m scripts.evaluate_landmark_annotations \
+  --preprocess background_mask \
+  --detection-confidence 0.35 \
+  --presence-confidence 0.35 \
+  --output shared/results/landmark-background-mask-conf035.json
+```

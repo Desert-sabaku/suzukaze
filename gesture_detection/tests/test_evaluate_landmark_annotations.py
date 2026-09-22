@@ -3,6 +3,10 @@ import csv
 import cv2
 import numpy as np
 from scripts.evaluate_landmark_annotations import (
+    AnnotatedFrame,
+    Annotation,
+    background_preprocess,
+    build_session_backgrounds,
     load_frames,
     normalized_status,
     reference_scale,
@@ -48,11 +52,36 @@ def test_loads_only_named_experiment_sessions(tmp_path):
 
 
 def test_reference_scale_prefers_shoulder_width():
-    from scripts.evaluate_landmark_annotations import Annotation
-
     annotations = (
         Annotation("left_shoulder", "marked", 10, 10),
         Annotation("right_shoulder", "marked", 40, 10),
     )
 
     assert reference_scale(annotations, 100, 100) == 30
+
+
+def test_builds_background_from_absent_frames(tmp_path):
+    first = tmp_path / "first.png"
+    second = tmp_path / "second.png"
+    cv2.imwrite(str(first), np.full((4, 5, 3), 10, dtype=np.uint8))
+    cv2.imwrite(str(second), np.full((4, 5, 3), 30, dtype=np.uint8))
+    absent = (Annotation("left_wrist", "absent", None, None),)
+    frames = [
+        AnnotatedFrame("aogi1_2-6", 0, 0.0, first, absent),
+        AnnotatedFrame("aogi1_2-6", 1, 1.0, second, absent),
+    ]
+
+    backgrounds = build_session_backgrounds(frames)
+
+    assert np.all(backgrounds["aogi1_2-6"] == 20)
+
+
+def test_background_difference_preserves_changed_region():
+    background = np.zeros((20, 20, 3), dtype=np.uint8)
+    image = background.copy()
+    image[5:15, 5:15] = 200
+
+    result = background_preprocess(image, background, "background_difference")
+
+    assert result.shape == image.shape
+    assert result[10, 10, 0] > result[0, 0, 0]

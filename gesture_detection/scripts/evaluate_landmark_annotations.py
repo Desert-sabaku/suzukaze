@@ -38,6 +38,7 @@ LEGACY_ABSENT_STATUSES = {
     "aogi1_2-6": frozenset({"uncertain", "pending"}),
     "aogi2_2-5": frozenset({"pending"}),
 }
+BACKGROUND_PREPROCESSORS = ("background_mask", "background_difference")
 
 
 @dataclass(frozen=True)
@@ -115,12 +116,52 @@ def reference_scale(annotations: tuple[Annotation, ...], width: int, height: int
     return math.hypot(width, height)
 
 
+def build_session_backgrounds(frames: list[AnnotatedFrame]) -> dict[str, np.ndarray[Any, Any]]:
+    absent_images: dict[str, list[np.ndarray[Any, Any]]] = defaultdict(list)
+    for annotated in frames:
+        if not all(item.status == "absent" for item in annotated.annotations):
+            continue
+        image = cv2.imread(str(annotated.image))
+        if image is None:
+            raise ValueError(f"Cannot read {annotated.image}")
+        absent_images[annotated.session].append(image)
+    sessions = {frame.session for frame in frames}
+    missing = sorted(sessions - absent_images.keys())
+    if missing:
+        raise ValueError(f"Sessions have no absent reference frame: {', '.join(missing)}")
+    return {
+        session: np.median(np.stack(images), axis=0).astype(np.uint8)
+        for session, images in absent_images.items()
+    }
+
+
+def background_preprocess(
+    image: np.ndarray[Any, Any], background: np.ndarray[Any, Any], mode: str
+) -> np.ndarray[Any, Any]:
+    difference = cv2.absdiff(image, background)
+    gray = cv2.cvtColor(difference, cv2.COLOR_BGR2GRAY)
+    gray = cv2.GaussianBlur(gray, (7, 7), 0)
+    _, mask = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9))
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+    mask = cv2.dilate(mask, kernel, iterations=1)
+    if mode == "background_difference":
+        enhanced = np.empty_like(gray)
+        cv2.normalize(gray, enhanced, 0, 255, cv2.NORM_MINMAX)
+        return cv2.cvtColor(enhanced, cv2.COLOR_GRAY2BGR)
+    if mode != "background_mask":
+        raise ValueError(f"Unknown background preprocessing mode: {mode}")
+    neutral = np.full_like(image, np.median(background, axis=(0, 1)).astype(np.uint8))
+    return np.where(mask[:, :, None] > 0, image, neutral)
+
+
 def evaluate(
     frames: list[AnnotatedFrame],
     model: Path,
     preprocess_name: str,
     detection_confidence: float,
     presence_confidence: float,
+    backgrounds: dict[str, np.ndarray[Any, Any]] | None = None,
 ) -> dict[str, Any]:
     pose_worker.POSE_MODEL_PATH = model
     analyzer = pose_worker.PoseAnalyzer(
@@ -128,7 +169,7 @@ def evaluate(
         detection_confidence=detection_confidence,
         presence_confidence=presence_confidence,
     )
-    preprocess = PREPROCESSORS[preprocess_name]
+    preprocess = PREPROCESSORS.get(preprocess_name)
     presence_frames = absent_frames = detected_presence_frames = false_positive_frames = 0
     marked_points = detected_points = 0
     errors: list[float] = []
@@ -149,7 +190,15 @@ def evaluate(
             if image is None:
                 raise ValueError(f"Cannot read {annotated.image}")
             height, width = image.shape[:2]
-            result = analyzer.process(preprocess(image), annotated.timestamp, frame_number)
+            if preprocess is not None:
+                prepared = preprocess(image)
+            else:
+                if backgrounds is None:
+                    raise ValueError("Background preprocessing requires session backgrounds")
+                prepared = background_preprocess(
+                    image, backgrounds[annotated.session], preprocess_name
+                )
+            result = analyzer.process(prepared, annotated.timestamp, frame_number)
             landmarks = result["landmarks"]
             present = any(item.status in {"marked", "uncertain"} for item in annotated.annotations)
             session_counts = by_session[annotated.session]
@@ -233,7 +282,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--preprocess",
         action="append",
-        choices=sorted(PREPROCESSORS),
+        choices=sorted((*PREPROCESSORS, *BACKGROUND_PREPROCESSORS)),
         help="Repeat to compare conditions; defaults to identity.",
     )
     parser.add_argument("--detection-confidence", type=float, default=0.5)
@@ -254,6 +303,12 @@ def main() -> None:
         if not 0 <= value <= 1:
             raise ValueError("Confidence thresholds must be between 0 and 1")
     frames = load_frames(args.annotations)
+    selected_preprocessors = args.preprocess or ["identity"]
+    backgrounds = (
+        build_session_backgrounds(frames)
+        if any(name in BACKGROUND_PREPROCESSORS for name in selected_preprocessors)
+        else None
+    )
     report = {
         "environment": {
             "python": platform.python_version(),
@@ -275,8 +330,9 @@ def main() -> None:
                 preprocess,
                 args.detection_confidence,
                 args.presence_confidence,
+                backgrounds,
             )
-            for preprocess in (args.preprocess or ["identity"])
+            for preprocess in selected_preprocessors
         ],
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
