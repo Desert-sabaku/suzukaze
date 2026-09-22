@@ -12,9 +12,9 @@
 
 1. `gesture_detection/.env` に `GESTURE_DELIVERY_ENABLED=true` を設定する。
 2. `gesture_detection/` で `uv run gesture-detection` を起動する。
-3. `unity_bridge/` で `uv run python -m src.core --gesture-port 5001` を起動する。
+3. `unity_bridge/` で `uv run python -m unity_bridge.core --gesture-port 5001` を起動する。
 4. Unityを `ws://127.0.0.1:5000` に接続する。模擬Unityなら同じディレクトリで
-   `uv run python -m src.gesture_probe` を起動する。
+   `uv run python -m unity_bridge.gesture_probe` を起動する。
 
 起動順は任意ですが、認識側が未起動の場合はブリッジがWebSocketを切断します。
 Unity側は100ms程度の間隔で再接続してください。接続はUnity 1台に限定します。
@@ -111,5 +111,5 @@ Unity自身の再起動では処理済み履歴が失われるため、期限内
 
 認識側は `uv run python -m pytest`、ブリッジ側は `uv run python -m pytest`。
 実ソケットテストにはループバックのTCP・WebSocket接続権限が必要です。
-Unity受信方針の参照実装は `unity_bridge/src/gesture_probe.py` にあります。
+Unity受信方針の参照実装は `unity_bridge/src/unity_bridge/gesture_probe.py` にあります。
 UnityプロジェクトへのC#組み込みと実カメラによる演出確認は別途必要です。

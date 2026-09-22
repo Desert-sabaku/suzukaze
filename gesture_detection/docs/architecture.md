@@ -2,19 +2,19 @@
 
 ## 構成
 
-- `modules/app.py`: 入力ループ、ワーカーの生存期間、描画と保存
-- `modules/pose_worker.py`: MediaPipe 推論、入力時刻の変換、ワーカー実行
-- `modules/recognition.py`: 認識状態の所有、各判定器の更新・リセット、認識上の競合調停
-- `modules/hand_gesture.py`: 片手ごとの履歴、扇ぎ判定と打ち水の誤認識抑制
-- `modules/recognition_types.py`: 現在の認識状態と内部診断用の結果型
-- `modules/relaxing.py`: 入力元時刻による静止判定
-- `modules/uchimizu.py`: すくい上げと振り下ろしの状態機械
-- `modules/ramune.py`: 両手の準備と押下の状態機械
-- `modules/rendering.py`: 診断値から表示メッセージへの変換、OpenCV 描画
-- `modules/config.py`: パス、入力設定、しきい値
-- `modules/ipc.py`: 最新フレームを共有するメールボックス
-- `modules/video_output.py`: 動画書き出し用の有界バッファ
-- `modules/yolo_worker.py`: 未使用の旧物体検出ワーカー
+- `src/gesture_detection/app.py`: 入力ループ、ワーカーの生存期間、描画と保存
+- `src/gesture_detection/pose_worker.py`: MediaPipe 推論、入力時刻の変換、ワーカー実行
+- `src/gesture_detection/recognition.py`: 認識状態の所有、各判定器の更新・リセット、認識上の競合調停
+- `src/gesture_detection/hand_gesture.py`: 片手ごとの履歴、扇ぎ判定と打ち水の誤認識抑制
+- `src/gesture_detection/recognition_types.py`: 現在の認識状態と内部診断用の結果型
+- `src/gesture_detection/relaxing.py`: 入力元時刻による静止判定
+- `src/gesture_detection/uchimizu.py`: すくい上げと振り下ろしの状態機械
+- `src/gesture_detection/ramune.py`: 両手の準備と押下の状態機械
+- `src/gesture_detection/rendering.py`: 診断値から表示メッセージへの変換、OpenCV 描画
+- `src/gesture_detection/config.py`: パス、入力設定、しきい値
+- `src/gesture_detection/ipc.py`: 最新フレームを共有するメールボックス
+- `src/gesture_detection/video_output.py`: 動画書き出し用の有界バッファ
+- `src/gesture_detection/yolo_worker.py`: 未使用の旧物体検出ワーカー
 
 通常のアプリケーションは MediaPipe のみを起動します。YOLO モデルは実行に不要です。
 MediaPipe の Lite モデルがない場合は自動取得します。
@@ -45,6 +45,10 @@ MediaPipe を起動せずに認識処理を検証できます。各判定器の�
 `.env.example` を `.env` にコピーして設定します。既存の環境変数を優先し、`.env` は
 作業ディレクトリにかかわらずプロジェクトルートから読みます。相対パスもプロジェクト
 ルートを基準に解決し、絶対パスと `~` も使用できます。
+
+src layoutでも、開発時のプロジェクトルートは `pyproject.toml` のある
+`gesture_detection/` です。wheelのインストール時は環境変数
+`GESTURE_PROJECT_ROOT`（未指定なら作業ディレクトリ）を基準にします。
 
 `VIDEO_SOURCE` が空なら `CAMERA_INDEX` のカメラを使用します。動画を使う例は次のとおりです。
 

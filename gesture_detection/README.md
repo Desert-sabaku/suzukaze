@@ -14,8 +14,20 @@ cp .env.example .env
 uv run gesture-detection
 ```
 
-`uv run python -m modules.app` でも起動できます。終了するには表示ウィンドウで
+`uv run python -m gesture_detection` でも起動できます。終了するには表示ウィンドウで
 `Esc` を押します。入力元や出力先は `.env` で設定します。
+
+## パッケージ構成
+
+アプリケーションは `src/gesture_detection/`、テストは `tests/`、
+評価用スクリプトは `scripts/` にあります。`uv sync` でパッケージを
+editableインストールしてから実行してください。旧 `modules.*` のimportは
+`gesture_detection.*` に変更しています。
+
+モデルと `.env` は引き続きこのディレクトリ直下に置きます。wheelとして
+インストールする場合はデータディレクトリを環境変数 `GESTURE_PROJECT_ROOT` で
+指定してください。未指定なら作業ディレクトリを使用します。この環境変数は
+`.env` の探索先も決めるため、シェル側で設定します。
 
 ## ドキュメント
 
@@ -34,11 +46,11 @@ uv run gesture-detection
 
 ```bash
 uv sync --group dev
-uv run ruff format --check $(git ls-files '*.py')
-uv run ruff check $(git ls-files '*.py')
+uv run ruff format --check src tests scripts main.py
+uv run ruff check src tests scripts main.py
 uv run pyright
 uv run python -m pytest
 ```
 
-構文だけを確認する場合は `uv run python -m compileall modules` を実行します。
+構文だけを確認する場合は `uv run python -m compileall src` を実行します。
 Pull Request では Ruff、Pyright、Pytest とカバレッジ計測を実行します。
