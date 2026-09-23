@@ -85,6 +85,35 @@ def test_intervals_events_landmarks_and_history(timeline):
     assert load_timeline(output)["intervals"][0]["start_frame"] == 2
 
 
+def test_exclusive_track_adjusts_nearby_boundaries(timeline):
+    _, _, editor = timeline
+    editor.add_interval("action", "FANNING", 3, 7)
+    assert editor.nearest_available_frame("action", 6, 10) == 8
+    assert editor.adjusted_interval("action", 0, 4, 10) == (0, 2)
+    assert editor.adjusted_interval("action", 6, 10, 10) == (8, 10)
+
+    editor.add_interval("action", "RAMUNE", 0, 2)
+    editor.add_interval("action", "UCHIMIZU", 8, 11)
+    with pytest.raises(ValueError, match="No unannotated frame"):
+        editor.nearest_available_frame("action", 5, 10)
+
+
+def test_phase_must_belong_to_and_stay_inside_action(timeline):
+    _, _, editor = timeline
+    action_id = editor.add_interval("action", "UCHIMIZU", 2, 9)
+    phase_id = editor.add_interval("uchimizu_phase", "READY", 3, 5, action_id)
+    phase = next(item for item in editor.data["intervals"] if item["id"] == phase_id)
+    assert phase["parent_action_id"] == action_id
+
+    with pytest.raises(ValueError, match="inside its parent action"):
+        editor.add_interval("uchimizu_phase", "SWING", 1, 2, action_id)
+
+    editor.add_event("UCHIMIZU_PEAK", 4, action_id)
+    editor.delete(action_id)
+    assert not editor.data["intervals"]
+    assert not editor.data["events"]
+
+
 def test_import_legacy_landmarks(timeline, tmp_path):
     video, _, editor = timeline
     legacy = tmp_path / "legacy"
@@ -137,6 +166,18 @@ def test_ui_render_and_actions_without_window(timeline):
         app.handle("step", 3)
         app.handle("end")
         assert editor.data["intervals"][0]["end_frame"] == 3
+        assert app.selected_action_id == editor.data["intervals"][0]["id"]
+        assert app.selected_label is None
+        app.render()
+        phase_payloads = {
+            payload
+            for _, action, payload in app.buttons
+            if action == "label" and payload[0] != "action"
+        }
+        assert phase_payloads == {
+            ("uchimizu_phase", "READY"),
+            ("uchimizu_phase", "SWING"),
+        }
 
         app.handle("event", "UCHIMIZU_RELEASE")
         app.handle("landmark", "left_wrist")
@@ -147,30 +188,106 @@ def test_ui_render_and_actions_without_window(timeline):
         app.reader.close()
 
 
-def test_phase_must_belong_to_and_stay_inside_action(timeline):
-    _, _, editor = timeline
-    action_id = editor.add_interval("action", "UCHIMIZU", 2, 9)
-    phase_id = editor.add_interval("uchimizu_phase", "READY", 3, 5, action_id)
-    phase = next(item for item in editor.data["intervals"] if item["id"] == phase_id)
-    assert phase["parent_action_id"] == action_id
-
-    with pytest.raises(ValueError, match="inside its parent action"):
-        editor.add_interval("uchimizu_phase", "SWING", 1, 2, action_id)
-
-    editor.add_event("UCHIMIZU_PEAK", 4, action_id)
-    editor.delete(action_id)
-    assert not editor.data["intervals"]
-    assert not editor.data["events"]
+@pytest.fixture
+def app(timeline):
+    video, _, editor = timeline
+    instance = AnnotationApp(video, editor, 64, 48)
+    yield instance
+    instance.reader.close()
 
 
-def test_exclusive_track_adjusts_nearby_boundaries(timeline):
-    _, _, editor = timeline
-    editor.add_interval("action", "FANNING", 3, 7)
-    assert editor.nearest_available_frame("action", 6, 10) == 8
-    assert editor.adjusted_interval("action", 0, 4, 10) == (0, 2)
-    assert editor.adjusted_interval("action", 6, 10, 10) == (8, 10)
+def test_pending_start_and_bottom_controls(app):
+    app.handle("label", ("action", "FANNING"))
+    app.seek(2)
+    app.handle("start")
+    app.seek(6)
+    canvas = app.render()
+    x = app._frame_x(2)
+    assert tuple(canvas[720, x]) == (0, 230, 255)
+    # Timeline seeking preserves the uncommitted start.
+    app.click(cv2.EVENT_LBUTTONDOWN, app._frame_x(7), 725, 0, None)
+    assert app.interval_start == 2
+    controls = [rect for rect, action, _ in app.buttons if action in {"start", "end", "delete"}]
+    others = [rect for rect, action, _ in app.buttons if action not in {"start", "end", "delete"}]
+    assert len(controls) == 3
+    assert min(rect[1] for rect in controls) > max(rect[3] for rect in others)
+    app.handle("end")
+    assert app.editor.data["intervals"][0]["start_frame"] == 2
+    assert app.editor.data["intervals"][0]["end_frame"] == 7
 
-    editor.add_interval("action", "RAMUNE", 0, 2)
-    editor.add_interval("action", "UCHIMIZU", 8, 11)
-    with pytest.raises(ValueError, match="No unannotated frame"):
-        editor.nearest_available_frame("action", 5, 10)
+
+@pytest.mark.parametrize("track,label", [("action", "FANNING"), ("fanning_phase", "ACTIVE")])
+def test_buttons_resize_just_saved_interval(app, track, label):
+    if track != "action":
+        app.selected_action_id = app.editor.add_interval("action", "FANNING", 0, 11)
+    app.handle("label", (track, label))
+    app.seek(3)
+    app.handle("start")
+    app.seek(6)
+    app.handle("end")
+    identifier = app.selected_annotation
+    for edge, target in [("end", 9), ("end", 5), ("start", 1), ("start", 4)]:
+        app.seek(target)
+        app.handle(edge)
+        interval = next(item for item in app.editor.data["intervals"] if item["id"] == identifier)
+        assert interval[f"{edge}_frame"] == target
+    assert app.editor.data["intervals"][-1]["start_frame"] == 4
+    assert app.editor.data["intervals"][-1]["end_frame"] == 5
+
+
+@pytest.mark.parametrize(
+    "edge,initial,target", [("start", 3, 1), ("start", 3, 5), ("end", 7, 10), ("end", 7, 5)]
+)
+def test_drag_resizes_once_and_supports_undo(app, edge, initial, target):
+    identifier = app.editor.add_interval("action", "FANNING", 3, 7)
+    app.render()
+    app.click(cv2.EVENT_LBUTTONDOWN, app._frame_x(initial), 725, 0, None)
+    assert app.drag_edge == (identifier, edge)
+    app.click(cv2.EVENT_MOUSEMOVE, app._frame_x(target), 725, cv2.EVENT_FLAG_LBUTTON, None)
+    assert app.editor.data["intervals"][0][f"{edge}_frame"] == initial
+    app.render()  # Preview does not save or add an undo step.
+    assert len(app.editor.undo_stack) == 1
+    app.click(cv2.EVENT_LBUTTONUP, app._frame_x(target), 725, 0, None)
+    assert app.editor.data["intervals"][0][f"{edge}_frame"] == target
+    assert len(app.editor.undo_stack) == 2
+    app.key(ord("z"))
+    assert app.data["intervals"][0][f"{edge}_frame"] == initial
+    app.key(ord("y"))
+    assert app.data["intervals"][0][f"{edge}_frame"] == target
+
+
+def test_rejected_drag_restores_interval_and_saved_file(app):
+    app.editor.add_interval("action", "FANNING", 1, 4)
+    app.editor.add_interval("action", "RAMUNE", 7, 10)
+    app.click(cv2.EVENT_LBUTTONDOWN, app._frame_x(4), 725, 0, None)
+    app.click(cv2.EVENT_LBUTTONUP, app._frame_x(8), 725, 0, None)
+    assert "Overlapping" in app.message
+    assert app.data["intervals"][0]["end_frame"] == 4
+    assert load_timeline(app.editor.output)["intervals"][0]["end_frame"] == 4
+    assert len(app.editor.undo_stack) == 2
+
+
+def test_resize_preserves_children_and_rejects_crossing(app):
+    identifier = app.editor.add_interval("action", "FANNING", 1, 10)
+    app.editor.add_interval("fanning_phase", "ACTIVE", 3, 8, identifier)
+    app._select_interval(app.data["intervals"][0])
+    app.seek(6)
+    app.handle("end")
+    assert "inside its parent action" in app.message
+    assert app.data["intervals"][0]["end_frame"] == 10
+    app.seek(11)
+    app.handle("start")
+    assert "Invalid interval frames" in app.message
+    assert app.data["intervals"][0]["start_frame"] == 1
+
+
+def test_run_does_not_create_native_seek_bar(app, monkeypatch):
+    from unittest.mock import Mock
+
+    for name in ("namedWindow", "setMouseCallback", "imshow", "destroyAllWindows"):
+        monkeypatch.setattr(cv2, name, Mock())
+    trackbar = Mock()
+    monkeypatch.setattr(cv2, "createTrackbar", trackbar)
+    monkeypatch.setattr(cv2, "waitKey", lambda _: ord("q"))
+    app.run()
+    trackbar.assert_not_called()
