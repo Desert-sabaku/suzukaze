@@ -23,13 +23,7 @@ def test_sampling_and_coordinate_mapping():
 
 def test_annotation_and_resume_paths(tmp_path):
     video = Path("shared/videos/bright-behind-the-screen/aogi1_3-8.mp4")
-    expected = (
-        tmp_path
-        / "shared"
-        / "annotations"
-        / "bright-behind-the-screen"
-        / "aogi1_3-8"
-    )
+    expected = tmp_path / "shared" / "annotations" / "bright-behind-the-screen" / "aogi1_3-8"
     assert default_annotation_directory(video, tmp_path) == expected
     assert resolve_resume_directory(video, tmp_path) == expected
     assert resolve_resume_directory(expected / "annotations.csv", tmp_path) == expected
