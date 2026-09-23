@@ -68,9 +68,7 @@ def prepare(video: Path, directory: Path, count: int, frames: list[int] | None) 
         total = 0
         while capture.grab():
             total += 1
-        selected = (
-            sample_indices(total, count) if frames is None else sorted(set(frames))
-        )
+        selected = sample_indices(total, count) if frames is None else sorted(set(frames))
         if not selected or selected[0] < 0 or selected[-1] >= total:
             raise ValueError(f"Frame IDs must be between 0 and {total - 1}")
         fps = capture.get(cv2.CAP_PROP_FPS)
@@ -88,9 +86,7 @@ def prepare(video: Path, directory: Path, count: int, frames: list[int] | None) 
         for index in range(selected[-1] + 1):
             ok, frame = capture.read()
             if not ok:
-                raise ValueError(
-                    f"Decode failed at frame {index}; incomplete output: {directory}"
-                )
+                raise ValueError(f"Decode failed at frame {index}; incomplete output: {directory}")
             timestamp = capture.get(cv2.CAP_PROP_POS_MSEC) / 1000
             if not math.isfinite(timestamp) or timestamp < 0 or timestamp <= previous:
                 timestamp = 0.0 if index == 0 else previous + 1 / fps
@@ -148,9 +144,7 @@ def load_rows(directory: Path) -> list[dict[str, str]]:
             raise ValueError("Unexpected annotation CSV columns")
         rows = list(reader)
     metadata = json.loads((directory / "source.json").read_text(encoding="utf-8"))
-    expected = [
-        (str(frame), landmark) for frame in metadata["frames"] for landmark in LANDMARKS
-    ]
+    expected = [(str(frame), landmark) for frame in metadata["frames"] for landmark in LANDMARKS]
     if [(row["frame_id"], row["landmark"]) for row in rows] != expected:
         raise ValueError("CSV does not match session frames/landmarks")
     for row in rows:
@@ -197,9 +191,7 @@ def annotate(directory: Path, max_width: int, max_height: int) -> None:
     def click(event, x, y, flags, userdata) -> None:
         if event != cv2.EVENT_LBUTTONDOWN or image is None:
             return
-        point = original_point(
-            x, y, image.shape[1], image.shape[0], display_width, display_height
-        )
+        point = original_point(x, y, image.shape[1], image.shape[0], display_width, display_height)
         if point is not None:
             record("marked", point)
 
@@ -209,15 +201,11 @@ def annotate(directory: Path, max_width: int, max_height: int) -> None:
         while True:
             row = rows[cursor]
             if loaded_id != row["frame_id"]:
-                image = cv2.imread(
-                    str(directory / f"frame_{int(row['frame_id']):06d}.png")
-                )
+                image = cv2.imread(str(directory / f"frame_{int(row['frame_id']):06d}.png"))
                 if image is None:
                     raise ValueError(f"Missing extracted image: {row['frame_id']}")
                 loaded_id = row["frame_id"]
-                scale = min(
-                    1.0, max_width / image.shape[1], max_height / image.shape[0]
-                )
+                scale = min(1.0, max_width / image.shape[1], max_height / image.shape[0])
                 display_width = max(1, round(image.shape[1] * scale))
                 display_height = max(1, round(image.shape[0] * scale))
             assert image is not None
@@ -269,10 +257,7 @@ def annotate(directory: Path, max_width: int, max_height: int) -> None:
                 )
             cv2.imshow(WINDOW, canvas)
             key = cv2.waitKey(30) & 0xFF
-            if (
-                key in (27, ord("q"))
-                or cv2.getWindowProperty(WINDOW, cv2.WND_PROP_VISIBLE) < 1
-            ):
+            if key in (27, ord("q")) or cv2.getWindowProperty(WINDOW, cv2.WND_PROP_VISIBLE) < 1:
                 break
             if ord("1") <= key <= ord("6"):
                 cursor = start + key - ord("1")
@@ -285,7 +270,11 @@ def annotate(directory: Path, max_width: int, max_height: int) -> None:
                 for item in rows[start : start + len(LANDMARKS)]:
                     item.update(status=status, x_px="", y_px="")
                 save_rows(directory, rows)
-                cursor = start
+                cursor = (
+                    min(len(rows) - LANDMARK_COUNT, start + LANDMARK_COUNT)
+                    if status == "absent"
+                    else start
+                )
             elif key == ord("z"):
                 cursor = max(0, cursor - 1)
             elif key == ord("n"):
