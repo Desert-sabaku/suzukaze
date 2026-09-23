@@ -23,6 +23,8 @@ uv run annotate-video VIDEO --import-landmarks OLD_SESSION_DIRECTORY
 
 ## 操作
 
+- 再生操作の`<<`で動画の先頭、`>>`で最終フレームへ移動し、一時停止します。
+
 - `STEP 1 - ACTION`で4所作から一つを選び、`SET START`と`SET END`で所作全体を記録します。
 - Actionを保存すると`STEP 2`へ移り、その所作に必要なPhaseとイベントだけが表示されます。
 - `SET START`だけを押した段階でも、対象トラックに黄色の開始マーカーを表示します。

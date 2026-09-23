@@ -706,14 +706,16 @@ class AnnotationApp:
         )
         x = panel_x
         for text, action, payload in (
+            ("<<", "seek", 0),
             ("-10", "step", -10),
             ("-1", "step", -1),
             ("PLAY" if not self.playing else "PAUSE", "play", None),
             ("+1", "step", 1),
             ("+10", "step", 10),
+            (">>", "seek", self.total - 1),
         ):
-            self._button(canvas, (x, 66, x + 82, 94), text, action, payload)
-            x += 88
+            self._button(canvas, (x, 66, x + 58, 94), text, action, payload)
+            x += 64
         y = 108
         cv2.putText(
             canvas,
@@ -977,6 +979,9 @@ class AnnotationApp:
         if action == "step":
             self.playing = False
             self.seek(self.frame_id + cast(int, payload))
+        elif action == "seek":
+            self.playing = False
+            self.seek(cast(int, payload))
         elif action == "play":
             self.playing = not self.playing
             self._last_tick = time.monotonic()
