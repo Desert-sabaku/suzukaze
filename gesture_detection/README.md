@@ -37,6 +37,7 @@ editableインストールしてから実行してください。旧 `modules.*`
 - [手動テスト](docs/manual-testing.md) — カメラ・動画で確認する項目
 - [過去の評価](docs/evaluations.md) — 検証結果、生データ、現在の採否
 - [関節位置の手動ラベル付け](docs/landmark-annotation.md) — 評価用の正解データ作成
+- [動画の時系列注釈](docs/video-annotation.md) — 動作区間・節目・任意フレームの関節点を記録
 
 補助的な情報はWikiの
 [トラブルシュートと運用メモ](https://github.com/Desert-sabaku/suzukaze/wiki/%E3%83%88%E3%83%A9%E3%83%96%E3%83%AB%E3%82%B7%E3%83%A5%E3%83%BC%E3%83%88%E3%81%A8%E9%81%8B%E7%94%A8%E3%83%A1%E3%83%A2)
