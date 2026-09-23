@@ -145,3 +145,19 @@ def test_ui_render_and_actions_without_window(timeline):
         assert editor.data["landmarks"][0]["points"]["left_wrist"]["status"] == "marked"
     finally:
         app.reader.close()
+
+
+def test_phase_must_belong_to_and_stay_inside_action(timeline):
+    _, _, editor = timeline
+    action_id = editor.add_interval("action", "UCHIMIZU", 2, 9)
+    phase_id = editor.add_interval("uchimizu_phase", "READY", 3, 5, action_id)
+    phase = next(item for item in editor.data["intervals"] if item["id"] == phase_id)
+    assert phase["parent_action_id"] == action_id
+
+    with pytest.raises(ValueError, match="inside its parent action"):
+        editor.add_interval("uchimizu_phase", "SWING", 1, 2, action_id)
+
+    editor.add_event("UCHIMIZU_PEAK", 4, action_id)
+    editor.delete(action_id)
+    assert not editor.data["intervals"]
+    assert not editor.data["events"]

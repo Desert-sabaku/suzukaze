@@ -111,6 +111,21 @@ def _track_map(data: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return {track["id"]: track for track in data["label_config"]["tracks"]}
 
 
+def workflow_for_action(data: dict[str, Any], action: str) -> dict[str, Any]:
+    configured = data["label_config"].get("workflows", {}).get(action)
+    if configured is not None:
+        return cast(dict[str, Any], configured)
+    prefix = action.lower()
+    return {
+        "phase_track": f"{prefix}_phase",
+        "events": [
+            label
+            for label in data["label_config"]["events"]
+            if label.startswith(action)
+        ],
+    }
+
+
 def validate_timeline(data: dict[str, Any]) -> None:
     if data.get("schema_version") != SCHEMA_VERSION:
         raise ValueError("Unsupported timeline schema version")
@@ -124,12 +139,49 @@ def validate_timeline(data: dict[str, Any]) -> None:
         if track is None or interval.get("label") not in track["labels"]:
             raise ValueError("Unknown interval label")
         start, end = interval.get("start_frame"), interval.get("end_frame")
-        if not isinstance(start, int) or not isinstance(end, int) or not 0 <= start <= end < total:
+        if (
+            not isinstance(start, int)
+            or not isinstance(end, int)
+            or not 0 <= start <= end < total
+        ):
             raise ValueError("Invalid interval frames")
+        parent_id = interval.get("parent_action_id")
+        if parent_id is not None:
+            parent = next(
+                (
+                    candidate
+                    for candidate in data.get("intervals", [])
+                    if candidate.get("id") == parent_id
+                    and candidate.get("track") == "action"
+                ),
+                None,
+            )
+            if parent is None or not (
+                parent["start_frame"] <= start <= end <= parent["end_frame"]
+            ):
+                raise ValueError("Phase interval must be inside its parent action")
     event_labels = set(data["label_config"]["events"])
     for event in data.get("events", []):
-        if event.get("label") not in event_labels or not 0 <= event.get("frame_id", -1) < total:
+        if (
+            event.get("label") not in event_labels
+            or not 0 <= event.get("frame_id", -1) < total
+        ):
             raise ValueError("Invalid event")
+        parent_id = event.get("parent_action_id")
+        if parent_id is not None:
+            parent = next(
+                (
+                    candidate
+                    for candidate in data.get("intervals", [])
+                    if candidate.get("id") == parent_id
+                    and candidate.get("track") == "action"
+                ),
+                None,
+            )
+            if parent is None or not (
+                parent["start_frame"] <= event["frame_id"] <= parent["end_frame"]
+            ):
+                raise ValueError("Event must be inside its parent action")
     landmark_labels = set(data["label_config"]["landmarks"])
     for item in data.get("landmarks", []):
         if (
@@ -214,22 +266,30 @@ class TimelineEditor:
     def set_last_frame(self, frame_id: int) -> None:
         self.data["ui"]["last_frame"] = frame_id
 
-    def add_interval(self, track: str, label: str, first: int, second: int) -> str:
+    def add_interval(
+        self,
+        track: str,
+        label: str,
+        first: int,
+        second: int,
+        parent_action_id: str | None = None,
+    ) -> str:
         start, end = sorted((first, second))
         identifier = uuid.uuid4().hex
 
         def mutate() -> None:
-            self.data["intervals"].append(
-                {
-                    "id": identifier,
-                    "track": track,
-                    "label": label,
-                    "start_frame": start,
-                    "end_frame": end,
-                    "start_timestamp": frame_timestamp(self.data["source"], start),
-                    "end_timestamp": frame_timestamp(self.data["source"], end),
-                }
-            )
+            interval = {
+                "id": identifier,
+                "track": track,
+                "label": label,
+                "start_frame": start,
+                "end_frame": end,
+                "start_timestamp": frame_timestamp(self.data["source"], start),
+                "end_timestamp": frame_timestamp(self.data["source"], end),
+            }
+            if parent_action_id is not None:
+                interval["parent_action_id"] = parent_action_id
+            self.data["intervals"].append(interval)
 
         self._change(mutate)
         return identifier
@@ -253,18 +313,21 @@ class TimelineEditor:
 
         self._change(mutate)
 
-    def add_event(self, label: str, frame_id: int) -> str:
+    def add_event(
+        self, label: str, frame_id: int, parent_action_id: str | None = None
+    ) -> str:
         identifier = uuid.uuid4().hex
 
         def mutate() -> None:
-            self.data["events"].append(
-                {
-                    "id": identifier,
-                    "label": label,
-                    "frame_id": frame_id,
-                    "timestamp": frame_timestamp(self.data["source"], frame_id),
-                }
-            )
+            event = {
+                "id": identifier,
+                "label": label,
+                "frame_id": frame_id,
+                "timestamp": frame_timestamp(self.data["source"], frame_id),
+            }
+            if parent_action_id is not None:
+                event["parent_action_id"] = parent_action_id
+            self.data["events"].append(event)
 
         self._change(mutate)
         return identifier
@@ -314,6 +377,17 @@ class TimelineEditor:
                 for index, item in enumerate(collection):
                     if item["id"] == identifier:
                         del collection[index]
+                        if item.get("track") == "action":
+                            self.data["intervals"] = [
+                                child
+                                for child in self.data["intervals"]
+                                if child.get("parent_action_id") != identifier
+                            ]
+                            self.data["events"] = [
+                                event
+                                for event in self.data["events"]
+                                if event.get("parent_action_id") != identifier
+                            ]
                         return
             raise ValueError("Annotation not found")
 

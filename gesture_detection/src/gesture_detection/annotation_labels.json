@@ -39,6 +39,24 @@
     "RAMUNE_OPEN",
     "FANNING_REVERSAL"
   ],
+  "workflows": {
+    "FANNING": {
+      "phase_track": "fanning_phase",
+      "events": ["FANNING_REVERSAL"]
+    },
+    "UCHIMIZU": {
+      "phase_track": "uchimizu_phase",
+      "events": ["UCHIMIZU_PEAK", "UCHIMIZU_RELEASE"]
+    },
+    "RELAXING": {
+      "phase_track": "relaxing_phase",
+      "events": []
+    },
+    "RAMUNE": {
+      "phase_track": "ramune_phase",
+      "events": ["RAMUNE_PRESS_START", "RAMUNE_OPEN"]
+    }
+  },
   "landmarks": [
     "left_shoulder",
     "right_shoulder",
