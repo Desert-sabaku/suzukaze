@@ -2,6 +2,7 @@ import csv
 
 import cv2
 import numpy as np
+import pytest
 from scripts.evaluate_landmark_annotations import (
     AnnotatedFrame,
     Annotation,
@@ -20,8 +21,9 @@ def test_legacy_absent_statuses_are_normalized():
     assert normalized_status("ramune1_3-4", "uncertain") == "uncertain"
 
 
-def test_loads_only_named_experiment_sessions(tmp_path):
-    session = tmp_path / "ramune1_3-4"
+@pytest.mark.parametrize("name", ["ramune1_3-4", "uchimziu2_3-5", "utchimizu3_3-5"])
+def test_loads_only_named_experiment_sessions(tmp_path, name):
+    session = tmp_path / name
     session.mkdir()
     cv2.imwrite(str(session / "frame_000001.png"), np.zeros((20, 30, 3), dtype=np.uint8))
     with (session / "annotations.csv").open("w", newline="", encoding="utf-8") as output:
@@ -47,7 +49,7 @@ def test_loads_only_named_experiment_sessions(tmp_path):
     frames = load_frames(tmp_path)
 
     assert len(frames) == 1
-    assert frames[0].session == "ramune1_3-4"
+    assert frames[0].session == name
     assert frames[0].annotations[0].x_px == 10
 
 

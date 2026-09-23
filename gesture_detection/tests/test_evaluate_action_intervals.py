@@ -5,6 +5,7 @@ from scripts.evaluate_action_intervals import (
     RamunePoseCandidate,
     RelaxingPoseCandidate,
     aggregate,
+    next_sample_time,
     parse_clip_name,
     ramune_geometry,
 )
@@ -16,6 +17,8 @@ from scripts.evaluate_action_intervals import (
         ("aogi1_2-6.mp4", ("FANNING", 1, 2.0, 6.0)),
         ("ramune3_6-7.mp4", ("RAMUNE", 3, 6.0, 7.0)),
         ("uchimizu2_3-4.mp4", ("SPRINKLING", 2, 3.0, 4.0)),
+        ("utchimizu3_3-5.mp4", ("SPRINKLING", 3, 3.0, 5.0)),
+        ("uchimziu2_3-5.mp4", ("SPRINKLING", 2, 3.0, 5.0)),
         ("utimizu2_2-4.mp4", ("SPRINKLING", 2, 2.0, 4.0)),
         ("yusuzumi1_2-16.mp4", ("RELAXING", 1, 2.0, 16.0)),
     ],
@@ -115,3 +118,15 @@ def test_relaxing_pose_candidate_accepts_smoothed_stillness():
     for timestamp in (0.2, 0.4, 0.6, 0.8):
         assert not candidate.update(landmarks, timestamp, 1.0)
     assert candidate.update(landmarks, 1.0, 1.0)
+
+
+def test_sampling_keeps_near_thirty_fps_source_frames():
+    scheduled = 0.0
+    selected = 0
+    for frame in range(300):
+        timestamp = frame / 29.96
+        if timestamp + 1e-9 < scheduled:
+            continue
+        selected += 1
+        scheduled = next_sample_time(timestamp, scheduled, 30.0)
+    assert selected == 300

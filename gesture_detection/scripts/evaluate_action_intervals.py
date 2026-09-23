@@ -34,7 +34,7 @@ from .evaluate_landmark_annotations import (
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 CLIP_PATTERN = re.compile(
-    r"(?P<action>aogi|ramune|uchimizu|utimizu|yusuzumi)(?P<take>\d+)_"
+    r"(?P<action>aogi|ramune|uchimizu|utimizu|utchimizu|uchimziu|yusuzumi)(?P<take>\d+)_"
     r"(?P<start>\d+(?:\.\d+)?)-(?P<end>\d+(?:\.\d+)?)\.mp4",
     re.IGNORECASE,
 )
@@ -43,6 +43,8 @@ EXPECTED_ACTION = {
     "ramune": "RAMUNE",
     "uchimizu": "SPRINKLING",
     "utimizu": "SPRINKLING",
+    "utchimizu": "SPRINKLING",
+    "uchimziu": "SPRINKLING",
     "yusuzumi": "RELAXING",
 }
 
@@ -214,6 +216,8 @@ def discover_clips(video_root: Path) -> list[tuple[str, Path]]:
         "behind": video_root / "bihind-the-screen_sabaku",
         "without": video_root / "without-the-screen_sabaku",
     }
+    if (video_root / "bright-behind-the-screen").is_dir():
+        directories["bright"] = video_root / "bright-behind-the-screen"
     clips: list[tuple[str, Path]] = []
     for environment, directory in directories.items():
         if not directory.is_dir():
@@ -226,6 +230,11 @@ def discover_clips(video_root: Path) -> list[tuple[str, Path]]:
     return clips
 
 
+def next_sample_time(timestamp: float, scheduled: float, sample_fps: float) -> float:
+    """Advance on a fixed grid so source timestamp jitter does not halve the rate."""
+    return scheduled + (math.floor((timestamp + 1e-9 - scheduled) * sample_fps) + 1) / sample_fps
+
+
 def evaluate_clip(
     source: Path,
     environment: str,
@@ -235,8 +244,12 @@ def evaluate_clip(
     presence_confidence: float,
     sample_fps: float,
     background: Any | None = None,
+    *,
+    labelled_interval: tuple[str, int, float, float] | None = None,
 ) -> dict[str, Any]:
-    expected, take, interval_start, interval_end = parse_clip_name(source)
+    expected, take, interval_start, interval_end = (
+        labelled_interval if labelled_interval is not None else parse_clip_name(source)
+    )
     pose_worker.POSE_MODEL_PATH = model
     analyzer = pose_worker.PoseAnalyzer(
         running_mode="VIDEO",
@@ -314,7 +327,7 @@ def evaluate_clip(
             source_frames += 1
             if timestamp + 1e-9 < next_sample_at:
                 continue
-            next_sample_at = timestamp + 1 / sample_fps
+            next_sample_at = next_sample_time(timestamp, next_sample_at, sample_fps)
             if preprocess is not None:
                 prepared = preprocess(frame)
             else:
@@ -488,7 +501,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--detection-confidence", type=float, default=0.5)
     parser.add_argument("--presence-confidence", type=float, default=0.5)
     parser.add_argument("--sample-fps", type=float, default=10.0)
-    parser.add_argument("--environment", choices=("behind", "without"), action="append")
+    parser.add_argument("--environment", choices=("behind", "without", "bright"), action="append")
     parser.add_argument("--action", choices=sorted(set(EXPECTED_ACTION.values())), action="append")
     parser.add_argument(
         "--output",
