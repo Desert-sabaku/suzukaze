@@ -23,7 +23,13 @@ from .config import (
 from .ipc import SharedLatestFrame, get_latest
 from .pose_worker import pose_worker
 from .recognition_types import PoseResult
-from .rendering import draw_landmarks, draw_messages, draw_ramune_guide, status_messages
+from .rendering import (
+    draw_landmarks,
+    draw_messages,
+    draw_ramune_guide,
+    draw_subject_area,
+    status_messages,
+)
 from .video_output import AsyncVideoWriter
 
 type Frame = npt.NDArray[Any]
@@ -250,6 +256,8 @@ class GestureApplication:
             pose_result.get("display_landmarks", pose_result.get("landmarks", [])),
             POSE_CONNECTIONS,
         )
+        if "subject_state" in pose_result:
+            draw_subject_area(image, pose_result["subject_state"])
         draw_messages(image, status_messages(pose_result))
         draw_ramune_guide(image, pose_result.get("ramune_state", "IDLE"))
         GestureApplication._draw_action(image, GestureApplication._primary_action(pose_result))

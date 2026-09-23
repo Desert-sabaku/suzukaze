@@ -114,3 +114,21 @@ def test_invalid_pose_mode():
 def test_invalid_delivery_settings(values):
     with pytest.raises(ValueError):
         read_config(values)
+
+
+@pytest.mark.parametrize("area", ["0,0,1", "0.8,0,0.2,1", "0,0,1,2", "nan,0,1,1"])
+def test_invalid_subject_area_is_rejected(area):
+    with pytest.raises(ValueError, match="SUBJECT_AREA"):
+        read_config({"SUBJECT_AREA": area})
+
+
+@pytest.mark.parametrize("value", ["0", "-1", "nan", "inf", "1.1"])
+def test_invalid_subject_dimensions_are_rejected(value):
+    with pytest.raises(ValueError, match="Subject minimum dimensions"):
+        read_config({"SUBJECT_MIN_TORSO_HEIGHT": value})
+
+
+def test_subject_area_and_opt_out_are_configurable():
+    config = read_config({"SUBJECT_AREA": "0.2,0.1,0.8,0.9", "POSE_SELECT_SUBJECT": "false"})
+    assert config["SUBJECT_AREA"] == (0.2, 0.1, 0.8, 0.9)
+    assert not config["POSE_SELECT_SUBJECT"]

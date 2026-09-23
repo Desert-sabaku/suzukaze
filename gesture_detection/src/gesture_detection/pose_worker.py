@@ -6,6 +6,7 @@ import urllib.request
 
 import cv2
 import mediapipe as mp_core
+import numpy as np
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
@@ -21,6 +22,8 @@ from .config import (
     POSE_MODEL_PATH,
     POSE_MODEL_URL,
     POSE_RUNNING_MODE,
+    POSE_SELECT_SUBJECT,
+    SUBJECT_AREA,
     SUPPRESS_MEDIAPIPE_STARTUP_LOGS,
 )
 from .gesture_delivery import DeliveryOutbox
@@ -30,6 +33,7 @@ from .landmark_smoothing import LandmarkSmoother
 from .native_logging import suppress_native_stderr
 from .recognition import RecognitionCoordinator
 from .recognition_types import PoseResult
+from .subject_selection import SubjectSelector
 
 
 class PoseAnalyzer:
@@ -42,12 +46,16 @@ class PoseAnalyzer:
         detection_confidence: float = 0.5,
         presence_confidence: float = 0.5,
         tracking_confidence: float = 0.5,
+        select_subject: bool = POSE_SELECT_SUBJECT,
     ):
         if running_mode not in {"IMAGE", "VIDEO"}:
             raise ValueError("running_mode must be IMAGE or VIDEO")
         confidences = (detection_confidence, presence_confidence, tracking_confidence)
         if any(not 0.0 <= confidence <= 1.0 for confidence in confidences):
             raise ValueError("pose confidence thresholds must be between 0 and 1")
+        self.subject_selector = (
+            SubjectSelector() if select_subject and running_mode == "VIDEO" else None
+        )
         self.running_mode = running_mode
         self._last_source_timestamp: float | None = None
         self._last_video_timestamp_ms = -1
@@ -92,7 +100,20 @@ class PoseAnalyzer:
         self.landmarker.close()
 
     def process(self, frame, timestamp: float, frame_id: int) -> PoseResult:
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        # Seed the single-person tracker centrally, then immediately restore the
+        # complete frame. Seed frames never reach recognition or the overlay.
+        seeded = self.subject_selector is not None and self.subject_selector.state in {
+            "SEARCHING",
+            "LOST",
+        }
+        inference_frame = frame
+        if seeded:
+            left, _, right, _ = SUBJECT_AREA
+            width = frame.shape[1]
+            inference_frame = np.full_like(frame, 127)
+            start, end = round(left * width), round(right * width)
+            inference_frame[:, start:end] = frame[:, start:end]
+        rgb_frame = cv2.cvtColor(inference_frame, cv2.COLOR_BGR2RGB)
         mp_image = mp_core.Image(
             image_format=mp_core.ImageFormat.SRGB,
             data=rgb_frame,
@@ -104,10 +125,21 @@ class PoseAnalyzer:
             else:
                 detection_result = self.landmarker.detect(mp_image)
         landmarks = detection_result.pose_landmarks[0] if detection_result.pose_landmarks else []
+        if self.subject_selector is not None:
+            landmarks = self.subject_selector.select(
+                detection_result.pose_landmarks, timestamp, frame.shape[1] / frame.shape[0]
+            )
+        if seeded:
+            landmarks = []
         result = self.recognition.process(
             landmarks, timestamp, frame_id, aspect_ratio=frame.shape[1] / frame.shape[0]
         )
-
+        if self.subject_selector is not None:
+            result["subject_state"] = (
+                "ACQUIRING"
+                if seeded and self.subject_selector.state == "TRACKING"
+                else self.subject_selector.state
+            )
         if POSE_DISPLAY_SMOOTHING and self.running_mode == "VIDEO":
             result["display_landmarks"] = self.display_smoother.update(
                 result["landmarks"], timestamp

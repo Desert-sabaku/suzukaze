@@ -59,3 +59,8 @@ Pull Request では Ruff、Pyright、Pytest とカバレッジ計測を実行し
 [追加評価](docs/bright-curtain.md)を参照してください。
 VIDEOモードでは骨格表示を平滑化します。`POSE_DISPLAY_SMOOTHING=false`で無効化できます。
 所作判定には元の推定座標を使用します。
+
+VIDEOモードでは[背景人物を避けた実演者追跡](docs/subject-selection.md)が標準で有効です。
+取得時だけ背景を隠し、取得後は全画面で追跡します。枠に胴体中心を置いてください。
+`.env` の `SUBJECT_AREA` と人物サイズ下限で設置環境に合わせられます。
+`POSE_SELECT_SUBJECT=false` で従来方式へ戻せます。

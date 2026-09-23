@@ -50,6 +50,36 @@ POSE_DISPLAY_TIME_CONSTANT = 0.06
 POSE_DISPLAY_MAX_GAP = 0.25
 if POSE_RUNNING_MODE not in {"IMAGE", "VIDEO"}:
     raise ValueError("POSE_RUNNING_MODE must be IMAGE or VIDEO")
+# Selection uses the torso center in normalized full-frame coordinates.
+POSE_SELECT_SUBJECT = getenv("POSE_SELECT_SUBJECT", "true").strip().lower() not in {
+    "0",
+    "false",
+    "no",
+    "off",
+}
+SUBJECT_AREA = tuple(float(v) for v in getenv("SUBJECT_AREA", "0.35,0.15,0.75,0.90").split(","))
+if (
+    len(SUBJECT_AREA) != 4
+    or any(not math.isfinite(v) or not 0 <= v <= 1 for v in SUBJECT_AREA)
+    or SUBJECT_AREA[0] >= SUBJECT_AREA[2]
+    or SUBJECT_AREA[1] >= SUBJECT_AREA[3]
+):
+    raise ValueError("SUBJECT_AREA must be left,top,right,bottom within 0..1")
+SUBJECT_MIN_TORSO_HEIGHT = float(getenv("SUBJECT_MIN_TORSO_HEIGHT", "0.18"))
+SUBJECT_MIN_SHOULDER_WIDTH = float(getenv("SUBJECT_MIN_SHOULDER_WIDTH", "0.10"))
+if any(
+    not math.isfinite(v) or not 0 < v < 1
+    for v in (SUBJECT_MIN_TORSO_HEIGHT, SUBJECT_MIN_SHOULDER_WIDTH)
+):
+    raise ValueError("Subject minimum dimensions must be finite and between 0 and 1")
+SUBJECT_ACQUIRE_SECONDS = 0.2
+SUBJECT_RELEASE_SECONDS = 0.5
+SUBJECT_MAX_FRAME_GAP = 0.5
+SUBJECT_MIN_VISIBILITY = 0.5
+SUBJECT_MIN_SCALE_RATIO = 0.65
+SUBJECT_MAX_SCALE_RATIO = 1.55
+SUBJECT_MAX_CENTER_DISTANCE = 0.6
+
 SUPPRESS_MEDIAPIPE_STARTUP_LOGS = getenv(
     "SUPPRESS_MEDIAPIPE_STARTUP_LOGS", "true"
 ).strip().lower() not in {"0", "false", "no", "off"}

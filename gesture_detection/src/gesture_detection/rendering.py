@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import numpy.typing as npt
 
-from .config import RELAXING_DWELL_SECONDS, RIGHT_WRIST_INDEX
+from .config import RELAXING_DWELL_SECONDS, RIGHT_WRIST_INDEX, SUBJECT_AREA
 from .recognition_types import PoseResult
 
 type Landmark = tuple[float, float, float]
@@ -125,3 +125,32 @@ def status_messages(result: PoseResult) -> list[Message]:
         )
     )
     return messages
+
+
+def draw_subject_area(image: npt.NDArray[np.uint8], state: str) -> None:
+    """Guide torso placement; limbs can extend outside the selection area."""
+    height, width = image.shape[:2]
+    left, top, right, bottom = SUBJECT_AREA
+    color = (80, 180, 80) if state == "TRACKING" else (0, 180, 255)
+    cv2.rectangle(
+        image,
+        (int(left * width), int(top * height)),
+        (int(right * width), int(bottom * height)),
+        color,
+        1,
+    )
+    label = {
+        "TRACKING": "Participant tracked",
+        "ACQUIRING": "Hold position...",
+        "LOST": "Tracking lost",
+        "SEARCHING": "Stand in area (torso)",
+    }.get(state, "Stand in area (torso)")
+    cv2.putText(
+        image,
+        label,
+        (int(left * width), max(20, int(top * height) - 8)),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.55,
+        color,
+        1,
+    )
