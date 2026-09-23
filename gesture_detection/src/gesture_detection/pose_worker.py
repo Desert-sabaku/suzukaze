@@ -17,6 +17,7 @@ from .config import (
     GESTURE_RETRY_INTERVAL,
     GESTURE_STALE_TIMEOUT,
     GESTURE_STATE_INTERVAL,
+    POSE_DISPLAY_SMOOTHING,
     POSE_MODEL_PATH,
     POSE_MODEL_URL,
     POSE_RUNNING_MODE,
@@ -25,6 +26,7 @@ from .config import (
 from .gesture_delivery import DeliveryOutbox
 from .gesture_server import GestureServer
 from .ipc import SharedLatestFrame
+from .landmark_smoothing import LandmarkSmoother
 from .native_logging import suppress_native_stderr
 from .recognition import RecognitionCoordinator
 from .recognition_types import PoseResult
@@ -57,6 +59,7 @@ class PoseAnalyzer:
                 tracking_confidence,
             )
         self.recognition = RecognitionCoordinator()
+        self.display_smoother = LandmarkSmoother()
 
     @staticmethod
     def _create_landmarker(
@@ -101,9 +104,15 @@ class PoseAnalyzer:
             else:
                 detection_result = self.landmarker.detect(mp_image)
         landmarks = detection_result.pose_landmarks[0] if detection_result.pose_landmarks else []
-        return self.recognition.process(
+        result = self.recognition.process(
             landmarks, timestamp, frame_id, aspect_ratio=frame.shape[1] / frame.shape[0]
         )
+
+        if POSE_DISPLAY_SMOOTHING and self.running_mode == "VIDEO":
+            result["display_landmarks"] = self.display_smoother.update(
+                result["landmarks"], timestamp
+            )
+        return result
 
     def _video_timestamp_ms(self, timestamp: float) -> int:
         """Adapt source seconds without changing gesture or result timestamps."""

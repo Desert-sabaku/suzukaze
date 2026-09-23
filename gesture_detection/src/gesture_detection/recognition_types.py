@@ -21,6 +21,7 @@ class PoseResult(TypedDict):
     """
 
     landmarks: list[Landmark]
+    display_landmarks: NotRequired[list[Landmark]]
     selected_action: str
     relaxing_state: bool
     current: NotRequired[RecognitionState]

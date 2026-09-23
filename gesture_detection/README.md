@@ -54,3 +54,6 @@ uv run python -m pytest
 
 構文だけを確認する場合は `uv run python -m compileall src` を実行します。
 Pull Request では Ruff、Pyright、Pytest とカバレッジ計測を実行します。
+
+VIDEOモードでは骨格表示を平滑化します。`POSE_DISPLAY_SMOOTHING=false`で無効化できます。
+所作判定には元の推定座標を使用します。

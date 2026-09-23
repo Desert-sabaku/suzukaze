@@ -40,6 +40,14 @@ POSE_MODEL_URL = (
 )
 # Use temporal tracking by default; retain IMAGE for baseline comparisons.
 POSE_RUNNING_MODE = getenv("POSE_RUNNING_MODE", "VIDEO").strip().upper()
+POSE_DISPLAY_SMOOTHING = getenv("POSE_DISPLAY_SMOOTHING", "true").strip().lower() not in {
+    "0",
+    "false",
+    "no",
+    "off",
+}
+POSE_DISPLAY_TIME_CONSTANT = 0.06
+POSE_DISPLAY_MAX_GAP = 0.25
 if POSE_RUNNING_MODE not in {"IMAGE", "VIDEO"}:
     raise ValueError("POSE_RUNNING_MODE must be IMAGE or VIDEO")
 SUPPRESS_MEDIAPIPE_STARTUP_LOGS = getenv(

@@ -453,3 +453,19 @@ def test_process_clears_relaxing_on_first_moving_frame(process_analyzer):
     assert not result["relaxing_state"]
     assert result["frame_id"] == 32
     assert result["timestamp"] == 32 / 30
+
+
+def test_video_display_smoothing_preserves_recognition_input(process_analyzer):
+    points = landmarks()
+    detection = SimpleNamespace(pose_landmarks=[points])
+    process_analyzer.landmarker.detect.return_value = detection
+    process_analyzer.landmarker.detect_for_video.return_value = detection
+    frame = np.zeros((100, 100, 3), dtype=np.uint8)
+    process_analyzer.process(frame, 1.0, 0)
+    points[15].x = 0.8
+    result = process_analyzer.process(frame, 1.03, 1)
+    assert result["landmarks"][15][0] == 0.8
+    if process_analyzer.running_mode == "VIDEO":
+        assert 0.5 < result["display_landmarks"][15][0] < 0.8
+    else:
+        assert "display_landmarks" not in result

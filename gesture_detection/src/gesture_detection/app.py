@@ -245,7 +245,11 @@ class GestureApplication:
     @staticmethod
     def _annotate_frame(frame: Frame, pose_result: PoseResult) -> Frame:
         image = frame.copy()
-        draw_landmarks(image, pose_result.get("landmarks", []), POSE_CONNECTIONS)
+        draw_landmarks(
+            image,
+            pose_result.get("display_landmarks", pose_result.get("landmarks", [])),
+            POSE_CONNECTIONS,
+        )
         draw_messages(image, status_messages(pose_result))
         draw_ramune_guide(image, pose_result.get("ramune_state", "IDLE"))
         GestureApplication._draw_action(image, GestureApplication._primary_action(pose_result))
