@@ -25,8 +25,7 @@ def choose_person(boxes, previous):
     intersection = np.prod(
         np.maximum(
             0,
-            np.minimum(boxes[:, 2:], previous[2:])
-            - np.maximum(boxes[:, :2], previous[:2]),
+            np.minimum(boxes[:, 2:], previous[2:]) - np.maximum(boxes[:, :2], previous[:2]),
         ),
         axis=1,
     )
@@ -54,9 +53,7 @@ def repair(points, times, segments, max_gap=0.15, tau=0.05):
                 or segments[start] != segments[end]
             ):
                 continue
-            weight = (times[start + 1 : end] - times[start]) / (
-                times[end] - times[start]
-            )
+            weight = (times[start + 1 : end] - times[start]) / (times[end] - times[start])
             filled[start + 1 : end, joint] = points[start, joint] + weight[:, None] * (
                 points[end, joint] - points[start, joint]
             )
@@ -65,13 +62,9 @@ def repair(points, times, segments, max_gap=0.15, tau=0.05):
     for i in range(1, len(times)):
         if segments[i] != segments[i - 1]:
             continue
-        valid = np.isfinite(filled[i]).all(axis=1) & np.isfinite(smooth[i - 1]).all(
-            axis=1
-        )
+        valid = np.isfinite(filled[i]).all(axis=1) & np.isfinite(smooth[i - 1]).all(axis=1)
         alpha = 1 - np.exp(-(times[i] - times[i - 1]) / tau)
-        smooth[i, valid] = smooth[i - 1, valid] + alpha * (
-            filled[i, valid] - smooth[i - 1, valid]
-        )
+        smooth[i, valid] = smooth[i - 1, valid] + alpha * (filled[i, valid] - smooth[i - 1, valid])
     return filled, smooth, imputed
 
 
@@ -83,9 +76,7 @@ def summarize(points, segments):
         "all_seven_available_ratio": float(valid.all(axis=1).mean()),
         "per_joint_available_ratio": valid.mean(axis=0).tolist(),
         "valid_adjacent_pairs": int(adjacent.sum()),
-        "p95_valid_point_displacement": (
-            float(np.percentile(jumps, 95)) if len(jumps) else None
-        ),
+        "p95_valid_point_displacement": (float(np.percentile(jumps, 95)) if len(jumps) else None),
     }
 
 
@@ -105,9 +96,7 @@ def evaluate(model, source, output):
             if not ok:
                 break
             now = frame_id / fps
-            result = model.predict(
-                frame, conf=0.05, imgsz=640, device="cpu", verbose=False
-            )[0]
+            result = model.predict(frame, conf=0.05, imgsz=640, device="cpu", verbose=False)[0]
             boxes = result.boxes.xyxyn.cpu().numpy()
             if previous is not None and now - last_seen > 0.25:
                 previous = None
@@ -118,15 +107,9 @@ def evaluate(model, source, output):
             def extract(person, result=result):
                 points = np.full((7, 2), np.nan)
                 if person is not None:
-                    xy = (
-                        result.keypoints.xyn[person]
-                        .cpu()
-                        .numpy()[list(IMPORTANT_KEYPOINTS)]
-                    )
+                    xy = result.keypoints.xyn[person].cpu().numpy()[list(IMPORTANT_KEYPOINTS)]
                     confidence = (
-                        result.keypoints.conf[person]
-                        .cpu()
-                        .numpy()[list(IMPORTANT_KEYPOINTS)]
+                        result.keypoints.conf[person].cpu().numpy()[list(IMPORTANT_KEYPOINTS)]
                     )
                     good = (
                         (confidence > 0.5)
