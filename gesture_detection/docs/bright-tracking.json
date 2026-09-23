@@ -1,0 +1,254 @@
+{
+  "aogi1_3-8": {
+    "frames": 327,
+    "fps": 29.33454538930321,
+    "present": 6,
+    "detected": 6,
+    "absent": 2,
+    "false_positive": 0,
+    "marked": 36,
+    "raw": {
+      "correct_points": 33,
+      "pck_at_0_2": 0.9166666666666666,
+      "step_p95_image_height": 0.04548738378699142,
+      "step_pairs": 1596
+    },
+    "smooth": {
+      "correct_points": 33,
+      "pck_at_0_2": 0.9166666666666666,
+      "step_p95_image_height": 0.03017957505698938,
+      "step_pairs": 1596
+    }
+  },
+  "aogi2_1-7": {
+    "frames": 320,
+    "fps": 29.964791370140084,
+    "present": 5,
+    "detected": 5,
+    "absent": 3,
+    "false_positive": 0,
+    "marked": 30,
+    "raw": {
+      "correct_points": 24,
+      "pck_at_0_2": 0.8,
+      "step_p95_image_height": 0.0825829742590361,
+      "step_pairs": 1311
+    },
+    "smooth": {
+      "correct_points": 23,
+      "pck_at_0_2": 0.7666666666666667,
+      "step_p95_image_height": 0.04567807744991012,
+      "step_pairs": 1311
+    }
+  },
+  "aogi3_2-8": {
+    "frames": 332,
+    "fps": 29.967324784421805,
+    "present": 6,
+    "detected": 6,
+    "absent": 2,
+    "false_positive": 0,
+    "marked": 36,
+    "raw": {
+      "correct_points": 27,
+      "pck_at_0_2": 0.75,
+      "step_p95_image_height": 0.10363059809739501,
+      "step_pairs": 1627
+    },
+    "smooth": {
+      "correct_points": 28,
+      "pck_at_0_2": 0.7777777777777778,
+      "step_p95_image_height": 0.05380243885992702,
+      "step_pairs": 1627
+    }
+  },
+  "ramune1_4-7": {
+    "frames": 346,
+    "fps": 29.962244108579938,
+    "present": 6,
+    "detected": 6,
+    "absent": 2,
+    "false_positive": 0,
+    "marked": 35,
+    "raw": {
+      "correct_points": 30,
+      "pck_at_0_2": 0.8571428571428571,
+      "step_p95_image_height": 0.04111664900190095,
+      "step_pairs": 1549
+    },
+    "smooth": {
+      "correct_points": 28,
+      "pck_at_0_2": 0.8,
+      "step_p95_image_height": 0.02858869801137464,
+      "step_pairs": 1549
+    }
+  },
+  "ramune2_3-4": {
+    "frames": 312,
+    "fps": 29.668041243648787,
+    "present": 5,
+    "detected": 1,
+    "absent": 3,
+    "false_positive": 0,
+    "marked": 30,
+    "raw": {
+      "correct_points": 5,
+      "pck_at_0_2": 0.16666666666666666,
+      "step_p95_image_height": 0.0933310326872013,
+      "step_pairs": 112
+    },
+    "smooth": {
+      "correct_points": 5,
+      "pck_at_0_2": 0.16666666666666666,
+      "step_p95_image_height": 0.04492363771803277,
+      "step_pairs": 112
+    }
+  },
+  "ramune3_3-4": {
+    "frames": 318,
+    "fps": 29.95591393797807,
+    "present": 5,
+    "detected": 0,
+    "absent": 3,
+    "false_positive": 0,
+    "marked": 27,
+    "raw": {
+      "correct_points": 0,
+      "pck_at_0_2": 0.0,
+      "step_p95_image_height": null,
+      "step_pairs": 0
+    },
+    "smooth": {
+      "correct_points": 0,
+      "pck_at_0_2": 0.0,
+      "step_p95_image_height": null,
+      "step_pairs": 0
+    }
+  },
+  "uchimizu1_3-5": {
+    "frames": 325,
+    "fps": 29.965056134538493,
+    "present": 6,
+    "detected": 5,
+    "absent": 2,
+    "false_positive": 0,
+    "marked": 32,
+    "raw": {
+      "correct_points": 26,
+      "pck_at_0_2": 0.8125,
+      "step_p95_image_height": 0.03434727628939555,
+      "step_pairs": 1359
+    },
+    "smooth": {
+      "correct_points": 25,
+      "pck_at_0_2": 0.78125,
+      "step_p95_image_height": 0.024191371174602086,
+      "step_pairs": 1359
+    }
+  },
+  "uchimziu2_3-5": {
+    "frames": 322,
+    "fps": 29.96649708400546,
+    "present": 5,
+    "detected": 5,
+    "absent": 3,
+    "false_positive": 0,
+    "marked": 29,
+    "raw": {
+      "correct_points": 23,
+      "pck_at_0_2": 0.7931034482758621,
+      "step_p95_image_height": 0.07588534002323487,
+      "step_pairs": 1185
+    },
+    "smooth": {
+      "correct_points": 23,
+      "pck_at_0_2": 0.7931034482758621,
+      "step_p95_image_height": 0.044461508497305034,
+      "step_pairs": 1185
+    }
+  },
+  "utchimizu3_3-5": {
+    "frames": 344,
+    "fps": 29.956458635703918,
+    "present": 4,
+    "detected": 4,
+    "absent": 4,
+    "false_positive": 1,
+    "marked": 24,
+    "raw": {
+      "correct_points": 20,
+      "pck_at_0_2": 0.8333333333333334,
+      "step_p95_image_height": 0.06221028824186462,
+      "step_pairs": 1112
+    },
+    "smooth": {
+      "correct_points": 21,
+      "pck_at_0_2": 0.875,
+      "step_p95_image_height": 0.03725169744631749,
+      "step_pairs": 1112
+    }
+  },
+  "yusuzumi1_3-8": {
+    "frames": 329,
+    "fps": 29.964661736310976,
+    "present": 6,
+    "detected": 6,
+    "absent": 2,
+    "false_positive": 0,
+    "marked": 36,
+    "raw": {
+      "correct_points": 33,
+      "pck_at_0_2": 0.9166666666666666,
+      "step_p95_image_height": 0.038792895488924284,
+      "step_pairs": 1602
+    },
+    "smooth": {
+      "correct_points": 33,
+      "pck_at_0_2": 0.9166666666666666,
+      "step_p95_image_height": 0.02416002346039564,
+      "step_pairs": 1602
+    }
+  },
+  "yusuzumi2_2-10": {
+    "frames": 378,
+    "fps": 29.495916350205484,
+    "present": 7,
+    "detected": 7,
+    "absent": 1,
+    "false_positive": 0,
+    "marked": 34,
+    "raw": {
+      "correct_points": 28,
+      "pck_at_0_2": 0.8235294117647058,
+      "step_p95_image_height": 0.04660251307364628,
+      "step_pairs": 1901
+    },
+    "smooth": {
+      "correct_points": 27,
+      "pck_at_0_2": 0.7941176470588235,
+      "step_p95_image_height": 0.023875821268334978,
+      "step_pairs": 1901
+    }
+  },
+  "yusuzumi3_2-9": {
+    "frames": 349,
+    "fps": 29.964454772848253,
+    "present": 6,
+    "detected": 6,
+    "absent": 2,
+    "false_positive": 0,
+    "marked": 36,
+    "raw": {
+      "correct_points": 34,
+      "pck_at_0_2": 0.9444444444444444,
+      "step_p95_image_height": 0.03701408998615082,
+      "step_pairs": 1644
+    },
+    "smooth": {
+      "correct_points": 32,
+      "pck_at_0_2": 0.8888888888888888,
+      "step_p95_image_height": 0.0304022675472557,
+      "step_pairs": 1644
+    }
+  }
+}

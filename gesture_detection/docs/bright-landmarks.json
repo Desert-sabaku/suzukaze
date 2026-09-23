@@ -1,0 +1,153 @@
+{
+  "environment": {
+    "python": "3.12.13",
+    "mediapipe": "0.10.35",
+    "opencv": "5.0.0"
+  },
+  "annotations": {
+    "root": "shared/annotations/bright-behind-the-screen",
+    "sessions": 12,
+    "frames": 96,
+    "legacy_absent_statuses": {
+      "aogi1_2-6": [
+        "pending",
+        "uncertain"
+      ],
+      "aogi2_2-5": [
+        "pending"
+      ]
+    }
+  },
+  "conditions": [
+    {
+      "model": "pose_landmarker_lite.task",
+      "preprocess": "identity",
+      "confidence": {
+        "detection": 0.5,
+        "presence": 0.5
+      },
+      "frames": 96,
+      "presence_frames": 67,
+      "pose_recall": 0.5074626865671642,
+      "absent_frames": 29,
+      "false_positive_rate": 0.0,
+      "marked_points": 385,
+      "point_detection_rate": 0.5038961038961038,
+      "mean_error_px_on_detected": 158.2862712101394,
+      "median_normalized_error_on_detected": 0.3857489392817759,
+      "pck_at_0_2": 0.17662337662337663,
+      "per_landmark": {
+        "left_hip": {
+          "marked_points": 63,
+          "detected_points": 32,
+          "median_normalized_error_on_detected": 0.692428090360357,
+          "pck_at_0_2": 0.015873015873015872
+        },
+        "left_shoulder": {
+          "marked_points": 67,
+          "detected_points": 34,
+          "median_normalized_error_on_detected": 0.09007546248816065,
+          "pck_at_0_2": 0.43283582089552236
+        },
+        "left_wrist": {
+          "marked_points": 64,
+          "detected_points": 32,
+          "median_normalized_error_on_detected": 0.47757423145711897,
+          "pck_at_0_2": 0.0625
+        },
+        "right_hip": {
+          "marked_points": 63,
+          "detected_points": 32,
+          "median_normalized_error_on_detected": 0.6811624202920472,
+          "pck_at_0_2": 0.031746031746031744
+        },
+        "right_shoulder": {
+          "marked_points": 67,
+          "detected_points": 34,
+          "median_normalized_error_on_detected": 0.13655281080040346,
+          "pck_at_0_2": 0.3880597014925373
+        },
+        "right_wrist": {
+          "marked_points": 61,
+          "detected_points": 30,
+          "median_normalized_error_on_detected": 0.4274006443439219,
+          "pck_at_0_2": 0.09836065573770492
+        }
+      },
+      "per_session": {
+        "aogi1_3-8": {
+          "presence_frames": 6,
+          "detected_presence_frames": 0,
+          "absent_frames": 2,
+          "false_positive_frames": 0
+        },
+        "aogi2_1-7": {
+          "presence_frames": 5,
+          "detected_presence_frames": 5,
+          "absent_frames": 3,
+          "false_positive_frames": 0
+        },
+        "aogi3_2-8": {
+          "presence_frames": 6,
+          "detected_presence_frames": 5,
+          "absent_frames": 2,
+          "false_positive_frames": 0
+        },
+        "ramune1_4-7": {
+          "presence_frames": 6,
+          "detected_presence_frames": 2,
+          "absent_frames": 2,
+          "false_positive_frames": 0
+        },
+        "ramune2_3-4": {
+          "presence_frames": 5,
+          "detected_presence_frames": 0,
+          "absent_frames": 3,
+          "false_positive_frames": 0
+        },
+        "ramune3_3-4": {
+          "presence_frames": 5,
+          "detected_presence_frames": 0,
+          "absent_frames": 3,
+          "false_positive_frames": 0
+        },
+        "uchimizu1_3-5": {
+          "presence_frames": 6,
+          "detected_presence_frames": 3,
+          "absent_frames": 2,
+          "false_positive_frames": 0
+        },
+        "uchimziu2_3-5": {
+          "presence_frames": 5,
+          "detected_presence_frames": 4,
+          "absent_frames": 3,
+          "false_positive_frames": 0
+        },
+        "utchimizu3_3-5": {
+          "presence_frames": 4,
+          "detected_presence_frames": 2,
+          "absent_frames": 4,
+          "false_positive_frames": 0
+        },
+        "yusuzumi1_3-8": {
+          "presence_frames": 6,
+          "detected_presence_frames": 3,
+          "absent_frames": 2,
+          "false_positive_frames": 0
+        },
+        "yusuzumi2_2-10": {
+          "presence_frames": 7,
+          "detected_presence_frames": 4,
+          "absent_frames": 1,
+          "false_positive_frames": 0
+        },
+        "yusuzumi3_2-9": {
+          "presence_frames": 6,
+          "detected_presence_frames": 6,
+          "absent_frames": 2,
+          "false_positive_frames": 0
+        }
+      }
+    }
+  ]
+}
