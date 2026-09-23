@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "tracks": [
+    {
+      "id": "action",
+      "name": "Action",
+      "exclusive": true,
+      "labels": ["FANNING", "UCHIMIZU", "RELAXING", "RAMUNE"]
+    },
+    {
+      "id": "fanning_phase",
+      "name": "Fanning phase",
+      "exclusive": true,
+      "labels": ["POSITION", "ACTIVE"]
+    },
+    {
+      "id": "uchimizu_phase",
+      "name": "Uchimizu phase",
+      "exclusive": true,
+      "labels": ["READY", "SWING"]
+    },
+    {
+      "id": "relaxing_phase",
+      "name": "Relaxing phase",
+      "exclusive": true,
+      "labels": ["DWELL", "ACTIVE"]
+    },
+    {
+      "id": "ramune_phase",
+      "name": "Ramune phase",
+      "exclusive": true,
+      "labels": ["FORMING", "READY", "OPENED", "WAIT_RELEASE"]
+    }
+  ],
+  "events": [
+    "UCHIMIZU_PEAK",
+    "UCHIMIZU_RELEASE",
+    "RAMUNE_PRESS_START",
+    "RAMUNE_OPEN",
+    "FANNING_REVERSAL"
+  ],
+  "landmarks": [
+    "left_shoulder",
+    "right_shoulder",
+    "left_wrist",
+    "right_wrist",
+    "left_hip",
+    "right_hip"
+  ]
+}
