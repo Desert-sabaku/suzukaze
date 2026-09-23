@@ -161,3 +161,16 @@ def test_phase_must_belong_to_and_stay_inside_action(timeline):
     editor.delete(action_id)
     assert not editor.data["intervals"]
     assert not editor.data["events"]
+
+
+def test_exclusive_track_adjusts_nearby_boundaries(timeline):
+    _, _, editor = timeline
+    editor.add_interval("action", "FANNING", 3, 7)
+    assert editor.nearest_available_frame("action", 6, 10) == 8
+    assert editor.adjusted_interval("action", 0, 4, 10) == (0, 2)
+    assert editor.adjusted_interval("action", 6, 10, 10) == (8, 10)
+
+    editor.add_interval("action", "RAMUNE", 0, 2)
+    editor.add_interval("action", "UCHIMIZU", 8, 11)
+    with pytest.raises(ValueError, match="No unannotated frame"):
+        editor.nearest_available_frame("action", 5, 10)

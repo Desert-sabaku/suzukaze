@@ -266,6 +266,93 @@ class TimelineEditor:
     def set_last_frame(self, frame_id: int) -> None:
         self.data["ui"]["last_frame"] = frame_id
 
+    def _available_gaps(
+        self, track: str, bounds: tuple[int, int] | None = None
+    ) -> list[tuple[int, int]]:
+        total = int(self.data["source"]["total_frames"])
+        lower, upper = (0, total - 1) if bounds is None else bounds
+        definition = _track_map(self.data).get(track)
+        if definition is None:
+            raise ValueError(f"Unknown track: {track}")
+        if not definition.get("exclusive", True):
+            return [(lower, upper)]
+        occupied = sorted(
+            (
+                (item["start_frame"], item["end_frame"])
+                for item in self.data["intervals"]
+                if item["track"] == track
+            ),
+            key=lambda item: item[0],
+        )
+        gaps: list[tuple[int, int]] = []
+        cursor = lower
+        for start, end in occupied:
+            if end < lower or start > upper:
+                continue
+            if cursor < start:
+                gaps.append((cursor, min(upper, start - 1)))
+            cursor = max(cursor, end + 1)
+        if cursor <= upper:
+            gaps.append((cursor, upper))
+        return gaps
+
+
+    def nearest_available_frame(
+        self,
+        track: str,
+        frame_id: int,
+        max_shift: int,
+        bounds: tuple[int, int] | None = None,
+    ) -> int:
+        candidates = [
+            min(max(frame_id, start), end)
+            for start, end in self._available_gaps(track, bounds)
+        ]
+        if not candidates:
+            raise ValueError(f"No unannotated frame remains in track '{track}'")
+        nearest = min(
+            candidates, key=lambda value: (abs(value - frame_id), value < frame_id)
+        )
+        if abs(nearest - frame_id) > max_shift:
+            raise ValueError(
+                f"Frame {frame_id} overlaps an interval in track '{track}'; "
+                f"no free frame is available within {max_shift} frames"
+            )
+        return nearest
+
+
+    def adjusted_interval(
+        self,
+        track: str,
+        first: int,
+        second: int,
+        max_shift: int,
+        bounds: tuple[int, int] | None = None,
+    ) -> tuple[int, int]:
+        start, end = sorted((first, second))
+        candidates: list[tuple[int, int]] = []
+        for gap_start, gap_end in self._available_gaps(track, bounds):
+            candidate_start = min(max(start, gap_start), gap_end)
+            candidate_end = min(max(end, gap_start), gap_end)
+            if (
+                abs(candidate_start - start) <= max_shift
+                and abs(candidate_end - end) <= max_shift
+            ):
+                candidates.append((candidate_start, candidate_end))
+        if not candidates:
+            raise ValueError(
+                f"Frames {start}-{end} overlap an interval in track '{track}'; "
+                f"the overlap cannot be resolved within {max_shift} frames"
+            )
+        return min(
+            candidates,
+            key=lambda item: (
+                abs(item[0] - start) + abs(item[1] - end),
+                -abs(item[1] - item[0]),
+            ),
+        )
+
+
     def add_interval(
         self,
         track: str,
