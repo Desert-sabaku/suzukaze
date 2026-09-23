@@ -1,0 +1,35 @@
+name: Update Submodule
+
+on:
+  schedule:
+    # JST 9:00
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-submodule:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Update submodules to latest remote commits
+        run: |
+          git submodule update --remote --recursive
+
+      - name: Create Pull Request if updated
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.SUZUKAZE_KEY }}
+          commit-message: "chore: update submodules to latest remote"
+          title: "chore: update submodules"
+          body: "Updated the submodule's referenced commit to the latest version on the remote."
+          branch: "automation/update-submodules"
+          delete-branch: true
