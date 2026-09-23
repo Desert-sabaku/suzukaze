@@ -285,7 +285,11 @@ def annotate(directory: Path, max_width: int, max_height: int) -> None:
                 for item in rows[start : start + len(LANDMARKS)]:
                     item.update(status=status, x_px="", y_px="")
                 save_rows(directory, rows)
-                cursor = start
+                cursor = (
+                    min(len(rows) - LANDMARK_COUNT, start + LANDMARK_COUNT)
+                    if status == "absent"
+                    else start
+                )
             elif key == ord("z"):
                 cursor = max(0, cursor - 1)
             elif key == ord("n"):

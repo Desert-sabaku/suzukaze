@@ -55,7 +55,7 @@ def test_extract_resume_and_absent(tmp_path, monkeypatch):
     monkeypatch.setattr(cv2, "imshow", lambda *args: None)
     monkeypatch.setattr(cv2, "destroyAllWindows", lambda: None)
     monkeypatch.setattr(cv2, "getWindowProperty", lambda *args: 1)
-    events = iter([ord("a"), ord("a"), ord("q")])
+    events = iter([ord("a"), ord("q")])
     monkeypatch.setattr(cv2, "waitKey", lambda delay: next(events))
     annotate(directory, 32, 24)
     absent = load_rows(directory)
