@@ -154,6 +154,67 @@ def test_import_legacy_landmarks(timeline, tmp_path):
     }
 
 
+def test_existing_six_point_timeline_gains_new_landmark_choices(timeline):
+    _, output, editor = timeline
+    editor.data["label_config"]["landmarks"] = [
+        "left_shoulder",
+        "right_shoulder",
+        "left_wrist",
+        "right_wrist",
+        "left_hip",
+        "right_hip",
+    ]
+    editor.set_landmark(2, "left_wrist", "marked", (10, 15))
+    editor.set_absent(3)
+
+    loaded = load_timeline(output)
+
+    assert len(loaded["label_config"]["landmarks"]) == 33
+    assert loaded["landmarks"][0]["points"]["left_wrist"]["x_px"] == 10
+    assert len(loaded["landmarks"][1]["points"]) == 33
+    assert all(point["status"] == "absent" for point in loaded["landmarks"][1]["points"].values())
+
+
+def test_landmark_page_advances_within_frame_and_supports_arrows(app):
+    app.seek(3)
+    app.handle("page", "landmarks")
+    assert app.selected_landmark == "nose"
+    app.render()
+    assert any(action == "landmark" for _, action, _ in app.buttons)
+    assert not any(action == "start" for _, action, _ in app.buttons)
+
+    app.click(cv2.EVENT_LBUTTONDOWN, 10, 20, 0, None)
+    assert app.frame_id == 3
+    assert app.selected_landmark == "left_eye_inner"
+    assert app._point_data()["nose"]["status"] == "marked"
+    app.key(65363)  # X11/Qt right arrow
+    assert app.selected_landmark == "left_eye"
+    app.key(2424832)  # Windows left arrow
+    assert app.selected_landmark == "left_eye_inner"
+    app.handle("uncertain")
+    assert app._point_data()["left_eye_inner"]["status"] == "uncertain"
+    assert app.selected_landmark == "left_eye"
+    app.handle("clear_landmark")
+    assert "left_eye" not in app._point_data()
+    app.handle("absent")
+    assert len(app._point_data()) == 33
+    app.handle("reset_landmarks")
+    assert app._point_data() == {}
+    assert app.selected_landmark == "nose"
+
+
+def test_last_landmark_stays_on_selected_frame(app):
+    app.seek(5)
+    app.handle("page", "landmarks")
+    last = app.data["label_config"]["landmarks"][-1]
+    app.handle("landmark", last)
+    app.click(cv2.EVENT_LBUTTONDOWN, 10, 20, 0, None)
+
+    assert app.frame_id == 5
+    assert app.selected_landmark == last
+    assert app._point_data()[last]["status"] == "marked"
+
+
 def test_ui_render_and_actions_without_window(timeline):
     video, _, editor = timeline
     app = AnnotationApp(video, editor, 64, 48)
@@ -322,7 +383,7 @@ def test_run_does_not_create_native_seek_bar(app, monkeypatch):
         monkeypatch.setattr(cv2, name, Mock())
     trackbar = Mock()
     monkeypatch.setattr(cv2, "createTrackbar", trackbar)
-    monkeypatch.setattr(cv2, "waitKey", lambda _: ord("q"))
+    monkeypatch.setattr(cv2, "waitKeyEx", lambda _: ord("q"))
     app.run()
     trackbar.assert_not_called()
 
@@ -335,7 +396,7 @@ def test_run_keeps_processing_events_without_repainting_unchanged_frame(app, mon
     show = Mock()
     monkeypatch.setattr(cv2, "imshow", show)
     keys = iter([-1, -1, -1, ord("q")])
-    monkeypatch.setattr(cv2, "waitKey", lambda _: next(keys))
+    monkeypatch.setattr(cv2, "waitKeyEx", lambda _: next(keys))
     monkeypatch.setattr(cv2, "getWindowProperty", lambda *args: 1)
 
     app.run()
@@ -352,7 +413,7 @@ def test_playback_caps_painting_but_continues_processing_events(app, monkeypatch
     monkeypatch.setattr(cv2, "imshow", show)
     keys = iter([-1] * 10 + [ord("q")])
     wait = Mock(side_effect=lambda _: next(keys))
-    monkeypatch.setattr(cv2, "waitKey", wait)
+    monkeypatch.setattr(cv2, "waitKeyEx", wait)
     monkeypatch.setattr(cv2, "getWindowProperty", lambda *args: 1)
     clock = iter(index * 0.005 for index in range(100))
     monkeypatch.setattr("scripts.video_annotation.time.monotonic", lambda: next(clock))

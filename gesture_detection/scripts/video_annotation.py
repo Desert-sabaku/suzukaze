@@ -28,6 +28,14 @@ TIMELINE_HEIGHT = 190
 TIMELINE_LABEL_WIDTH = 176
 CONTROL_HEIGHT = 58
 MAX_DISPLAY_FPS = 30
+LEGACY_LANDMARKS = (
+    "left_shoulder",
+    "right_shoulder",
+    "left_wrist",
+    "right_wrist",
+    "left_hip",
+    "right_hip",
+)
 COLORS = (
     (70, 170, 255),
     (100, 220, 120),
@@ -71,6 +79,13 @@ def load_label_config(path: Path | None = None) -> dict[str, Any]:
         track_ids.add(track["id"])
     if not isinstance(config.get("events"), list) or not isinstance(config.get("landmarks"), list):
         raise ValueError("Label configuration must contain events and landmarks")
+    landmarks = config["landmarks"]
+    if (
+        not landmarks
+        or any(not isinstance(name, str) for name in landmarks)
+        or len(set(landmarks)) != len(landmarks)
+    ):
+        raise ValueError("Landmarks must be a non-empty list of unique names")
     return config
 
 
@@ -213,6 +228,15 @@ def save_timeline(path: Path, data: dict[str, Any]) -> None:
 
 def load_timeline(path: Path, video: Path | None = None) -> dict[str, Any]:
     data = cast(dict[str, Any], json.loads(path.read_text(encoding="utf-8")))
+    if tuple(data.get("label_config", {}).get("landmarks", ())) == LEGACY_LANDMARKS:
+        names = load_label_config()["landmarks"]
+        data["label_config"]["landmarks"] = names
+        for row in data.get("landmarks", []):
+            points = row["points"]
+            if set(points) == set(LEGACY_LANDMARKS) and all(
+                point["status"] == "absent" for point in points.values()
+            ):
+                points.update({name: {"status": "absent"} for name in names if name not in points})
     validate_timeline(data)
     if video is not None:
         actual = inspect_video(video)
@@ -437,6 +461,36 @@ class TimelineEditor:
 
         self._change(mutate)
 
+    def clear_landmark(self, frame_id: int, landmark: str) -> None:
+        if not any(
+            row["frame_id"] == frame_id and landmark in row["points"]
+            for row in self.data["landmarks"]
+        ):
+            return
+
+        def mutate() -> None:
+            item = next(
+                (row for row in self.data["landmarks"] if row["frame_id"] == frame_id), None
+            )
+            if item is None or landmark not in item["points"]:
+                return
+            del item["points"][landmark]
+            if not item["points"]:
+                self.data["landmarks"].remove(item)
+
+        self._change(mutate)
+
+    def reset_landmarks(self, frame_id: int) -> None:
+        if not any(row["frame_id"] == frame_id for row in self.data["landmarks"]):
+            return
+
+        def mutate() -> None:
+            self.data["landmarks"] = [
+                row for row in self.data["landmarks"] if row["frame_id"] != frame_id
+            ]
+
+        self._change(mutate)
+
     def delete(self, identifier: str) -> None:
         def mutate() -> None:
             for collection in (self.data["intervals"], self.data["events"]):
@@ -546,6 +600,7 @@ class AnnotationApp:
         self.selected_label: tuple[str, str] | None = None
         self.interval_start: int | None = None
         self.selected_landmark: str | None = None
+        self.page = "intervals"
         self.selected_annotation: str | None = None
         self.selected_action_id: str | None = None
         self.message = "STEP 1: Select an action, then set START and END"
@@ -562,6 +617,8 @@ class AnnotationApp:
             self.frame = self.reader.read(target)
             self.frame_id = target
             self._needs_redraw = True
+            if self.page == "landmarks":
+                self._select_first_pending_landmark()
         self.editor.set_last_frame(self.frame_id)
 
     def _mutate(self, callback) -> None:
@@ -604,6 +661,33 @@ class AnnotationApp:
             None,
         )
         return {} if item is None else item["points"]
+
+    def _landmark_names(self) -> list[str]:
+        return self.data["label_config"]["landmarks"]
+
+    def _select_first_pending_landmark(self) -> None:
+        points = self._point_data()
+        self.selected_landmark = next(
+            (name for name in self._landmark_names() if name not in points),
+            self._landmark_names()[0],
+        )
+
+    def _move_landmark(self, amount: int) -> None:
+        names = self._landmark_names()
+        index = names.index(self.selected_landmark) if self.selected_landmark in names else 0
+        self.selected_landmark = names[max(0, min(len(names) - 1, index + amount))]
+        self.message = f"Point {names.index(self.selected_landmark) + 1}/{len(names)}: {self.selected_landmark}"
+
+    def _advance_landmark(self) -> None:
+        names = self._landmark_names()
+        if self.selected_landmark is None:
+            return
+        index = names.index(self.selected_landmark)
+        if index + 1 < len(names):
+            self.selected_landmark = names[index + 1]
+            self.message = f"Saved; next point: {self.selected_landmark}"
+        else:
+            self.message = "Frame complete; seek to another frame"
 
     def _selected_action(self) -> dict[str, Any] | None:
         return next(
@@ -670,7 +754,27 @@ class AnnotationApp:
         ):
             self._button(canvas, (x, 66, x + 58, 94), text, action, payload)
             x += 64
-        y = 108
+        self._button(
+            canvas,
+            (panel_x, 108, panel_x + 217, 136),
+            "ACTION / PHASE",
+            "page",
+            "intervals",
+            self.page == "intervals",
+        )
+        self._button(
+            canvas,
+            (panel_x + 225, 108, panel_x + 442, 136),
+            "LANDMARKS",
+            "page",
+            "landmarks",
+            self.page == "landmarks",
+        )
+        if self.page == "landmarks":
+            self._draw_landmark_panel(canvas, panel_x)
+            self._draw_timeline(canvas, height - TIMELINE_HEIGHT, width)
+            return canvas
+        y = 153
         cv2.putText(
             canvas,
             "STEP 1 - ACTION",
@@ -747,32 +851,6 @@ class AnnotationApp:
             x1, y1 = panel_x + column * 225, y + row * 29
             self._button(canvas, (x1, y1, x1 + 217, y1 + 25), label, "event", label)
         y += max(1, (len(event_labels) + 1) // 2) * 29 + 18
-        cv2.putText(
-            canvas,
-            "LANDMARKS",
-            (panel_x, y),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.55,
-            (180, 220, 255),
-            1,
-        )
-        y += 9
-        for index, label in enumerate(self.data["label_config"]["landmarks"]):
-            column = index % 2
-            row = index // 2
-            x1 = panel_x + column * 225
-            y1 = y + row * 29
-            self._button(
-                canvas,
-                (x1, y1, x1 + 217, y1 + 25),
-                f"{index + 1}: {label}",
-                "landmark",
-                label,
-                self.selected_landmark == label,
-            )
-        y += 3 * 29 + 5
-        self._button(canvas, (panel_x, y, panel_x + 140, y + 28), "UNCERTAIN", "uncertain")
-        self._button(canvas, (panel_x + 147, y, panel_x + 287, y + 28), "ABSENT", "absent")
         controls_top = height - TIMELINE_HEIGHT - 112
         cv2.rectangle(
             canvas,
@@ -834,6 +912,69 @@ class AnnotationApp:
         )
         self._draw_timeline(canvas, height - TIMELINE_HEIGHT, width)
         return canvas
+
+    def _draw_landmark_panel(self, canvas: np.ndarray[Any, Any], panel_x: int) -> None:
+        names = self._landmark_names()
+        if self.selected_landmark not in names:
+            self._select_first_pending_landmark()
+        selected = self.selected_landmark or names[0]
+        index = names.index(selected)
+        status = self._point_data().get(selected, {}).get("status", "pending")
+        cv2.putText(
+            canvas,
+            f"POINT {index + 1}/{len(names)}: {selected}",
+            (panel_x, 165),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.55,
+            (180, 220, 255),
+            1,
+        )
+        cv2.putText(
+            canvas,
+            f"Status: {status} | Click image to mark; arrows select point",
+            (panel_x, 190),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.4,
+            (230, 230, 230),
+            1,
+        )
+        first = index // 12 * 12
+        for slot, name in enumerate(names[first : first + 12]):
+            absolute = first + slot
+            x = panel_x + slot % 2 * 225
+            y = 215 + slot // 2 * 32
+            point_status = self._point_data().get(name, {}).get("status", "pending")
+            self._button(
+                canvas,
+                (x, y, x + 217, y + 28),
+                f"{absolute + 1}: {name} [{point_status[0]}]",
+                "landmark",
+                name,
+                name == self.selected_landmark,
+            )
+        self._button(
+            canvas, (panel_x, 424, panel_x + 217, 454), "< PREVIOUS POINT", "landmark_move", -1
+        )
+        self._button(
+            canvas, (panel_x + 225, 424, panel_x + 442, 454), "NEXT POINT >", "landmark_move", 1
+        )
+        self._button(canvas, (panel_x, 466, panel_x + 140, 496), "UNCERTAIN", "uncertain")
+        self._button(
+            canvas, (panel_x + 150, 466, panel_x + 290, 496), "CLEAR POINT", "clear_landmark"
+        )
+        self._button(canvas, (panel_x, 505, panel_x + 215, 535), "SUBJECT ABSENT", "absent")
+        self._button(
+            canvas, (panel_x + 225, 505, panel_x + 442, 535), "RESET FRAME", "reset_landmarks"
+        )
+        cv2.putText(
+            canvas,
+            self.message[:62],
+            (panel_x, 566),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.45,
+            (100, 220, 255),
+            1,
+        )
 
     def _draw_timeline(self, canvas: np.ndarray[Any, Any], top: int, width: int) -> None:
         cv2.rectangle(canvas, (0, top), (width - 1, canvas.shape[0] - 1), (25, 25, 25), -1)
@@ -947,7 +1088,18 @@ class AnnotationApp:
 
     def handle(self, action: str, payload: Any = None) -> None:
         self._needs_redraw = True
-        if action == "step":
+        if action == "page":
+            self.page = str(payload)
+            self.playing = False
+            if self.page == "landmarks":
+                self._select_first_pending_landmark()
+                self.message = "Click image to mark; point advances automatically"
+            else:
+                self.selected_landmark = None
+                self.message = "Select an action or phase"
+        elif action == "landmark_move":
+            self._move_landmark(int(payload))
+        elif action == "step":
             self.playing = False
             self.seek(self.frame_id + cast(int, payload))
         elif action == "seek":
@@ -1061,6 +1213,7 @@ class AnnotationApp:
                     )
                 )
         elif action == "landmark":
+            self.page = "landmarks"
             self.selected_landmark = str(payload)
             self.selected_label = None
             self.interval_start = None
@@ -1074,8 +1227,23 @@ class AnnotationApp:
                         self.frame_id, self.selected_landmark or "", "uncertain"
                     )
                 )
+                if self.message == "Saved":
+                    self._advance_landmark()
+        elif action == "clear_landmark":
+            if self.selected_landmark is not None:
+                self._mutate(
+                    lambda: self.editor.clear_landmark(self.frame_id, self.selected_landmark or "")
+                )
+                self.message = f"Cleared {self.selected_landmark}"
         elif action == "absent":
             self._mutate(lambda: self.editor.set_absent(self.frame_id))
+            if self.message == "Saved" and self.page == "landmarks":
+                self.message = "All points absent on this frame"
+        elif action == "reset_landmarks":
+            self._mutate(lambda: self.editor.reset_landmarks(self.frame_id))
+            if self.message == "Saved":
+                self._select_first_pending_landmark()
+                self.message = "All points cleared on this frame"
         elif action == "delete" and self.interval_start is not None:
             self.interval_start = None
             self.message = "Start canceled; choose a new START"
@@ -1187,6 +1355,8 @@ class AnnotationApp:
                     self.frame_id, self.selected_landmark or "", "marked", point
                 )
             )
+            if self.message == "Saved":
+                self._advance_landmark()
             return
         timeline_top = max(self.image_height, 690)
         if y < timeline_top:
@@ -1246,8 +1416,30 @@ class AnnotationApp:
     def key(self, key: int) -> bool:
         if key in (27, ord("q")):
             return False
-        if key != 255:
+        if key not in (-1, 255):
             self._needs_redraw = True
+        if self.page == "landmarks":
+            if key in (65361, 2424832, 0x01000012, 81, 65362, 2490368, 0x01000013, 82):
+                self.handle("landmark_move", -1)
+                return True
+            if key in (65363, 2555904, 0x01000014, 83, 65364, 2621440, 0x01000015, 84):
+                self.handle("landmark_move", 1)
+                return True
+            if key == ord("c"):
+                self.handle("clear_landmark")
+                return True
+            if key == ord("r"):
+                self.handle("reset_landmarks")
+                return True
+            if key == ord("n"):
+                self.handle("step", 1)
+                return True
+            if key == ord("p"):
+                self.handle("step", -1)
+                return True
+            if key == ord("a"):
+                self.handle("absent")
+                return True
         mapping = {ord("a"): -1, ord("d"): 1, ord("j"): -10, ord("l"): 10}
         if key in mapping:
             self.handle("step", mapping[key])
@@ -1298,7 +1490,7 @@ class AnnotationApp:
                     cv2.imshow(WINDOW, self.render())
                     self._needs_redraw = False
                     self._last_presented = now
-                key = cv2.waitKey(10) & 0xFF
+                key = cv2.waitKeyEx(10)
                 if not self.key(key) or cv2.getWindowProperty(WINDOW, cv2.WND_PROP_VISIBLE) < 1:
                     break
         finally:
