@@ -233,6 +233,24 @@ def test_pending_start_can_be_canceled_without_saving(app):
     assert app.editor.data["intervals"] == []
 
 
+def test_timeline_shows_each_tracks_current_label(app, monkeypatch):
+    action_id = app.editor.add_interval("action", "FANNING", 0, 11)
+    app.editor.add_interval("fanning_phase", "ACTIVE", 2, 9, action_id)
+    app.seek(4)
+    drawn = []
+    original = cv2.putText
+
+    def capture_text(image, text, position, *args):
+        drawn.append((text, position))
+        return original(image, text, position, *args)
+
+    monkeypatch.setattr(cv2, "putText", capture_text)
+    app.render()
+    assert any(text == "FANNING" and x == 5 for text, (x, _) in drawn)
+    assert any(text == "ACTIVE" and x == 5 for text, (x, _) in drawn)
+    assert app._x_frame(app._frame_x(4)) == 4
+
+
 @pytest.mark.parametrize("track,label", [("action", "FANNING"), ("fanning_phase", "ACTIVE")])
 def test_buttons_resize_just_saved_interval(app, track, label):
     if track != "action":

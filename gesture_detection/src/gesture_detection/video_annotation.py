@@ -25,6 +25,7 @@ SCHEMA_VERSION = 1
 WINDOW = "Video annotation"
 PANEL_WIDTH = 470
 TIMELINE_HEIGHT = 190
+TIMELINE_LABEL_WIDTH = 176
 CONTROL_HEIGHT = 58
 COLORS = (
     (70, 170, 255),
@@ -803,7 +804,11 @@ class AnnotationApp:
             (
                 ("MOVE START" if editing else "SET START", "start", (65, 120, 45)),
                 ("MOVE END" if editing else "SET END", "end", (145, 95, 40)),
-                ("CANCEL START" if self.interval_start is not None else "DELETE", "delete", (55, 55, 160)),
+                (
+                    "CANCEL START" if self.interval_start is not None else "DELETE",
+                    "delete",
+                    (55, 55, 160),
+                ),
             )
         ):
             x1 = panel_x + index * 147
@@ -832,15 +837,6 @@ class AnnotationApp:
         lane_height = max(20, (TIMELINE_HEIGHT - 32) // max(1, len(tracks)))
         for lane, track in enumerate(tracks):
             y1 = top + 24 + lane * lane_height
-            cv2.putText(
-                canvas,
-                track["id"],
-                (5, y1 + 14),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.42,
-                (210, 210, 210),
-                1,
-            )
             for interval in self.data["intervals"]:
                 if interval["track"] != track["id"]:
                     continue
@@ -849,10 +845,22 @@ class AnnotationApp:
                         **interval,
                         f"{self.drag_edge[1]}_frame": self.drag_frame,
                     }
-                x1 = round(interval["start_frame"] / max(1, self.total - 1) * (width - 1))
-                x2 = round(interval["end_frame"] / max(1, self.total - 1) * (width - 1))
+                x1 = self._frame_x(interval["start_frame"])
+                x2 = self._frame_x(interval["end_frame"])
                 color = COLORS[lane % len(COLORS)]
                 cv2.rectangle(canvas, (x1, y1), (max(x1 + 2, x2), y1 + lane_height - 4), color, -1)
+                label = interval["label"]
+                label_width = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.4, 1)[0][0]
+                if x2 - x1 >= label_width + 10:
+                    cv2.putText(
+                        canvas,
+                        label,
+                        (x1 + 5, y1 + 14),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.4,
+                        (20, 20, 20),
+                        1,
+                    )
                 if interval["id"] == self.selected_annotation:
                     cv2.rectangle(
                         canvas,
@@ -870,11 +878,38 @@ class AnnotationApp:
                             -1,
                         )
         for event in self.data["events"]:
-            x = round(event["frame_id"] / max(1, self.total - 1) * (width - 1))
+            x = self._frame_x(event["frame_id"])
             color = (255, 180, 80) if event["id"] != self.selected_annotation else (255, 255, 255)
             cv2.line(canvas, (x, top + 20), (x, top + 31), color, 2)
-        cursor_x = round(self.frame_id / max(1, self.total - 1) * (width - 1))
+        cursor_x = self._frame_x(self.frame_id)
         cv2.line(canvas, (cursor_x, top), (cursor_x, canvas.shape[0] - 1), (0, 0, 255), 2)
+        cv2.rectangle(
+            canvas, (0, top + 24), (TIMELINE_LABEL_WIDTH - 1, canvas.shape[0] - 1), (38, 38, 38), -1
+        )
+        for lane, track in enumerate(tracks):
+            y1 = top + 24 + lane * lane_height
+            active = next(
+                (
+                    item
+                    for item in self.data["intervals"]
+                    if item["track"] == track["id"]
+                    and item["start_frame"] <= self.frame_id <= item["end_frame"]
+                ),
+                None,
+            )
+            name = track.get("name", track["id"]).replace(" phase", "")
+            cv2.putText(
+                canvas, name, (5, y1 + 12), cv2.FONT_HERSHEY_SIMPLEX, 0.37, (180, 180, 180), 1
+            )
+            cv2.putText(
+                canvas,
+                active["label"] if active else "-",
+                (5, y1 + 26),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.44,
+                (245, 245, 245),
+                1,
+            )
         if self.interval_start is not None and self.selected_label is not None:
             for lane, track in enumerate(tracks):
                 if self.selected_label[0] == track["id"]:
@@ -1067,14 +1102,19 @@ class AnnotationApp:
         )
 
     def _frame_x(self, frame: int) -> int:
-        return round(frame / max(1, self.total - 1) * (self.image_width + PANEL_WIDTH - 1))
+        width = self.image_width + PANEL_WIDTH - TIMELINE_LABEL_WIDTH - 1
+        return TIMELINE_LABEL_WIDTH + round(frame / max(1, self.total - 1) * width)
 
     def _x_frame(self, x: int) -> int:
         return max(
             0,
             min(
                 self.total - 1,
-                round(x / max(1, self.image_width + PANEL_WIDTH - 1) * (self.total - 1)),
+                round(
+                    (x - TIMELINE_LABEL_WIDTH)
+                    / max(1, self.image_width + PANEL_WIDTH - TIMELINE_LABEL_WIDTH - 1)
+                    * (self.total - 1)
+                ),
             ),
         )
 
@@ -1141,6 +1181,8 @@ class AnnotationApp:
             return
         timeline_top = max(self.image_height, 690)
         if y < timeline_top:
+            return
+        if x < TIMELINE_LABEL_WIDTH:
             return
         self.playing = False
         self.seek(self._x_frame(x))
