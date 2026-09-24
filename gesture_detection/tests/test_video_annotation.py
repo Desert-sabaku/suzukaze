@@ -465,3 +465,31 @@ def test_playback_caps_painting_but_continues_processing_events(app, monkeypatch
 
     assert wait.call_count == 11
     assert 1 < show.call_count < wait.call_count
+
+
+def test_playback_end_repaints_play_button(app, monkeypatch):
+    from unittest.mock import Mock
+
+    app.seek(app.total - 1)
+    app.playing = True
+    app._last_tick = -1
+    app._needs_redraw = False
+    for name in ("namedWindow", "setMouseCallback", "destroyAllWindows"):
+        monkeypatch.setattr(cv2, name, Mock())
+    show = Mock()
+    monkeypatch.setattr(cv2, "imshow", show)
+    monkeypatch.setattr(cv2, "waitKeyEx", Mock(side_effect=[-1, ord("q")]))
+    monkeypatch.setattr(cv2, "getWindowProperty", lambda *args: 1)
+    labels = []
+    original = cv2.putText
+
+    def capture_text(image, label, position, *args):
+        labels.append(label)
+        return original(image, label, position, *args)
+
+    monkeypatch.setattr(cv2, "putText", capture_text)
+    app.run()
+
+    assert not app.playing
+    assert show.call_count == 1
+    assert "PLAY" in labels

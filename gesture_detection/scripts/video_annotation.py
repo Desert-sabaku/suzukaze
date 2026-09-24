@@ -1584,6 +1584,7 @@ class AnnotationApp:
                     if now - self._last_tick >= interval:
                         if self.frame_id >= self.total - 1:
                             self.playing = False
+                            self._needs_redraw = True
                         else:
                             self.seek(self.frame_id + 1)
                         self._last_tick = now
