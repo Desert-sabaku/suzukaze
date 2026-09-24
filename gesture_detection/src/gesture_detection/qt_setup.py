@@ -1,6 +1,7 @@
 """OpenCV HighGUI environment fixes shared by the camera and annotation apps."""
 
 import os
+import subprocess
 from pathlib import Path
 
 
@@ -13,4 +14,16 @@ def configure_qt_fonts() -> None:
     ):
         if directory.is_dir():
             os.environ["QT_QPA_FONTDIR"] = str(directory)
-            break
+            return
+    try:
+        font_file = subprocess.run(
+            ["fc-match", "-f", "%{file}"],
+            capture_output=True,
+            check=True,
+            text=True,
+            timeout=2,
+        ).stdout.strip()
+    except (FileNotFoundError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        return
+    if font_file and Path(font_file).is_file():
+        os.environ["QT_QPA_FONTDIR"] = str(Path(font_file).parent)
