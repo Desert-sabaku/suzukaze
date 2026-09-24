@@ -5,8 +5,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 import pytest
-
-from gesture_detection.video_annotation import (
+from scripts.video_annotation import (
     AnnotationApp,
     TimelineEditor,
     active_intervals,
@@ -155,6 +154,108 @@ def test_import_legacy_landmarks(timeline, tmp_path):
     }
 
 
+def test_existing_six_point_timeline_gains_new_landmark_choices(timeline):
+    _, output, editor = timeline
+    editor.data["label_config"]["landmarks"] = [
+        "left_shoulder",
+        "right_shoulder",
+        "left_wrist",
+        "right_wrist",
+        "left_hip",
+        "right_hip",
+    ]
+    editor.set_landmark(2, "left_wrist", "marked", (10, 15))
+    editor.set_absent(3)
+
+    loaded = load_timeline(output)
+
+    assert len(loaded["label_config"]["landmarks"]) == 33
+    assert loaded["landmarks"][0]["points"]["left_wrist"]["x_px"] == 10
+    assert len(loaded["landmarks"][1]["points"]) == 33
+    assert all(point["status"] == "absent" for point in loaded["landmarks"][1]["points"].values())
+
+
+def test_landmark_page_advances_within_frame_and_supports_arrows(app):
+    app.seek(3)
+    app.handle("page", "landmarks")
+    assert app.selected_landmark == "nose"
+    app.render()
+    assert any(action == "landmark" for _, action, _ in app.buttons)
+    assert not any(action == "start" for _, action, _ in app.buttons)
+
+    app.click(cv2.EVENT_LBUTTONDOWN, 10, 20, 0, None)
+    assert app.frame_id == 3
+    assert app.selected_landmark == "left_eye_inner"
+    assert app._point_data()["nose"]["status"] == "marked"
+    app.key(65363)  # X11/Qt right arrow
+    assert app.selected_landmark == "left_eye"
+    app.key(2424832)  # Windows left arrow
+    assert app.selected_landmark == "left_eye_inner"
+    app.handle("uncertain")
+    assert app._point_data()["left_eye_inner"]["status"] == "uncertain"
+    assert app.selected_landmark == "left_eye"
+    app.handle("clear_landmark")
+    assert "left_eye" not in app._point_data()
+    app.handle("absent")
+    assert len(app._point_data()) == 33
+    app.handle("reset_landmarks")
+    assert app._point_data() == {}
+    assert app.selected_landmark == "nose"
+
+
+def test_last_landmark_stays_on_selected_frame(app):
+    app.seek(5)
+    app.handle("page", "landmarks")
+    last = app.data["label_config"]["landmarks"][-1]
+    app.handle("landmark", last)
+    app.click(cv2.EVENT_LBUTTONDOWN, 10, 20, 0, None)
+
+    assert app.frame_id == 5
+    assert app.selected_landmark == last
+    assert app._point_data()[last]["status"] == "marked"
+
+
+def test_landmark_groups_and_page_navigation(app, monkeypatch):
+    app.handle("page", "landmarks")
+    pages = app._landmark_pages()
+    assert [(title, len(names)) for title, names in pages] == [
+        ("FACE & HEAD", 11),
+        ("UPPER BODY & HANDS", 12),
+        ("HIPS & LEGS", 10),
+    ]
+    drawn = []
+    original = cv2.putText
+
+    def capture_text(image, text, position, *args):
+        drawn.append(text)
+        return original(image, text, position, *args)
+
+    monkeypatch.setattr(cv2, "putText", capture_text)
+    app.render()
+    assert "PAGE 1/3 - FACE & HEAD" in drawn
+    assert {payload for _, action, payload in app.buttons if action == "landmark"} == set(
+        pages[0][1]
+    )
+
+    app.handle("landmark_page", 1)
+    assert app.selected_landmark == "left_shoulder"
+    app.render()
+    assert "PAGE 2/3 - UPPER BODY & HANDS" in drawn
+    app.key(65366)  # X11 Page Down
+    assert app.selected_landmark == "left_hip"
+    app.key(2162688)  # Windows Page Up
+    assert app.selected_landmark == "left_shoulder"
+    app.key(65361)  # Individual arrow still crosses group boundary.
+    assert app.selected_landmark == "mouth_right"
+    assert app._landmark_page_index() == 0
+
+
+def test_custom_landmarks_appear_in_other_group(app):
+    app.data["label_config"]["landmarks"].append("custom_point")
+    app.handle("page", "landmarks")
+    assert app._landmark_pages()[-1] == ("OTHER", ["custom_point"])
+
+
 def test_ui_render_and_actions_without_window(timeline):
     video, _, editor = timeline
     app = AnnotationApp(video, editor, 64, 48)
@@ -214,6 +315,41 @@ def test_pending_start_and_bottom_controls(app):
     app.handle("end")
     assert app.editor.data["intervals"][0]["start_frame"] == 2
     assert app.editor.data["intervals"][0]["end_frame"] == 7
+
+
+def test_pending_start_can_be_canceled_without_saving(app):
+    app.handle("label", ("action", "FANNING"))
+    app.seek(2)
+    app.handle("start")
+    app.render()
+    assert any(action == "delete" for _, action, _ in app.buttons)
+    app.handle("delete")
+    assert app.interval_start is None
+    assert app.selected_label == ("action", "FANNING")
+    assert app.editor.data["intervals"] == []
+    app.seek(4)
+    app.handle("start")
+    app.key(8)
+    assert app.interval_start is None
+    assert app.editor.data["intervals"] == []
+
+
+def test_timeline_shows_each_tracks_current_label(app, monkeypatch):
+    action_id = app.editor.add_interval("action", "FANNING", 0, 11)
+    app.editor.add_interval("fanning_phase", "ACTIVE", 2, 9, action_id)
+    app.seek(4)
+    drawn = []
+    original = cv2.putText
+
+    def capture_text(image, text, position, *args):
+        drawn.append((text, position))
+        return original(image, text, position, *args)
+
+    monkeypatch.setattr(cv2, "putText", capture_text)
+    app.render()
+    assert any(text == "FANNING" and x == 5 for text, (x, _) in drawn)
+    assert any(text == "ACTIVE" and x == 5 for text, (x, _) in drawn)
+    assert app._x_frame(app._frame_x(4)) == 4
 
 
 @pytest.mark.parametrize("track,label", [("action", "FANNING"), ("fanning_phase", "ACTIVE")])
@@ -288,6 +424,72 @@ def test_run_does_not_create_native_seek_bar(app, monkeypatch):
         monkeypatch.setattr(cv2, name, Mock())
     trackbar = Mock()
     monkeypatch.setattr(cv2, "createTrackbar", trackbar)
-    monkeypatch.setattr(cv2, "waitKey", lambda _: ord("q"))
+    monkeypatch.setattr(cv2, "waitKeyEx", lambda _: ord("q"))
     app.run()
     trackbar.assert_not_called()
+
+
+def test_run_keeps_processing_events_without_repainting_unchanged_frame(app, monkeypatch):
+    from unittest.mock import Mock
+
+    for name in ("namedWindow", "setMouseCallback", "destroyAllWindows"):
+        monkeypatch.setattr(cv2, name, Mock())
+    show = Mock()
+    monkeypatch.setattr(cv2, "imshow", show)
+    keys = iter([-1, -1, -1, ord("q")])
+    monkeypatch.setattr(cv2, "waitKeyEx", lambda _: next(keys))
+    monkeypatch.setattr(cv2, "getWindowProperty", lambda *args: 1)
+
+    app.run()
+
+    assert show.call_count == 1
+
+
+def test_playback_caps_painting_but_continues_processing_events(app, monkeypatch):
+    from unittest.mock import Mock
+
+    for name in ("namedWindow", "setMouseCallback", "destroyAllWindows"):
+        monkeypatch.setattr(cv2, name, Mock())
+    show = Mock()
+    monkeypatch.setattr(cv2, "imshow", show)
+    keys = iter([-1] * 10 + [ord("q")])
+    wait = Mock(side_effect=lambda _: next(keys))
+    monkeypatch.setattr(cv2, "waitKeyEx", wait)
+    monkeypatch.setattr(cv2, "getWindowProperty", lambda *args: 1)
+    clock = iter(index * 0.005 for index in range(100))
+    monkeypatch.setattr("scripts.video_annotation.time.monotonic", lambda: next(clock))
+    app.playing = True
+    app._last_tick = -1
+
+    app.run()
+
+    assert wait.call_count == 11
+    assert 1 < show.call_count < wait.call_count
+
+
+def test_playback_end_repaints_play_button(app, monkeypatch):
+    from unittest.mock import Mock
+
+    app.seek(app.total - 1)
+    app.playing = True
+    app._last_tick = -1
+    app._needs_redraw = False
+    for name in ("namedWindow", "setMouseCallback", "destroyAllWindows"):
+        monkeypatch.setattr(cv2, name, Mock())
+    show = Mock()
+    monkeypatch.setattr(cv2, "imshow", show)
+    monkeypatch.setattr(cv2, "waitKeyEx", Mock(side_effect=[-1, ord("q")]))
+    monkeypatch.setattr(cv2, "getWindowProperty", lambda *args: 1)
+    labels = []
+    original = cv2.putText
+
+    def capture_text(image, label, position, *args):
+        labels.append(label)
+        return original(image, label, position, *args)
+
+    monkeypatch.setattr(cv2, "putText", capture_text)
+    app.run()
+
+    assert not app.playing
+    assert show.call_count == 1
+    assert "PLAY" in labels

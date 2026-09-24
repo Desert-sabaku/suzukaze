@@ -7,17 +7,12 @@ from pathlib import Path
 import cv2
 from dotenv import load_dotenv
 
+from gesture_detection.qt_setup import configure_qt_fonts
+
 # The OpenCV wheel overwrites QT_QPA_FONTDIR during ``import cv2`` with a
 # directory which is no longer shipped. Restore the system font path after the
 # import and before the first HighGUI window is created.
-for _qt_font_directory in (
-    Path("/usr/share/fonts/truetype/dejavu"),
-    Path("/usr/share/fonts/truetype/noto"),
-    Path("/usr/share/fonts/truetype"),
-):
-    if _qt_font_directory.is_dir():
-        os.environ["QT_QPA_FONTDIR"] = str(_qt_font_directory)
-        break
+configure_qt_fonts()
 
 # Editable src layout keeps models and .env at the project root. A wheel
 # installation uses an explicit data root, or the working directory.

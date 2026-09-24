@@ -28,12 +28,14 @@ uv run annotate-video VIDEO --import-landmarks OLD_SESSION_DIRECTORY
 - `STEP 1 - ACTION`で4所作から一つを選び、`SET START`と`SET END`で所作全体を記録します。
 - Actionを保存すると`STEP 2`へ移り、その所作に必要なPhaseとイベントだけが表示されます。
 - `SET START`だけを押した段階でも、対象トラックに黄色の開始マーカーを表示します。
-- START／END／DELETEは右ペイン最下部にまとめています。
+- START／END／DELETEは右ペイン最下部にまとめています。STARTだけを置いた間はDELETEが`CANCEL START`になり、ENDを置かずに開始位置を取り消せます。Backspace／Deleteも同じ操作です。
 - Phaseも`SET START`と`SET END`で記録します。Phaseは選択中のAction区間内にだけ保存できます。
 - イベント名をクリックすると、選択中のAction内の現在フレームへ節目を記録します。
 - 別のActionへPhaseを追加するときは、タイムライン上のAction区間をクリックして選択します。
-- 関節名を選んで画像をクリックすると、元画像ピクセル座標を記録します。
+- 右ペインの`LANDMARKS`ページで現在フレームの点を注釈します。標準ではMediaPipe Poseの33点を選べます。画像をクリックして点を記録するか`UNCERTAIN`を押すと、同じフレームの次の点へ自動で進みます。最後の点の後は同じフレームに留まるので、次に注釈するフレームへ手動で移動します。
+- 点は`FACE & HEAD`、`UPPER BODY & HANDS`、`HIPS & LEGS`の見出しごとに表示します。独自に追加した点は`OTHER`に表示します。左右矢印または`PREVIOUS POINT`／`NEXT POINT`で点を選び、`PREV PAGE`／`NEXT PAGE`またはPage Up／Page Downでグループのページを送れます。`CLEAR POINT`は選択中の点だけを未記録に戻し、`SUBJECT ABSENT`は現在フレームの全点を不在に、`RESET FRAME`は全点を未記録に戻します。既存の6点を含むタイムラインも、記録済みの座標を保持したまま33点を選べます。
 - シーク操作は下部のトラック付きタイムラインに統一しています。クリックで移動し、その位置の区間またはイベントを選択します。
+- タイムライン左側には各トラック名と現在フレームのAction／Phaseを表示します。幅が足りる区間にはラベルも直接表示します。
 - 既存区間を選択すると、下部ボタンは`MOVE START`／`MOVE END`に切り替わります。移動先へシークして押すと端点を変更できます。`S`／`E`も同じ操作です。保存直後の区間にも使えます。
 - 区間の左右端をマウスでドラッグすると伸縮できます。選択中の区間には白い端点ハンドルを表示し、ドラッグ中はプレビュー、離した時に保存します。1回のドラッグは1回のUndoで戻せます。
 - 区間の重複、端点の逆転、Phaseやイベントが親Actionの外へ出る変更は保存せず、理由を表示します。
@@ -54,10 +56,14 @@ uv run annotate-video VIDEO --import-landmarks OLD_SESSION_DIRECTORY
 | A / D | 1フレーム戻る／進む |
 | J / L | 10フレーム戻る／進む |
 | S / E | 新規区間の開始／終了を設定、または選択区間の端点を移動 |
-| U / X | 選択関節を不明／現在フレームを被写体不在にする |
+| 左右矢印（Landmarksページ） | 前／次の点を選択 |
+| Page Up / Page Down（Landmarksページ） | 前／次のグループページへ移動 |
+| U / X | 選択中の点を不明／現在フレームを被写体不在にする |
+| C / R（Landmarksページ） | 選択中の点を消去／現在フレームの全点を消去 |
+| N / P（Landmarksページ） | 次／前のフレームへ移動 |
 | Z / Y | Undo / Redo |
 | `[` / `]` | 再生速度を下げる／上げる |
-| Backspace / Delete | 選択した区間またはイベントを削除 |
+| Backspace / Delete | 未確定のSTARTを取り消す、または選択した区間・イベントを削除 |
 | Q / Esc | 保存して終了 |
 
 `timeline.json` ではフレームIDを正本とし、FPSから計算した時刻も併記します。動画の
