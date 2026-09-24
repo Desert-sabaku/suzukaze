@@ -649,10 +649,12 @@ class AnnotationApp:
         self.speed = 1.0
         self.selected_label: tuple[str, str] | None = None
         self.interval_start: int | None = None
+        self.interval_parent_action_id: str | None = None
         self.selected_landmark: str | None = None
         self.page = "intervals"
         self.selected_annotation: str | None = None
         self.selected_action_id: str | None = None
+        self._sync_action_to_frame()
         self.message = "STEP 1: Select an action, then set START and END"
         self.buttons: list[tuple[tuple[int, int, int, int], str, Any]] = []
         self._last_tick = time.monotonic()
@@ -669,7 +671,20 @@ class AnnotationApp:
             self._needs_redraw = True
             if self.page == "landmarks":
                 self._select_first_pending_landmark()
+        self._sync_action_to_frame()
         self.editor.set_last_frame(self.frame_id)
+
+    def _sync_action_to_frame(self) -> None:
+        action = next(
+            (
+                item
+                for item in self.data["intervals"]
+                if item["track"] == "action"
+                and item["start_frame"] <= self.frame_id <= item["end_frame"]
+            ),
+            None,
+        )
+        self.selected_action_id = None if action is None else action["id"]
 
     def _mutate(self, callback) -> None:
         try:
@@ -1208,11 +1223,20 @@ class AnnotationApp:
             self._last_tick = time.monotonic()
         elif action == "label":
             selected = cast(tuple[str, str], payload)
-            if selected[0] != "action" and self._selected_action() is None:
-                self.message = "Complete or select an action before annotating phases"
-                return
+            if selected[0] != "action":
+                selected_action = self._selected_action()
+                if selected_action is None:
+                    self.message = "Complete or select an action before annotating phases"
+                    return
+                if (
+                    selected[0]
+                    != workflow_for_action(self.data, selected_action["label"])["phase_track"]
+                ):
+                    self.message = "This phase does not belong to the current action"
+                    return
             self.selected_label = selected
             self.interval_start = None
+            self.interval_parent_action_id = None
             self.selected_annotation = None
             self.selected_landmark = None
             self.message = f"Selected {selected[0]}: {selected[1]}"
@@ -1228,6 +1252,16 @@ class AnnotationApp:
                 requested_start = self.frame_id
                 max_shift = max(1, round(float(self.data["source"]["fps"])))
                 selected_action = self._selected_action()
+                if track != "action" and (
+                    selected_action is None
+                    or not selected_action["start_frame"]
+                    <= requested_start
+                    <= selected_action["end_frame"]
+                    or track
+                    != workflow_for_action(self.data, selected_action["label"])["phase_track"]
+                ):
+                    self.message = "Set phase START inside a matching action"
+                    return
                 bounds = (
                     None
                     if track == "action" or selected_action is None
@@ -1241,6 +1275,9 @@ class AnnotationApp:
                     self.message = str(error)
                 else:
                     self.interval_start = adjusted
+                    self.interval_parent_action_id = (
+                        None if track == "action" else self.selected_action_id
+                    )
                     if adjusted == requested_start:
                         self.message = f"Start set at frame {adjusted}"
                     else:
@@ -1258,6 +1295,17 @@ class AnnotationApp:
                 requested_end = self.frame_id
                 max_shift = max(1, round(float(self.data["source"]["fps"])))
                 selected_action = self._selected_action()
+                if track != "action" and (
+                    self.interval_parent_action_id != self.selected_action_id
+                    or selected_action is None
+                    or not selected_action["start_frame"]
+                    <= requested_end
+                    <= selected_action["end_frame"]
+                    or track
+                    != workflow_for_action(self.data, selected_action["label"])["phase_track"]
+                ):
+                    self.message = "Set phase END inside the same action as START"
+                    return
                 bounds = (
                     None
                     if track == "action" or selected_action is None
@@ -1272,7 +1320,7 @@ class AnnotationApp:
                         label,
                         adjusted_start,
                         adjusted_end,
-                        None if track == "action" else self.selected_action_id,
+                        self.interval_parent_action_id,
                     )
                 except ValueError as error:
                     self.data = self.editor.data
@@ -1280,6 +1328,7 @@ class AnnotationApp:
                 else:
                     self.data = self.editor.data
                     self.interval_start = None
+                    self.interval_parent_action_id = None
                     self.selected_label = None
                     if track == "action":
                         self.selected_action_id = self.selected_annotation
@@ -1315,6 +1364,7 @@ class AnnotationApp:
             self.selected_landmark = str(payload)
             self.selected_label = None
             self.interval_start = None
+            self.interval_parent_action_id = None
             self.message = f"Click {payload} on the image"
         elif action == "uncertain":
             if self.selected_landmark is None:
@@ -1344,6 +1394,7 @@ class AnnotationApp:
                 self.message = "All points cleared on this frame"
         elif action == "delete" and self.interval_start is not None:
             self.interval_start = None
+            self.interval_parent_action_id = None
             self.message = "Start canceled; choose a new START"
         elif action == "delete" and self.selected_annotation:
             selected = self.selected_annotation
@@ -1396,6 +1447,7 @@ class AnnotationApp:
         )
         self.selected_label = None
         self.interval_start = None
+        self.interval_parent_action_id = None
         self.selected_landmark = None
         self.message = f"Selected {interval['label']}: drag an edge or move START / END"
 
