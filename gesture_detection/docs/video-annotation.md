@@ -33,7 +33,7 @@ uv run annotate-video VIDEO --import-landmarks OLD_SESSION_DIRECTORY
 - イベント名をクリックすると、選択中のAction内の現在フレームへ節目を記録します。
 - 別のActionへPhaseを追加するときは、タイムライン上のAction区間をクリックして選択します。
 - 右ペインの`LANDMARKS`ページで現在フレームの点を注釈します。標準ではMediaPipe Poseの33点を選べます。画像をクリックして点を記録するか`UNCERTAIN`を押すと、同じフレームの次の点へ自動で進みます。最後の点の後は同じフレームに留まるので、次に注釈するフレームへ手動で移動します。
-- 左右矢印または`PREVIOUS POINT`／`NEXT POINT`で点を選べます。`CLEAR POINT`は選択中の点だけを未記録に戻し、`SUBJECT ABSENT`は現在フレームの全点を不在に、`RESET FRAME`は全点を未記録に戻します。既存の6点を含むタイムラインも、記録済みの座標を保持したまま33点を選べます。
+- 点は`FACE & HEAD`、`UPPER BODY & HANDS`、`HIPS & LEGS`の見出しごとに表示します。独自に追加した点は`OTHER`に表示します。左右矢印または`PREVIOUS POINT`／`NEXT POINT`で点を選び、`PREV PAGE`／`NEXT PAGE`またはPage Up／Page Downでグループのページを送れます。`CLEAR POINT`は選択中の点だけを未記録に戻し、`SUBJECT ABSENT`は現在フレームの全点を不在に、`RESET FRAME`は全点を未記録に戻します。既存の6点を含むタイムラインも、記録済みの座標を保持したまま33点を選べます。
 - シーク操作は下部のトラック付きタイムラインに統一しています。クリックで移動し、その位置の区間またはイベントを選択します。
 - タイムライン左側には各トラック名と現在フレームのAction／Phaseを表示します。幅が足りる区間にはラベルも直接表示します。
 - 既存区間を選択すると、下部ボタンは`MOVE START`／`MOVE END`に切り替わります。移動先へシークして押すと端点を変更できます。`S`／`E`も同じ操作です。保存直後の区間にも使えます。
@@ -57,6 +57,7 @@ uv run annotate-video VIDEO --import-landmarks OLD_SESSION_DIRECTORY
 | J / L | 10フレーム戻る／進む |
 | S / E | 新規区間の開始／終了を設定、または選択区間の端点を移動 |
 | 左右矢印（Landmarksページ） | 前／次の点を選択 |
+| Page Up / Page Down（Landmarksページ） | 前／次のグループページへ移動 |
 | U / X | 選択中の点を不明／現在フレームを被写体不在にする |
 | C / R（Landmarksページ） | 選択中の点を消去／現在フレームの全点を消去 |
 | N / P（Landmarksページ） | 次／前のフレームへ移動 |

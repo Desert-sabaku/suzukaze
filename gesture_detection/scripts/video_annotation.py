@@ -36,6 +36,56 @@ LEGACY_LANDMARKS = (
     "left_hip",
     "right_hip",
 )
+LANDMARK_GROUPS = (
+    (
+        "FACE & HEAD",
+        (
+            "nose",
+            "left_eye_inner",
+            "left_eye",
+            "left_eye_outer",
+            "right_eye_inner",
+            "right_eye",
+            "right_eye_outer",
+            "left_ear",
+            "right_ear",
+            "mouth_left",
+            "mouth_right",
+        ),
+    ),
+    (
+        "UPPER BODY & HANDS",
+        (
+            "left_shoulder",
+            "right_shoulder",
+            "left_elbow",
+            "right_elbow",
+            "left_wrist",
+            "right_wrist",
+            "left_pinky",
+            "right_pinky",
+            "left_index",
+            "right_index",
+            "left_thumb",
+            "right_thumb",
+        ),
+    ),
+    (
+        "HIPS & LEGS",
+        (
+            "left_hip",
+            "right_hip",
+            "left_knee",
+            "right_knee",
+            "left_ankle",
+            "right_ankle",
+            "left_heel",
+            "right_heel",
+            "left_foot_index",
+            "right_foot_index",
+        ),
+    ),
+)
 COLORS = (
     (70, 170, 255),
     (100, 220, 120),
@@ -665,6 +715,36 @@ class AnnotationApp:
     def _landmark_names(self) -> list[str]:
         return self.data["label_config"]["landmarks"]
 
+    def _landmark_pages(self) -> list[tuple[str, list[str]]]:
+        names = self._landmark_names()
+        pages: list[tuple[str, list[str]]] = []
+        grouped: set[str] = set()
+        for title, group in LANDMARK_GROUPS:
+            members = [name for name in names if name in group]
+            grouped.update(members)
+            for first in range(0, len(members), 12):
+                pages.append((title, members[first : first + 12]))
+        others = [name for name in names if name not in grouped]
+        for first in range(0, len(others), 12):
+            pages.append(("OTHER", others[first : first + 12]))
+        return pages
+
+    def _landmark_page_index(self) -> int:
+        return next(
+            index
+            for index, (_, names) in enumerate(self._landmark_pages())
+            if self.selected_landmark in names
+        )
+
+    def _move_landmark_page(self, amount: int) -> None:
+        pages = self._landmark_pages()
+        index = max(0, min(len(pages) - 1, self._landmark_page_index() + amount))
+        points = self._point_data()
+        self.selected_landmark = next(
+            (name for name in pages[index][1] if name not in points), pages[index][1][0]
+        )
+        self.message = f"Page {index + 1}/{len(pages)}: {pages[index][0]}"
+
     def _select_first_pending_landmark(self) -> None:
         points = self._point_data()
         self.selected_landmark = next(
@@ -919,7 +999,11 @@ class AnnotationApp:
             self._select_first_pending_landmark()
         selected = self.selected_landmark or names[0]
         index = names.index(selected)
-        status = self._point_data().get(selected, {}).get("status", "pending")
+        points = self._point_data()
+        status = points.get(selected, {}).get("status", "pending")
+        pages = self._landmark_pages()
+        page_index = self._landmark_page_index()
+        title, page_names = pages[page_index]
         cv2.putText(
             canvas,
             f"POINT {index + 1}/{len(names)}: {selected}",
@@ -938,12 +1022,20 @@ class AnnotationApp:
             (230, 230, 230),
             1,
         )
-        first = index // 12 * 12
-        for slot, name in enumerate(names[first : first + 12]):
-            absolute = first + slot
+        cv2.putText(
+            canvas,
+            f"PAGE {page_index + 1}/{len(pages)} - {title}",
+            (panel_x, 217),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.52,
+            (180, 220, 255),
+            1,
+        )
+        for slot, name in enumerate(page_names):
+            absolute = names.index(name)
             x = panel_x + slot % 2 * 225
-            y = 215 + slot // 2 * 32
-            point_status = self._point_data().get(name, {}).get("status", "pending")
+            y = 230 + slot // 2 * 32
+            point_status = points.get(name, {}).get("status", "pending")
             self._button(
                 canvas,
                 (x, y, x + 217, y + 28),
@@ -953,23 +1045,27 @@ class AnnotationApp:
                 name == self.selected_landmark,
             )
         self._button(
-            canvas, (panel_x, 424, panel_x + 217, 454), "< PREVIOUS POINT", "landmark_move", -1
+            canvas, (panel_x, 426, panel_x + 217, 456), "< PREVIOUS POINT", "landmark_move", -1
         )
         self._button(
-            canvas, (panel_x + 225, 424, panel_x + 442, 454), "NEXT POINT >", "landmark_move", 1
+            canvas, (panel_x + 225, 426, panel_x + 442, 456), "NEXT POINT >", "landmark_move", 1
         )
-        self._button(canvas, (panel_x, 466, panel_x + 140, 496), "UNCERTAIN", "uncertain")
+        self._button(canvas, (panel_x, 465, panel_x + 217, 495), "< PREV PAGE", "landmark_page", -1)
         self._button(
-            canvas, (panel_x + 150, 466, panel_x + 290, 496), "CLEAR POINT", "clear_landmark"
+            canvas, (panel_x + 225, 465, panel_x + 442, 495), "NEXT PAGE >", "landmark_page", 1
         )
-        self._button(canvas, (panel_x, 505, panel_x + 215, 535), "SUBJECT ABSENT", "absent")
+        self._button(canvas, (panel_x, 504, panel_x + 140, 534), "UNCERTAIN", "uncertain")
         self._button(
-            canvas, (panel_x + 225, 505, panel_x + 442, 535), "RESET FRAME", "reset_landmarks"
+            canvas, (panel_x + 150, 504, panel_x + 290, 534), "CLEAR POINT", "clear_landmark"
+        )
+        self._button(canvas, (panel_x, 543, panel_x + 215, 573), "SUBJECT ABSENT", "absent")
+        self._button(
+            canvas, (panel_x + 225, 543, panel_x + 442, 573), "RESET FRAME", "reset_landmarks"
         )
         cv2.putText(
             canvas,
             self.message[:62],
-            (panel_x, 566),
+            (panel_x, 613),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.45,
             (100, 220, 255),
@@ -1099,6 +1195,8 @@ class AnnotationApp:
                 self.message = "Select an action or phase"
         elif action == "landmark_move":
             self._move_landmark(int(payload))
+        elif action == "landmark_page":
+            self._move_landmark_page(int(payload))
         elif action == "step":
             self.playing = False
             self.seek(self.frame_id + cast(int, payload))
@@ -1419,6 +1517,12 @@ class AnnotationApp:
         if key not in (-1, 255):
             self._needs_redraw = True
         if self.page == "landmarks":
+            if key in (65365, 0x01000016, 2162688):
+                self.handle("landmark_page", -1)
+                return True
+            if key in (65366, 0x01000017, 2228224):
+                self.handle("landmark_page", 1)
+                return True
             if key in (65361, 2424832, 0x01000012, 81, 65362, 2490368, 0x01000013, 82):
                 self.handle("landmark_move", -1)
                 return True

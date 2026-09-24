@@ -215,6 +215,47 @@ def test_last_landmark_stays_on_selected_frame(app):
     assert app._point_data()[last]["status"] == "marked"
 
 
+def test_landmark_groups_and_page_navigation(app, monkeypatch):
+    app.handle("page", "landmarks")
+    pages = app._landmark_pages()
+    assert [(title, len(names)) for title, names in pages] == [
+        ("FACE & HEAD", 11),
+        ("UPPER BODY & HANDS", 12),
+        ("HIPS & LEGS", 10),
+    ]
+    drawn = []
+    original = cv2.putText
+
+    def capture_text(image, text, position, *args):
+        drawn.append(text)
+        return original(image, text, position, *args)
+
+    monkeypatch.setattr(cv2, "putText", capture_text)
+    app.render()
+    assert "PAGE 1/3 - FACE & HEAD" in drawn
+    assert {payload for _, action, payload in app.buttons if action == "landmark"} == set(
+        pages[0][1]
+    )
+
+    app.handle("landmark_page", 1)
+    assert app.selected_landmark == "left_shoulder"
+    app.render()
+    assert "PAGE 2/3 - UPPER BODY & HANDS" in drawn
+    app.key(65366)  # X11 Page Down
+    assert app.selected_landmark == "left_hip"
+    app.key(2162688)  # Windows Page Up
+    assert app.selected_landmark == "left_shoulder"
+    app.key(65361)  # Individual arrow still crosses group boundary.
+    assert app.selected_landmark == "mouth_right"
+    assert app._landmark_page_index() == 0
+
+
+def test_custom_landmarks_appear_in_other_group(app):
+    app.data["label_config"]["landmarks"].append("custom_point")
+    app.handle("page", "landmarks")
+    assert app._landmark_pages()[-1] == ("OTHER", ["custom_point"])
+
+
 def test_ui_render_and_actions_without_window(timeline):
     video, _, editor = timeline
     app = AnnotationApp(video, editor, 64, 48)
