@@ -1,3 +1,4 @@
+import math
 import os
 from datetime import datetime
 from os import getenv
@@ -6,19 +7,18 @@ from pathlib import Path
 import cv2
 from dotenv import load_dotenv
 
+from gesture_detection.qt_setup import configure_qt_fonts
+
 # The OpenCV wheel overwrites QT_QPA_FONTDIR during ``import cv2`` with a
 # directory which is no longer shipped. Restore the system font path after the
 # import and before the first HighGUI window is created.
-for _qt_font_directory in (
-    Path("/usr/share/fonts/truetype/dejavu"),
-    Path("/usr/share/fonts/truetype/noto"),
-    Path("/usr/share/fonts/truetype"),
-):
-    if _qt_font_directory.is_dir():
-        os.environ["QT_QPA_FONTDIR"] = str(_qt_font_directory)
-        break
+configure_qt_fonts()
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Editable src layout keeps models and .env at the project root. A wheel
+# installation uses an explicit data root, or the working directory.
+_source_root = Path(__file__).resolve().parents[2]
+_default_root = _source_root if (_source_root / "pyproject.toml").is_file() else Path.cwd()
+PROJECT_ROOT = Path(getenv("GESTURE_PROJECT_ROOT") or _default_root).expanduser().resolve()
 load_dotenv(PROJECT_ROOT / ".env", override=False)
 
 
@@ -160,3 +160,32 @@ FANNING_MIN_REVERSALS = 3
 
 # Let the scoop/release leave the FFT window before accepting residual fanning.
 FANNING_UCHIMIZU_GRACE_SECONDS = WINDOW_SECONDS
+
+# Local gesture notifications, separate from unity_bridge's WebSocket port.
+GESTURE_DELIVERY_ENABLED = getenv("GESTURE_DELIVERY_ENABLED", "false").lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
+GESTURE_DELIVERY_HOST = "127.0.0.1"
+GESTURE_DELIVERY_PORT = int(getenv("GESTURE_DELIVERY_PORT", "5001"))
+GESTURE_STATE_INTERVAL = float(getenv("GESTURE_STATE_INTERVAL", "0.1"))
+GESTURE_STALE_TIMEOUT = float(getenv("GESTURE_STALE_TIMEOUT", "0.5"))
+GESTURE_EVENT_TTL = float(getenv("GESTURE_EVENT_TTL", "1.0"))
+GESTURE_RETRY_INTERVAL = float(getenv("GESTURE_RETRY_INTERVAL", "0.1"))
+GESTURE_MAX_PENDING = int(getenv("GESTURE_MAX_PENDING", "64"))
+if not 1 <= GESTURE_DELIVERY_PORT <= 65535 or GESTURE_MAX_PENDING <= 0:
+    raise ValueError("Gesture delivery port or capacity is invalid")
+if any(
+    not math.isfinite(value) or value <= 0
+    for value in (
+        GESTURE_STATE_INTERVAL,
+        GESTURE_STALE_TIMEOUT,
+        GESTURE_EVENT_TTL,
+        GESTURE_RETRY_INTERVAL,
+    )
+):
+    raise ValueError("Gesture delivery durations must be finite and positive")
+if GESTURE_STATE_INTERVAL >= GESTURE_STALE_TIMEOUT:
+    raise ValueError("Gesture state interval must be shorter than stale timeout")

@@ -1,0 +1,71 @@
+{
+  "environment": {
+    "python": "3.12.3",
+    "ultralytics": "8.4.121",
+    "torch": "2.13.0+cu130",
+    "device": "cpu"
+  },
+  "model": "yolov8n-pose.pt",
+  "confidence": 0.05,
+  "image_size": 640,
+  "min_area_ratio": 0.08,
+  "important_keypoint_indices": [
+    0,
+    5,
+    6,
+    9,
+    10,
+    11,
+    12
+  ],
+  "clips": [
+    {
+      "source": "ラムネbtn.mp4",
+      "frames": 309,
+      "pose_frames": 309,
+      "pose_frame_ratio": 1.0,
+      "important_keypoints_visible_frames": 263,
+      "important_keypoints_visible_ratio": 0.8511326860841424,
+      "mean_important_keypoint_confidence": 0.8455818542384793,
+      "mean_important_keypoint_jump": 0.01477907369897464,
+      "p95_important_keypoint_jump": 0.06556196883320808,
+      "elapsed_seconds": 16.518004382999607
+    },
+    {
+      "source": "夕涼みbtn.mp4",
+      "frames": 323,
+      "pose_frames": 323,
+      "pose_frame_ratio": 1.0,
+      "important_keypoints_visible_frames": 109,
+      "important_keypoints_visible_ratio": 0.33746130030959753,
+      "mean_important_keypoint_confidence": 0.7059349369707492,
+      "mean_important_keypoint_jump": 0.014469501806672775,
+      "p95_important_keypoint_jump": 0.06677654013037679,
+      "elapsed_seconds": 16.199318714999208
+    },
+    {
+      "source": "扇ぎbtn.mp4",
+      "frames": 321,
+      "pose_frames": 260,
+      "pose_frame_ratio": 0.8099688473520249,
+      "important_keypoints_visible_frames": 117,
+      "important_keypoints_visible_ratio": 0.3644859813084112,
+      "mean_important_keypoint_confidence": 0.7433311311098245,
+      "mean_important_keypoint_jump": 0.0983333097815956,
+      "p95_important_keypoint_jump": 0.40561839491128915,
+      "elapsed_seconds": 16.70256240100025
+    },
+    {
+      "source": "打ち水btn.mp4",
+      "frames": 905,
+      "pose_frames": 821,
+      "pose_frame_ratio": 0.907182320441989,
+      "important_keypoints_visible_frames": 327,
+      "important_keypoints_visible_ratio": 0.36132596685082874,
+      "mean_important_keypoint_confidence": 0.7159550628839253,
+      "mean_important_keypoint_jump": 0.036670772175883964,
+      "p95_important_keypoint_jump": 0.167481891810894,
+      "elapsed_seconds": 48.46630354299941
+    }
+  ]
+}

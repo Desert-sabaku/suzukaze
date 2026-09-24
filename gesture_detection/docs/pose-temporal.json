@@ -1,0 +1,262 @@
+{
+  "method": {
+    "confidence": 0.05,
+    "joint_confidence": 0.5,
+    "min_area": 0.08,
+    "min_iou": 0.3,
+    "track_timeout_seconds": 0.25,
+    "interpolation_bracket_seconds": 0.15,
+    "ema_tau_seconds": 0.05
+  },
+  "limitations": "Availability is not correctness. Displacement includes real motion; smoothing lowers it by construction. Interpolation uses future frames.",
+  "clips": [
+    {
+      "source": "ラムネbtn.mp4",
+      "frames": 309,
+      "track_segments": 1,
+      "raw": {
+        "all_seven_available_ratio": 0.8317152103559871,
+        "per_joint_available_ratio": [
+          1,
+          1,
+          1,
+          0.9061488673139159,
+          0.9902912621359223,
+          0.8640776699029126,
+          0.912621359223301
+        ],
+        "valid_adjacent_pairs": 2011,
+        "p95_valid_point_displacement": 0.05867297138696562
+      },
+      "tracked": {
+        "all_seven_available_ratio": 0.8187702265372169,
+        "per_joint_available_ratio": [
+          1,
+          1,
+          1,
+          0.9029126213592233,
+          0.9902912621359223,
+          0.8478964401294499,
+          0.9158576051779935
+        ],
+        "valid_adjacent_pairs": 2004,
+        "p95_valid_point_displacement": 0.05701527696135233
+      },
+      "interpolated": {
+        "all_seven_available_ratio": 0.9093851132686084,
+        "per_joint_available_ratio": [
+          1,
+          1,
+          1,
+          0.9611650485436893,
+          1,
+          0.9320388349514563,
+          0.948220064724919
+        ],
+        "valid_adjacent_pairs": 2100,
+        "p95_valid_point_displacement": 0.05690719459919397
+      },
+      "smoothed": {
+        "all_seven_available_ratio": 0.9093851132686084,
+        "per_joint_available_ratio": [
+          1,
+          1,
+          1,
+          0.9611650485436893,
+          1,
+          0.9320388349514563,
+          0.948220064724919
+        ],
+        "valid_adjacent_pairs": 2100,
+        "p95_valid_point_displacement": 0.031301970282978576
+      },
+      "imputed_joint_frames": 57
+    },
+    {
+      "source": "夕涼みbtn.mp4",
+      "frames": 323,
+      "track_segments": 1,
+      "raw": {
+        "all_seven_available_ratio": 0.17647058823529413,
+        "per_joint_available_ratio": [
+          0.9226006191950464,
+          1,
+          1,
+          0.49226006191950467,
+          0.4891640866873065,
+          0.3931888544891641,
+          0.7151702786377709
+        ],
+        "valid_adjacent_pairs": 1527,
+        "p95_valid_point_displacement": 0.04766129281545777
+      },
+      "tracked": {
+        "all_seven_available_ratio": 0.17647058823529413,
+        "per_joint_available_ratio": [
+          0.9226006191950464,
+          1,
+          1,
+          0.49226006191950467,
+          0.4891640866873065,
+          0.3931888544891641,
+          0.7151702786377709
+        ],
+        "valid_adjacent_pairs": 1527,
+        "p95_valid_point_displacement": 0.04766129281545777
+      },
+      "interpolated": {
+        "all_seven_available_ratio": 0.23839009287925697,
+        "per_joint_available_ratio": [
+          0.9380804953560371,
+          1,
+          1,
+          0.5572755417956656,
+          0.5479876160990712,
+          0.47678018575851394,
+          0.7275541795665634
+        ],
+        "valid_adjacent_pairs": 1648,
+        "p95_valid_point_displacement": 0.053794203919510716
+      },
+      "smoothed": {
+        "all_seven_available_ratio": 0.23839009287925697,
+        "per_joint_available_ratio": [
+          0.9380804953560371,
+          1,
+          1,
+          0.5572755417956656,
+          0.5479876160990712,
+          0.47678018575851394,
+          0.7275541795665634
+        ],
+        "valid_adjacent_pairs": 1648,
+        "p95_valid_point_displacement": 0.03277754437373684
+      },
+      "imputed_joint_frames": 76
+    },
+    {
+      "source": "扇ぎbtn.mp4",
+      "frames": 321,
+      "track_segments": 11,
+      "raw": {
+        "all_seven_available_ratio": 0.3644859813084112,
+        "per_joint_available_ratio": [
+          0.514018691588785,
+          0.8099688473520249,
+          0.8099688473520249,
+          0.7040498442367601,
+          0.5638629283489096,
+          0.7912772585669782,
+          0.794392523364486
+        ],
+        "valid_adjacent_pairs": 1307,
+        "p95_valid_point_displacement": 0.3995361657658553
+      },
+      "tracked": {
+        "all_seven_available_ratio": 0.24610591900311526,
+        "per_joint_available_ratio": [
+          0.32710280373831774,
+          0.5638629283489096,
+          0.5638629283489096,
+          0.5109034267912772,
+          0.37694704049844235,
+          0.5514018691588785,
+          0.5545171339563862
+        ],
+        "valid_adjacent_pairs": 842,
+        "p95_valid_point_displacement": 0.16207672689495556
+      },
+      "interpolated": {
+        "all_seven_available_ratio": 0.34890965732087226,
+        "per_joint_available_ratio": [
+          0.4205607476635514,
+          0.6666666666666666,
+          0.6666666666666666,
+          0.6261682242990654,
+          0.5015576323987538,
+          0.6573208722741433,
+          0.6635514018691588
+        ],
+        "valid_adjacent_pairs": 1229,
+        "p95_valid_point_displacement": 0.13953940729084172
+      },
+      "smoothed": {
+        "all_seven_available_ratio": 0.34890965732087226,
+        "per_joint_available_ratio": [
+          0.4205607476635514,
+          0.6666666666666666,
+          0.6666666666666666,
+          0.6261682242990654,
+          0.5015576323987538,
+          0.6573208722741433,
+          0.6635514018691588
+        ],
+        "valid_adjacent_pairs": 1229,
+        "p95_valid_point_displacement": 0.07186396294056802
+      },
+      "imputed_joint_frames": 242
+    },
+    {
+      "source": "打ち水btn.mp4",
+      "frames": 905,
+      "track_segments": 7,
+      "raw": {
+        "all_seven_available_ratio": 0.343646408839779,
+        "per_joint_available_ratio": [
+          0.6983425414364641,
+          0.907182320441989,
+          0.9060773480662984,
+          0.6243093922651933,
+          0.5458563535911602,
+          0.543646408839779,
+          0.5425414364640884
+        ],
+        "valid_adjacent_pairs": 3991,
+        "p95_valid_point_displacement": 0.14419207638988885
+      },
+      "tracked": {
+        "all_seven_available_ratio": 0.2994475138121547,
+        "per_joint_available_ratio": [
+          0.6397790055248619,
+          0.8828729281767956,
+          0.8828729281767956,
+          0.574585635359116,
+          0.5093922651933702,
+          0.5226519337016574,
+          0.5303867403314917
+        ],
+        "valid_adjacent_pairs": 3797,
+        "p95_valid_point_displacement": 0.09758026017284172
+      },
+      "interpolated": {
+        "all_seven_available_ratio": 0.33591160220994476,
+        "per_joint_available_ratio": [
+          0.6475138121546962,
+          0.9116022099447514,
+          0.9116022099447514,
+          0.6265193370165746,
+          0.5646408839779006,
+          0.5966850828729282,
+          0.5845303867403315
+        ],
+        "valid_adjacent_pairs": 4230,
+        "p95_valid_point_displacement": 0.09568708703734463
+      },
+      "smoothed": {
+        "all_seven_available_ratio": 0.33591160220994476,
+        "per_joint_available_ratio": [
+          0.6475138121546962,
+          0.9116022099447514,
+          0.9116022099447514,
+          0.6265193370165746,
+          0.5646408839779006,
+          0.5966850828729282,
+          0.5845303867403315
+        ],
+        "valid_adjacent_pairs": 4230,
+        "p95_valid_point_displacement": 0.05287818546642882
+      },
+      "imputed_joint_frames": 272
+    }
+  ]
+}

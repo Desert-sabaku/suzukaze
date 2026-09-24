@@ -1,6 +1,6 @@
 import os
 
-from modules.native_logging import suppress_native_stderr
+from gesture_detection.native_logging import suppress_native_stderr
 
 
 def test_suppress_native_stderr_hides_file_descriptor_writes(capfd):

@@ -1,0 +1,71 @@
+{
+  "environment": {
+    "python": "3.12.3",
+    "ultralytics": "8.4.121",
+    "torch": "2.13.0+cu130",
+    "device": "cpu"
+  },
+  "model": "yolov8n-pose.pt",
+  "confidence": 0.05,
+  "image_size": 640,
+  "min_area_ratio": 0.08,
+  "important_keypoint_indices": [
+    0,
+    5,
+    6,
+    9,
+    10,
+    11,
+    12
+  ],
+  "clips": [
+    {
+      "source": "kohara_ramune_01-おいしいかにかま.mov",
+      "frames": 924,
+      "pose_frames": 924,
+      "pose_frame_ratio": 1.0,
+      "important_keypoints_visible_frames": 910,
+      "important_keypoints_visible_ratio": 0.9848484848484849,
+      "mean_important_keypoint_confidence": 0.9422133654614031,
+      "mean_important_keypoint_jump": 0.0037426035563913876,
+      "p95_important_keypoint_jump": 0.011320398189127445,
+      "elapsed_seconds": 53.019931455000005
+    },
+    {
+      "source": "kohara_relaxing_01-おいしいかにかま.mov",
+      "frames": 365,
+      "pose_frames": 365,
+      "pose_frame_ratio": 1.0,
+      "important_keypoints_visible_frames": 345,
+      "important_keypoints_visible_ratio": 0.9452054794520548,
+      "mean_important_keypoint_confidence": 0.9335917564287578,
+      "mean_important_keypoint_jump": 0.0021444863927146565,
+      "p95_important_keypoint_jump": 0.010038970364257695,
+      "elapsed_seconds": 20.850864505000573
+    },
+    {
+      "source": "kohara_fanning_01-おいしいかにかま.mov",
+      "frames": 1495,
+      "pose_frames": 1495,
+      "pose_frame_ratio": 1.0,
+      "important_keypoints_visible_frames": 1434,
+      "important_keypoints_visible_ratio": 0.9591973244147157,
+      "mean_important_keypoint_confidence": 0.9321257571213222,
+      "mean_important_keypoint_jump": 0.003063676412469434,
+      "p95_important_keypoint_jump": 0.011586739448830482,
+      "elapsed_seconds": 88.26004370900046
+    },
+    {
+      "source": "kohara_uchimizu_01-おいしいかにかま.mov",
+      "frames": 700,
+      "pose_frames": 700,
+      "pose_frame_ratio": 1.0,
+      "important_keypoints_visible_frames": 675,
+      "important_keypoints_visible_ratio": 0.9642857142857143,
+      "mean_important_keypoint_confidence": 0.9198191293648311,
+      "mean_important_keypoint_jump": 0.005895037157797038,
+      "p95_important_keypoint_jump": 0.019901239499449726,
+      "elapsed_seconds": 44.06350010499955
+    }
+  ]
+}

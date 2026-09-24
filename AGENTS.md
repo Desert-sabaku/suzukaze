@@ -3,13 +3,22 @@
 ## Project Structure & Module Organization
 
 The runnable project lives in `gesture_detection/`. Application code is in the
-`modules/` package: `app.py` owns the camera loop and worker lifecycle,
+`src/gesture_detection/` package: `app.py` owns the camera loop and worker lifecycle,
 `pose_worker.py` and `yolo_worker.py` run inference, `rendering.py` draws OpenCV
 overlays, `ipc.py` handles latest-value queues, and `config.py` centralizes model
 paths and thresholds. `main.py` is a lightweight entry point. Model assets
 (`pose_landmarker_lite.task` and `yolov8n.pt`) sit beside `pyproject.toml`.
 Tests live under `gesture_detection/tests/`.
 and mirror package module names where practical.
+The bridge package uses `unity_bridge/src/unity_bridge/` with tests in
+`unity_bridge/test/`. Run `uv sync` in each project before importing its
+package; do not import `src` as a package.
+
+## Project Architecture
+
+- Input: `gesture-detection` via the camera.
+- Output: Fan and speaker via the microcontroller. In addition, Unity footage is output directly via the projector.
+- Control: Unity is used for overall management. `unity_bridge` is used as a supplementary tool. Furthermore, a separate control app is used specifically for controlling the microcontroller.
 
 Firmware for the Raspberry Pi Pico (fan control, TinyGo) lives in
 `firmware/`. See `firmware/README.md` for structure, build, and flashing
@@ -22,8 +31,8 @@ Run commands from `gesture_detection/`:
 ```bash
 uv sync                         # Create/update the environment from uv.lock
 uv run gesture-detection        # Start the camera-based application
-uv run python -m modules.app  # Equivalent module entry point
-uv run python -m compileall modules  # Basic syntax check
+uv run python -m gesture_detection  # Equivalent module entry point
+uv run python -m compileall src  # Basic syntax check
 ```
 
 Python 3.12 or newer is required by `pyproject.toml`. The application needs a
@@ -52,6 +61,7 @@ document `uv run pytest` in the README.
 
 ## Commit & Pull Request Guidelines
 
+Be sure to create a branch from the “main” branch before working on it. Commit messages can be in either Japanese or English, but it is important that the content be clear.
 Recent history favors short, imperative subjects with Conventional Commit-style
 prefixes such as `feat:` and `fix:`. Keep each commit scoped to one concern.
 Create a branch or a worktree for each feature or bugfix.
