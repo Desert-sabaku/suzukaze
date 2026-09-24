@@ -28,7 +28,7 @@ jobs:
       - name: Create Pull Request if updated
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ secrets.SUZUKAZE_KEY }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "chore: update submodules to latest remote"
           title: "chore: update submodules"
           body: "Updated the submodule's referenced commit to the latest version on the remote."
