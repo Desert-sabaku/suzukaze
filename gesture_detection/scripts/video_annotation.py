@@ -17,7 +17,7 @@ from typing import Any, cast
 import cv2
 import numpy as np
 
-from .qt_setup import configure_qt_fonts
+from gesture_detection.qt_setup import configure_qt_fonts
 
 configure_qt_fonts()
 
@@ -52,7 +52,7 @@ def default_output_path(video: Path, project_directory: Path | None = None) -> P
 
 def load_label_config(path: Path | None = None) -> dict[str, Any]:
     if path is None:
-        text = files("gesture_detection").joinpath("annotation_labels.json").read_text("utf-8")
+        text = files("scripts").joinpath("annotation_labels.json").read_text("utf-8")
     else:
         text = path.read_text(encoding="utf-8")
     config = cast(dict[str, Any], json.loads(text))

@@ -5,8 +5,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 import pytest
-
-from gesture_detection.video_annotation import (
+from scripts.video_annotation import (
     AnnotationApp,
     TimelineEditor,
     active_intervals,
