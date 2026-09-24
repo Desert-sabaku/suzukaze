@@ -17,6 +17,10 @@ from typing import Any, cast
 import cv2
 import numpy as np
 
+from .qt_setup import configure_qt_fonts
+
+configure_qt_fonts()
+
 SCHEMA_VERSION = 1
 WINDOW = "Video annotation"
 PANEL_WIDTH = 470
