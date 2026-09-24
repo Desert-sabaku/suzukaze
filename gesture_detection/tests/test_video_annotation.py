@@ -325,3 +325,41 @@ def test_run_does_not_create_native_seek_bar(app, monkeypatch):
     monkeypatch.setattr(cv2, "waitKey", lambda _: ord("q"))
     app.run()
     trackbar.assert_not_called()
+
+
+def test_run_keeps_processing_events_without_repainting_unchanged_frame(app, monkeypatch):
+    from unittest.mock import Mock
+
+    for name in ("namedWindow", "setMouseCallback", "destroyAllWindows"):
+        monkeypatch.setattr(cv2, name, Mock())
+    show = Mock()
+    monkeypatch.setattr(cv2, "imshow", show)
+    keys = iter([-1, -1, -1, ord("q")])
+    monkeypatch.setattr(cv2, "waitKey", lambda _: next(keys))
+    monkeypatch.setattr(cv2, "getWindowProperty", lambda *args: 1)
+
+    app.run()
+
+    assert show.call_count == 1
+
+
+def test_playback_caps_painting_but_continues_processing_events(app, monkeypatch):
+    from unittest.mock import Mock
+
+    for name in ("namedWindow", "setMouseCallback", "destroyAllWindows"):
+        monkeypatch.setattr(cv2, name, Mock())
+    show = Mock()
+    monkeypatch.setattr(cv2, "imshow", show)
+    keys = iter([-1] * 10 + [ord("q")])
+    wait = Mock(side_effect=lambda _: next(keys))
+    monkeypatch.setattr(cv2, "waitKey", wait)
+    monkeypatch.setattr(cv2, "getWindowProperty", lambda *args: 1)
+    clock = iter(index * 0.005 for index in range(100))
+    monkeypatch.setattr("scripts.video_annotation.time.monotonic", lambda: next(clock))
+    app.playing = True
+    app._last_tick = -1
+
+    app.run()
+
+    assert wait.call_count == 11
+    assert 1 < show.call_count < wait.call_count

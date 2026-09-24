@@ -27,6 +27,7 @@ PANEL_WIDTH = 470
 TIMELINE_HEIGHT = 190
 TIMELINE_LABEL_WIDTH = 176
 CONTROL_HEIGHT = 58
+MAX_DISPLAY_FPS = 30
 COLORS = (
     (70, 170, 255),
     (100, 220, 120),
@@ -550,14 +551,17 @@ class AnnotationApp:
         self.message = "STEP 1: Select an action, then set START and END"
         self.buttons: list[tuple[tuple[int, int, int, int], str, Any]] = []
         self._last_tick = time.monotonic()
+        self._last_presented = float("-inf")
         self.drag_edge: tuple[str, str] | None = None
         self.drag_frame: int | None = None
+        self._needs_redraw = True
 
     def seek(self, frame_id: int) -> None:
         target = max(0, min(self.total - 1, frame_id))
         if target != self.frame_id:
             self.frame = self.reader.read(target)
             self.frame_id = target
+            self._needs_redraw = True
         self.editor.set_last_frame(self.frame_id)
 
     def _mutate(self, callback) -> None:
@@ -942,6 +946,7 @@ class AnnotationApp:
         )
 
     def handle(self, action: str, payload: Any = None) -> None:
+        self._needs_redraw = True
         if action == "step":
             self.playing = False
             self.seek(self.frame_id + cast(int, payload))
@@ -1129,6 +1134,10 @@ class AnnotationApp:
         self.message = f"Selected {interval['label']}: drag an edge or move START / END"
 
     def click(self, event, x, y, flags, userdata) -> None:
+        if event in (cv2.EVENT_LBUTTONDOWN, cv2.EVENT_LBUTTONUP) or (
+            event == cv2.EVENT_MOUSEMOVE and self.drag_edge is not None
+        ):
+            self._needs_redraw = True
         if self.drag_edge is not None:
             if event in (cv2.EVENT_MOUSEMOVE, cv2.EVENT_LBUTTONUP):
                 identifier, edge = self.drag_edge
@@ -1237,6 +1246,8 @@ class AnnotationApp:
     def key(self, key: int) -> bool:
         if key in (27, ord("q")):
             return False
+        if key != 255:
+            self._needs_redraw = True
         mapping = {ord("a"): -1, ord("d"): 1, ord("j"): -10, ord("l"): 10}
         if key in mapping:
             self.handle("step", mapping[key])
@@ -1280,7 +1291,13 @@ class AnnotationApp:
                         else:
                             self.seek(self.frame_id + 1)
                         self._last_tick = now
-                cv2.imshow(WINDOW, self.render())
+                now = time.monotonic()
+                if self._needs_redraw and (
+                    not self.playing or now - self._last_presented >= 1 / MAX_DISPLAY_FPS
+                ):
+                    cv2.imshow(WINDOW, self.render())
+                    self._needs_redraw = False
+                    self._last_presented = now
                 key = cv2.waitKey(10) & 0xFF
                 if not self.key(key) or cv2.getWindowProperty(WINDOW, cv2.WND_PROP_VISIBLE) < 1:
                     break
