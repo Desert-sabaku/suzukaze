@@ -803,7 +803,7 @@ class AnnotationApp:
             (
                 ("MOVE START" if editing else "SET START", "start", (65, 120, 45)),
                 ("MOVE END" if editing else "SET END", "end", (145, 95, 40)),
-                ("DELETE", "delete", (55, 55, 160)),
+                ("CANCEL START" if self.interval_start is not None else "DELETE", "delete", (55, 55, 160)),
             )
         ):
             x1 = panel_x + index * 147
@@ -1036,6 +1036,9 @@ class AnnotationApp:
                 )
         elif action == "absent":
             self._mutate(lambda: self.editor.set_absent(self.frame_id))
+        elif action == "delete" and self.interval_start is not None:
+            self.interval_start = None
+            self.message = "Start canceled; choose a new START"
         elif action == "delete" and self.selected_annotation:
             selected = self.selected_annotation
             deleting_action = selected == self.selected_action_id

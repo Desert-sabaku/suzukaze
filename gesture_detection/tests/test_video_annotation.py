@@ -216,6 +216,23 @@ def test_pending_start_and_bottom_controls(app):
     assert app.editor.data["intervals"][0]["end_frame"] == 7
 
 
+def test_pending_start_can_be_canceled_without_saving(app):
+    app.handle("label", ("action", "FANNING"))
+    app.seek(2)
+    app.handle("start")
+    app.render()
+    assert any(action == "delete" for _, action, _ in app.buttons)
+    app.handle("delete")
+    assert app.interval_start is None
+    assert app.selected_label == ("action", "FANNING")
+    assert app.editor.data["intervals"] == []
+    app.seek(4)
+    app.handle("start")
+    app.key(8)
+    assert app.interval_start is None
+    assert app.editor.data["intervals"] == []
+
+
 @pytest.mark.parametrize("track,label", [("action", "FANNING"), ("fanning_phase", "ACTIVE")])
 def test_buttons_resize_just_saved_interval(app, track, label):
     if track != "action":

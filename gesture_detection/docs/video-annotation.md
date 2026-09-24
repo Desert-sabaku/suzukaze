@@ -28,7 +28,7 @@ uv run annotate-video VIDEO --import-landmarks OLD_SESSION_DIRECTORY
 - `STEP 1 - ACTION`で4所作から一つを選び、`SET START`と`SET END`で所作全体を記録します。
 - Actionを保存すると`STEP 2`へ移り、その所作に必要なPhaseとイベントだけが表示されます。
 - `SET START`だけを押した段階でも、対象トラックに黄色の開始マーカーを表示します。
-- START／END／DELETEは右ペイン最下部にまとめています。
+- START／END／DELETEは右ペイン最下部にまとめています。STARTだけを置いた間はDELETEが`CANCEL START`になり、ENDを置かずに開始位置を取り消せます。Backspace／Deleteも同じ操作です。
 - Phaseも`SET START`と`SET END`で記録します。Phaseは選択中のAction区間内にだけ保存できます。
 - イベント名をクリックすると、選択中のAction内の現在フレームへ節目を記録します。
 - 別のActionへPhaseを追加するときは、タイムライン上のAction区間をクリックして選択します。
