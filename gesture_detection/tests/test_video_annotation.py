@@ -395,6 +395,29 @@ def test_repeated_action_uses_occurrence_at_current_frame(app):
     assert app.selected_label is None
 
 
+def test_new_action_mode_survives_timeline_seeking_near_existing_interval(app):
+    first = app.editor.add_interval("action", "FANNING", 1, 4)
+    app.render()
+    app.seek(4)
+    app._select_interval(app.data["intervals"][0])
+    assert app.selected_annotation == first
+    app.handle("label", ("action", "FANNING"))
+    app.click(cv2.EVENT_LBUTTONDOWN, app._frame_x(4) + 5, 725, 0, None)
+    assert app.selected_label == ("action", "FANNING")
+    assert app.selected_annotation is None
+
+    app.click(cv2.EVENT_LBUTTONDOWN, app._frame_x(7), 725, 0, None)
+    app.handle("start")
+    app.click(cv2.EVENT_LBUTTONDOWN, app._frame_x(9), 725, 0, None)
+    app.handle("end")
+
+    actions = [item for item in app.data["intervals"] if item["track"] == "action"]
+    assert [(item["label"], item["start_frame"], item["end_frame"]) for item in actions] == [
+        ("FANNING", 1, 4),
+        ("FANNING", 7, 9),
+    ]
+
+
 def test_phase_cannot_end_in_another_action_occurrence(app):
     first = app.editor.add_interval("action", "FANNING", 1, 3)
     app.editor.add_interval("action", "FANNING", 7, 9)

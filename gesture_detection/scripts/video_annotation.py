@@ -1522,8 +1522,8 @@ class AnnotationApp:
             intervals = [
                 item for item in self.data["intervals"] if item["track"] == tracks[lane]["id"]
             ]
-            # While creating an interval, seeking must retain its pending START.
-            if self.interval_start is not None:
+            # Seeking while a new label is selected must not select an existing interval.
+            if self.selected_label is not None:
                 return
             edges = [
                 (
