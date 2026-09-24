@@ -371,6 +371,80 @@ def test_buttons_resize_just_saved_interval(app, track, label):
     assert app.editor.data["intervals"][-1]["end_frame"] == 5
 
 
+def test_repeated_action_uses_occurrence_at_current_frame(app):
+    first = app.editor.add_interval("action", "FANNING", 1, 3)
+    second = app.editor.add_interval("action", "FANNING", 7, 9)
+
+    for start, end, parent in ((2, 3, first), (8, 9, second)):
+        app.seek(start)
+        assert app.selected_action_id == parent
+        app.handle("label", ("fanning_phase", "ACTIVE"))
+        app.handle("start")
+        assert app.interval_start == start
+        app.seek(end)
+        app.handle("end")
+        phase = app.editor.data["intervals"][-1]
+        assert phase["parent_action_id"] == parent
+        assert (phase["start_frame"], phase["end_frame"]) == (start, end)
+        app.handle("event", "FANNING_REVERSAL")
+        assert app.editor.data["events"][-1]["parent_action_id"] == parent
+
+    app.seek(5)
+    assert app.selected_action_id is None
+    app.handle("label", ("fanning_phase", "POSITION"))
+    assert app.selected_label is None
+
+
+def test_new_action_mode_survives_timeline_seeking_near_existing_interval(app):
+    first = app.editor.add_interval("action", "FANNING", 1, 4)
+    app.render()
+    app.seek(4)
+    app._select_interval(app.data["intervals"][0])
+    assert app.selected_annotation == first
+    app.handle("label", ("action", "FANNING"))
+    app.click(cv2.EVENT_LBUTTONDOWN, app._frame_x(4) + 5, 725, 0, None)
+    assert app.selected_label == ("action", "FANNING")
+    assert app.selected_annotation is None
+
+    app.click(cv2.EVENT_LBUTTONDOWN, app._frame_x(7), 725, 0, None)
+    app.handle("start")
+    app.click(cv2.EVENT_LBUTTONDOWN, app._frame_x(9), 725, 0, None)
+    app.handle("end")
+
+    actions = [item for item in app.data["intervals"] if item["track"] == "action"]
+    assert [(item["label"], item["start_frame"], item["end_frame"]) for item in actions] == [
+        ("FANNING", 1, 4),
+        ("FANNING", 7, 9),
+    ]
+
+
+def test_phase_cannot_end_in_another_action_occurrence(app):
+    first = app.editor.add_interval("action", "FANNING", 1, 3)
+    app.editor.add_interval("action", "FANNING", 7, 9)
+    app.seek(2)
+    app.handle("label", ("fanning_phase", "ACTIVE"))
+    app.handle("start")
+    assert app.interval_parent_action_id == first
+    app.seek(8)
+    app.handle("end")
+
+    assert "same action" in app.message
+    assert len(app.editor.data["intervals"]) == 2
+    assert app.interval_start == 2
+
+
+def test_phase_label_cannot_follow_cursor_into_different_action(app):
+    app.editor.add_interval("action", "FANNING", 1, 3)
+    app.editor.add_interval("action", "RAMUNE", 7, 9)
+    app.seek(2)
+    app.handle("label", ("fanning_phase", "ACTIVE"))
+    app.seek(8)
+    app.handle("start")
+
+    assert app.interval_start is None
+    assert "matching action" in app.message
+
+
 @pytest.mark.parametrize(
     "edge,initial,target", [("start", 3, 1), ("start", 3, 5), ("end", 7, 10), ("end", 7, 5)]
 )

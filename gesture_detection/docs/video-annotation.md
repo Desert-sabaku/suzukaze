@@ -31,7 +31,7 @@ uv run annotate-video VIDEO --import-landmarks OLD_SESSION_DIRECTORY
 - START／END／DELETEは右ペイン最下部にまとめています。STARTだけを置いた間はDELETEが`CANCEL START`になり、ENDを置かずに開始位置を取り消せます。Backspace／Deleteも同じ操作です。
 - Phaseも`SET START`と`SET END`で記録します。Phaseは選択中のAction区間内にだけ保存できます。
 - イベント名をクリックすると、選択中のAction内の現在フレームへ節目を記録します。
-- 別のActionへPhaseを追加するときは、タイムライン上のAction区間をクリックして選択します。
+- 同じ動画に同じActionを複数回記録できます。Phaseやイベントを追加するときは、対象のAction区間内へシークします。現在フレームのActionが自動で対象になり、PhaseのSTARTとENDは同じ区間内に置きます。
 - 右ペインの`LANDMARKS`ページで現在フレームの点を注釈します。標準ではMediaPipe Poseの33点を選べます。画像をクリックして点を記録するか`UNCERTAIN`を押すと、同じフレームの次の点へ自動で進みます。最後の点の後は同じフレームに留まるので、次に注釈するフレームへ手動で移動します。
 - 点は`FACE & HEAD`、`UPPER BODY & HANDS`、`HIPS & LEGS`の見出しごとに表示します。独自に追加した点は`OTHER`に表示します。左右矢印または`PREVIOUS POINT`／`NEXT POINT`で点を選び、`PREV PAGE`／`NEXT PAGE`またはPage Up／Page Downでグループのページを送れます。`CLEAR POINT`は選択中の点だけを未記録に戻し、`SUBJECT ABSENT`は現在フレームの全点を不在に、`RESET FRAME`は全点を未記録に戻します。既存の6点を含むタイムラインも、記録済みの座標を保持したまま33点を選べます。
 - シーク操作は下部のトラック付きタイムラインに統一しています。クリックで移動し、その位置の区間またはイベントを選択します。
@@ -39,7 +39,7 @@ uv run annotate-video VIDEO --import-landmarks OLD_SESSION_DIRECTORY
 - 既存区間を選択すると、下部ボタンは`MOVE START`／`MOVE END`に切り替わります。移動先へシークして押すと端点を変更できます。`S`／`E`も同じ操作です。保存直後の区間にも使えます。
 - 区間の左右端をマウスでドラッグすると伸縮できます。選択中の区間には白い端点ハンドルを表示し、ドラッグ中はプレビュー、離した時に保存します。1回のドラッグは1回のUndoで戻せます。
 - 区間の重複、端点の逆転、Phaseやイベントが親Actionの外へ出る変更は保存せず、理由を表示します。
-- 新しい区間を作るにはActionまたはPhaseのラベルを選び直します。開始マーカーがある間のタイムラインクリックはシークだけを行い、開始位置を保持します。
+- 新しい区間を作るにはActionまたはPhaseのラベルを選び直します。ラベルを選んでいる間はタイムラインクリックがシークだけを行い、既存区間の選択に切り替わりません。開始マーカーも保持します。
 - すべての編集は `timeline.json` へ原子的に自動保存されます。
 
 `action`トラックは排他的なので、同じフレームへ二つの所作は記録できません。Actionを削除すると、
