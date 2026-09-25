@@ -1,5 +1,8 @@
 [project]
-dependencies = ["pyserial>=3.5"]
+dependencies = [
+    "protobuf>=7.36.2",
+    "pyserial>=3.5",
+]
 description = "Serial client for the fan-controller firmware (firmware/)"
 name = "mcu"
 readme = "README.md"
@@ -22,8 +25,15 @@ src = ["mcu", "tests"]
 target-version = "py312"
 
 [tool.ruff.lint]
-ignore = ["E501"]
-select = ["E", "F", "I", "UP", "B"]
+select = ["ALL"]
+
+ignore = [
+  "D1",
+  "D203",
+  "D213",
+  "COM812",
+  "ISC001",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
