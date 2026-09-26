@@ -1,6 +1,7 @@
 """Relative feature geometry, causal validity, and grouped model selection."""
 
 import json
+from typing import Any
 
 import numpy as np
 import pytest
@@ -8,7 +9,7 @@ from scripts import evaluate_opening_features as experiment
 from scripts import evaluate_timeline as timeline
 
 
-def clip(n=20):
+def clip(n=20) -> dict[str, Any]:
     points = np.zeros((n, 33, 3))
     points[:, :, 2] = 1.0
     points[:, 11, :2] = (0.4, 0.3)

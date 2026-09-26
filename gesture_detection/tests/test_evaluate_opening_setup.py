@@ -1,5 +1,7 @@
 """Setup diagnostics must not leak labels into runnable gate ablations."""
 
+from typing import Any
+
 import numpy as np
 import pytest
 from scripts.evaluate_opening_setup import (
@@ -16,7 +18,7 @@ from scripts.evaluate_opening_setup import (
 from scripts.evaluate_opening_temporal import apply_temporal
 
 
-def sample():
+def sample() -> tuple[dict[str, Any], np.ndarray, np.ndarray]:
     phase = np.array([1] * 5 + [3] * 2 + [0] * 20 + [2] * 5 + [3] * 2 + [0] * 20)
     action = np.zeros(len(phase), dtype=int)
     action[:7] = action[27:34] = 1

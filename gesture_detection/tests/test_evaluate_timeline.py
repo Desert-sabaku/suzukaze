@@ -1,5 +1,7 @@
 """Validation boundaries and causal inputs for the offline pilot."""
 
+from typing import Any
+
 import numpy as np
 import pytest
 from scripts.evaluate_timeline import ACTIONS, features, labels, metrics
@@ -36,7 +38,7 @@ def test_invalid_overlap_and_phase_parent():
 def test_features_do_not_use_future_frames():
     rng = np.random.default_rng(0)
     points = rng.random((20, 33, 3))
-    clip = dict(points=points.copy(), aspect=16 / 9, fps=30)
+    clip: dict[str, Any] = dict(points=points.copy(), aspect=16 / 9, fps=30)
     before = features(clip, 0.25)
     clip["points"][10:] = rng.random((10, 33, 3))
     np.testing.assert_array_equal(before[:10], features(clip, 0.25)[:10])
@@ -128,7 +130,7 @@ def test_prediction_does_not_read_test_labels():
     rng = np.random.default_rng(24)
     x = rng.normal(size=(30, 8))
     train = [dict(features={0.25: x}, action=np.arange(30) % 3)]
-    test = dict(features={0.25: x[:5]}, action=np.zeros(5, dtype=int), points=np.ones((5, 33, 3)))
+    test: dict[str, Any] = dict(features={0.25: x[:5]}, action=np.zeros(5, dtype=int), points=np.ones((5, 33, 3)))
     expected = fit_predict(train, [test], "action", 0.25, 0.1, "rbf")[0]
     test["action"][:] = 4
     actual = fit_predict(train, [test], "action", 0.25, 0.1, "rbf")[0]

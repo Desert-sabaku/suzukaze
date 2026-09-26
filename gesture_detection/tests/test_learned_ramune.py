@@ -1,5 +1,6 @@
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any
 from unittest.mock import patch
 
 import numpy as np
@@ -20,7 +21,7 @@ def test_streaming_features_equal_research_at_source_frame_rate():
     rng = np.random.default_rng(924)
     points = rng.random((50, 33, 3))
     points[12:16] = 0
-    clip = dict(points=points, fps=29.6953, aspect=16 / 9)
+    clip: dict[str, Any] = dict(points=points, fps=29.6953, aspect=16 / 9)
     offline = feature_sets(clip)
     detector = LearnedRamuneAnalyzer(fps=clip["fps"])
     from gesture_detection.learned_ramune import current_features
@@ -57,6 +58,7 @@ def test_streaming_temporal_output_and_pulses_equal_research_with_loss_and_rearm
 def test_coordinator_does_not_unlock_or_reemit_after_missing_pose():
     coordinator = RecognitionCoordinator(ramune_detector="learned", source_fps=10)
     detector = coordinator.ramune
+    assert isinstance(detector, LearnedRamuneAnalyzer)
     points = objects(np.ones((33, 3)))
     detector.gate = "ARMED"
     with patch.object(
@@ -65,9 +67,9 @@ def test_coordinator_does_not_unlock_or_reemit_after_missing_pose():
         first = coordinator.process(points, 0, 0, aspect_ratio=1)
         missing = coordinator.process([], 0.9, 9, aspect_ratio=1)
         again = coordinator.process(points, 1, 10, aspect_ratio=1)
-    assert first["occurrences"] == ("RAMUNE",)
-    assert missing["current"] == dict(gesture="NONE", tracking=False)
-    assert again["occurrences"] == () and again["ramune_state"] == "WAIT_RELEASE"
+    assert first.get("occurrences") == ("RAMUNE",)
+    assert missing.get("current") == dict(gesture="NONE", tracking=False)
+    assert again.get("occurrences") == () and again.get("ramune_state") == "WAIT_RELEASE"
     assert detector.gate == "LOCKED"
 
 
@@ -95,7 +97,7 @@ def test_rules_remain_default_and_other_gestures_remain_available():
         patch.object(coordinator.relaxing, "update", return_value=True),
     ):
         result = coordinator.process(objects(np.ones((33, 3))), 0, 0, aspect_ratio=1)
-    assert result["current"]["gesture"] == "RELAXING"
+    assert result.get("current", {}).get("gesture") == "RELAXING"
 
 
 @pytest.mark.parametrize("gesture", ["FANNING", "UCHIMIZU"])
@@ -110,11 +112,12 @@ def test_learned_profile_keeps_existing_hand_detectors(gesture):
         if gesture == "FANNING"
         else [0.8, 0.8, 0.8, 0.8, 0.6, 0.7]
     )
+    result = None
     with patch.object(coordinator.ramune, "predict", return_value=0):
         for i, y in enumerate(ys):
             points[15].y = y
             result = coordinator.process(points, i / 30, i, aspect_ratio=1)
-    assert result["selected_action"] == gesture
+    assert result is not None and result["selected_action"] == gesture
 
 
 def test_learned_profile_masks_every_frame_and_does_not_seed_or_mutate_input():

@@ -1,5 +1,7 @@
 """Score inspection must preserve predictions and distinguish missing evidence."""
 
+from typing import Any
+
 import numpy as np
 import pytest
 from scripts.evaluate_opening_scores import (
@@ -17,7 +19,7 @@ def test_score_api_preserves_predictions_and_does_not_read_test_labels(classifie
     rng = np.random.default_rng(924)
     x = rng.normal(size=(40, 8))
     train = [dict(features={0.25: x}, phase=np.arange(40) % 5)]
-    test = dict(features={0.25: x[:8]}, points=np.ones((8, 33, 3)), phase=np.zeros(8, dtype=int))
+    test: dict[str, Any] = dict(features={0.25: x[:8]}, points=np.ones((8, 33, 3)), phase=np.zeros(8, dtype=int))
     test["points"][0] = 0
     scores = fit_scores(train, [test], "phase", 0.25, 0.1, classifier)[0]
     expected = fit_predict(train, [test], "phase", 0.25, 0.1, classifier)[0]
@@ -32,7 +34,7 @@ def test_score_api_preserves_predictions_and_does_not_read_test_labels(classifie
 def test_untrained_classes_cannot_win_and_have_no_margin_statistics():
     x = np.arange(10).reshape(5, 2).astype(float)
     train = [dict(features={0.25: x}, phase=np.array([0, 0, 1, 1, 1]))]
-    test = dict(features={0.25: x}, points=np.ones((5, 33, 3)))
+    test: dict[str, Any] = dict(features={0.25: x}, points=np.ones((5, 33, 3)))
     scores = fit_scores(train, [test], "phase", 0.25, 0.1)[0]
     assert np.all(np.isneginf(scores[:, 2:]))
     assert np.all(predict_from_scores(scores, test["points"]) < 2)
@@ -71,7 +73,7 @@ def test_future_features_do_not_change_prior_scores():
     rng = np.random.default_rng(26)
     x = rng.normal(size=(30, 5))
     train = [dict(features={0.25: x}, phase=np.arange(30) % 5)]
-    test = dict(features={0.25: x.copy()}, points=np.ones((30, 33, 3)))
+    test: dict[str, Any] = dict(features={0.25: x.copy()}, points=np.ones((30, 33, 3)))
     expected = fit_scores(train, [test], "phase", 0.25, 0.1)[0]
     test["features"][0.25][15:] = 100
     actual = fit_scores(train, [test], "phase", 0.25, 0.1)[0]
@@ -101,7 +103,7 @@ def test_phase_runs_include_none_and_preserve_inclusive_boundaries():
 def test_audit_windows_allow_empty_before_and_after_and_keep_unknown_labels():
     phase = np.array([3, 2, 2, 2, 2, 2, 3])
     scores = np.eye(5)[phase]
-    clip = dict(
+    clip: dict[str, Any] = dict(
         name="edge",
         group=1,
         fps=10,

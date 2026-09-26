@@ -1,11 +1,13 @@
 """Rearming selection must consider the next opening, not only silence."""
 
+from typing import Any
+
 import numpy as np
 from scripts.evaluate_opening_rearm import score_config, tune_rearm
 from scripts.evaluate_opening_temporal import TemporalConfig
 
 
-def sample():
+def sample() -> tuple[dict[str, Any], np.ndarray, np.ndarray]:
     phase = np.array([1] * 4 + [3] * 3 + [4] * 5 + [0] * 10)
     action = np.array([1] * 12 + [0] * 10)
     points = np.ones((len(phase), 33, 3))

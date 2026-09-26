@@ -1,11 +1,13 @@
 """Synthetic sequence assembly preserves labels and does not reset the latch."""
 
+from typing import Any
+
 import numpy as np
 from scripts.evaluate_opening_repetition import repeat_clip, summarize
 from scripts.evaluate_opening_temporal import TemporalConfig, apply_temporal
 
 
-def source():
+def source() -> dict[str, Any]:
     return dict(
         name="example",
         fps=10.0,
