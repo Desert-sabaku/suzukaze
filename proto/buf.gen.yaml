@@ -9,3 +9,9 @@ plugins:
     out: ../firmware/gen
     opt:
       - paths=source_relative
+
+  - remote: buf.build/protocolbuffers/python
+    out: ../mcu/mcu/gen
+
+  - remote: buf.build/protocolbuffers/pyi
+    out: ../mcu/mcu/gen

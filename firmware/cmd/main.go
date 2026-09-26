@@ -2,6 +2,7 @@ package main
 
 import (
 	"machine"
+	"time"
 )
 
 func main() {
@@ -9,6 +10,8 @@ func main() {
 	led.Configure(machine.PinConfig{Mode: machine.PinOutput})
 
   Log.Info().Msg("System is starting up")
+
+  go heartbeat(led, time.Second)
 
 	select {}
 }
