@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 08f3eb425ee323f45aeb8a93e31d07ae
+timeCreated: 1532937713
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 127625
+  packageName: Beach - resort
+  packageVersion: 2.0
+  assetPath: Assets/Beach - resort/Models/Prefabs/Towel.prefab
+  uploadId: 634525
