@@ -480,30 +480,31 @@ def test_subject_selection_never_passes_background_to_recognition():
         point.x = point.x * 0.3
         point.y = point.y * 0.3
     frame = np.zeros((100, 100, 3), dtype=np.uint8)
-    try:
-        analyzer.landmarker.detect_for_video.return_value = SimpleNamespace(
-            pose_landmarks=[background]
-        )
-        result = analyzer.process(frame, 0.0, 0)
-        assert not result.get("current", {}).get("tracking")
-        assert result["landmarks"] == []
-        analyzer.landmarker.detect_for_video.return_value = SimpleNamespace(
-            pose_landmarks=[background, foreground]
-        )
-        assert analyzer.process(frame, 0.1, 1).get("subject_state") == "ACQUIRING"
-        result = analyzer.process(frame, 0.31, 2)
-        assert result.get("current", {}).get("tracking")
-        assert result["landmarks"][11][0] == foreground[11].x
-        analyzer.landmarker.detect_for_video.return_value = SimpleNamespace(
-            pose_landmarks=[background]
-        )
-        result = analyzer.process(frame, 0.35, 3)
-        assert result.get("subject_state") == "LOST"
-        assert result.get("current") == {"gesture": "NONE", "tracking": False}
-        assert result.get("occurrences") == ()
-        assert result.get("display_landmarks") == []
-    finally:
-        analyzer.close()
+    with patch("gesture_detection.pose_worker.mp_core.Image"):
+        try:
+            analyzer.landmarker.detect_for_video.return_value = SimpleNamespace(
+                pose_landmarks=[background]
+            )
+            result = analyzer.process(frame, 0.0, 0)
+            assert not result.get("current", {}).get("tracking")
+            assert result["landmarks"] == []
+            analyzer.landmarker.detect_for_video.return_value = SimpleNamespace(
+                pose_landmarks=[background, foreground]
+            )
+            assert analyzer.process(frame, 0.1, 1).get("subject_state") == "ACQUIRING"
+            result = analyzer.process(frame, 0.31, 2)
+            assert result.get("current", {}).get("tracking")
+            assert result["landmarks"][11][0] == foreground[11].x
+            analyzer.landmarker.detect_for_video.return_value = SimpleNamespace(
+                pose_landmarks=[background]
+            )
+            result = analyzer.process(frame, 0.35, 3)
+            assert result.get("subject_state") == "LOST"
+            assert result.get("current") == {"gesture": "NONE", "tracking": False}
+            assert result.get("occurrences") == ()
+            assert result.get("display_landmarks") == []
+        finally:
+            analyzer.close()
 
 
 @pytest.mark.parametrize(
@@ -531,7 +532,10 @@ def test_only_seed_frame_is_masked_and_never_emitted():
     )
     frame = np.full((100, 100, 3), 255, dtype=np.uint8)
     try:
-        with patch("gesture_detection.pose_worker.cv2.cvtColor", wraps=cv2.cvtColor) as convert:
+        with (
+            patch("gesture_detection.pose_worker.cv2.cvtColor", wraps=cv2.cvtColor) as convert,
+            patch("gesture_detection.pose_worker.mp_core.Image"),
+        ):
             first = analyzer.process(frame, 0.0, 0)
             seeded_image = convert.call_args.args[0]
             assert np.all(seeded_image[:, :30] == 127)
