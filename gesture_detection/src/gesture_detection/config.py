@@ -107,6 +107,14 @@ FPS = int(getenv("FPS", "30"))
 if FPS <= 0 or VIDEO_OUTPUT_BUFFER_FRAMES <= 0:
     raise ValueError("FPS and VIDEO_OUTPUT_BUFFER_FRAMES must be positive integers")
 
+# The learned profile is opt-in and supplies its own continuously masked input.
+RAMUNE_DETECTOR = getenv("RAMUNE_DETECTOR", "rules").strip().lower()
+if RAMUNE_DETECTOR not in {"rules", "learned"}:
+    raise ValueError("RAMUNE_DETECTOR must be rules or learned")
+RAMUNE_LEARNED_MODEL_PATH = _env_path(
+    "RAMUNE_LEARNED_MODEL_PATH", str(Path(__file__).with_name("models") / "ramune_0924.npz")
+)
+
 WINDOW_SECONDS = 1
 BUFFER_SIZE = FPS * WINDOW_SECONDS
 # Stillness is measured in torso heights and source seconds.

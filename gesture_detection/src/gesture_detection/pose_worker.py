@@ -11,6 +11,7 @@ from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
 from .config import (
+    FPS,
     GESTURE_DELIVERY_HOST,
     GESTURE_DELIVERY_PORT,
     GESTURE_EVENT_TTL,
@@ -23,6 +24,7 @@ from .config import (
     POSE_MODEL_URL,
     POSE_RUNNING_MODE,
     POSE_SELECT_SUBJECT,
+    RAMUNE_DETECTOR,
     SUBJECT_AREA,
     SUPPRESS_MEDIAPIPE_STARTUP_LOGS,
 )
@@ -47,14 +49,20 @@ class PoseAnalyzer:
         presence_confidence: float = 0.5,
         tracking_confidence: float = 0.5,
         select_subject: bool = POSE_SELECT_SUBJECT,
+        ramune_detector: str = RAMUNE_DETECTOR,
+        source_fps: float = FPS,
     ):
         if running_mode not in {"IMAGE", "VIDEO"}:
             raise ValueError("running_mode must be IMAGE or VIDEO")
         confidences = (detection_confidence, presence_confidence, tracking_confidence)
         if any(not 0.0 <= confidence <= 1.0 for confidence in confidences):
             raise ValueError("pose confidence thresholds must be between 0 and 1")
+        if ramune_detector == "learned" and running_mode != "VIDEO":
+            raise ValueError("Learned Ramune requires POSE_RUNNING_MODE=VIDEO")
+        self.recognition = RecognitionCoordinator(ramune_detector=ramune_detector, source_fps=source_fps)
+        self.learned_profile = ramune_detector == "learned"
         self.subject_selector = (
-            SubjectSelector() if select_subject and running_mode == "VIDEO" else None
+            SubjectSelector() if select_subject and running_mode == "VIDEO" and not self.learned_profile else None
         )
         self.running_mode = running_mode
         self._last_source_timestamp: float | None = None
@@ -66,7 +74,6 @@ class PoseAnalyzer:
                 presence_confidence,
                 tracking_confidence,
             )
-        self.recognition = RecognitionCoordinator()
         self.display_smoother = LandmarkSmoother()
 
     @staticmethod
@@ -107,8 +114,12 @@ class PoseAnalyzer:
             "LOST",
         }
         inference_frame = frame
-        if seeded:
-            left, _, right, _ = SUBJECT_AREA
+        if seeded or self.learned_profile:
+            if self.learned_profile:
+                assert self.recognition.learned_mask is not None
+                left, right = self.recognition.learned_mask
+            else:
+                left, _, right, _ = SUBJECT_AREA
             width = frame.shape[1]
             inference_frame = np.full_like(frame, 127)
             start, end = round(left * width), round(right * width)
@@ -160,9 +171,10 @@ class PoseAnalyzer:
 
 
 def pose_worker(
-    frame_queue: SharedLatestFrame, result_queue: mp.Queue, delivery_enabled: bool = False
+    frame_queue: SharedLatestFrame, result_queue: mp.Queue, delivery_enabled: bool = False,
+    source_fps: float = FPS,
 ) -> None:
-    analyzer = PoseAnalyzer()
+    analyzer = PoseAnalyzer(source_fps=source_fps)
     outbox = (
         DeliveryOutbox(
             event_ttl=GESTURE_EVENT_TTL,

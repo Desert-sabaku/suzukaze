@@ -66,6 +66,7 @@ class GestureApplication:
         self.pose_result_queue = mp.Queue(maxsize=1)
         self.pose_process = None
         self._window_created = False
+        self.source_fps = float(FPS)
 
     def run(self) -> None:
         capture = self._open_capture()
@@ -85,6 +86,9 @@ class GestureApplication:
             timestamp = frame_clock.timestamp(capture)
             frame_id = 0
             self.pose_frame_queue = SharedLatestFrame(frame.shape)
+            source_fps = capture.get(cv2.CAP_PROP_FPS)
+            if isinstance(source_fps, (int, float)) and math.isfinite(source_fps) and source_fps > 0:
+                self.source_fps = float(source_fps)
             self._start_workers()
             assert self.pose_process is not None
             writer = self._open_output(capture)
@@ -228,6 +232,7 @@ class GestureApplication:
                 self.pose_frame_queue,
                 self.pose_result_queue,
                 GESTURE_DELIVERY_ENABLED and VIDEO_SOURCE is None,
+                self.source_fps,
             ),
             name="pose-worker",
         )
