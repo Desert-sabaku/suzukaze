@@ -65,7 +65,11 @@ def runtime_settings() -> dict:
 
 
 def extract(
-    path: Path, cache_root: Path, *, select_subject: bool = True, central_mask: bool = False,
+    path: Path,
+    cache_root: Path,
+    *,
+    select_subject: bool = True,
+    central_mask: bool = False,
     cache_only: bool = False,
 ) -> dict:
     doc = json.loads(path.read_text())
@@ -260,8 +264,11 @@ def metrics(truth: np.ndarray, pred: np.ndarray, names: list[str]) -> dict:
 
 
 def choose(
-    train: list[dict], target: str, classifiers: tuple[str, ...] = ("linear", "rbf"),
-    *, audit: list[dict] | None = None,
+    train: list[dict],
+    target: str,
+    classifiers: tuple[str, ...] = ("linear", "rbf"),
+    *,
+    audit: list[dict] | None = None,
 ) -> tuple[float, float, str]:
     candidates = []
     names = ACTIONS if target == "action" else PHASES
@@ -283,10 +290,14 @@ def choose(
                 ]
                 candidates.append((score, history, regularization, classifier))
                 if audit is not None:
-                    audit.append(dict(
-                        history=history, regularization=regularization,
-                        classifier=classifier, macro_f1=score,
-                    ))
+                    audit.append(
+                        dict(
+                            history=history,
+                            regularization=regularization,
+                            classifier=classifier,
+                            macro_f1=score,
+                        )
+                    )
     _, history, regularization, classifier = max(candidates)
     return history, regularization, classifier
 

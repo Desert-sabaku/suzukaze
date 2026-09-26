@@ -30,7 +30,9 @@ def test_streaming_features_equal_research_at_source_frame_rate():
         base, geometry = current_features(point, clip["aspect"])
         for target, family in (("action", "baseline"), ("phase", "relative_position")):
             history = detector.metadata[target]["history"]
-            np.testing.assert_allclose(detector.features(base, geometry, target), offline[family][history][i], atol=1e-12)
+            np.testing.assert_allclose(
+                detector.features(base, geometry, target), offline[family][history][i], atol=1e-12
+            )
     assert len(detector.history) <= max(detector.windows.values()) + 1
 
 
@@ -39,7 +41,9 @@ def test_streaming_temporal_output_and_pulses_equal_research_with_loss_and_rearm
     action = np.where(phase != 0, 1, 0)
     points = np.ones((len(phase), 33, 3))
     points[9:14] = 0
-    expected, events = apply_temporal(phase, action, points, 10, TemporalConfig(0.75, 0.6, 0.3, "context", True))
+    expected, events = apply_temporal(
+        phase, action, points, 10, TemporalConfig(0.75, 0.6, 0.3, "context", True)
+    )
     detector = LearnedRamuneAnalyzer(fps=10)
     actual, pulses = [], []
     for i, (p, a) in enumerate(zip(phase, action, strict=True)):
@@ -55,7 +59,9 @@ def test_coordinator_does_not_unlock_or_reemit_after_missing_pose():
     detector = coordinator.ramune
     points = objects(np.ones((33, 3)))
     detector.gate = "ARMED"
-    with patch.object(detector, "predict", side_effect=lambda f, target: 1 if target == "action" else 3):
+    with patch.object(
+        detector, "predict", side_effect=lambda f, target: 1 if target == "action" else 3
+    ):
         first = coordinator.process(points, 0, 0, aspect_ratio=1)
         missing = coordinator.process([], 0.9, 9, aspect_ratio=1)
         again = coordinator.process(points, 1, 10, aspect_ratio=1)
@@ -84,8 +90,10 @@ def test_rules_remain_default_and_other_gestures_remain_available():
 
     assert isinstance(RecognitionCoordinator(ramune_detector="rules").ramune, RamuneAnalyzer)
     coordinator = RecognitionCoordinator(ramune_detector="learned")
-    with (patch.object(coordinator.ramune, "predict", return_value=0),
-          patch.object(coordinator.relaxing, "update", return_value=True)):
+    with (
+        patch.object(coordinator.ramune, "predict", return_value=0),
+        patch.object(coordinator.relaxing, "update", return_value=True),
+    ):
         result = coordinator.process(objects(np.ones((33, 3))), 0, 0, aspect_ratio=1)
     assert result["current"]["gesture"] == "RELAXING"
 
@@ -97,8 +105,11 @@ def test_learned_profile_keeps_existing_hand_detectors(gesture):
     coordinator = RecognitionCoordinator(ramune_detector="learned")
     points = landmarks()
     points[16].visibility = 0
-    ys = ([0.22 + 0.04 * np.sin(2 * np.pi * 2 * i / 30) for i in range(90)]
-          if gesture == "FANNING" else [0.8, 0.8, 0.8, 0.8, 0.6, 0.7])
+    ys = (
+        [0.22 + 0.04 * np.sin(2 * np.pi * 2 * i / 30) for i in range(90)]
+        if gesture == "FANNING"
+        else [0.8, 0.8, 0.8, 0.8, 0.6, 0.7]
+    )
     with patch.object(coordinator.ramune, "predict", return_value=0):
         for i, y in enumerate(ys):
             points[15].y = y

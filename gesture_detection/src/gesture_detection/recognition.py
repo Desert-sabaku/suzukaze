@@ -19,10 +19,14 @@ class RecognitionCoordinator:
         self.hands = [HandGestureAnalyzer(15), HandGestureAnalyzer(16)]
         self.ramune = (
             LearnedRamuneAnalyzer(RAMUNE_LEARNED_MODEL_PATH, fps=source_fps)
-            if ramune_detector == "learned" else RamuneAnalyzer()
+            if ramune_detector == "learned"
+            else RamuneAnalyzer()
         )
-        self.learned_mask = (self.ramune.metadata["central_mask"]
-                             if isinstance(self.ramune, LearnedRamuneAnalyzer) else None)
+        self.learned_mask = (
+            self.ramune.metadata["central_mask"]
+            if isinstance(self.ramune, LearnedRamuneAnalyzer)
+            else None
+        )
         self.relaxing = RelaxingAnalyzer()
 
         self.relaxing_state = False
@@ -42,7 +46,9 @@ class RecognitionCoordinator:
         self, landmarks, timestamp: float, *, aspect_ratio: float = 1.0, frame_id: int | None = None
     ) -> None:
         if isinstance(self.ramune, LearnedRamuneAnalyzer):
-            opened = self.ramune.update(landmarks, timestamp, aspect_ratio=aspect_ratio, frame_id=frame_id)
+            opened = self.ramune.update(
+                landmarks, timestamp, aspect_ratio=aspect_ratio, frame_id=frame_id
+            )
         else:
             opened = self.ramune.update(landmarks, timestamp)
         if opened or self.ramune.state in ("FORMING", "READY"):
@@ -92,7 +98,9 @@ class RecognitionCoordinator:
         previous_ramune = self.ramune.state
         previous_water = [hand.uchimizu.completed_at for hand in self.hands]
         if landmarks:
-            self._update_gesture_scores(landmarks, timestamp, aspect_ratio=aspect_ratio, frame_id=frame_id)
+            self._update_gesture_scores(
+                landmarks, timestamp, aspect_ratio=aspect_ratio, frame_id=frame_id
+            )
             self.relaxing_state = self.relaxing.update(
                 landmarks, timestamp, aspect_ratio=aspect_ratio
             )
@@ -105,8 +113,11 @@ class RecognitionCoordinator:
         if current == "NONE" and self.relaxing_state:
             current = "RELAXING"
         occurrences: tuple[str, ...] = ()
-        ramune_event = (self.ramune.just_opened if isinstance(self.ramune, LearnedRamuneAnalyzer)
-                        else previous_ramune != "OPENED")
+        ramune_event = (
+            self.ramune.just_opened
+            if isinstance(self.ramune, LearnedRamuneAnalyzer)
+            else previous_ramune != "OPENED"
+        )
         if self.selected_action == "RAMUNE" and ramune_event:
             occurrences = ("RAMUNE",)
         elif self.selected_action == "UCHIMIZU" and any(

@@ -21,9 +21,14 @@ def sample():
     action = np.zeros(len(phase), dtype=int)
     action[:7] = action[27:34] = 1
     clip = dict(
-        name="two_trials", group=1, fps=10.0,
-        phase=phase.copy(), action=action.copy(), points=np.ones((len(phase), 33, 3)),
-        opening_intervals=[(5, 6), (32, 33)], ramune_intervals=[(0, 6), (27, 33)],
+        name="two_trials",
+        group=1,
+        fps=10.0,
+        phase=phase.copy(),
+        action=action.copy(),
+        points=np.ones((len(phase), 33, 3)),
+        opening_intervals=[(5, 6), (32, 33)],
+        ramune_intervals=[(0, 6), (27, 33)],
     )
     return clip, phase, action
 
@@ -39,12 +44,15 @@ def test_oracle_preserves_unknown_phase_and_does_not_mutate_inputs():
     assert phase[5] == 4 and action[5] == 0
 
 
-@pytest.mark.parametrize("family, first, second", [
-    ("baseline", True, True),
-    ("initial_phase_only", False, True),
-    ("rearm_phase_only", True, False),
-    ("both_phase_only", False, False),
-])
+@pytest.mark.parametrize(
+    "family, first, second",
+    [
+        ("baseline", True, True),
+        ("initial_phase_only", False, True),
+        ("rearm_phase_only", True, False),
+        ("both_phase_only", False, False),
+    ],
+)
 def test_first_and_rearm_gates_are_independent(family, first, second):
     clip, phase, action = sample()
     if not first:

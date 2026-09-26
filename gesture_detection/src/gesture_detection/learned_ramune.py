@@ -43,8 +43,10 @@ class LearnedRamuneAnalyzer:
         with np.load(model_path, allow_pickle=False) as data:
             self.metadata = json.loads(str(data["metadata"]))
             self.weights = {key: data[key].copy() for key in data.files if key != "metadata"}
-        if (self.metadata.get("format_version") != 1
-                or self.metadata.get("feature_schema") != "0924-relative-position-v1"):
+        if (
+            self.metadata.get("format_version") != 1
+            or self.metadata.get("feature_schema") != "0924-relative-position-v1"
+        ):
             raise ValueError("Unsupported learned Ramune model")
         for target in ("action", "phase"):
             history = self.metadata[target]["history"]
@@ -55,14 +57,21 @@ class LearnedRamuneAnalyzer:
         for key in ("hold_seconds", "release_seconds", "setup_seconds"):
             if not math.isfinite(self.metadata[key]) or self.metadata[key] <= 0:
                 raise ValueError("Invalid temporal settings")
-        self.windows = {target: max(1, round(self.metadata[target]["history"] * fps))
-                        for target in ("action", "phase")}
+        self.windows = {
+            target: max(1, round(self.metadata[target]["history"] * fps))
+            for target in ("action", "phase")
+        }
         for target, dimensions in (("action", 96), ("phase", 110)):
             if self.metadata[target]["classifier"] not in ("linear", "rbf"):
                 raise ValueError("Unsupported model classifier")
             expected = dimensions + 1 + (128 if self.metadata[target]["classifier"] == "rbf" else 0)
-            shapes = {"mean": (dimensions,), "scale": (dimensions,), "counts": (5,),
-                      "beta": (expected, 5), "projection": (dimensions, 64)}
+            shapes = {
+                "mean": (dimensions,),
+                "scale": (dimensions,),
+                "counts": (5,),
+                "beta": (expected, 5),
+                "projection": (dimensions, 64),
+            }
             for key, shape in shapes.items():
                 value = self.weights[target + "_" + key]
                 if value.shape != shape or not np.isfinite(value).all():
@@ -93,7 +102,9 @@ class LearnedRamuneAnalyzer:
         return np.r_[result, geometry] if target == "phase" else result
 
     def predict(self, feature: np.ndarray, target: str) -> int:
-        value = np.clip((feature - self.weights[target + "_mean"]) / self.weights[target + "_scale"], -10, 10)
+        value = np.clip(
+            (feature - self.weights[target + "_mean"]) / self.weights[target + "_scale"], -10, 10
+        )
         if self.metadata[target]["classifier"] == "rbf":
             angles = value @ self.weights[target + "_projection"]
             value = np.r_[value, np.sin(angles), np.cos(angles)]
@@ -129,17 +140,27 @@ class LearnedRamuneAnalyzer:
                     self.gate = "ARMED"
             else:
                 self.setup_since = None
-        self.state = ("WAIT_RELEASE" if self.gate == "LOCKED" else
-                      {1: "FORMING", 2: "READY"}.get(phase, "IDLE") if action == 1 else "IDLE")
+        self.state = (
+            "WAIT_RELEASE"
+            if self.gate == "LOCKED"
+            else {1: "FORMING", 2: "READY"}.get(phase, "IDLE")
+            if action == 1
+            else "IDLE"
+        )
         return False
 
-    def update(self, landmarks, now: float, *, aspect_ratio: float = 1.0,
-               frame_id: int | None = None) -> bool:
+    def update(
+        self, landmarks, now: float, *, aspect_ratio: float = 1.0, frame_id: int | None = None
+    ) -> bool:
         if not math.isfinite(now) or (self.last_time is not None and now <= self.last_time):
             raise ValueError("Learned Ramune timestamps must strictly increase")
         if not math.isfinite(aspect_ratio) or aspect_ratio <= 0:
             raise ValueError("Invalid aspect ratio")
-        index = frame_id if frame_id is not None else (0 if self.last_frame is None else self.last_frame + 1)
+        index = (
+            frame_id
+            if frame_id is not None
+            else (0 if self.last_frame is None else self.last_frame + 1)
+        )
         if self.last_frame is not None and index <= self.last_frame:
             raise ValueError("Learned Ramune frame IDs must strictly increase")
         skipped = 0 if self.last_frame is None else index - self.last_frame - 1
@@ -163,7 +184,11 @@ class LearnedRamuneAnalyzer:
         base, geometry = current_features(points, aspect_ratio)
         self.history.append(base)
         observed = bool((points[:, 2] > 0.5).any())
-        self.action = self.predict(self.features(base, geometry, "action"), "action") if observed else 0
-        self.phase = self.predict(self.features(base, geometry, "phase"), "phase") if observed else 0
+        self.action = (
+            self.predict(self.features(base, geometry, "action"), "action") if observed else 0
+        )
+        self.phase = (
+            self.predict(self.features(base, geometry, "phase"), "phase") if observed else 0
+        )
         self.last_time, self.last_frame = now, index
         return self.advance(self.phase, self.action, observed, now)

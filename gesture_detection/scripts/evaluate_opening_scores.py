@@ -54,36 +54,49 @@ def distribution(values: np.ndarray) -> dict:
     if not len(valid):
         return dict(count=0, min=None, q25=None, median=None, q75=None, max=None)
     quantiles = np.quantile(valid, [0, 0.25, 0.5, 0.75, 1])
-    return dict(count=len(valid), **dict(zip(
-        ("min", "q25", "median", "q75", "max"), map(float, quantiles), strict=True
-    )))
+    return dict(
+        count=len(valid),
+        **dict(zip(("min", "q25", "median", "q75", "max"), map(float, quantiles), strict=True)),
+    )
 
 
 def summarize_window(
-    mask: np.ndarray, observed: np.ndarray, scores: dict, phase: np.ndarray,
-    output: np.ndarray, trace: list[dict],
+    mask: np.ndarray,
+    observed: np.ndarray,
+    scores: dict,
+    phase: np.ndarray,
+    output: np.ndarray,
+    trace: list[dict],
 ) -> dict:
     eligible = mask & observed
     ranks = scores["opened_rank"][eligible]
     raw_opened = eligible & (phase == OPENED)
     blocked = raw_opened & (output != OPENED)
     result = dict(
-        frames=int(mask.sum()), observed_frames=int(eligible.sum()),
+        frames=int(mask.sum()),
+        observed_frames=int(eligible.sum()),
         missing_pose_frames=int((mask & ~observed).sum()),
         distributions={key: distribution(value[eligible]) for key, value in scores.items()},
         rank_counts={str(rank): int((ranks == rank).sum()) for rank in range(1, len(PHASES) + 1)},
         raw_opened_frames=int(raw_opened.sum()),
         blocked_opened_frames=int(blocked.sum()),
-        blocked_by_state={state: sum(bool(blocked[i]) and row["state_before"] == state
-                                    for i, row in enumerate(trace)) for state in STATES},
+        blocked_by_state={
+            state: sum(
+                bool(blocked[i]) and row["state_before"] == state for i, row in enumerate(trace)
+            )
+            for state in STATES
+        },
     )
     return result
 
 
 def phase_runs(phase: np.ndarray) -> list[dict]:
     return sorted(
-        [dict(frames=[a, b], phase=label)
-         for index, label in enumerate(PHASES) for a, b in positive_runs(phase == index)],
+        [
+            dict(frames=[a, b], phase=label)
+            for index, label in enumerate(PHASES)
+            for a, b in positive_runs(phase == index)
+        ],
         key=lambda row: row["frames"][0],
     )
 
@@ -95,7 +108,7 @@ def audit_clip(clip: dict, raw_scores: np.ndarray, action: np.ndarray) -> tuple[
     diagnostics = score_diagnostics(raw_scores, observed)
     anchor_mask = np.zeros(len(phase), dtype=bool)
     for a, b in clip["opening_intervals"]:
-        anchor_mask[a:b + 1] = True
+        anchor_mask[a : b + 1] = True
     masks = {
         "whole_video": np.ones(len(phase), dtype=bool),
         "opening_anchors": anchor_mask,
@@ -122,38 +135,58 @@ def audit_clip(clip: dict, raw_scores: np.ndarray, action: np.ndarray) -> tuple[
         stats = {}
         for key, (a, b) in windows.items():
             mask = np.zeros(len(phase), dtype=bool)
-            mask[a:b + 1] = True
-            stats[key] = dict(window_frames=[a, b], **summarize_window(
-                mask, observed, diagnostics, phase, output, trace
-            ))
+            mask[a : b + 1] = True
+            stats[key] = dict(
+                window_frames=[a, b],
+                **summarize_window(mask, observed, diagnostics, phase, output, trace),
+            )
         _, valid = relative_geometry(clip)
-        intervals.append(dict(
-            anchor_frames=[start, end], hit=row["single"]["details"][index]["matched_run"] is not None,
-            matched_run=row["single"]["details"][index]["matched_run"],
-            windows=stats, anchor_phases=[PHASES[int(p)] for p in phase[start:end + 1]],
-            state_at_anchor=trace[start]["state_before"],
-            valid_wrist_distance_frames=int(valid[start:end + 1, 0].sum()),
-            valid_left_wrist_frames=int(valid[start:end + 1, 3].sum()),
-            valid_right_wrist_frames=int(valid[start:end + 1, 5].sum()),
-        ))
+        intervals.append(
+            dict(
+                anchor_frames=[start, end],
+                hit=row["single"]["details"][index]["matched_run"] is not None,
+                matched_run=row["single"]["details"][index]["matched_run"],
+                windows=stats,
+                anchor_phases=[PHASES[int(p)] for p in phase[start : end + 1]],
+                state_at_anchor=trace[start]["state_before"],
+                valid_wrist_distance_frames=int(valid[start : end + 1, 0].sum()),
+                valid_left_wrist_frames=int(valid[start : end + 1, 3].sum()),
+                valid_right_wrist_frames=int(valid[start : end + 1, 5].sum()),
+            )
+        )
     # Descriptive high-ranking outside-anchor frames, not automatically errors:
     # accepted continuous extensions may cover such frames.
     margin = diagnostics["opened_minus_best_other"]
     candidates = np.flatnonzero(~anchor_mask & np.isfinite(margin))
     top = sorted(candidates, key=lambda i: (-margin[i], int(i)))[:10]
     audit = dict(
-        video=clip["name"], group=clip["group"], fps=clip["fps"], summaries=summaries,
-        intervals=intervals, phase_runs=phase_runs(phase),
+        video=clip["name"],
+        group=clip["group"],
+        fps=clip["fps"],
+        summaries=summaries,
+        intervals=intervals,
+        phase_runs=phase_runs(phase),
         state_transitions=[t for t in trace if t["state_before"] != t["state_after"]],
-        top_outside_anchor_frames=[dict(
-            frame=int(i), seconds=float(i / clip["fps"]),
-            opened_margin=float(margin[i]), opened_rank=int(diagnostics["opened_rank"][i]),
-            annotated_action=int(clip["action"][i]), annotated_phase=int(clip["phase"][i]),
-            state=trace[i]["state_before"], output=int(output[i]),
-        ) for i in top],
+        top_outside_anchor_frames=[
+            dict(
+                frame=int(i),
+                seconds=float(i / clip["fps"]),
+                opened_margin=float(margin[i]),
+                opened_rank=int(diagnostics["opened_rank"][i]),
+                annotated_action=int(clip["action"][i]),
+                annotated_phase=int(clip["phase"][i]),
+                state=trace[i]["state_before"],
+                output=int(output[i]),
+            )
+            for i in top
+        ],
     )
     arrays = dict(
-        scores=raw_scores, observed=observed, phase=phase, output=output, action=action,
+        scores=raw_scores,
+        observed=observed,
+        phase=phase,
+        output=output,
+        action=action,
         state=np.array([STATES.index(t["state_after"]) for t in trace], dtype=np.int8),
         **diagnostics,
     )
@@ -175,7 +208,9 @@ def plot_clip(clip: dict, arrays: dict, path: Path, window: tuple[int, int] | No
         ax.grid(alpha=0.2)
     for index, label in enumerate(PHASES):
         scores = arrays["scores"][:, index]
-        axes[0].plot(t, np.where(arrays["observed"] & np.isfinite(scores), scores, np.nan), label=label)
+        axes[0].plot(
+            t, np.where(arrays["observed"] & np.isfinite(scores), scores, np.nan), label=label
+        )
     axes[0].legend(loc="upper right", ncol=5)
     axes[0].set(ylabel="Ridge score")
     for key in ("opened_minus_ready", "opened_minus_wait_release", "opened_minus_best_other"):
@@ -190,8 +225,12 @@ def plot_clip(clip: dict, arrays: dict, path: Path, window: tuple[int, int] | No
     axes[3].set(yticks=range(-1, 5), yticklabels=["UNKNOWN", *PHASES], ylabel="Phase")
     axes[3].legend(loc="upper right", ncol=2)
     axes[4].step(t, arrays["state"], where="post")
-    axes[4].set(yticks=range(4), yticklabels=STATES, ylabel="Temporal state",
-                xlabel="Time (s); gold = OPENED annotation; missing poses excluded from scores")
+    axes[4].set(
+        yticks=range(4),
+        yticklabels=STATES,
+        ylabel="Temporal state",
+        xlabel="Time (s); gold = OPENED annotation; missing poses excluded from scores",
+    )
     if window is not None:
         axes[4].set_xlim(window[0] / clip["fps"], (window[1] + 1) / clip["fps"])
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -201,7 +240,9 @@ def plot_clip(clip: dict, arrays: dict, path: Path, window: tuple[int, int] | No
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=ROOT / "docs/0924-opening-scores-results.json")
+    parser.add_argument(
+        "--output", type=Path, default=ROOT / "docs/0924-opening-scores-results.json"
+    )
     parser.add_argument("--plot", action="store_true")
     args = parser.parse_args()
     reference_path = ROOT / "docs/0924-opening-features-results.json"
@@ -217,8 +258,13 @@ def main() -> None:
     for path in paths:
         if digest(path) != sources[path.parent.name]["annotation_sha256"]:
             raise ValueError("Annotation changed")
-        clip = extract(path, ROOT / "shared/results/0924-cache", select_subject=False,
-                       central_mask=True, cache_only=True)
+        clip = extract(
+            path,
+            ROOT / "shared/results/0924-cache",
+            select_subject=False,
+            central_mask=True,
+            cache_only=True,
+        )
         clip["features"] = feature_sets(clip)["relative_position"]
         clips.append(clip)
     audits, rows, saved, plots = [], [], {}, []
@@ -227,17 +273,30 @@ def main() -> None:
             group = selection["group"]
             train = [c for c in clips if c["group"] not in (0, group)]
             test = [c for c in clips if c["group"] == group]
-            if ([c["name"] for c in train] != selection["train_videos"]
-                    or [c["name"] for c in test] != selection["test_videos"]):
+            if [c["name"] for c in train] != selection["train_videos"] or [
+                c["name"] for c in test
+            ] != selection["test_videos"]:
                 raise ValueError("Saved training split changed")
-            scores = fit_scores(train, test, "phase", selection["history"],
-                                selection["regularization"], selection["classifier"])
+            scores = fit_scores(
+                train,
+                test,
+                "phase",
+                selection["history"],
+                selection["regularization"],
+                selection["classifier"],
+            )
             for clip, score in zip(test, scores, strict=True):
                 name = clip["name"]
                 audit, row, arrays = audit_clip(clip, score, frozen["action/" + name])
                 for key in ("phase", "output", "state"):
-                    np.testing.assert_array_equal(arrays[key], frozen["relative_position/" + key + "/" + name])
-                previous = next(r for r in reference["families"]["relative_position"]["clips"] if r["video"] == name)
+                    np.testing.assert_array_equal(
+                        arrays[key], frozen["relative_position/" + key + "/" + name]
+                    )
+                previous = next(
+                    r
+                    for r in reference["families"]["relative_position"]["clips"]
+                    if r["video"] == name
+                )
                 if row != {key: value for key, value in previous.items() if key != "phase_metrics"}:
                     raise ValueError("Single or repeated temporal metrics changed")
                 audits.append(audit)
@@ -250,23 +309,41 @@ def main() -> None:
                     for index, (a, b) in enumerate(clip["opening_intervals"]):
                         padding = round(clip["fps"])
                         zoom = path.with_stem(path.stem + f"-anchor{index + 1}")
-                        plot_clip(clip, arrays, zoom, (max(0, a - padding), min(len(score) - 1, b + padding)))
+                        plot_clip(
+                            clip,
+                            arrays,
+                            zoom,
+                            (max(0, a - padding), min(len(score) - 1, b + padding)),
+                        )
                         plots.append(str(zoom.relative_to(ROOT)))
                 print(name, "verified", flush=True)
     predictions = ROOT / "shared/results/0924-cache" / (args.output.stem + "-predictions.npz")
     np.savez_compressed(predictions, **saved)
     report = dict(
-        protocol=__doc__, sources=reference["sources"],
-        selections=reference["selections"]["relative_position"], config=reference["config"],
-        phase_labels=PHASES, states=STATES, clips=audits,
-        evaluation=summarize_family(rows), plots=plots,
-        reference_sha256=digest(reference_path), source_predictions_sha256=digest(frozen_path),
+        protocol=__doc__,
+        sources=reference["sources"],
+        selections=reference["selections"]["relative_position"],
+        config=reference["config"],
+        phase_labels=PHASES,
+        states=STATES,
+        clips=audits,
+        evaluation=summarize_family(rows),
+        plots=plots,
+        reference_sha256=digest(reference_path),
+        source_predictions_sha256=digest(frozen_path),
         script_sha256=digest(Path(__file__)),
-        helper_sha256={p: digest(Path(__file__).with_name(p)) for p in (
-            "evaluate_timeline.py", "evaluate_opening_features.py", "evaluate_opening_setup.py",
-            "evaluate_opening_temporal.py", "evaluate_opening_repetition.py",
-        )},
-        frame_predictions=str(predictions.relative_to(ROOT)), frame_predictions_sha256=digest(predictions),
+        helper_sha256={
+            p: digest(Path(__file__).with_name(p))
+            for p in (
+                "evaluate_timeline.py",
+                "evaluate_opening_features.py",
+                "evaluate_opening_setup.py",
+                "evaluate_opening_temporal.py",
+                "evaluate_opening_repetition.py",
+            )
+        },
+        frame_predictions=str(predictions.relative_to(ROOT)),
+        frame_predictions_sha256=digest(predictions),
     )
     if reference["config"] != vars(CONFIG):
         raise ValueError("Fixed temporal settings changed")

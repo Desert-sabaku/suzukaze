@@ -24,7 +24,9 @@ def test_score_api_preserves_predictions_and_does_not_read_test_labels(classifie
     np.testing.assert_array_equal(predict_from_scores(scores, test["points"]), expected)
     assert expected[0] == 0
     test["phase"][:] = 4
-    np.testing.assert_array_equal(scores, fit_scores(train, [test], "phase", 0.25, 0.1, classifier)[0])
+    np.testing.assert_array_equal(
+        scores, fit_scores(train, [test], "phase", 0.25, 0.1, classifier)[0]
+    )
 
 
 def test_untrained_classes_cannot_win_and_have_no_margin_statistics():
@@ -52,8 +54,12 @@ def test_summary_separates_unobserved_frames_and_blocked_opened():
     observed = np.array([True, True, True, False])
     trace = [dict(state_before=state) for state in ("WAIT_SETUP", "LOCKED", "ARMED", "WAIT_SETUP")]
     result = summarize_window(
-        np.ones(4, dtype=bool), observed, score_diagnostics(scores, observed),
-        np.full(4, 3), np.array([0, 0, 3, 0]), trace,
+        np.ones(4, dtype=bool),
+        observed,
+        score_diagnostics(scores, observed),
+        np.full(4, 3),
+        np.array([0, 0, 3, 0]),
+        trace,
     )
     assert result["missing_pose_frames"] == 1 and result["observed_frames"] == 3
     assert result["blocked_opened_frames"] == 2
@@ -84,8 +90,10 @@ def test_unknown_phase_training_does_not_affect_scores():
 
 def test_phase_runs_include_none_and_preserve_inclusive_boundaries():
     assert phase_runs(np.array([0, 2, 2, 4, 3, 0])) == [
-        dict(frames=[0, 0], phase="NONE"), dict(frames=[1, 2], phase="READY"),
-        dict(frames=[3, 3], phase="WAIT_RELEASE"), dict(frames=[4, 4], phase="OPENED"),
+        dict(frames=[0, 0], phase="NONE"),
+        dict(frames=[1, 2], phase="READY"),
+        dict(frames=[3, 3], phase="WAIT_RELEASE"),
+        dict(frames=[4, 4], phase="OPENED"),
         dict(frames=[5, 5], phase="NONE"),
     ]
 
@@ -94,9 +102,15 @@ def test_audit_windows_allow_empty_before_and_after_and_keep_unknown_labels():
     phase = np.array([3, 2, 2, 2, 2, 2, 3])
     scores = np.eye(5)[phase]
     clip = dict(
-        name="edge", group=1, fps=10, points=np.ones((7, 33, 3)), aspect=1,
-        phase=phase.copy(), action=np.ones(7, dtype=int),
-        opening_intervals=[(0, 0), (6, 6)], ramune_intervals=[(0, 0), (1, 6)],
+        name="edge",
+        group=1,
+        fps=10,
+        points=np.ones((7, 33, 3)),
+        aspect=1,
+        phase=phase.copy(),
+        action=np.ones(7, dtype=int),
+        opening_intervals=[(0, 0), (6, 6)],
+        ramune_intervals=[(0, 0), (1, 6)],
     )
     clip["phase"][3] = -1
     audit, _, arrays = audit_clip(clip, scores, clip["action"])

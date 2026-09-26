@@ -23,7 +23,9 @@ from gesture_detection import pose_worker
 from .evaluate_curtain import PREPROCESSORS
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-SESSION_PATTERN = re.compile(r"(aogi|ramune|uchimizu|utimizu|utchimizu|uchimziu|yusuzumi)(\d+)_(\d+)-(\d+)")
+SESSION_PATTERN = re.compile(
+    r"(aogi|ramune|uchimizu|utimizu|utchimizu|uchimziu|yusuzumi)(\d+)_(\d+)-(\d+)"
+)
 LANDMARK_INDICES = {
     "left_shoulder": 11,
     "right_shoulder": 12,

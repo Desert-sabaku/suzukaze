@@ -21,16 +21,22 @@ from .export_ramune_model import build_bundle, load_snapshot
 
 
 def objects(points: np.ndarray) -> list:
-    return [SimpleNamespace(x=p[0], y=p[1], visibility=p[2]) for p in points] if points.any() else []
+    return (
+        [SimpleNamespace(x=p[0], y=p[1], visibility=p[2]) for p in points] if points.any() else []
+    )
 
 
-def verify(clips: list[dict], model_path: Path, expected: dict, *, compare_action: bool = True) -> list[dict]:
+def verify(
+    clips: list[dict], model_path: Path, expected: dict, *, compare_action: bool = True
+) -> list[dict]:
     rows = []
     for clip in clips:
         detector = LearnedRamuneAnalyzer(model_path, fps=clip["fps"])
         output, pulses, phase, action, state = [], [], [], [], []
         for i, points in enumerate(clip["points"]):
-            opened = detector.update(objects(points), i / clip["fps"], aspect_ratio=clip["aspect"], frame_id=i)
+            opened = detector.update(
+                objects(points), i / clip["fps"], aspect_ratio=clip["aspect"], frame_id=i
+            )
             output.append(3 if opened else 0)
             phase.append(detector.phase)
             action.append(detector.action)
@@ -43,16 +49,22 @@ def verify(clips: list[dict], model_path: Path, expected: dict, *, compare_actio
             np.testing.assert_array_equal(action, expected["action/" + name])
         np.testing.assert_array_equal(output, expected["output/" + name])
         np.testing.assert_array_equal(state, expected["state/" + name])
-        rows.append(dict(video=name, frames=len(output), metrics=measure(clip, np.array(output), pulses)))
+        rows.append(
+            dict(video=name, frames=len(output), metrics=measure(clip, np.array(output), pulses))
+        )
         print("stream parity", name, flush=True)
     return rows
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--snapshot", type=Path, default=ROOT / "shared/results/0924-cache/runtime-source.npz")
+    parser.add_argument(
+        "--snapshot", type=Path, default=ROOT / "shared/results/0924-cache/runtime-source.npz"
+    )
     parser.add_argument("--videos", nargs="*", default=[])
-    parser.add_argument("--app-clock", action="store_true", help="Use video PTS via the actual application clock")
+    parser.add_argument(
+        "--app-clock", action="store_true", help="Use video PTS via the actual application clock"
+    )
     parser.add_argument("--output", type=Path, default=ROOT / "docs/0924-runtime-validation.json")
     args = parser.parse_args()
     clips, _ = load_snapshot(args.snapshot)
@@ -60,8 +72,11 @@ def main() -> None:
     reference = json.loads(reference_path.read_text())
     action_ref = json.loads((ROOT / "docs/0924-timeline-central-results.json").read_text())
     with np.load(ROOT / reference["frame_predictions"], allow_pickle=False) as data:
-        expected = {k.removeprefix("relative_position/"): data[k].copy() for k in data.files
-                    if k.startswith(("relative_position/", "action/"))}
+        expected = {
+            k.removeprefix("relative_position/"): data[k].copy()
+            for k in data.files
+            if k.startswith(("relative_position/", "action/"))
+        }
     fold_rows = []
     keys = ("history", "regularization", "classifier")
     with tempfile.TemporaryDirectory() as directory:
@@ -69,8 +84,12 @@ def main() -> None:
             group = selection["group"]
             training = [c for c in clips if c["group"] not in (0, group)]
             testing = [c for c in clips if c["group"] == group]
-            action = next(r for r in action_ref["results"]["action"]["clips"] if r["group"] == group)
-            bundle = build_bundle(training, {k: selection[k] for k in keys}, {k: action[k] for k in keys})
+            action = next(
+                r for r in action_ref["results"]["action"]["clips"] if r["group"] == group
+            )
+            bundle = build_bundle(
+                training, {k: selection[k] for k in keys}, {k: action[k] for k in keys}
+            )
             path = Path(directory) / f"fold{group}.npz"
             np.savez_compressed(path, **bundle)
             fold_rows.extend(verify(testing, path, expected))
@@ -86,7 +105,9 @@ def main() -> None:
         analyzer = PoseAnalyzer(ramune_detector="learned", source_fps=clip["fps"])
         # Reference coordinator on frozen poses: verify the complete app result,
         # including the existing other-gesture arbitration and event pulses.
-        reference_coordinator = RecognitionCoordinator(ramune_detector="learned", source_fps=clip["fps"])
+        reference_coordinator = RecognitionCoordinator(
+            ramune_detector="learned", source_fps=clip["fps"]
+        )
         events = []
         output = []
         clock = FrameClock(is_video=True)
@@ -98,9 +119,13 @@ def main() -> None:
                 timestamp = clock.timestamp(cap) if args.app_clock else i / clip["fps"]
                 result = analyzer.process(frame, timestamp, i)
                 if not args.app_clock:
-                    np.testing.assert_allclose(result["landmarks"] or np.zeros((33, 3)), points, atol=1e-6)
+                    np.testing.assert_allclose(
+                        result["landmarks"] or np.zeros((33, 3)), points, atol=1e-6
+                    )
                 reference_points = np.array(result["landmarks"]) if args.app_clock else points
-                previous = reference_coordinator.process(objects(reference_points), timestamp, i, aspect_ratio=clip["aspect"])
+                previous = reference_coordinator.process(
+                    objects(reference_points), timestamp, i, aspect_ratio=clip["aspect"]
+                )
                 for key in ("current", "occurrences", "ramune_state", "selected_action"):
                     if result[key] != previous[key]:
                         raise ValueError(f"App replay differs: {name} frame {i} key {key}")
@@ -112,13 +137,23 @@ def main() -> None:
         finally:
             cap.release()
             analyzer.close()
-        videos.append(dict(video=name, frames=len(clip["points"]), ramune_events=events,
-                           frozen_pose_parity_checked=not args.app_clock, coordinator_parity=True,
-                           metrics=measure(clip, np.array(output), events)))
+        videos.append(
+            dict(
+                video=name,
+                frames=len(clip["points"]),
+                ramune_events=events,
+                frozen_pose_parity_checked=not args.app_clock,
+                coordinator_parity=True,
+                metrics=measure(clip, np.array(output), events),
+            )
+        )
         print("real video parity", name, events, flush=True)
     report = dict(
-        model_sha256=digest(DEFAULT_MODEL), reference_sha256=digest(reference_path),
-        snapshot_sha256=digest(args.snapshot), outer_fold_replay=fold_rows, real_videos=videos,
+        model_sha256=digest(DEFAULT_MODEL),
+        reference_sha256=digest(reference_path),
+        snapshot_sha256=digest(args.snapshot),
+        outer_fold_replay=fold_rows,
+        real_videos=videos,
         video_clock="application-video-PTS" if args.app_clock else "uniform-annotation-fps",
         script_sha256=digest(Path(__file__)),
         runtime_sha256={p.name: digest(p) for p in (ROOT / "src/gesture_detection").glob("*.py")},

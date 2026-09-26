@@ -52,7 +52,11 @@ def predict(
     initial, rearm = POLICIES.get(family, (False, False))
     trace = []
     out, events = apply_temporal(
-        p, a, clip["points"], clip["fps"], CONFIG,
+        p,
+        a,
+        clip["points"],
+        clip["fps"],
+        CONFIG,
         initial_setup_phase_only=initial,
         rearm_setup_phase_only=rearm,
         trace=trace,
@@ -68,8 +72,11 @@ def longest_evidence(mask: np.ndarray, fps: float) -> dict:
 
 
 def diagnose(
-    clip: dict, phase: np.ndarray, action: np.ndarray,
-    outputs: dict[str, np.ndarray], trace: list[dict],
+    clip: dict,
+    phase: np.ndarray,
+    action: np.ndarray,
+    outputs: dict[str, np.ndarray],
+    trace: list[dict],
     family_traces: dict[str, list[dict]] | None = None,
 ) -> list[dict]:
     tracked = (clip["points"][:, :, 2] > 0.5).any(axis=1)
@@ -95,7 +102,7 @@ def diagnose(
             for key, data in diagnostics.items()
         }
         opened = np.flatnonzero(phase[window] == 3) + parent[0]
-        future = np.flatnonzero(phase[end + 1:parent[1] + 1] == 3) + end + 1
+        future = np.flatnonzero(phase[end + 1 : parent[1] + 1] == 3) + end + 1
         starts = [a for a, _ in positive_runs(outputs["baseline"] == 3) if end < a <= parent[1]]
         blocks = {}
         for i in opened:
@@ -106,45 +113,59 @@ def diagnose(
         if hits["baseline"]:
             outcome = "detected"
         elif not len(opened):
-            outcome = "phase_late_one_frame" if len(future) and future[0] == end + 1 else "phase_no_opened_by_anchor"
+            outcome = (
+                "phase_late_one_frame"
+                if len(future) and future[0] == end + 1
+                else "phase_no_opened_by_anchor"
+            )
         elif blocks:
             outcome = "temporal_blocked_opened"
         else:
             outcome = "earlier_opened_did_not_cover_anchor"
-        rows.append(dict(
-            video=clip["name"], group=clip["group"],
-            outcome=outcome,
-            action_frames=list(parent), anchor_frames=[start, end],
-            preparation_window=[preparation.start, preparation.stop - 1],
-            setup_window=[parent[0], end],
-            longest={key: longest_evidence(mask[preparation], clip["fps"])
-                     for key, mask in masks.items()},
-            preparation_frames=preparation.stop - preparation.start,
-            missing_pose_frames=int((~tracked[preparation]).sum()),
-            low_wrist_visibility_frames=int((~wrists[preparation]).sum()),
-            phase_ready_action_disagreement_frames=int(
-                (tracked[preparation] & ready[preparation] & (action[preparation] != 1)).sum()
-            ),
-            annotated_ready_frames=int(gt_ready.sum()),
-            annotated_ready_action_miss_frames=int(
-                (gt_ready & (action[preparation] != 1)).sum()
-            ),
-            annotated_ready_phase_miss_frames=int((gt_ready & ~ready[preparation]).sum()),
-            anchor_predicted_phases=[PHASES[int(value)] for value in phase[start:end + 1]],
-            anchor_tracked_frames=int(tracked[start:end + 1].sum()),
-            anchor_both_wrists_visible_frames=int(wrists[start:end + 1].sum()),
-            raw_opened_frames_before_anchor_end=opened.tolist(),
-            first_raw_opened_after_anchor_gap_frames=int(future[0] - end) if len(future) else None,
-            first_output_after_anchor_gap_frames=starts[0] - end if starts else None,
-            blocked_opened_frames_by_state=blocks,
-            baseline_state_at_anchor=trace[start]["state_before"],
-            baseline_state_transitions=[row for row in trace if row["state_before"] != row["state_after"]],
-            family_state_transitions={
-                key: [row for row in audit if row["state_before"] != row["state_after"]]
-                for key, audit in (family_traces or {"baseline": trace}).items()
-            },
-            hits=hits,
-        ))
+        rows.append(
+            dict(
+                video=clip["name"],
+                group=clip["group"],
+                outcome=outcome,
+                action_frames=list(parent),
+                anchor_frames=[start, end],
+                preparation_window=[preparation.start, preparation.stop - 1],
+                setup_window=[parent[0], end],
+                longest={
+                    key: longest_evidence(mask[preparation], clip["fps"])
+                    for key, mask in masks.items()
+                },
+                preparation_frames=preparation.stop - preparation.start,
+                missing_pose_frames=int((~tracked[preparation]).sum()),
+                low_wrist_visibility_frames=int((~wrists[preparation]).sum()),
+                phase_ready_action_disagreement_frames=int(
+                    (tracked[preparation] & ready[preparation] & (action[preparation] != 1)).sum()
+                ),
+                annotated_ready_frames=int(gt_ready.sum()),
+                annotated_ready_action_miss_frames=int(
+                    (gt_ready & (action[preparation] != 1)).sum()
+                ),
+                annotated_ready_phase_miss_frames=int((gt_ready & ~ready[preparation]).sum()),
+                anchor_predicted_phases=[PHASES[int(value)] for value in phase[start : end + 1]],
+                anchor_tracked_frames=int(tracked[start : end + 1].sum()),
+                anchor_both_wrists_visible_frames=int(wrists[start : end + 1].sum()),
+                raw_opened_frames_before_anchor_end=opened.tolist(),
+                first_raw_opened_after_anchor_gap_frames=int(future[0] - end)
+                if len(future)
+                else None,
+                first_output_after_anchor_gap_frames=starts[0] - end if starts else None,
+                blocked_opened_frames_by_state=blocks,
+                baseline_state_at_anchor=trace[start]["state_before"],
+                baseline_state_transitions=[
+                    row for row in trace if row["state_before"] != row["state_after"]
+                ],
+                family_state_transitions={
+                    key: [row for row in audit if row["state_before"] != row["state_after"]]
+                    for key, audit in (family_traces or {"baseline": trace}).items()
+                },
+                hits=hits,
+            )
+        )
     return rows
 
 
@@ -158,17 +179,25 @@ def evaluate_sample(
         for missing in (0.0, 0.5, 2.0):
             pair, p, a, offset = repeat_clip(clip, phase, action, missing)
             repeated, pulses, _ = predict(pair, p, a, family)
-            np.testing.assert_array_equal(out, repeated[:len(out)])
+            np.testing.assert_array_equal(out, repeated[: len(out)])
             result = measure(pair, repeated, pulses)
             count = len(clip["opening_intervals"])
-            repetitions.append(dict(
-                missing_seconds=missing, join_frame=offset, anchors_per_copy=count,
-                first_hit=any(d["matched_run"] is not None for d in result["details"][:count]),
-                second_hit=any(d["matched_run"] is not None for d in result["details"][count:]),
-                diagnostics=result,
-            ))
-    row = dict(video=clip["name"], group=clip["group"], single=measure(clip, out, events),
-               repetitions=repetitions)
+            repetitions.append(
+                dict(
+                    missing_seconds=missing,
+                    join_frame=offset,
+                    anchors_per_copy=count,
+                    first_hit=any(d["matched_run"] is not None for d in result["details"][:count]),
+                    second_hit=any(d["matched_run"] is not None for d in result["details"][count:]),
+                    diagnostics=result,
+                )
+            )
+    row = dict(
+        video=clip["name"],
+        group=clip["group"],
+        single=measure(clip, out, events),
+        repetitions=repetitions,
+    )
     return row, out, trace
 
 
@@ -178,13 +207,17 @@ def summarize_family(rows: list[dict]) -> dict:
         relevant = [r for r in rows if bool(r["group"]) == (env == "behind")]
         repeats = {}
         for missing in (0.0, 0.5, 2.0):
-            samples = [s for r in relevant for s in r["repetitions"]
-                       if s["missing_seconds"] == missing]
+            samples = [
+                s for r in relevant for s in r["repetitions"] if s["missing_seconds"] == missing
+            ]
             if samples:
                 stats = summarize(samples)
-                stats["unanchored_runs"] = sum(len(s["diagnostics"]["unanchored_runs"])
-                                                for s in samples)
-                stats["second_misses_given_first"] = stats["first_hits"] - stats["second_hits_given_first"]
+                stats["unanchored_runs"] = sum(
+                    len(s["diagnostics"]["unanchored_runs"]) for s in samples
+                )
+                stats["second_misses_given_first"] = (
+                    stats["first_hits"] - stats["second_hits_given_first"]
+                )
                 repeats[str(missing)] = stats
         result[env] = dict(single=aggregate([r["single"] for r in relevant]), repetition=repeats)
     return result
@@ -212,8 +245,9 @@ def candidate_decision(baseline: dict, candidate: dict) -> dict:
     return dict(eligible_for_next_validation=not reasons, reasons=reasons)
 
 
-def plot_trial(clip: dict, phase: np.ndarray, action: np.ndarray,
-               outputs: dict, trace: list[dict], path: Path) -> None:
+def plot_trial(
+    clip: dict, phase: np.ndarray, action: np.ndarray, outputs: dict, trace: list[dict], path: Path
+) -> None:
     import matplotlib
 
     matplotlib.use("Agg")
@@ -240,21 +274,30 @@ def plot_trial(clip: dict, phase: np.ndarray, action: np.ndarray,
     axes[2].axhline(0.5, color="gray", linestyle="--")
     axes[2].set(ylabel="Visibility", ylim=(-0.05, 1.05))
     axes[2].legend(loc="upper right", ncol=3)
-    masks = [tracked & np.isin(phase, (1, 2)) & (action == 1),
-             tracked & np.isin(phase, (1, 2))]
+    masks = [tracked & np.isin(phase, (1, 2)) & (action == 1), tracked & np.isin(phase, (1, 2))]
     for lane, mask in enumerate(masks):
         for a, b in positive_runs(mask):
-            axes[3].broken_barh([(a / clip["fps"], (b - a + 1) / clip["fps"])],
-                                (lane - 0.3, 0.6), facecolors=f"C{lane}")
+            axes[3].broken_barh(
+                [(a / clip["fps"], (b - a + 1) / clip["fps"])],
+                (lane - 0.3, 0.6),
+                facecolors=f"C{lane}",
+            )
     axes[3].set(yticks=[0, 1], yticklabels=["joint setup", "phase-only setup"], ylim=(-0.5, 1.5))
     axes[4].step(t, [STATES.index(r["state_after"]) for r in trace], where="post")
     axes[4].set(yticks=range(len(STATES)), yticklabels=STATES, ylabel="Baseline state")
     for lane, family in enumerate(POLICIES):
         for a, b in positive_runs(outputs[family] == 3):
-            axes[5].broken_barh([(a / clip["fps"], (b - a + 1) / clip["fps"])],
-                                (lane - 0.3, 0.6), facecolors=f"C{lane}")
-    axes[5].set(yticks=range(len(POLICIES)), yticklabels=list(POLICIES),
-                ylim=(-0.5, len(POLICIES) - 0.5), xlabel="Time (s); gold = annotated OPENED anchor")
+            axes[5].broken_barh(
+                [(a / clip["fps"], (b - a + 1) / clip["fps"])],
+                (lane - 0.3, 0.6),
+                facecolors=f"C{lane}",
+            )
+    axes[5].set(
+        yticks=range(len(POLICIES)),
+        yticklabels=list(POLICIES),
+        ylim=(-0.5, len(POLICIES) - 0.5),
+        xlabel="Time (s); gold = annotated OPENED anchor",
+    )
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=130)
     plt.close(fig)
@@ -262,7 +305,9 @@ def plot_trial(clip: dict, phase: np.ndarray, action: np.ndarray,
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=ROOT / "docs/0924-opening-setup-results.json")
+    parser.add_argument(
+        "--output", type=Path, default=ROOT / "docs/0924-opening-setup-results.json"
+    )
     parser.add_argument("--plot", action="store_true")
     args = parser.parse_args()
     classifier_path = ROOT / "docs/0924-timeline-central-results.json"
@@ -281,8 +326,9 @@ def main() -> None:
             name = path.parent.name
             if digest(path) != sources[name]["annotation_sha256"]:
                 raise ValueError("Annotations changed since frozen predictions")
-            clip = extract(path, ROOT / "shared/results/0924-cache",
-                           select_subject=False, central_mask=True)
+            clip = extract(
+                path, ROOT / "shared/results/0924-cache", select_subject=False, central_mask=True
+            )
             phase, action = predictions["phase/" + name], predictions["action/" + name]
             if len(phase) != len(clip["phase"]) or len(action) != len(phase):
                 raise ValueError("Frozen prediction frame count mismatch")
@@ -296,8 +342,9 @@ def main() -> None:
                     [STATES.index(r["state_after"]) for r in trace], dtype=np.int8
                 )
             # Ensure the added switches and trace did not alter existing behavior.
-            old = next(r for r in reference["families"]["context_fixed"]["clips"]
-                       if r["video"] == name)
+            old = next(
+                r for r in reference["families"]["context_fixed"]["clips"] if r["video"] == name
+            )
             if rows["baseline"][-1] != {k: v for k, v in old.items() if k != "config"}:
                 raise ValueError(f"Fixed baseline changed: {name}")
             diagnostics.extend(diagnose(clip, phase, action, outputs, traces["baseline"], traces))
@@ -307,22 +354,40 @@ def main() -> None:
                 plots.append(str(plot_path.relative_to(ROOT)))
             print(name, "done", flush=True)
     families = {key: summarize_family(value) for key, value in rows.items()}
-    output_predictions = ROOT / "shared/results/0924-cache" / (args.output.stem + "-predictions.npz")
+    output_predictions = (
+        ROOT / "shared/results/0924-cache" / (args.output.stem + "-predictions.npz")
+    )
     np.savez_compressed(output_predictions, **arrays)
     report = dict(
-        protocol=__doc__, config=asdict(CONFIG),
-        policies={key: dict(initial_setup_phase_only=a, rearm_setup_phase_only=b)
-                  for key, (a, b) in POLICIES.items()},
-        oracle_families=list(ORACLES), families=families, diagnostics=diagnostics,
-        decisions={key: candidate_decision(families["baseline"], families[key])
-                   for key in POLICIES if key != "baseline"},
-        sources=classifier["sources"], classifier_report_sha256=digest(classifier_path),
-        source_predictions_sha256=digest(prediction_path), reference_report_sha256=digest(reference_path),
+        protocol=__doc__,
+        config=asdict(CONFIG),
+        policies={
+            key: dict(initial_setup_phase_only=a, rearm_setup_phase_only=b)
+            for key, (a, b) in POLICIES.items()
+        },
+        oracle_families=list(ORACLES),
+        families=families,
+        diagnostics=diagnostics,
+        decisions={
+            key: candidate_decision(families["baseline"], families[key])
+            for key in POLICIES
+            if key != "baseline"
+        },
+        sources=classifier["sources"],
+        classifier_report_sha256=digest(classifier_path),
+        source_predictions_sha256=digest(prediction_path),
+        reference_report_sha256=digest(reference_path),
         script_sha256=digest(Path(__file__)),
-        helper_sha256={p: digest(Path(__file__).with_name(p)) for p in (
-            "evaluate_opening_temporal.py", "evaluate_opening_repetition.py", "evaluate_timeline.py"
-        )},
-        states=list(STATES), plots=plots,
+        helper_sha256={
+            p: digest(Path(__file__).with_name(p))
+            for p in (
+                "evaluate_opening_temporal.py",
+                "evaluate_opening_repetition.py",
+                "evaluate_timeline.py",
+            )
+        },
+        states=list(STATES),
+        plots=plots,
         frame_predictions=str(output_predictions.relative_to(ROOT)),
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)

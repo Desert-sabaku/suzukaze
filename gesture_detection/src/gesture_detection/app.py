@@ -87,7 +87,11 @@ class GestureApplication:
             frame_id = 0
             self.pose_frame_queue = SharedLatestFrame(frame.shape)
             source_fps = capture.get(cv2.CAP_PROP_FPS)
-            if isinstance(source_fps, (int, float)) and math.isfinite(source_fps) and source_fps > 0:
+            if (
+                isinstance(source_fps, (int, float))
+                and math.isfinite(source_fps)
+                and source_fps > 0
+            ):
                 self.source_fps = float(source_fps)
             self._start_workers()
             assert self.pose_process is not None

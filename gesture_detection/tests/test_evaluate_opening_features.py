@@ -80,7 +80,9 @@ def test_features_preserve_baseline_and_do_not_use_future_or_labels():
     source = clip()
     before = experiment.feature_sets(source)
     for history in (0.25, 0.75):
-        np.testing.assert_array_equal(before["baseline"][history], timeline.features(source, history))
+        np.testing.assert_array_equal(
+            before["baseline"][history], timeline.features(source, history)
+        )
         assert [before[key][history].shape[1] for key in experiment.FAMILIES] == [96, 110, 138]
     source["points"][10:] = np.random.default_rng(26).random((10, 33, 3))
     source["phase"], source["action"] = np.ones(20), np.ones(20)
@@ -93,10 +95,14 @@ def test_features_preserve_baseline_and_do_not_use_future_or_labels():
 def test_nested_selection_excludes_outer_test_and_without_screen(monkeypatch):
     samples = []
     for group in (0, 1, 2, 3):
-        samples.append(dict(
-            name=str(group), group=group, phase=np.array([0, 1, 3]),
-            feature_sets={"baseline": {0.25: np.ones((3, 2)), 0.75: np.ones((3, 2))}},
-        ))
+        samples.append(
+            dict(
+                name=str(group),
+                group=group,
+                phase=np.array([0, 1, 3]),
+                feature_sets={"baseline": {0.25: np.ones((3, 2)), 0.75: np.ones((3, 2))}},
+            )
+        )
     allowed = set()
     calls = []
     original_choose = timeline.choose
@@ -135,7 +141,9 @@ def test_unknown_phase_is_excluded_from_training_and_test_labels_are_unused():
     trimmed = dict(features={0.25: x[1:]}, phase=y[1:])
     test = dict(features={0.25: x[:4]}, points=np.ones((4, 33, 3)))
     expected = timeline.fit_predict([trimmed], [test], "phase", 0.25, 0.1)[0]
-    actual = timeline.fit_predict([train], [dict(test, phase=np.full(4, -1))], "phase", 0.25, 0.1)[0]
+    actual = timeline.fit_predict([train], [dict(test, phase=np.full(4, -1))], "phase", 0.25, 0.1)[
+        0
+    ]
     np.testing.assert_array_equal(actual, expected)
 
 

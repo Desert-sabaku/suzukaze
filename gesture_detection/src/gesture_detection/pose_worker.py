@@ -59,10 +59,14 @@ class PoseAnalyzer:
             raise ValueError("pose confidence thresholds must be between 0 and 1")
         if ramune_detector == "learned" and running_mode != "VIDEO":
             raise ValueError("Learned Ramune requires POSE_RUNNING_MODE=VIDEO")
-        self.recognition = RecognitionCoordinator(ramune_detector=ramune_detector, source_fps=source_fps)
+        self.recognition = RecognitionCoordinator(
+            ramune_detector=ramune_detector, source_fps=source_fps
+        )
         self.learned_profile = ramune_detector == "learned"
         self.subject_selector = (
-            SubjectSelector() if select_subject and running_mode == "VIDEO" and not self.learned_profile else None
+            SubjectSelector()
+            if select_subject and running_mode == "VIDEO" and not self.learned_profile
+            else None
         )
         self.running_mode = running_mode
         self._last_source_timestamp: float | None = None
@@ -171,7 +175,9 @@ class PoseAnalyzer:
 
 
 def pose_worker(
-    frame_queue: SharedLatestFrame, result_queue: mp.Queue, delivery_enabled: bool = False,
+    frame_queue: SharedLatestFrame,
+    result_queue: mp.Queue,
+    delivery_enabled: bool = False,
     source_fps: float = FPS,
 ) -> None:
     analyzer = PoseAnalyzer(source_fps=source_fps)

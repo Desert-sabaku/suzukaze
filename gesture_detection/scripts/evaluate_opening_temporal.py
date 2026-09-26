@@ -82,9 +82,7 @@ def apply_temporal(
         before = state
         initial = not events
         phase_only = initial_setup_phase_only if initial else rearm_setup_phase_only
-        ready = bool(
-            tracked[index] and predicted in (1, 2) and (phase_only or action[index] == 1)
-        )
+        ready = bool(tracked[index] and predicted in (1, 2) and (phase_only or action[index] == 1))
         if state == "ARMED" and predicted == 3:
             state = "OPENED"
             last_open = now
