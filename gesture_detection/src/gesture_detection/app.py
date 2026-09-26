@@ -23,7 +23,13 @@ from .config import (
 from .ipc import SharedLatestFrame, get_latest
 from .pose_worker import pose_worker
 from .recognition_types import PoseResult
-from .rendering import draw_landmarks, draw_messages, draw_ramune_guide, status_messages
+from .rendering import (
+    draw_landmarks,
+    draw_messages,
+    draw_ramune_guide,
+    draw_subject_area,
+    status_messages,
+)
 from .video_output import AsyncVideoWriter
 
 type Frame = npt.NDArray[Any]
@@ -60,6 +66,7 @@ class GestureApplication:
         self.pose_result_queue = mp.Queue(maxsize=1)
         self.pose_process = None
         self._window_created = False
+        self.source_fps = float(FPS)
 
     def run(self) -> None:
         capture = self._open_capture()
@@ -79,6 +86,13 @@ class GestureApplication:
             timestamp = frame_clock.timestamp(capture)
             frame_id = 0
             self.pose_frame_queue = SharedLatestFrame(frame.shape)
+            source_fps = capture.get(cv2.CAP_PROP_FPS)
+            if (
+                isinstance(source_fps, (int, float))
+                and math.isfinite(source_fps)
+                and source_fps > 0
+            ):
+                self.source_fps = float(source_fps)
             self._start_workers()
             assert self.pose_process is not None
             writer = self._open_output(capture)
@@ -222,6 +236,7 @@ class GestureApplication:
                 self.pose_frame_queue,
                 self.pose_result_queue,
                 GESTURE_DELIVERY_ENABLED and VIDEO_SOURCE is None,
+                self.source_fps,
             ),
             name="pose-worker",
         )
@@ -245,7 +260,13 @@ class GestureApplication:
     @staticmethod
     def _annotate_frame(frame: Frame, pose_result: PoseResult) -> Frame:
         image = frame.copy()
-        draw_landmarks(image, pose_result.get("landmarks", []), POSE_CONNECTIONS)
+        draw_landmarks(
+            image,
+            pose_result.get("display_landmarks", pose_result.get("landmarks", [])),
+            POSE_CONNECTIONS,
+        )
+        if "subject_state" in pose_result:
+            draw_subject_area(image, pose_result["subject_state"])
         draw_messages(image, status_messages(pose_result))
         draw_ramune_guide(image, pose_result.get("ramune_state", "IDLE"))
         GestureApplication._draw_action(image, GestureApplication._primary_action(pose_result))

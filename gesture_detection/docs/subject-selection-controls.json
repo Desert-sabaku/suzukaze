@@ -1,0 +1,111 @@
+{
+  "area": [
+    0.35,
+    0.15,
+    0.75,
+    0.9
+  ],
+  "min_torso_height": 0.18,
+  "min_shoulder_width": 0.1,
+  "clips": [
+    {
+      "source": "aogi.mp4",
+      "conditions": {
+        "legacy": {
+          "frames": 306,
+          "pose_frames": 305,
+          "outside_geometry_frames": 81,
+          "LEGACY": 306,
+          "eligible_geometry_frames": 224,
+          "median_inference_ms": 30.118680000214226,
+          "p95_inference_ms": 54.209131499874275
+        },
+        "selected": {
+          "frames": 306,
+          "SEARCHING": 70,
+          "ACQUIRING": 6,
+          "pose_frames": 216,
+          "eligible_geometry_frames": 216,
+          "TRACKING": 216,
+          "LOST": 14,
+          "median_inference_ms": 29.138514500118617,
+          "p95_inference_ms": 48.40570500005015
+        }
+      }
+    },
+    {
+      "source": "ramune.mp4",
+      "conditions": {
+        "legacy": {
+          "frames": 303,
+          "pose_frames": 299,
+          "outside_geometry_frames": 209,
+          "LEGACY": 303,
+          "eligible_geometry_frames": 90,
+          "median_inference_ms": 27.709578000212787,
+          "p95_inference_ms": 54.81438340002566
+        },
+        "selected": {
+          "frames": 303,
+          "SEARCHING": 98,
+          "ACQUIRING": 7,
+          "pose_frames": 184,
+          "eligible_geometry_frames": 184,
+          "TRACKING": 184,
+          "LOST": 14,
+          "median_inference_ms": 27.574323000408185,
+          "p95_inference_ms": 49.16734520011232
+        }
+      }
+    },
+    {
+      "source": "uchimizu.mp4",
+      "conditions": {
+        "legacy": {
+          "frames": 308,
+          "pose_frames": 307,
+          "outside_geometry_frames": 109,
+          "LEGACY": 308,
+          "eligible_geometry_frames": 198,
+          "median_inference_ms": 36.967643999560096,
+          "p95_inference_ms": 56.944650450486726
+        },
+        "selected": {
+          "frames": 308,
+          "SEARCHING": 100,
+          "ACQUIRING": 3,
+          "pose_frames": 191,
+          "eligible_geometry_frames": 191,
+          "TRACKING": 191,
+          "LOST": 14,
+          "median_inference_ms": 32.722353500048484,
+          "p95_inference_ms": 54.04094165037346
+        }
+      }
+    },
+    {
+      "source": "yusuzumi.mp4",
+      "conditions": {
+        "legacy": {
+          "frames": 323,
+          "pose_frames": 323,
+          "outside_geometry_frames": 323,
+          "LEGACY": 323,
+          "median_inference_ms": 37.52273600002809,
+          "p95_inference_ms": 69.4454136004424
+        },
+        "selected": {
+          "frames": 323,
+          "SEARCHING": 86,
+          "ACQUIRING": 6,
+          "pose_frames": 217,
+          "eligible_geometry_frames": 217,
+          "TRACKING": 217,
+          "LOST": 14,
+          "median_inference_ms": 34.06566199919325,
+          "p95_inference_ms": 66.86404449983452
+        }
+      }
+    }
+  ]
+}

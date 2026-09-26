@@ -24,7 +24,7 @@ def landmarks():
 @pytest.fixture
 def analyzer():
     with patch.object(PoseAnalyzer, "_create_landmarker"):
-        return PoseAnalyzer(running_mode="IMAGE")
+        return PoseAnalyzer(running_mode="IMAGE", select_subject=False)
 
 
 @pytest.fixture(params=["IMAGE", "VIDEO"])
@@ -453,3 +453,99 @@ def test_process_clears_relaxing_on_first_moving_frame(process_analyzer):
     assert not result["relaxing_state"]
     assert result["frame_id"] == 32
     assert result["timestamp"] == 32 / 30
+
+
+def test_video_display_smoothing_preserves_recognition_input(process_analyzer):
+    points = landmarks()
+    detection = SimpleNamespace(pose_landmarks=[points])
+    process_analyzer.landmarker.detect.return_value = detection
+    process_analyzer.landmarker.detect_for_video.return_value = detection
+    frame = np.zeros((100, 100, 3), dtype=np.uint8)
+    process_analyzer.process(frame, 1.0, 0)
+    points[15].x = 0.8
+    result = process_analyzer.process(frame, 1.03, 1)
+    assert result["landmarks"][15][0] == 0.8
+    if process_analyzer.running_mode == "VIDEO":
+        assert 0.5 < result["display_landmarks"][15][0] < 0.8
+    else:
+        assert "display_landmarks" not in result
+
+
+def test_subject_selection_never_passes_background_to_recognition():
+    with patch.object(PoseAnalyzer, "_create_landmarker"):
+        analyzer = PoseAnalyzer(running_mode="VIDEO", select_subject=True)
+    foreground = landmarks()
+    background = landmarks()
+    for point in background:
+        point.x = point.x * 0.3
+        point.y = point.y * 0.3
+    frame = np.zeros((100, 100, 3), dtype=np.uint8)
+    with patch("gesture_detection.pose_worker.mp_core.Image"):
+        try:
+            analyzer.landmarker.detect_for_video.return_value = SimpleNamespace(
+                pose_landmarks=[background]
+            )
+            result = analyzer.process(frame, 0.0, 0)
+            assert not result.get("current", {}).get("tracking")
+            assert result["landmarks"] == []
+            analyzer.landmarker.detect_for_video.return_value = SimpleNamespace(
+                pose_landmarks=[background, foreground]
+            )
+            assert analyzer.process(frame, 0.1, 1).get("subject_state") == "ACQUIRING"
+            result = analyzer.process(frame, 0.31, 2)
+            assert result.get("current", {}).get("tracking")
+            assert result["landmarks"][11][0] == foreground[11].x
+            analyzer.landmarker.detect_for_video.return_value = SimpleNamespace(
+                pose_landmarks=[background]
+            )
+            result = analyzer.process(frame, 0.35, 3)
+            assert result.get("subject_state") == "LOST"
+            assert result.get("current") == {"gesture": "NONE", "tracking": False}
+            assert result.get("occurrences") == ()
+            assert result.get("display_landmarks") == []
+        finally:
+            analyzer.close()
+
+
+@pytest.mark.parametrize(
+    ("mode", "enabled", "expected"),
+    [
+        ("VIDEO", True, True),
+        ("VIDEO", False, False),
+        ("IMAGE", True, False),
+    ],
+)
+def test_subject_selection_is_video_only(mode, enabled, expected):
+    with patch.object(PoseAnalyzer, "_create_landmarker"):
+        analyzer = PoseAnalyzer(running_mode=mode, select_subject=enabled)
+    assert (analyzer.subject_selector is not None) is expected
+    analyzer.close()
+
+
+def test_only_seed_frame_is_masked_and_never_emitted():
+    import cv2
+
+    with patch.object(PoseAnalyzer, "_create_landmarker"):
+        analyzer = PoseAnalyzer(running_mode="VIDEO", select_subject=True)
+    analyzer.landmarker.detect_for_video.return_value = SimpleNamespace(
+        pose_landmarks=[landmarks()]
+    )
+    frame = np.full((100, 100, 3), 255, dtype=np.uint8)
+    try:
+        with (
+            patch("gesture_detection.pose_worker.cv2.cvtColor", wraps=cv2.cvtColor) as convert,
+            patch("gesture_detection.pose_worker.mp_core.Image"),
+        ):
+            first = analyzer.process(frame, 0.0, 0)
+            seeded_image = convert.call_args.args[0]
+            assert np.all(seeded_image[:, :30] == 127)
+            assert np.all(seeded_image[:, 40:70] == 255)
+            assert first["landmarks"] == []
+            assert np.all(frame == 255)
+            analyzer.process(frame, 0.1, 1)
+            assert convert.call_args.args[0] is frame
+            tracked = analyzer.process(frame, 0.21, 2)
+            assert tracked["landmarks"]
+            assert convert.call_args.args[0] is frame
+    finally:
+        analyzer.close()

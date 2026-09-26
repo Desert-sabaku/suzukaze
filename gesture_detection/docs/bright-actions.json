@@ -1,0 +1,1339 @@
+{
+  "environment": {
+    "python": "3.12.13",
+    "mediapipe": "0.10.35",
+    "opencv": "5.0.0"
+  },
+  "condition": {
+    "model": "pose_landmarker_lite.task",
+    "preprocess": "identity",
+    "detection_confidence": 0.5,
+    "presence_confidence": 0.5,
+    "sample_fps": 30.0
+  },
+  "clips": [
+    {
+      "environment": "bright",
+      "source": "aogi1_3-8.mp4",
+      "take": 1,
+      "expected_action": "FANNING",
+      "expected_interval": [
+        3.0,
+        8.0
+      ],
+      "source_frames": 327,
+      "evaluated_frames": 327,
+      "sample_fps": 30.0,
+      "interval_frames": 150,
+      "pose_interval_frames": 150,
+      "pose_interval_ratio": 1.0,
+      "expected_action_frames": 130,
+      "expected_action_frame_ratio": 0.8666666666666667,
+      "clip_detected": true,
+      "occurrence_detected": false,
+      "first_expected_latency": 0.6722000000000001,
+      "outside_frames": 177,
+      "outside_action_ratio": 0.22033898305084745,
+      "interval_actions": {
+        "FANNING": 130,
+        "NONE": 10,
+        "SPRINKLING": 10
+      },
+      "outside_actions": {
+        "FANNING": 8,
+        "NONE": 138,
+        "SPRINKLING": 31
+      },
+      "diagnostics": {
+        "ramune_states": {
+          "IDLE": 150
+        },
+        "ramune_required_visible_frames": 150,
+        "ramune_ready_geometry_frames": 0,
+        "ramune_gap": {
+          "count": 150.0,
+          "median": 2.6868571359591265,
+          "p95": 2.9896245750753856,
+          "max": 3.050523505835109
+        },
+        "ramune_alignment": {
+          "count": 150.0,
+          "median": 1.2565274308152128,
+          "p95": 1.451077503811061,
+          "max": 1.618425132561685
+        },
+        "ramune_press": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_closing": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_remaining_gap": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "relaxing_motion_speed": {
+          "count": 150.0,
+          "median": 1.513057508318456,
+          "p95": 7.54594630601335,
+          "max": 18.245486382869746
+        },
+        "relaxing_still_seconds": {
+          "count": 150.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 0.03476666666666617
+        },
+        "ramune_pose_candidate_interval_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 0,
+          "align_100_dwell_025_visible_050": 0,
+          "align_100_dwell_050_visible_050": 0
+        },
+        "ramune_pose_candidate_outside_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 0,
+          "align_100_dwell_025_visible_050": 0,
+          "align_100_dwell_050_visible_050": 0
+        },
+        "relaxing_pose_candidate_interval_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 0,
+          "torso_grace_080_speed_050_drift_010": 93,
+          "torso_speed_030_drift_008": 75,
+          "torso_speed_050_drift_010": 93
+        },
+        "relaxing_pose_candidate_outside_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 0,
+          "torso_grace_080_speed_050_drift_010": 26,
+          "torso_speed_030_drift_008": 4,
+          "torso_speed_050_drift_010": 26
+        }
+      }
+    },
+    {
+      "environment": "bright",
+      "source": "aogi2_1-7.mp4",
+      "take": 2,
+      "expected_action": "FANNING",
+      "expected_interval": [
+        1.0,
+        7.0
+      ],
+      "source_frames": 320,
+      "evaluated_frames": 319,
+      "sample_fps": 30.0,
+      "interval_frames": 180,
+      "pose_interval_frames": 180,
+      "pose_interval_ratio": 1.0,
+      "expected_action_frames": 100,
+      "expected_action_frame_ratio": 0.5555555555555556,
+      "clip_detected": true,
+      "occurrence_detected": false,
+      "first_expected_latency": 1.0022000000000002,
+      "outside_frames": 139,
+      "outside_action_ratio": 0.2014388489208633,
+      "interval_actions": {
+        "FANNING": 100,
+        "NONE": 27,
+        "SPRINKLING": 53
+      },
+      "outside_actions": {
+        "FANNING": 13,
+        "NONE": 111,
+        "SPRINKLING": 15
+      },
+      "diagnostics": {
+        "ramune_states": {
+          "IDLE": 180
+        },
+        "ramune_required_visible_frames": 165,
+        "ramune_ready_geometry_frames": 0,
+        "ramune_gap": {
+          "count": 165.0,
+          "median": 2.447764956043252,
+          "p95": 2.8829342201044077,
+          "max": 3.0128811109266413
+        },
+        "ramune_alignment": {
+          "count": 165.0,
+          "median": 1.2547624973578435,
+          "p95": 1.4190751196466522,
+          "max": 1.6519098512119694
+        },
+        "ramune_press": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_closing": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_remaining_gap": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "relaxing_motion_speed": {
+          "count": 164.0,
+          "median": 2.0781004070691207,
+          "p95": 15.71566848097626,
+          "max": 28.658380315138114
+        },
+        "relaxing_still_seconds": {
+          "count": 180.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "ramune_pose_candidate_interval_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 0,
+          "align_100_dwell_025_visible_050": 0,
+          "align_100_dwell_050_visible_050": 0
+        },
+        "ramune_pose_candidate_outside_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 0,
+          "align_100_dwell_025_visible_050": 0,
+          "align_100_dwell_050_visible_050": 0
+        },
+        "relaxing_pose_candidate_interval_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 0,
+          "torso_grace_080_speed_050_drift_010": 116,
+          "torso_speed_030_drift_008": 19,
+          "torso_speed_050_drift_010": 116
+        },
+        "relaxing_pose_candidate_outside_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 0,
+          "torso_grace_080_speed_050_drift_010": 0,
+          "torso_speed_030_drift_008": 0,
+          "torso_speed_050_drift_010": 0
+        }
+      }
+    },
+    {
+      "environment": "bright",
+      "source": "aogi3_2-8.mp4",
+      "take": 3,
+      "expected_action": "FANNING",
+      "expected_interval": [
+        2.0,
+        8.0
+      ],
+      "source_frames": 332,
+      "evaluated_frames": 331,
+      "sample_fps": 30.0,
+      "interval_frames": 180,
+      "pose_interval_frames": 180,
+      "pose_interval_ratio": 1.0,
+      "expected_action_frames": 113,
+      "expected_action_frame_ratio": 0.6277777777777778,
+      "clip_detected": true,
+      "occurrence_detected": false,
+      "first_expected_latency": 0.4358666666666666,
+      "outside_frames": 151,
+      "outside_action_ratio": 0.32450331125827814,
+      "interval_actions": {
+        "FANNING": 113,
+        "NONE": 2,
+        "SPRINKLING": 65
+      },
+      "outside_actions": {
+        "FANNING": 24,
+        "NONE": 102,
+        "SPRINKLING": 25
+      },
+      "diagnostics": {
+        "ramune_states": {
+          "IDLE": 180
+        },
+        "ramune_required_visible_frames": 180,
+        "ramune_ready_geometry_frames": 0,
+        "ramune_gap": {
+          "count": 180.0,
+          "median": 2.2133283996994586,
+          "p95": 2.787569761933832,
+          "max": 2.946523223243036
+        },
+        "ramune_alignment": {
+          "count": 180.0,
+          "median": 1.2685857086833106,
+          "p95": 1.3880765322705468,
+          "max": 1.4317609880399056
+        },
+        "ramune_press": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_closing": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_remaining_gap": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "relaxing_motion_speed": {
+          "count": 180.0,
+          "median": 3.103417129394008,
+          "p95": 11.249489308939847,
+          "max": 19.792349431352964
+        },
+        "relaxing_still_seconds": {
+          "count": 180.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "ramune_pose_candidate_interval_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 0,
+          "align_100_dwell_025_visible_050": 0,
+          "align_100_dwell_050_visible_050": 0
+        },
+        "ramune_pose_candidate_outside_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 0,
+          "align_100_dwell_025_visible_050": 0,
+          "align_100_dwell_050_visible_050": 0
+        },
+        "relaxing_pose_candidate_interval_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 0,
+          "torso_grace_080_speed_050_drift_010": 118,
+          "torso_speed_030_drift_008": 13,
+          "torso_speed_050_drift_010": 118
+        },
+        "relaxing_pose_candidate_outside_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 0,
+          "torso_grace_080_speed_050_drift_010": 25,
+          "torso_speed_030_drift_008": 14,
+          "torso_speed_050_drift_010": 25
+        }
+      }
+    },
+    {
+      "environment": "bright",
+      "source": "ramune1_4-7.mp4",
+      "take": 1,
+      "expected_action": "RAMUNE",
+      "expected_interval": [
+        4.0,
+        7.0
+      ],
+      "source_frames": 346,
+      "evaluated_frames": 346,
+      "sample_fps": 30.0,
+      "interval_frames": 90,
+      "pose_interval_frames": 90,
+      "pose_interval_ratio": 1.0,
+      "expected_action_frames": 0,
+      "expected_action_frame_ratio": 0.0,
+      "clip_detected": false,
+      "occurrence_detected": false,
+      "first_expected_latency": null,
+      "outside_frames": 256,
+      "outside_action_ratio": 0.18359375,
+      "interval_actions": {
+        "NONE": 76,
+        "SPRINKLING": 14
+      },
+      "outside_actions": {
+        "FANNING": 17,
+        "NONE": 209,
+        "SPRINKLING": 30
+      },
+      "diagnostics": {
+        "ramune_states": {
+          "FORMING": 19,
+          "IDLE": 16,
+          "READY": 55
+        },
+        "ramune_required_visible_frames": 90,
+        "ramune_ready_geometry_frames": 76,
+        "ramune_gap": {
+          "count": 90.0,
+          "median": 0.6900330847997054,
+          "p95": 0.8331196811102384,
+          "max": 0.8543953731730314
+        },
+        "ramune_alignment": {
+          "count": 90.0,
+          "median": 0.29119458998280223,
+          "p95": 1.3185510469940342,
+          "max": 1.368888791719062
+        },
+        "ramune_press": {
+          "count": 55.0,
+          "median": -0.06523514755581557,
+          "p95": 0.025332174080227036,
+          "max": 0.08178128412236652
+        },
+        "ramune_closing": {
+          "count": 55.0,
+          "median": -0.10530206828762922,
+          "p95": 0.01575807615859473,
+          "max": 0.35378086743649606
+        },
+        "ramune_remaining_gap": {
+          "count": 55.0,
+          "median": 0.7286289627286568,
+          "p95": 0.8444743797475777,
+          "max": 0.8592102055142001
+        },
+        "relaxing_motion_speed": {
+          "count": 90.0,
+          "median": 0.9130203640151395,
+          "p95": 2.5805424863637865,
+          "max": 3.1489587572076294
+        },
+        "relaxing_still_seconds": {
+          "count": 90.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 0.0343666666666671
+        },
+        "ramune_pose_candidate_interval_events": {
+          "align_080_dwell_025_visible_050": 1,
+          "align_100_dwell_025_visible_020": 1,
+          "align_100_dwell_025_visible_050": 1,
+          "align_100_dwell_050_visible_050": 1
+        },
+        "ramune_pose_candidate_outside_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 0,
+          "align_100_dwell_025_visible_050": 0,
+          "align_100_dwell_050_visible_050": 0
+        },
+        "relaxing_pose_candidate_interval_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 0,
+          "torso_grace_080_speed_050_drift_010": 32,
+          "torso_speed_030_drift_008": 1,
+          "torso_speed_050_drift_010": 32
+        },
+        "relaxing_pose_candidate_outside_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 0,
+          "torso_grace_080_speed_050_drift_010": 58,
+          "torso_speed_030_drift_008": 43,
+          "torso_speed_050_drift_010": 58
+        }
+      }
+    },
+    {
+      "environment": "bright",
+      "source": "ramune2_3-4.mp4",
+      "take": 2,
+      "expected_action": "RAMUNE",
+      "expected_interval": [
+        3.0,
+        4.0
+      ],
+      "source_frames": 312,
+      "evaluated_frames": 312,
+      "sample_fps": 30.0,
+      "interval_frames": 30,
+      "pose_interval_frames": 0,
+      "pose_interval_ratio": 0.0,
+      "expected_action_frames": 0,
+      "expected_action_frame_ratio": 0.0,
+      "clip_detected": false,
+      "occurrence_detected": false,
+      "first_expected_latency": null,
+      "outside_frames": 282,
+      "outside_action_ratio": 0.02127659574468085,
+      "interval_actions": {
+        "NONE": 30
+      },
+      "outside_actions": {
+        "NONE": 276,
+        "SPRINKLING": 6
+      },
+      "diagnostics": {
+        "ramune_states": {
+          "IDLE": 30
+        },
+        "ramune_required_visible_frames": 0,
+        "ramune_ready_geometry_frames": 0,
+        "ramune_gap": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_alignment": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_press": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_closing": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_remaining_gap": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "relaxing_motion_speed": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "relaxing_still_seconds": {
+          "count": 30.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "ramune_pose_candidate_interval_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 0,
+          "align_100_dwell_025_visible_050": 0,
+          "align_100_dwell_050_visible_050": 0
+        },
+        "ramune_pose_candidate_outside_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 0,
+          "align_100_dwell_025_visible_050": 0,
+          "align_100_dwell_050_visible_050": 0
+        },
+        "relaxing_pose_candidate_interval_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 0,
+          "torso_grace_080_speed_050_drift_010": 0,
+          "torso_speed_030_drift_008": 0,
+          "torso_speed_050_drift_010": 0
+        },
+        "relaxing_pose_candidate_outside_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 0,
+          "torso_grace_080_speed_050_drift_010": 0,
+          "torso_speed_030_drift_008": 0,
+          "torso_speed_050_drift_010": 0
+        }
+      }
+    },
+    {
+      "environment": "bright",
+      "source": "ramune3_3-4.mp4",
+      "take": 3,
+      "expected_action": "RAMUNE",
+      "expected_interval": [
+        3.0,
+        4.0
+      ],
+      "source_frames": 318,
+      "evaluated_frames": 318,
+      "sample_fps": 30.0,
+      "interval_frames": 30,
+      "pose_interval_frames": 0,
+      "pose_interval_ratio": 0.0,
+      "expected_action_frames": 0,
+      "expected_action_frame_ratio": 0.0,
+      "clip_detected": false,
+      "occurrence_detected": false,
+      "first_expected_latency": null,
+      "outside_frames": 288,
+      "outside_action_ratio": 0.0,
+      "interval_actions": {
+        "NONE": 30
+      },
+      "outside_actions": {
+        "NONE": 288
+      },
+      "diagnostics": {
+        "ramune_states": {
+          "IDLE": 30
+        },
+        "ramune_required_visible_frames": 0,
+        "ramune_ready_geometry_frames": 0,
+        "ramune_gap": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_alignment": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_press": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_closing": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_remaining_gap": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "relaxing_motion_speed": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "relaxing_still_seconds": {
+          "count": 30.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "ramune_pose_candidate_interval_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 0,
+          "align_100_dwell_025_visible_050": 0,
+          "align_100_dwell_050_visible_050": 0
+        },
+        "ramune_pose_candidate_outside_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 0,
+          "align_100_dwell_025_visible_050": 0,
+          "align_100_dwell_050_visible_050": 0
+        },
+        "relaxing_pose_candidate_interval_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 0,
+          "torso_grace_080_speed_050_drift_010": 0,
+          "torso_speed_030_drift_008": 0,
+          "torso_speed_050_drift_010": 0
+        },
+        "relaxing_pose_candidate_outside_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 0,
+          "torso_grace_080_speed_050_drift_010": 0,
+          "torso_speed_030_drift_008": 0,
+          "torso_speed_050_drift_010": 0
+        }
+      }
+    },
+    {
+      "environment": "bright",
+      "source": "uchimizu1_3-5.mp4",
+      "take": 1,
+      "expected_action": "SPRINKLING",
+      "expected_interval": [
+        3.0,
+        5.0
+      ],
+      "source_frames": 325,
+      "evaluated_frames": 325,
+      "sample_fps": 30.0,
+      "interval_frames": 60,
+      "pose_interval_frames": 60,
+      "pose_interval_ratio": 1.0,
+      "expected_action_frames": 11,
+      "expected_action_frame_ratio": 0.18333333333333332,
+      "clip_detected": true,
+      "occurrence_detected": true,
+      "first_expected_latency": 1.4716000000000005,
+      "outside_frames": 265,
+      "outside_action_ratio": 0.2037735849056604,
+      "interval_actions": {
+        "NONE": 49,
+        "SPRINKLING": 11
+      },
+      "outside_actions": {
+        "FANNING": 9,
+        "NONE": 211,
+        "SPRINKLING": 45
+      },
+      "diagnostics": {
+        "ramune_states": {
+          "IDLE": 60
+        },
+        "ramune_required_visible_frames": 60,
+        "ramune_ready_geometry_frames": 0,
+        "ramune_gap": {
+          "count": 60.0,
+          "median": 1.3201386300321958,
+          "p95": 2.1608117033539798,
+          "max": 2.2211229961781696
+        },
+        "ramune_alignment": {
+          "count": 60.0,
+          "median": 0.8900941525742587,
+          "p95": 2.2474847259039086,
+          "max": 2.2642023006354877
+        },
+        "ramune_press": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_closing": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_remaining_gap": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "relaxing_motion_speed": {
+          "count": 60.0,
+          "median": 1.2568233945693494,
+          "p95": 3.683777143699441,
+          "max": 4.292158658801397
+        },
+        "relaxing_still_seconds": {
+          "count": 60.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 0.03433333333333355
+        },
+        "ramune_pose_candidate_interval_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 0,
+          "align_100_dwell_025_visible_050": 0,
+          "align_100_dwell_050_visible_050": 0
+        },
+        "ramune_pose_candidate_outside_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 0,
+          "align_100_dwell_025_visible_050": 0,
+          "align_100_dwell_050_visible_050": 0
+        },
+        "relaxing_pose_candidate_interval_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 0,
+          "torso_grace_080_speed_050_drift_010": 41,
+          "torso_speed_030_drift_008": 24,
+          "torso_speed_050_drift_010": 41
+        },
+        "relaxing_pose_candidate_outside_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 0,
+          "torso_grace_080_speed_050_drift_010": 99,
+          "torso_speed_030_drift_008": 27,
+          "torso_speed_050_drift_010": 99
+        }
+      }
+    },
+    {
+      "environment": "bright",
+      "source": "uchimziu2_3-5.mp4",
+      "take": 2,
+      "expected_action": "SPRINKLING",
+      "expected_interval": [
+        3.0,
+        5.0
+      ],
+      "source_frames": 322,
+      "evaluated_frames": 319,
+      "sample_fps": 30.0,
+      "interval_frames": 60,
+      "pose_interval_frames": 60,
+      "pose_interval_ratio": 1.0,
+      "expected_action_frames": 15,
+      "expected_action_frame_ratio": 0.25,
+      "clip_detected": true,
+      "occurrence_detected": true,
+      "first_expected_latency": 0.004266666666666641,
+      "outside_frames": 259,
+      "outside_action_ratio": 0.1776061776061776,
+      "interval_actions": {
+        "NONE": 45,
+        "SPRINKLING": 15
+      },
+      "outside_actions": {
+        "NONE": 213,
+        "SPRINKLING": 46
+      },
+      "diagnostics": {
+        "ramune_states": {
+          "FORMING": 13,
+          "IDLE": 47
+        },
+        "ramune_required_visible_frames": 60,
+        "ramune_ready_geometry_frames": 15,
+        "ramune_gap": {
+          "count": 60.0,
+          "median": 0.33212274635714645,
+          "p95": 0.965126479654974,
+          "max": 1.5338319612725417
+        },
+        "ramune_alignment": {
+          "count": 60.0,
+          "median": 0.6736427079277685,
+          "p95": 1.7055293887147323,
+          "max": 1.9403465861275844
+        },
+        "ramune_press": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_closing": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_remaining_gap": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "relaxing_motion_speed": {
+          "count": 60.0,
+          "median": 3.4146283227737024,
+          "p95": 9.948851220532065,
+          "max": 13.445419270704527
+        },
+        "relaxing_still_seconds": {
+          "count": 60.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "ramune_pose_candidate_interval_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 0,
+          "align_100_dwell_025_visible_050": 0,
+          "align_100_dwell_050_visible_050": 0
+        },
+        "ramune_pose_candidate_outside_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 0,
+          "align_100_dwell_025_visible_050": 0,
+          "align_100_dwell_050_visible_050": 0
+        },
+        "relaxing_pose_candidate_interval_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 0,
+          "torso_grace_080_speed_050_drift_010": 33,
+          "torso_speed_030_drift_008": 32,
+          "torso_speed_050_drift_010": 33
+        },
+        "relaxing_pose_candidate_outside_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 0,
+          "torso_grace_080_speed_050_drift_010": 55,
+          "torso_speed_030_drift_008": 34,
+          "torso_speed_050_drift_010": 55
+        }
+      }
+    },
+    {
+      "environment": "bright",
+      "source": "utchimizu3_3-5.mp4",
+      "take": 3,
+      "expected_action": "SPRINKLING",
+      "expected_interval": [
+        3.0,
+        5.0
+      ],
+      "source_frames": 344,
+      "evaluated_frames": 342,
+      "sample_fps": 30.0,
+      "interval_frames": 60,
+      "pose_interval_frames": 60,
+      "pose_interval_ratio": 1.0,
+      "expected_action_frames": 22,
+      "expected_action_frame_ratio": 0.36666666666666664,
+      "clip_detected": true,
+      "occurrence_detected": true,
+      "first_expected_latency": 0.17256666666666698,
+      "outside_frames": 282,
+      "outside_action_ratio": 0.10638297872340426,
+      "interval_actions": {
+        "FANNING": 23,
+        "NONE": 15,
+        "SPRINKLING": 22
+      },
+      "outside_actions": {
+        "NONE": 252,
+        "SPRINKLING": 30
+      },
+      "diagnostics": {
+        "ramune_states": {
+          "IDLE": 60
+        },
+        "ramune_required_visible_frames": 60,
+        "ramune_ready_geometry_frames": 0,
+        "ramune_gap": {
+          "count": 60.0,
+          "median": 1.1371689790886554,
+          "p95": 2.1527130903230742,
+          "max": 2.218361755566188
+        },
+        "ramune_alignment": {
+          "count": 60.0,
+          "median": 1.2763262760990666,
+          "p95": 1.8347674789614468,
+          "max": 1.9678353882531605
+        },
+        "ramune_press": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_closing": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_remaining_gap": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "relaxing_motion_speed": {
+          "count": 60.0,
+          "median": 2.6202045593700145,
+          "p95": 6.697819166227833,
+          "max": 13.24120340971312
+        },
+        "relaxing_still_seconds": {
+          "count": 60.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "ramune_pose_candidate_interval_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 0,
+          "align_100_dwell_025_visible_050": 0,
+          "align_100_dwell_050_visible_050": 0
+        },
+        "ramune_pose_candidate_outside_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 1,
+          "align_100_dwell_025_visible_050": 1,
+          "align_100_dwell_050_visible_050": 1
+        },
+        "relaxing_pose_candidate_interval_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 0,
+          "torso_grace_080_speed_050_drift_010": 47,
+          "torso_speed_030_drift_008": 15,
+          "torso_speed_050_drift_010": 47
+        },
+        "relaxing_pose_candidate_outside_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 0,
+          "torso_grace_080_speed_050_drift_010": 21,
+          "torso_speed_030_drift_008": 18,
+          "torso_speed_050_drift_010": 21
+        }
+      }
+    },
+    {
+      "environment": "bright",
+      "source": "yusuzumi1_3-8.mp4",
+      "take": 1,
+      "expected_action": "RELAXING",
+      "expected_interval": [
+        3.0,
+        8.0
+      ],
+      "source_frames": 329,
+      "evaluated_frames": 326,
+      "sample_fps": 30.0,
+      "interval_frames": 150,
+      "pose_interval_frames": 150,
+      "pose_interval_ratio": 1.0,
+      "expected_action_frames": 0,
+      "expected_action_frame_ratio": 0.0,
+      "clip_detected": false,
+      "occurrence_detected": false,
+      "first_expected_latency": null,
+      "outside_frames": 176,
+      "outside_action_ratio": 0.14772727272727273,
+      "interval_actions": {
+        "NONE": 103,
+        "SPRINKLING": 47
+      },
+      "outside_actions": {
+        "NONE": 150,
+        "SPRINKLING": 26
+      },
+      "diagnostics": {
+        "ramune_states": {
+          "IDLE": 150
+        },
+        "ramune_required_visible_frames": 150,
+        "ramune_ready_geometry_frames": 0,
+        "ramune_gap": {
+          "count": 150.0,
+          "median": 0.11314283408919666,
+          "p95": 0.5809230669254563,
+          "max": 0.7808886060901636
+        },
+        "ramune_alignment": {
+          "count": 150.0,
+          "median": 1.0739550247492922,
+          "p95": 1.131633942695258,
+          "max": 1.172148022874255
+        },
+        "ramune_press": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_closing": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_remaining_gap": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "relaxing_motion_speed": {
+          "count": 150.0,
+          "median": 0.7776485015042625,
+          "p95": 4.113978381938953,
+          "max": 7.979579757122407
+        },
+        "relaxing_still_seconds": {
+          "count": 150.0,
+          "median": 0.0,
+          "p95": 0.032948333333333565,
+          "max": 0.03486666666666682
+        },
+        "ramune_pose_candidate_interval_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 0,
+          "align_100_dwell_025_visible_050": 0,
+          "align_100_dwell_050_visible_050": 0
+        },
+        "ramune_pose_candidate_outside_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 0,
+          "align_100_dwell_025_visible_050": 0,
+          "align_100_dwell_050_visible_050": 0
+        },
+        "relaxing_pose_candidate_interval_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 13,
+          "torso_grace_080_speed_050_drift_010": 139,
+          "torso_speed_030_drift_008": 38,
+          "torso_speed_050_drift_010": 139
+        },
+        "relaxing_pose_candidate_outside_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 0,
+          "torso_grace_080_speed_050_drift_010": 52,
+          "torso_speed_030_drift_008": 51,
+          "torso_speed_050_drift_010": 52
+        }
+      }
+    },
+    {
+      "environment": "bright",
+      "source": "yusuzumi2_2-10.mp4",
+      "take": 2,
+      "expected_action": "RELAXING",
+      "expected_interval": [
+        2.0,
+        10.0
+      ],
+      "source_frames": 378,
+      "evaluated_frames": 377,
+      "sample_fps": 30.0,
+      "interval_frames": 240,
+      "pose_interval_frames": 240,
+      "pose_interval_ratio": 1.0,
+      "expected_action_frames": 0,
+      "expected_action_frame_ratio": 0.0,
+      "clip_detected": false,
+      "occurrence_detected": false,
+      "first_expected_latency": null,
+      "outside_frames": 137,
+      "outside_action_ratio": 0.15328467153284672,
+      "interval_actions": {
+        "NONE": 164,
+        "SPRINKLING": 76
+      },
+      "outside_actions": {
+        "NONE": 116,
+        "SPRINKLING": 21
+      },
+      "diagnostics": {
+        "ramune_states": {
+          "IDLE": 240
+        },
+        "ramune_required_visible_frames": 240,
+        "ramune_ready_geometry_frames": 0,
+        "ramune_gap": {
+          "count": 240.0,
+          "median": 0.07678784889571613,
+          "p95": 0.32978352561653707,
+          "max": 0.6437508397487073
+        },
+        "ramune_alignment": {
+          "count": 240.0,
+          "median": 0.9767200194465013,
+          "p95": 1.0390427051750994,
+          "max": 1.0970937930158782
+        },
+        "ramune_press": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_closing": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_remaining_gap": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "relaxing_motion_speed": {
+          "count": 240.0,
+          "median": 0.8341191707968993,
+          "p95": 3.0924446806867203,
+          "max": 5.9456129720266855
+        },
+        "relaxing_still_seconds": {
+          "count": 240.0,
+          "median": 0.0,
+          "p95": 0.033899999999999174,
+          "max": 0.06636666666666624
+        },
+        "ramune_pose_candidate_interval_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 0,
+          "align_100_dwell_025_visible_050": 0,
+          "align_100_dwell_050_visible_050": 0
+        },
+        "ramune_pose_candidate_outside_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 0,
+          "align_100_dwell_025_visible_050": 0,
+          "align_100_dwell_050_visible_050": 0
+        },
+        "relaxing_pose_candidate_interval_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 0,
+          "torso_grace_080_speed_050_drift_010": 217,
+          "torso_speed_030_drift_008": 184,
+          "torso_speed_050_drift_010": 217
+        },
+        "relaxing_pose_candidate_outside_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 0,
+          "torso_grace_080_speed_050_drift_010": 12,
+          "torso_speed_030_drift_008": 19,
+          "torso_speed_050_drift_010": 12
+        }
+      }
+    },
+    {
+      "environment": "bright",
+      "source": "yusuzumi3_2-9.mp4",
+      "take": 3,
+      "expected_action": "RELAXING",
+      "expected_interval": [
+        2.0,
+        9.0
+      ],
+      "source_frames": 349,
+      "evaluated_frames": 349,
+      "sample_fps": 30.0,
+      "interval_frames": 210,
+      "pose_interval_frames": 210,
+      "pose_interval_ratio": 1.0,
+      "expected_action_frames": 0,
+      "expected_action_frame_ratio": 0.0,
+      "clip_detected": false,
+      "occurrence_detected": false,
+      "first_expected_latency": null,
+      "outside_frames": 139,
+      "outside_action_ratio": 0.08633093525179857,
+      "interval_actions": {
+        "NONE": 210
+      },
+      "outside_actions": {
+        "NONE": 127,
+        "SPRINKLING": 12
+      },
+      "diagnostics": {
+        "ramune_states": {
+          "FORMING": 9,
+          "IDLE": 201
+        },
+        "ramune_required_visible_frames": 210,
+        "ramune_ready_geometry_frames": 9,
+        "ramune_gap": {
+          "count": 210.0,
+          "median": 0.20443335686920125,
+          "p95": 0.29421909384358413,
+          "max": 0.4232504290367681
+        },
+        "ramune_alignment": {
+          "count": 210.0,
+          "median": 0.5068180935569422,
+          "p95": 0.566999425060299,
+          "max": 0.6501715618011902
+        },
+        "ramune_press": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_closing": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "ramune_remaining_gap": {
+          "count": 0.0,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "relaxing_motion_speed": {
+          "count": 210.0,
+          "median": 0.5394267499422039,
+          "p95": 1.2591605057820208,
+          "max": 2.8848425839721417
+        },
+        "relaxing_still_seconds": {
+          "count": 210.0,
+          "median": 0.0,
+          "p95": 0.03430333333333311,
+          "max": 0.06716666666666704
+        },
+        "ramune_pose_candidate_interval_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 0,
+          "align_100_dwell_025_visible_050": 0,
+          "align_100_dwell_050_visible_050": 0
+        },
+        "ramune_pose_candidate_outside_events": {
+          "align_080_dwell_025_visible_050": 0,
+          "align_100_dwell_025_visible_020": 0,
+          "align_100_dwell_025_visible_050": 0,
+          "align_100_dwell_050_visible_050": 0
+        },
+        "relaxing_pose_candidate_interval_frames": {
+          "speed_030_drift_008": 1,
+          "speed_050_drift_010": 93,
+          "torso_grace_080_speed_050_drift_010": 160,
+          "torso_speed_030_drift_008": 161,
+          "torso_speed_050_drift_010": 160
+        },
+        "relaxing_pose_candidate_outside_frames": {
+          "speed_030_drift_008": 0,
+          "speed_050_drift_010": 0,
+          "torso_grace_080_speed_050_drift_010": 26,
+          "torso_speed_030_drift_008": 21,
+          "torso_speed_050_drift_010": 26
+        }
+      }
+    }
+  ],
+  "aggregates": [
+    {
+      "environment": "bright",
+      "expected_action": "FANNING",
+      "clips": 3,
+      "clip_recall": 1.0,
+      "occurrence_recall": 0.0,
+      "pose_interval_ratio": 1.0,
+      "expected_action_frame_ratio": 0.6725490196078432,
+      "outside_action_ratio": 0.24839400428265523
+    },
+    {
+      "environment": "bright",
+      "expected_action": "RAMUNE",
+      "clips": 3,
+      "clip_recall": 0.0,
+      "occurrence_recall": 0.0,
+      "pose_interval_ratio": 0.6,
+      "expected_action_frame_ratio": 0.0,
+      "outside_action_ratio": 0.06416464891041163
+    },
+    {
+      "environment": "bright",
+      "expected_action": "RELAXING",
+      "clips": 3,
+      "clip_recall": 0.0,
+      "occurrence_recall": 0.0,
+      "pose_interval_ratio": 1.0,
+      "expected_action_frame_ratio": 0.0,
+      "outside_action_ratio": 0.13053097345132744
+    },
+    {
+      "environment": "bright",
+      "expected_action": "SPRINKLING",
+      "clips": 3,
+      "clip_recall": 1.0,
+      "occurrence_recall": 1.0,
+      "pose_interval_ratio": 1.0,
+      "expected_action_frame_ratio": 0.26666666666666666,
+      "outside_action_ratio": 0.16129032258064516
+    }
+  ]
+}

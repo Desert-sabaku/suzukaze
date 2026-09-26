@@ -1,0 +1,7171 @@
+{
+  "select_subject": false,
+  "central_mask": true,
+  "protocol": "Behind: outer take 1/2/3, inner leave-take-out; without: held out; full source fps; causal features; unlabelled action=NONE; unknown phase excluded; inclusive endpoints",
+  "sources": [
+    {
+      "name": "both1_behind_the_screen",
+      "fps": 28.450357595551566,
+      "annotation_sha256": "c0a64ff491206400db69df45a884ba4f08ffd76006031cfe7b7bb28d9971996e",
+      "video_sha256": "c37c65a751a690686df561d7fdef0c3b81a6ec1227d71caeff122cc6d5c021f4"
+    },
+    {
+      "name": "both2_behind_the_screen",
+      "fps": 29.68561519903498,
+      "annotation_sha256": "7810176198c77ba269374877e169e1317f8eb22f4a34fc4d27687074c9ca0587",
+      "video_sha256": "b9131d2f6dc40a8ca18190141d65a1ae2c811bfba2d6f9e7b2440675b1ead846"
+    },
+    {
+      "name": "both3_behind_the_screen",
+      "fps": 29.21251845414472,
+      "annotation_sha256": "11e23b54855e0d7fd05eb6df8587427cdaf5f9176fa0589b634264d831150885",
+      "video_sha256": "5535d98471e5edadec1041c0bd6a9ee1b01f4d841fd362c1c7da7e511a62ab42"
+    },
+    {
+      "name": "both_without_the_screen",
+      "fps": 29.968259837909464,
+      "annotation_sha256": "b650eafc07fccc0625e5fb3c4d4fe9f75d9e1b11fd7ad31f449af62dbe2eb3fd",
+      "video_sha256": "8070b2521c191dae978548bc966cfb012d7b7ca7f82f8b33385cabdc3a3d8e1f"
+    },
+    {
+      "name": "contrast1_behind_the_screen",
+      "fps": 29.96500730690335,
+      "annotation_sha256": "2bf1c940c82145e3727da0d22237115d23cd78cae96f7f0c54ebe009c72620d5",
+      "video_sha256": "382fb185f7307527d718e379755446a7121af719f6f4b749731557d6748b0468"
+    },
+    {
+      "name": "contrast2_behind_the_screen",
+      "fps": 29.964559371256993,
+      "annotation_sha256": "dbbcd3e49e5af24f19a0599113729744eeee9807514a45884a6622f541150838",
+      "video_sha256": "63c92d0e579c21535f656b8f91c3b431a22b052ccd25cb2fe4cb12810bc710a9"
+    },
+    {
+      "name": "contrast3_behind_the_screen",
+      "fps": 29.967736862016636,
+      "annotation_sha256": "1a23631b8ef9fee1723da2f8b4331bccbb5d624a8fa1b265d727d69966d02d5c",
+      "video_sha256": "d9005969ea07ffb412c012762472370f6c3cb47ab41da80856ab9f89bd192c3c"
+    },
+    {
+      "name": "contrast_without_the_screen",
+      "fps": 29.51455643316371,
+      "annotation_sha256": "6bf82f86e6bcad49ce0f36e05cc4b2f07f670f2e8dd0f5b0c6b81cba527703b0",
+      "video_sha256": "226483ce2c1d68849f7afa7f8ce0461b5c7a300563047f06ed3aa9a4459b0612"
+    },
+    {
+      "name": "ramune1_behind_the_screen",
+      "fps": 28.651949271958667,
+      "annotation_sha256": "a2cde612dcdbfc098dfc3642e680d934596dcb31d6a193a116394965155d9906",
+      "video_sha256": "f9e8909de0ba6ab72c2aa89486c56ce2451e5ac8954a956af4097705f677d5db"
+    },
+    {
+      "name": "ramune2_behind_the_screen",
+      "fps": 29.210875212434562,
+      "annotation_sha256": "c50d0d9b507c593ba1f26b72ebd65d1e4c1c0e35882c4dd8e94e24bdf17a0965",
+      "video_sha256": "8c83369352059d2c2b62ce015a50eece8f45aa0c44313dc3d081b1033d9966f3"
+    },
+    {
+      "name": "ramune3_behind_the_screen",
+      "fps": 29.69532775347732,
+      "annotation_sha256": "431309581ab6bae4bbc5851cd7a1ff8fd045e46fee3b7d54dd959aa6425ca804",
+      "video_sha256": "4a4899b42a9bbf8a0421b9e3ef40f5fe7736a21bd89d8ed22dc381a8679d66e7"
+    },
+    {
+      "name": "ramune_without_the_screen",
+      "fps": 29.86579060347563,
+      "annotation_sha256": "91955022fe5b3379ab8a8fdcfe514ad596d935140e9e5c5cb0c461c3bb6a1044",
+      "video_sha256": "9e4f4ef03d0873b43340b814c84fde8d193633c4256912a21474b1bd788ca0fa"
+    },
+    {
+      "name": "yusuzumi1_behind_the_screen",
+      "fps": 29.73933824071752,
+      "annotation_sha256": "019e07ca62bf6ee557fc494c299c4411d3a2cd2fed5c8924bf29998beab06d53",
+      "video_sha256": "f8e1d28ec4032f73c2a95ce107015eb342c210efe2a3f961ba0596025aebd242"
+    },
+    {
+      "name": "yusuzumi2_behind_the_screen",
+      "fps": 29.444609237319188,
+      "annotation_sha256": "bc73e549c2f2150efffd5234195217322d54b26d5d678e0ffa4ba8deade9357c",
+      "video_sha256": "c720603716fdafcd9c79aa9bb9ce6ff09414cbdee926b65c0273db813945e886"
+    },
+    {
+      "name": "yusuzumi3_behind_the_screen",
+      "fps": 29.89152765223108,
+      "annotation_sha256": "e95afc644b2559876d198924fab5919046d546cd42f373d1f8df825c0eb289d7",
+      "video_sha256": "aade199ed875fa0812fdebc546633201ea5576142a9d0e9310583211a2ac9906"
+    },
+    {
+      "name": "yusuzumi_without_the_screen",
+      "fps": 29.78933411027405,
+      "annotation_sha256": "3feb590bb6de03d58e98a39de14edb14f704274d7d61b2a4edd33b9e901cff7b",
+      "video_sha256": "b5977e2c3c1359ce9df069aa27f13c734ef333f771bcd5e288fbcd6a9552686f"
+    }
+  ],
+  "classifier_candidates": [
+    "linear",
+    "rbf"
+  ],
+  "results": {
+    "action": {
+      "labels": [
+        "NONE",
+        "RAMUNE",
+        "RELAXING",
+        "FANNING",
+        "UCHIMIZU"
+      ],
+      "clips": [
+        {
+          "video": "both1_behind_the_screen",
+          "group": 1,
+          "history": 0.75,
+          "regularization": 0.01,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 410,
+            "accuracy": 0.45121951219512196,
+            "macro_f1": 0.31041526025168337,
+            "per_class": {
+              "NONE": {
+                "support": 163,
+                "precision": 0.4487534626038781,
+                "recall": 0.9938650306748467,
+                "f1": 0.6183206106870229
+              },
+              "RAMUNE": {
+                "support": 124,
+                "precision": 1.0,
+                "recall": 0.18548387096774194,
+                "f1": 0.3129251700680272
+              },
+              "RELAXING": {
+                "support": 123,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              }
+            },
+            "confusion": [
+              [
+                162,
+                0,
+                0,
+                0,
+                1
+              ],
+              [
+                76,
+                23,
+                0,
+                0,
+                25
+              ],
+              [
+                123,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 410,
+            "accuracy": 0.8097560975609757,
+            "macro_f1": 0.8092053786604293,
+            "per_class": {
+              "NONE": {
+                "support": 163,
+                "precision": 0.7291666666666666,
+                "recall": 0.8588957055214724,
+                "f1": 0.7887323943661971
+              },
+              "RAMUNE": {
+                "support": 124,
+                "precision": 1.0,
+                "recall": 0.9516129032258065,
+                "f1": 0.9752066115702479
+              },
+              "RELAXING": {
+                "support": 123,
+                "precision": 0.74,
+                "recall": 0.6016260162601627,
+                "f1": 0.6636771300448431
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                140,
+                0,
+                23,
+                0,
+                0
+              ],
+              [
+                3,
+                118,
+                3,
+                0,
+                0
+              ],
+              [
+                49,
+                0,
+                74,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.8560975609756097,
+          "pose_by_action": {
+            "NONE": 0.6380368098159509,
+            "RAMUNE": 1.0,
+            "RELAXING": 1.0
+          }
+        },
+        {
+          "video": "contrast1_behind_the_screen",
+          "group": 1,
+          "history": 0.75,
+          "regularization": 0.01,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 447,
+            "accuracy": 0.7539149888143176,
+            "macro_f1": 0.4410994764397906,
+            "per_class": {
+              "NONE": {
+                "support": 338,
+                "precision": 0.7910798122065728,
+                "recall": 0.9970414201183432,
+                "f1": 0.8821989528795812
+              },
+              "RAMUNE": {
+                "support": 109,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "RELAXING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                337,
+                0,
+                0,
+                1,
+                0
+              ],
+              [
+                89,
+                0,
+                0,
+                20,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 447,
+            "accuracy": 0.8970917225950783,
+            "macro_f1": 0.9356572237551103,
+            "per_class": {
+              "NONE": {
+                "support": 338,
+                "precision": 1.0,
+                "recall": 0.8875739644970414,
+                "f1": 0.9404388714733543
+              },
+              "RAMUNE": {
+                "support": 109,
+                "precision": 0.9351851851851852,
+                "recall": 0.926605504587156,
+                "f1": 0.9308755760368663
+              },
+              "RELAXING": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                300,
+                7,
+                31,
+                0,
+                0
+              ],
+              [
+                0,
+                101,
+                8,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.5391498881431768,
+          "pose_by_action": {
+            "NONE": 0.3905325443786982,
+            "RAMUNE": 1.0
+          }
+        },
+        {
+          "video": "ramune1_behind_the_screen",
+          "group": 1,
+          "history": 0.75,
+          "regularization": 0.01,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 305,
+            "accuracy": 0.7114754098360656,
+            "macro_f1": 0.4157088122605364,
+            "per_class": {
+              "NONE": {
+                "support": 217,
+                "precision": 0.7114754098360656,
+                "recall": 1.0,
+                "f1": 0.8314176245210728
+              },
+              "RAMUNE": {
+                "support": 88,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "RELAXING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                217,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                88,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 305,
+            "accuracy": 0.9540983606557377,
+            "macro_f1": 0.9777305040930633,
+            "per_class": {
+              "NONE": {
+                "support": 217,
+                "precision": 0.9951219512195122,
+                "recall": 0.9400921658986175,
+                "f1": 0.966824644549763
+              },
+              "RAMUNE": {
+                "support": 88,
+                "precision": 0.9886363636363636,
+                "recall": 0.9886363636363636,
+                "f1": 0.9886363636363636
+              },
+              "RELAXING": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                204,
+                1,
+                12,
+                0,
+                0
+              ],
+              [
+                1,
+                87,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.7180327868852459,
+          "pose_by_action": {
+            "NONE": 0.6036866359447005,
+            "RAMUNE": 1.0
+          }
+        },
+        {
+          "video": "yusuzumi1_behind_the_screen",
+          "group": 1,
+          "history": 0.75,
+          "regularization": 0.01,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 336,
+            "accuracy": 0.35119047619047616,
+            "macro_f1": 0.2599118942731278,
+            "per_class": {
+              "NONE": {
+                "support": 135,
+                "precision": 0.36990595611285265,
+                "recall": 0.8740740740740741,
+                "f1": 0.5198237885462555
+              },
+              "RAMUNE": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "RELAXING": {
+                "support": 201,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              }
+            },
+            "confusion": [
+              [
+                118,
+                0,
+                0,
+                0,
+                17
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                201,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 336,
+            "accuracy": 0.8779761904761905,
+            "macro_f1": 0.8743604476182658,
+            "per_class": {
+              "NONE": {
+                "support": 135,
+                "precision": 0.8263888888888888,
+                "recall": 0.8814814814814815,
+                "f1": 0.8530465949820788
+              },
+              "RAMUNE": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "RELAXING": {
+                "support": 201,
+                "precision": 0.9166666666666666,
+                "recall": 0.8756218905472637,
+                "f1": 0.8956743002544529
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                119,
+                0,
+                16,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                25,
+                0,
+                176,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.8125,
+          "pose_by_action": {
+            "NONE": 0.5333333333333333,
+            "RELAXING": 1.0
+          }
+        },
+        {
+          "video": "both2_behind_the_screen",
+          "group": 2,
+          "history": 0.75,
+          "regularization": 1.0,
+          "classifier": "linear",
+          "baseline": {
+            "frames": 420,
+            "accuracy": 0.43333333333333335,
+            "macro_f1": 0.20155038759689922,
+            "per_class": {
+              "NONE": {
+                "support": 187,
+                "precision": 0.43855421686746987,
+                "recall": 0.9732620320855615,
+                "f1": 0.6046511627906976
+              },
+              "RAMUNE": {
+                "support": 40,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "RELAXING": {
+                "support": 193,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              }
+            },
+            "confusion": [
+              [
+                182,
+                0,
+                0,
+                0,
+                5
+              ],
+              [
+                40,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                193,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 420,
+            "accuracy": 0.8404761904761905,
+            "macro_f1": 0.8253419961507631,
+            "per_class": {
+              "NONE": {
+                "support": 187,
+                "precision": 0.9295774647887324,
+                "recall": 0.7058823529411765,
+                "f1": 0.8024316109422492
+              },
+              "RAMUNE": {
+                "support": 40,
+                "precision": 0.6785714285714286,
+                "recall": 0.95,
+                "f1": 0.7916666666666666
+              },
+              "RELAXING": {
+                "support": 193,
+                "precision": 0.8243243243243243,
+                "recall": 0.9481865284974094,
+                "f1": 0.8819277108433735
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                132,
+                18,
+                37,
+                0,
+                0
+              ],
+              [
+                0,
+                38,
+                2,
+                0,
+                0
+              ],
+              [
+                10,
+                0,
+                183,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.8,
+          "pose_by_action": {
+            "NONE": 0.5508021390374331,
+            "RAMUNE": 1.0,
+            "RELAXING": 1.0
+          }
+        },
+        {
+          "video": "contrast2_behind_the_screen",
+          "group": 2,
+          "history": 0.75,
+          "regularization": 1.0,
+          "classifier": "linear",
+          "baseline": {
+            "frames": 487,
+            "accuracy": 0.648870636550308,
+            "macro_f1": 0.39352428393524286,
+            "per_class": {
+              "NONE": {
+                "support": 316,
+                "precision": 0.648870636550308,
+                "recall": 1.0,
+                "f1": 0.7870485678704857
+              },
+              "RAMUNE": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "RELAXING": {
+                "support": 171,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                316,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                171,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 487,
+            "accuracy": 0.9322381930184805,
+            "macro_f1": 0.9284540901502505,
+            "per_class": {
+              "NONE": {
+                "support": 316,
+                "precision": 1.0,
+                "recall": 0.8955696202531646,
+                "f1": 0.9449081803005008
+              },
+              "RAMUNE": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "RELAXING": {
+                "support": 171,
+                "precision": 0.8382352941176471,
+                "recall": 1.0,
+                "f1": 0.912
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                283,
+                0,
+                33,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                171,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.5626283367556468,
+          "pose_by_action": {
+            "NONE": 0.3259493670886076,
+            "RELAXING": 1.0
+          }
+        },
+        {
+          "video": "ramune2_behind_the_screen",
+          "group": 2,
+          "history": 0.75,
+          "regularization": 1.0,
+          "classifier": "linear",
+          "baseline": {
+            "frames": 271,
+            "accuracy": 0.7453874538745388,
+            "macro_f1": 0.4288747346072187,
+            "per_class": {
+              "NONE": {
+                "support": 204,
+                "precision": 0.7565543071161048,
+                "recall": 0.9901960784313726,
+                "f1": 0.8577494692144374
+              },
+              "RAMUNE": {
+                "support": 67,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "RELAXING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              }
+            },
+            "confusion": [
+              [
+                202,
+                0,
+                0,
+                0,
+                2
+              ],
+              [
+                65,
+                0,
+                0,
+                2,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 271,
+            "accuracy": 0.8007380073800738,
+            "macro_f1": 0.886030866640285,
+            "per_class": {
+              "NONE": {
+                "support": 204,
+                "precision": 1.0,
+                "recall": 0.7696078431372549,
+                "f1": 0.8698060941828255
+              },
+              "RAMUNE": {
+                "support": 67,
+                "precision": 0.9090909090909091,
+                "recall": 0.8955223880597015,
+                "f1": 0.9022556390977443
+              },
+              "RELAXING": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                157,
+                6,
+                41,
+                0,
+                0
+              ],
+              [
+                0,
+                60,
+                7,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.7084870848708487,
+          "pose_by_action": {
+            "NONE": 0.6127450980392157,
+            "RAMUNE": 1.0
+          }
+        },
+        {
+          "video": "yusuzumi2_behind_the_screen",
+          "group": 2,
+          "history": 0.75,
+          "regularization": 1.0,
+          "classifier": "linear",
+          "baseline": {
+            "frames": 450,
+            "accuracy": 0.4688888888888889,
+            "macro_f1": 0.31921331316187596,
+            "per_class": {
+              "NONE": {
+                "support": 211,
+                "precision": 0.4688888888888889,
+                "recall": 1.0,
+                "f1": 0.6384266263237519
+              },
+              "RAMUNE": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "RELAXING": {
+                "support": 239,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                211,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                239,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 450,
+            "accuracy": 0.7333333333333333,
+            "macro_f1": 0.7338634341637011,
+            "per_class": {
+              "NONE": {
+                "support": 211,
+                "precision": 1.0,
+                "recall": 0.5165876777251185,
+                "f1": 0.68125
+              },
+              "RAMUNE": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              },
+              "RELAXING": {
+                "support": 239,
+                "precision": 0.6842105263157895,
+                "recall": 0.9246861924686193,
+                "f1": 0.7864768683274022
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                109,
+                0,
+                102,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                18,
+                221,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.8355555555555556,
+          "pose_by_action": {
+            "NONE": 0.6492890995260664,
+            "RELAXING": 1.0
+          }
+        },
+        {
+          "video": "both3_behind_the_screen",
+          "group": 3,
+          "history": 0.75,
+          "regularization": 0.1,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 465,
+            "accuracy": 0.5655913978494623,
+            "macro_f1": 0.2431807674526121,
+            "per_class": {
+              "NONE": {
+                "support": 263,
+                "precision": 0.574235807860262,
+                "recall": 1.0,
+                "f1": 0.7295423023578363
+              },
+              "RAMUNE": {
+                "support": 62,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "RELAXING": {
+                "support": 140,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                263,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                55,
+                0,
+                0,
+                7,
+                0
+              ],
+              [
+                140,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 465,
+            "accuracy": 0.8473118279569892,
+            "macro_f1": 0.8616215949237542,
+            "per_class": {
+              "NONE": {
+                "support": 263,
+                "precision": 0.9848484848484849,
+                "recall": 0.7414448669201521,
+                "f1": 0.8459869848156182
+              },
+              "RAMUNE": {
+                "support": 62,
+                "precision": 0.8493150684931506,
+                "recall": 1.0,
+                "f1": 0.9185185185185185
+              },
+              "RELAXING": {
+                "support": 140,
+                "precision": 0.7061855670103093,
+                "recall": 0.9785714285714285,
+                "f1": 0.8203592814371258
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                195,
+                11,
+                57,
+                0,
+                0
+              ],
+              [
+                0,
+                62,
+                0,
+                0,
+                0
+              ],
+              [
+                3,
+                0,
+                137,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.7913978494623656,
+          "pose_by_action": {
+            "NONE": 0.6311787072243346,
+            "RAMUNE": 1.0,
+            "RELAXING": 1.0
+          }
+        },
+        {
+          "video": "contrast3_behind_the_screen",
+          "group": 3,
+          "history": 0.75,
+          "regularization": 0.1,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 470,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class": {
+              "NONE": {
+                "support": 470,
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0
+              },
+              "RAMUNE": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "RELAXING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                470,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 470,
+            "accuracy": 0.951063829787234,
+            "macro_f1": 0.9749182115594329,
+            "per_class": {
+              "NONE": {
+                "support": 470,
+                "precision": 1.0,
+                "recall": 0.951063829787234,
+                "f1": 0.9749182115594329
+              },
+              "RAMUNE": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              },
+              "RELAXING": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                447,
+                9,
+                14,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.24893617021276596,
+          "pose_by_action": {
+            "NONE": 0.24893617021276596
+          }
+        },
+        {
+          "video": "ramune3_behind_the_screen",
+          "group": 3,
+          "history": 0.75,
+          "regularization": 0.1,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 327,
+            "accuracy": 0.8409785932721713,
+            "macro_f1": 0.6930685920577617,
+            "per_class": {
+              "NONE": {
+                "support": 251,
+                "precision": 0.8283828382838284,
+                "recall": 1.0,
+                "f1": 0.9061371841155235
+              },
+              "RAMUNE": {
+                "support": 76,
+                "precision": 1.0,
+                "recall": 0.3157894736842105,
+                "f1": 0.48
+              },
+              "RELAXING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                251,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                52,
+                24,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 327,
+            "accuracy": 0.7033639143730887,
+            "macro_f1": 0.8326278659611993,
+            "per_class": {
+              "NONE": {
+                "support": 251,
+                "precision": 1.0,
+                "recall": 0.6135458167330677,
+                "f1": 0.7604938271604939
+              },
+              "RAMUNE": {
+                "support": 76,
+                "precision": 0.8260869565217391,
+                "recall": 1.0,
+                "f1": 0.9047619047619048
+              },
+              "RELAXING": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                154,
+                16,
+                81,
+                0,
+                0
+              ],
+              [
+                0,
+                76,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.7920489296636085,
+          "pose_by_action": {
+            "NONE": 0.7290836653386454,
+            "RAMUNE": 1.0
+          }
+        },
+        {
+          "video": "yusuzumi3_behind_the_screen",
+          "group": 3,
+          "history": 0.75,
+          "regularization": 0.1,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 388,
+            "accuracy": 0.4845360824742268,
+            "macro_f1": 0.3263888888888889,
+            "per_class": {
+              "NONE": {
+                "support": 188,
+                "precision": 0.4845360824742268,
+                "recall": 1.0,
+                "f1": 0.6527777777777778
+              },
+              "RAMUNE": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "RELAXING": {
+                "support": 200,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                188,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                200,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 388,
+            "accuracy": 0.8273195876288659,
+            "macro_f1": 0.819851285143067,
+            "per_class": {
+              "NONE": {
+                "support": 188,
+                "precision": 1.0,
+                "recall": 0.6436170212765957,
+                "f1": 0.7831715210355987
+              },
+              "RAMUNE": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "RELAXING": {
+                "support": 200,
+                "precision": 0.7490636704119851,
+                "recall": 1.0,
+                "f1": 0.8565310492505354
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                121,
+                0,
+                67,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                200,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.8376288659793815,
+          "pose_by_action": {
+            "NONE": 0.6648936170212766,
+            "RELAXING": 1.0
+          }
+        },
+        {
+          "video": "both_without_the_screen",
+          "group": 0,
+          "history": 0.75,
+          "regularization": 0.01,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 389,
+            "accuracy": 0.4910025706940874,
+            "macro_f1": 0.27655461931080305,
+            "per_class": {
+              "NONE": {
+                "support": 201,
+                "precision": 0.5041095890410959,
+                "recall": 0.9154228855721394,
+                "f1": 0.6501766784452296
+              },
+              "RAMUNE": {
+                "support": 54,
+                "precision": 0.2916666666666667,
+                "recall": 0.12962962962962962,
+                "f1": 0.1794871794871795
+              },
+              "RELAXING": {
+                "support": 134,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                184,
+                17,
+                0,
+                0,
+                0
+              ],
+              [
+                47,
+                7,
+                0,
+                0,
+                0
+              ],
+              [
+                134,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 389,
+            "accuracy": 0.8508997429305912,
+            "macro_f1": 0.8415098580812956,
+            "per_class": {
+              "NONE": {
+                "support": 201,
+                "precision": 0.8656716417910447,
+                "recall": 0.8656716417910447,
+                "f1": 0.8656716417910447
+              },
+              "RAMUNE": {
+                "support": 54,
+                "precision": 0.7246376811594203,
+                "recall": 0.9259259259259259,
+                "f1": 0.8130081300813008
+              },
+              "RELAXING": {
+                "support": 134,
+                "precision": 0.8991596638655462,
+                "recall": 0.7985074626865671,
+                "f1": 0.8458498023715415
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                174,
+                19,
+                8,
+                0,
+                0
+              ],
+              [
+                0,
+                50,
+                4,
+                0,
+                0
+              ],
+              [
+                27,
+                0,
+                107,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.8946015424164524,
+          "pose_by_action": {
+            "NONE": 0.7960199004975125,
+            "RAMUNE": 1.0,
+            "RELAXING": 1.0
+          }
+        },
+        {
+          "video": "contrast_without_the_screen",
+          "group": 0,
+          "history": 0.75,
+          "regularization": 0.01,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 458,
+            "accuracy": 0.6331877729257642,
+            "macro_f1": 0.3877005347593583,
+            "per_class": {
+              "NONE": {
+                "support": 305,
+                "precision": 0.654627539503386,
+                "recall": 0.9508196721311475,
+                "f1": 0.7754010695187166
+              },
+              "RAMUNE": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "RELAXING": {
+                "support": 153,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              }
+            },
+            "confusion": [
+              [
+                290,
+                0,
+                0,
+                0,
+                15
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                153,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 458,
+            "accuracy": 0.8973799126637555,
+            "macro_f1": 0.9071029707393343,
+            "per_class": {
+              "NONE": {
+                "support": 305,
+                "precision": 0.93,
+                "recall": 0.9147540983606557,
+                "f1": 0.9223140495867769
+              },
+              "RAMUNE": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              },
+              "RELAXING": {
+                "support": 153,
+                "precision": 0.9230769230769231,
+                "recall": 0.8627450980392157,
+                "f1": 0.8918918918918919
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                279,
+                15,
+                11,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                21,
+                0,
+                132,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.7030567685589519,
+          "pose_by_action": {
+            "NONE": 0.5540983606557377,
+            "RELAXING": 1.0
+          }
+        },
+        {
+          "video": "ramune_without_the_screen",
+          "group": 0,
+          "history": 0.75,
+          "regularization": 0.01,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 320,
+            "accuracy": 0.71875,
+            "macro_f1": 0.42047531992687387,
+            "per_class": {
+              "NONE": {
+                "support": 234,
+                "precision": 0.7348242811501597,
+                "recall": 0.9829059829059829,
+                "f1": 0.8409506398537477
+              },
+              "RAMUNE": {
+                "support": 86,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "RELAXING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              }
+            },
+            "confusion": [
+              [
+                230,
+                0,
+                0,
+                0,
+                4
+              ],
+              [
+                83,
+                0,
+                0,
+                0,
+                3
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 320,
+            "accuracy": 0.86875,
+            "macro_f1": 0.9255190729116369,
+            "per_class": {
+              "NONE": {
+                "support": 234,
+                "precision": 0.9752475247524752,
+                "recall": 0.8418803418803419,
+                "f1": 0.9036697247706422
+              },
+              "RAMUNE": {
+                "support": 86,
+                "precision": 0.9529411764705882,
+                "recall": 0.9418604651162791,
+                "f1": 0.9473684210526315
+              },
+              "RELAXING": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                197,
+                4,
+                33,
+                0,
+                0
+              ],
+              [
+                5,
+                81,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.7125,
+          "pose_by_action": {
+            "NONE": 0.6068376068376068,
+            "RAMUNE": 1.0
+          }
+        },
+        {
+          "video": "yusuzumi_without_the_screen",
+          "group": 0,
+          "history": 0.75,
+          "regularization": 0.01,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 334,
+            "accuracy": 0.47005988023952094,
+            "macro_f1": 0.319755600814664,
+            "per_class": {
+              "NONE": {
+                "support": 157,
+                "precision": 0.47005988023952094,
+                "recall": 1.0,
+                "f1": 0.639511201629328
+              },
+              "RAMUNE": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "RELAXING": {
+                "support": 177,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                157,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                177,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 334,
+            "accuracy": 0.8562874251497006,
+            "macro_f1": 0.8581560283687943,
+            "per_class": {
+              "NONE": {
+                "support": 157,
+                "precision": 0.916030534351145,
+                "recall": 0.7643312101910829,
+                "f1": 0.8333333333333334
+              },
+              "RAMUNE": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              },
+              "RELAXING": {
+                "support": 177,
+                "precision": 0.8341708542713567,
+                "recall": 0.9378531073446328,
+                "f1": 0.8829787234042553
+              },
+              "FANNING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "UCHIMIZU": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                120,
+                4,
+                33,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                11,
+                0,
+                166,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.9491017964071856,
+          "pose_by_action": {
+            "NONE": 0.89171974522293,
+            "RELAXING": 1.0
+          }
+        }
+      ],
+      "behind_baseline": {
+        "frames": 4776,
+        "accuracy": 0.6206030150753769,
+        "macro_f1": 0.30726155748502615,
+        "per_class": {
+          "NONE": {
+            "support": 2943,
+            "precision": 0.6274467627446763,
+            "recall": 0.9911654774040095,
+            "f1": 0.7684404636459431
+          },
+          "RAMUNE": {
+            "support": 566,
+            "precision": 1.0,
+            "recall": 0.08303886925795052,
+            "f1": 0.1533442088091354
+          },
+          "RELAXING": {
+            "support": 1267,
+            "precision": 0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "FANNING": {
+            "support": 0,
+            "precision": 0.0,
+            "recall": 0,
+            "f1": 0.0
+          },
+          "UCHIMIZU": {
+            "support": 0,
+            "precision": 0.0,
+            "recall": 0,
+            "f1": 0.0
+          }
+        },
+        "confusion": [
+          [
+            2917,
+            0,
+            0,
+            1,
+            25
+          ],
+          [
+            465,
+            47,
+            0,
+            29,
+            25
+          ],
+          [
+            1267,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      "behind_learned": {
+        "frames": 4776,
+        "accuracy": 0.8511306532663316,
+        "macro_f1": 0.8558225860604284,
+        "per_class": {
+          "NONE": {
+            "support": 2943,
+            "precision": 0.9628874388254486,
+            "recall": 0.8022426095820592,
+            "f1": 0.8752548656163114
+          },
+          "RAMUNE": {
+            "support": 566,
+            "precision": 0.8630573248407644,
+            "recall": 0.9575971731448764,
+            "f1": 0.9078726968174204
+          },
+          "RELAXING": {
+            "support": 1267,
+            "precision": 0.6851415094339622,
+            "recall": 0.9171270718232044,
+            "f1": 0.7843401957475532
+          },
+          "FANNING": {
+            "support": 0,
+            "precision": 0,
+            "recall": 0,
+            "f1": 0
+          },
+          "UCHIMIZU": {
+            "support": 0,
+            "precision": 0,
+            "recall": 0,
+            "f1": 0
+          }
+        },
+        "confusion": [
+          [
+            2361,
+            68,
+            514,
+            0,
+            0
+          ],
+          [
+            4,
+            542,
+            20,
+            0,
+            0
+          ],
+          [
+            87,
+            18,
+            1162,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      "without_baseline": {
+        "frames": 1501,
+        "accuracy": 0.5782811459027315,
+        "macro_f1": 0.27250290360046453,
+        "per_class": {
+          "NONE": {
+            "support": 897,
+            "precision": 0.5917525773195876,
+            "recall": 0.959866220735786,
+            "f1": 0.7321428571428571
+          },
+          "RAMUNE": {
+            "support": 140,
+            "precision": 0.2916666666666667,
+            "recall": 0.05,
+            "f1": 0.08536585365853659
+          },
+          "RELAXING": {
+            "support": 464,
+            "precision": 0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "FANNING": {
+            "support": 0,
+            "precision": 0,
+            "recall": 0,
+            "f1": 0
+          },
+          "UCHIMIZU": {
+            "support": 0,
+            "precision": 0.0,
+            "recall": 0,
+            "f1": 0.0
+          }
+        },
+        "confusion": [
+          [
+            861,
+            17,
+            0,
+            0,
+            19
+          ],
+          [
+            130,
+            7,
+            0,
+            0,
+            3
+          ],
+          [
+            464,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      "without_learned": {
+        "frames": 1501,
+        "accuracy": 0.8700866089273818,
+        "macro_f1": 0.857410447229,
+        "per_class": {
+          "NONE": {
+            "support": 897,
+            "precision": 0.9232613908872902,
+            "recall": 0.8584169453734671,
+            "f1": 0.8896591565569035
+          },
+          "RAMUNE": {
+            "support": 140,
+            "precision": 0.7572254335260116,
+            "recall": 0.9357142857142857,
+            "f1": 0.8370607028753994
+          },
+          "RELAXING": {
+            "support": 464,
+            "precision": 0.819838056680162,
+            "recall": 0.8728448275862069,
+            "f1": 0.8455114822546973
+          },
+          "FANNING": {
+            "support": 0,
+            "precision": 0,
+            "recall": 0,
+            "f1": 0
+          },
+          "UCHIMIZU": {
+            "support": 0,
+            "precision": 0,
+            "recall": 0,
+            "f1": 0
+          }
+        },
+        "confusion": [
+          [
+            770,
+            42,
+            85,
+            0,
+            0
+          ],
+          [
+            5,
+            131,
+            4,
+            0,
+            0
+          ],
+          [
+            59,
+            0,
+            405,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      "behind_context_baseline": {
+        "frames": 4776,
+        "accuracy": 0.6511725293132329,
+        "macro_f1": 0.43724235750337925,
+        "per_class": {
+          "NONE": {
+            "support": 2943,
+            "precision": 0.6483344511513526,
+            "recall": 0.9853890587835542,
+            "f1": 0.7820927723840345
+          },
+          "RAMUNE": {
+            "support": 566,
+            "precision": 0.9251101321585903,
+            "recall": 0.3710247349823322,
+            "f1": 0.5296343001261034
+          },
+          "RELAXING": {
+            "support": 1267,
+            "precision": 0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "FANNING": {
+            "support": 0,
+            "precision": 0.0,
+            "recall": 0,
+            "f1": 0.0
+          },
+          "UCHIMIZU": {
+            "support": 0,
+            "precision": 0.0,
+            "recall": 0,
+            "f1": 0.0
+          }
+        },
+        "confusion": [
+          [
+            2900,
+            17,
+            0,
+            1,
+            25
+          ],
+          [
+            306,
+            210,
+            0,
+            29,
+            21
+          ],
+          [
+            1267,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      "behind_always_none": {
+        "frames": 4776,
+        "accuracy": 0.6162060301507538,
+        "macro_f1": 0.2541780023319083,
+        "per_class": {
+          "NONE": {
+            "support": 2943,
+            "precision": 0.6162060301507538,
+            "recall": 1.0,
+            "f1": 0.7625340069957248
+          },
+          "RAMUNE": {
+            "support": 566,
+            "precision": 0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "RELAXING": {
+            "support": 1267,
+            "precision": 0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "FANNING": {
+            "support": 0,
+            "precision": 0,
+            "recall": 0,
+            "f1": 0
+          },
+          "UCHIMIZU": {
+            "support": 0,
+            "precision": 0,
+            "recall": 0,
+            "f1": 0
+          }
+        },
+        "confusion": [
+          [
+            2943,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            566,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            1267,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      "without_context_baseline": {
+        "frames": 1501,
+        "accuracy": 0.5989340439706862,
+        "macro_f1": 0.390325816511567,
+        "per_class": {
+          "NONE": {
+            "support": 897,
+            "precision": 0.6056737588652482,
+            "recall": 0.9520624303232998,
+            "f1": 0.7403554399653229
+          },
+          "RAMUNE": {
+            "support": 140,
+            "precision": 0.6521739130434783,
+            "recall": 0.32142857142857145,
+            "f1": 0.430622009569378
+          },
+          "RELAXING": {
+            "support": 464,
+            "precision": 0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "FANNING": {
+            "support": 0,
+            "precision": 0,
+            "recall": 0,
+            "f1": 0
+          },
+          "UCHIMIZU": {
+            "support": 0,
+            "precision": 0.0,
+            "recall": 0,
+            "f1": 0.0
+          }
+        },
+        "confusion": [
+          [
+            854,
+            24,
+            0,
+            0,
+            19
+          ],
+          [
+            92,
+            45,
+            0,
+            0,
+            3
+          ],
+          [
+            464,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      "without_always_none": {
+        "frames": 1501,
+        "accuracy": 0.597601598934044,
+        "macro_f1": 0.2493744787322769,
+        "per_class": {
+          "NONE": {
+            "support": 897,
+            "precision": 0.597601598934044,
+            "recall": 1.0,
+            "f1": 0.7481234361968306
+          },
+          "RAMUNE": {
+            "support": 140,
+            "precision": 0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "RELAXING": {
+            "support": 464,
+            "precision": 0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "FANNING": {
+            "support": 0,
+            "precision": 0,
+            "recall": 0,
+            "f1": 0
+          },
+          "UCHIMIZU": {
+            "support": 0,
+            "precision": 0,
+            "recall": 0,
+            "f1": 0
+          }
+        },
+        "confusion": [
+          [
+            897,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            140,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            464,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    "phase": {
+      "labels": [
+        "NONE",
+        "FORMING",
+        "READY",
+        "OPENED",
+        "WAIT_RELEASE"
+      ],
+      "clips": [
+        {
+          "video": "both1_behind_the_screen",
+          "group": 1,
+          "history": 0.25,
+          "regularization": 1.0,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 280,
+            "accuracy": 0.6392857142857142,
+            "macro_f1": 0.32435580930936964,
+            "per_class": {
+              "NONE": {
+                "support": 163,
+                "precision": 0.7342342342342343,
+                "recall": 1.0,
+                "f1": 0.8467532467532467
+              },
+              "FORMING": {
+                "support": 20,
+                "precision": 0.6428571428571429,
+                "recall": 0.45,
+                "f1": 0.5294117647058824
+              },
+              "READY": {
+                "support": 48,
+                "precision": 0.7777777777777778,
+                "recall": 0.14583333333333334,
+                "f1": 0.24561403508771928
+              },
+              "OPENED": {
+                "support": 5,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "WAIT_RELEASE": {
+                "support": 44,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0
+              }
+            },
+            "confusion": [
+              [
+                163,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                9,
+                9,
+                2,
+                0,
+                0
+              ],
+              [
+                5,
+                1,
+                7,
+                23,
+                12
+              ],
+              [
+                5,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                40,
+                4,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 280,
+            "accuracy": 0.7821428571428571,
+            "macro_f1": 0.5540916021992335,
+            "per_class": {
+              "NONE": {
+                "support": 163,
+                "precision": 1.0,
+                "recall": 0.9938650306748467,
+                "f1": 0.9969230769230769
+              },
+              "FORMING": {
+                "support": 20,
+                "precision": 0.85,
+                "recall": 0.85,
+                "f1": 0.85
+              },
+              "READY": {
+                "support": 48,
+                "precision": 1.0,
+                "recall": 0.020833333333333332,
+                "f1": 0.04081632653061224
+              },
+              "OPENED": {
+                "support": 5,
+                "precision": 0.21428571428571427,
+                "recall": 0.6,
+                "f1": 0.3157894736842105
+              },
+              "WAIT_RELEASE": {
+                "support": 44,
+                "precision": 0.43373493975903615,
+                "recall": 0.8181818181818182,
+                "f1": 0.5669291338582677
+              }
+            },
+            "confusion": [
+              [
+                162,
+                0,
+                0,
+                0,
+                1
+              ],
+              [
+                0,
+                17,
+                0,
+                0,
+                3
+              ],
+              [
+                0,
+                0,
+                1,
+                6,
+                41
+              ],
+              [
+                0,
+                0,
+                0,
+                3,
+                2
+              ],
+              [
+                0,
+                3,
+                0,
+                5,
+                36
+              ]
+            ]
+          },
+          "pose_fraction": 0.8560975609756097,
+          "opening_baseline": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 1,
+            "intervals_hit": 0,
+            "predicted_runs": 1,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [
+              [
+                259,
+                281
+              ]
+            ],
+            "details": [
+              {
+                "annotation_frames": [
+                  307,
+                  311
+                ],
+                "recurrence_window_end_frame": 409,
+                "matched_run": null,
+                "reappearances": []
+              }
+            ],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": [
+              {
+                "action_frames": [
+                  232,
+                  355
+                ],
+                "observation_end_frame": 409,
+                "runs": [
+                  [
+                    259,
+                    281
+                  ]
+                ],
+                "gap_seconds": []
+              }
+            ]
+          },
+          "opening_learned": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 1,
+            "intervals_hit": 1,
+            "predicted_runs": 11,
+            "reappearance_runs": 5,
+            "openings_with_reappearance": 1,
+            "unanchored_runs": [
+              [
+                253,
+                253
+              ],
+              [
+                272,
+                272
+              ],
+              [
+                283,
+                285
+              ],
+              [
+                288,
+                288
+              ],
+              [
+                301,
+                301
+              ]
+            ],
+            "details": [
+              {
+                "annotation_frames": [
+                  307,
+                  311
+                ],
+                "recurrence_window_end_frame": 409,
+                "matched_run": {
+                  "frames": [
+                    305,
+                    307
+                  ],
+                  "extension_before_seconds": 0.07029788617886179,
+                  "extension_after_seconds": 0.0
+                },
+                "reappearances": [
+                  {
+                    "frames": [
+                      309,
+                      310
+                    ],
+                    "gap_seconds": 0.035148943089430895
+                  },
+                  {
+                    "frames": [
+                      318,
+                      318
+                    ],
+                    "gap_seconds": 0.24604260162601627
+                  },
+                  {
+                    "frames": [
+                      321,
+                      321
+                    ],
+                    "gap_seconds": 0.07029788617886179
+                  },
+                  {
+                    "frames": [
+                      326,
+                      326
+                    ],
+                    "gap_seconds": 0.14059577235772358
+                  },
+                  {
+                    "frames": [
+                      342,
+                      343
+                    ],
+                    "gap_seconds": 0.5272341463414635
+                  }
+                ]
+              }
+            ],
+            "occurrences_with_multiple_runs": 1,
+            "occurrence_restarts": 10,
+            "occurrence_details": [
+              {
+                "action_frames": [
+                  232,
+                  355
+                ],
+                "observation_end_frame": 409,
+                "runs": [
+                  [
+                    253,
+                    253
+                  ],
+                  [
+                    272,
+                    272
+                  ],
+                  [
+                    283,
+                    285
+                  ],
+                  [
+                    288,
+                    288
+                  ],
+                  [
+                    301,
+                    301
+                  ],
+                  [
+                    305,
+                    307
+                  ],
+                  [
+                    309,
+                    310
+                  ],
+                  [
+                    318,
+                    318
+                  ],
+                  [
+                    321,
+                    321
+                  ],
+                  [
+                    326,
+                    326
+                  ],
+                  [
+                    342,
+                    343
+                  ]
+                ],
+                "gap_seconds": [
+                  0.6326809756097561,
+                  0.35148943089430895,
+                  0.07029788617886179,
+                  0.42178731707317074,
+                  0.10544682926829269,
+                  0.035148943089430895,
+                  0.24604260162601627,
+                  0.07029788617886179,
+                  0.14059577235772358,
+                  0.5272341463414635
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "video": "contrast1_behind_the_screen",
+          "group": 1,
+          "history": 0.25,
+          "regularization": 1.0,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 431,
+            "accuracy": 0.7819025522041764,
+            "macro_f1": 0.17807133421400265,
+            "per_class": {
+              "NONE": {
+                "support": 338,
+                "precision": 0.8042959427207638,
+                "recall": 0.9970414201183432,
+                "f1": 0.8903566710700133
+              },
+              "FORMING": {
+                "support": 22,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "READY": {
+                "support": 50,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "OPENED": {
+                "support": 2,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "WAIT_RELEASE": {
+                "support": 19,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              }
+            },
+            "confusion": [
+              [
+                337,
+                1,
+                0,
+                0,
+                0
+              ],
+              [
+                22,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                39,
+                11,
+                0,
+                0,
+                0
+              ],
+              [
+                2,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                19,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 431,
+            "accuracy": 0.8422273781902552,
+            "macro_f1": 0.4105882352941176,
+            "per_class": {
+              "NONE": {
+                "support": 338,
+                "precision": 0.9136490250696379,
+                "recall": 0.9704142011834319,
+                "f1": 0.9411764705882353
+              },
+              "FORMING": {
+                "support": 22,
+                "precision": 0.6428571428571429,
+                "recall": 0.4090909090909091,
+                "f1": 0.5
+              },
+              "READY": {
+                "support": 50,
+                "precision": 0.7428571428571429,
+                "recall": 0.52,
+                "f1": 0.611764705882353
+              },
+              "OPENED": {
+                "support": 2,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "WAIT_RELEASE": {
+                "support": 19,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0
+              }
+            },
+            "confusion": [
+              [
+                328,
+                0,
+                0,
+                0,
+                10
+              ],
+              [
+                13,
+                9,
+                0,
+                0,
+                0
+              ],
+              [
+                18,
+                5,
+                26,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                2,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                7,
+                12,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.5391498881431768,
+          "opening_baseline": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 1,
+            "intervals_hit": 0,
+            "predicted_runs": 0,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [
+              {
+                "annotation_frames": [
+                  349,
+                  350
+                ],
+                "recurrence_window_end_frame": 446,
+                "matched_run": null,
+                "reappearances": []
+              }
+            ],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": [
+              {
+                "action_frames": [
+                  265,
+                  373
+                ],
+                "observation_end_frame": 446,
+                "runs": [],
+                "gap_seconds": []
+              }
+            ]
+          },
+          "opening_learned": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 1,
+            "intervals_hit": 0,
+            "predicted_runs": 3,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [
+              [
+                332,
+                332
+              ],
+              [
+                337,
+                337
+              ],
+              [
+                351,
+                365
+              ]
+            ],
+            "details": [
+              {
+                "annotation_frames": [
+                  349,
+                  350
+                ],
+                "recurrence_window_end_frame": 446,
+                "matched_run": null,
+                "reappearances": []
+              }
+            ],
+            "occurrences_with_multiple_runs": 1,
+            "occurrence_restarts": 2,
+            "occurrence_details": [
+              {
+                "action_frames": [
+                  265,
+                  373
+                ],
+                "observation_end_frame": 446,
+                "runs": [
+                  [
+                    332,
+                    332
+                  ],
+                  [
+                    337,
+                    337
+                  ],
+                  [
+                    351,
+                    365
+                  ]
+                ],
+                "gap_seconds": [
+                  0.1334890380313199,
+                  0.4338393736017897
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "video": "ramune1_behind_the_screen",
+          "group": 1,
+          "history": 0.25,
+          "regularization": 1.0,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 298,
+            "accuracy": 0.8859060402684564,
+            "macro_f1": 0.5175343764817449,
+            "per_class": {
+              "NONE": {
+                "support": 217,
+                "precision": 0.875,
+                "recall": 1.0,
+                "f1": 0.9333333333333333
+              },
+              "FORMING": {
+                "support": 22,
+                "precision": 0.9375,
+                "recall": 0.6818181818181818,
+                "f1": 0.7894736842105263
+              },
+              "READY": {
+                "support": 40,
+                "precision": 0.9411764705882353,
+                "recall": 0.8,
+                "f1": 0.8648648648648649
+              },
+              "OPENED": {
+                "support": 2,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "WAIT_RELEASE": {
+                "support": 17,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              }
+            },
+            "confusion": [
+              [
+                217,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                5,
+                15,
+                2,
+                0,
+                0
+              ],
+              [
+                8,
+                0,
+                32,
+                0,
+                0
+              ],
+              [
+                2,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                16,
+                1,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 298,
+            "accuracy": 0.8087248322147651,
+            "macro_f1": 0.4872304139278736,
+            "per_class": {
+              "NONE": {
+                "support": 217,
+                "precision": 1.0,
+                "recall": 0.9953917050691244,
+                "f1": 0.9976905311778291
+              },
+              "FORMING": {
+                "support": 22,
+                "precision": 1.0,
+                "recall": 0.7727272727272727,
+                "f1": 0.8717948717948718
+              },
+              "READY": {
+                "support": 40,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "OPENED": {
+                "support": 2,
+                "precision": 0.034482758620689655,
+                "recall": 1.0,
+                "f1": 0.06666666666666667
+              },
+              "WAIT_RELEASE": {
+                "support": 17,
+                "precision": 0.8571428571428571,
+                "recall": 0.35294117647058826,
+                "f1": 0.5
+              }
+            },
+            "confusion": [
+              [
+                216,
+                0,
+                0,
+                0,
+                1
+              ],
+              [
+                0,
+                17,
+                0,
+                5,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                40,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                2,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                11,
+                6
+              ]
+            ]
+          },
+          "pose_fraction": 0.7180327868852459,
+          "opening_baseline": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 1,
+            "intervals_hit": 0,
+            "predicted_runs": 0,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [
+              {
+                "annotation_frames": [
+                  161,
+                  162
+                ],
+                "recurrence_window_end_frame": 304,
+                "matched_run": null,
+                "reappearances": []
+              }
+            ],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": [
+              {
+                "action_frames": [
+                  96,
+                  183
+                ],
+                "observation_end_frame": 304,
+                "runs": [],
+                "gap_seconds": []
+              }
+            ]
+          },
+          "opening_learned": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 1,
+            "intervals_hit": 1,
+            "predicted_runs": 1,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [
+              {
+                "annotation_frames": [
+                  161,
+                  162
+                ],
+                "recurrence_window_end_frame": 304,
+                "matched_run": {
+                  "frames": [
+                    113,
+                    175
+                  ],
+                  "extension_before_seconds": 1.67527868852459,
+                  "extension_after_seconds": 0.45372131147540984
+                },
+                "reappearances": []
+              }
+            ],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": [
+              {
+                "action_frames": [
+                  96,
+                  183
+                ],
+                "observation_end_frame": 304,
+                "runs": [
+                  [
+                    113,
+                    175
+                  ]
+                ],
+                "gap_seconds": []
+              }
+            ]
+          }
+        },
+        {
+          "video": "yusuzumi1_behind_the_screen",
+          "group": 1,
+          "history": 0.25,
+          "regularization": 1.0,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 135,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class": {
+              "NONE": {
+                "support": 135,
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0
+              },
+              "FORMING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "READY": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "OPENED": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "WAIT_RELEASE": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                135,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 135,
+            "accuracy": 0.8592592592592593,
+            "macro_f1": 0.9243027888446215,
+            "per_class": {
+              "NONE": {
+                "support": 135,
+                "precision": 1.0,
+                "recall": 0.8592592592592593,
+                "f1": 0.9243027888446215
+              },
+              "FORMING": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              },
+              "READY": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              },
+              "OPENED": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "WAIT_RELEASE": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              }
+            },
+            "confusion": [
+              [
+                116,
+                7,
+                8,
+                0,
+                4
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.8125,
+          "opening_baseline": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 0,
+            "intervals_hit": 0,
+            "predicted_runs": 0,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": []
+          },
+          "opening_learned": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 0,
+            "intervals_hit": 0,
+            "predicted_runs": 0,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": []
+          }
+        },
+        {
+          "video": "both2_behind_the_screen",
+          "group": 2,
+          "history": 0.75,
+          "regularization": 0.1,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 221,
+            "accuracy": 0.8597285067873304,
+            "macro_f1": 0.26560794044665015,
+            "per_class": {
+              "NONE": {
+                "support": 187,
+                "precision": 0.8657407407407407,
+                "recall": 1.0,
+                "f1": 0.9280397022332506
+              },
+              "FORMING": {
+                "support": 10,
+                "precision": 0.6,
+                "recall": 0.3,
+                "f1": 0.4
+              },
+              "READY": {
+                "support": 9,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "OPENED": {
+                "support": 4,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "WAIT_RELEASE": {
+                "support": 11,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              }
+            },
+            "confusion": [
+              [
+                187,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                7,
+                3,
+                0,
+                0,
+                0
+              ],
+              [
+                8,
+                1,
+                0,
+                0,
+                0
+              ],
+              [
+                3,
+                1,
+                0,
+                0,
+                0
+              ],
+              [
+                11,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 221,
+            "accuracy": 0.8054298642533937,
+            "macro_f1": 0.31832803271240345,
+            "per_class": {
+              "NONE": {
+                "support": 187,
+                "precision": 1.0,
+                "recall": 0.8983957219251337,
+                "f1": 0.9464788732394366
+              },
+              "FORMING": {
+                "support": 10,
+                "precision": 0.47619047619047616,
+                "recall": 1.0,
+                "f1": 0.6451612903225806
+              },
+              "READY": {
+                "support": 9,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "OPENED": {
+                "support": 4,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "WAIT_RELEASE": {
+                "support": 11,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0
+              }
+            },
+            "confusion": [
+              [
+                168,
+                2,
+                0,
+                0,
+                17
+              ],
+              [
+                0,
+                10,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                9,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                4,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                11,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.8,
+          "opening_baseline": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 1,
+            "intervals_hit": 0,
+            "predicted_runs": 0,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [
+              {
+                "annotation_frames": [
+                  138,
+                  141
+                ],
+                "recurrence_window_end_frame": 419,
+                "matched_run": null,
+                "reappearances": []
+              }
+            ],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": [
+              {
+                "action_frames": [
+                  113,
+                  152
+                ],
+                "observation_end_frame": 419,
+                "runs": [],
+                "gap_seconds": []
+              }
+            ]
+          },
+          "opening_learned": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 1,
+            "intervals_hit": 0,
+            "predicted_runs": 0,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [
+              {
+                "annotation_frames": [
+                  138,
+                  141
+                ],
+                "recurrence_window_end_frame": 419,
+                "matched_run": null,
+                "reappearances": []
+              }
+            ],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": [
+              {
+                "action_frames": [
+                  113,
+                  152
+                ],
+                "observation_end_frame": 419,
+                "runs": [],
+                "gap_seconds": []
+              }
+            ]
+          }
+        },
+        {
+          "video": "contrast2_behind_the_screen",
+          "group": 2,
+          "history": 0.75,
+          "regularization": 0.1,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 316,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class": {
+              "NONE": {
+                "support": 316,
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0
+              },
+              "FORMING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "READY": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "OPENED": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "WAIT_RELEASE": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                316,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 316,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class": {
+              "NONE": {
+                "support": 316,
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0
+              },
+              "FORMING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "READY": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "OPENED": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "WAIT_RELEASE": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                316,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.5626283367556468,
+          "opening_baseline": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 0,
+            "intervals_hit": 0,
+            "predicted_runs": 0,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": []
+          },
+          "opening_learned": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 0,
+            "intervals_hit": 0,
+            "predicted_runs": 0,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": []
+          }
+        },
+        {
+          "video": "ramune2_behind_the_screen",
+          "group": 2,
+          "history": 0.75,
+          "regularization": 0.1,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 263,
+            "accuracy": 0.8098859315589354,
+            "macro_f1": 0.29263245033112584,
+            "per_class": {
+              "NONE": {
+                "support": 204,
+                "precision": 0.8192771084337349,
+                "recall": 1.0,
+                "f1": 0.9006622516556292
+              },
+              "FORMING": {
+                "support": 18,
+                "precision": 0.6428571428571429,
+                "recall": 0.5,
+                "f1": 0.5625
+              },
+              "READY": {
+                "support": 25,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "OPENED": {
+                "support": 4,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "WAIT_RELEASE": {
+                "support": 12,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              }
+            },
+            "confusion": [
+              [
+                204,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                9,
+                9,
+                0,
+                0,
+                0
+              ],
+              [
+                20,
+                5,
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                12,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 263,
+            "accuracy": 0.9163498098859315,
+            "macro_f1": 0.625806781632553,
+            "per_class": {
+              "NONE": {
+                "support": 204,
+                "precision": 0.9900990099009901,
+                "recall": 0.9803921568627451,
+                "f1": 0.9852216748768473
+              },
+              "FORMING": {
+                "support": 18,
+                "precision": 0.8421052631578947,
+                "recall": 0.8888888888888888,
+                "f1": 0.8648648648648649
+              },
+              "READY": {
+                "support": 25,
+                "precision": 0.9333333333333333,
+                "recall": 0.56,
+                "f1": 0.7
+              },
+              "OPENED": {
+                "support": 4,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "WAIT_RELEASE": {
+                "support": 12,
+                "precision": 0.4230769230769231,
+                "recall": 0.9166666666666666,
+                "f1": 0.5789473684210527
+              }
+            },
+            "confusion": [
+              [
+                200,
+                0,
+                0,
+                0,
+                4
+              ],
+              [
+                2,
+                16,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                3,
+                14,
+                0,
+                8
+              ],
+              [
+                0,
+                0,
+                1,
+                0,
+                3
+              ],
+              [
+                0,
+                0,
+                0,
+                1,
+                11
+              ]
+            ]
+          },
+          "pose_fraction": 0.7084870848708487,
+          "opening_baseline": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 1,
+            "intervals_hit": 0,
+            "predicted_runs": 0,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [
+              {
+                "annotation_frames": [
+                  145,
+                  148
+                ],
+                "recurrence_window_end_frame": 270,
+                "matched_run": null,
+                "reappearances": []
+              }
+            ],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": [
+              {
+                "action_frames": [
+                  96,
+                  162
+                ],
+                "observation_end_frame": 270,
+                "runs": [],
+                "gap_seconds": []
+              }
+            ]
+          },
+          "opening_learned": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 1,
+            "intervals_hit": 0,
+            "predicted_runs": 2,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [
+              [
+                149,
+                149
+              ],
+              [
+                156,
+                156
+              ]
+            ],
+            "details": [
+              {
+                "annotation_frames": [
+                  145,
+                  148
+                ],
+                "recurrence_window_end_frame": 270,
+                "matched_run": null,
+                "reappearances": []
+              }
+            ],
+            "occurrences_with_multiple_runs": 1,
+            "occurrence_restarts": 1,
+            "occurrence_details": [
+              {
+                "action_frames": [
+                  96,
+                  162
+                ],
+                "observation_end_frame": 270,
+                "runs": [
+                  [
+                    149,
+                    149
+                  ],
+                  [
+                    156,
+                    156
+                  ]
+                ],
+                "gap_seconds": [
+                  0.2054029520295203
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "video": "yusuzumi2_behind_the_screen",
+          "group": 2,
+          "history": 0.75,
+          "regularization": 0.1,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 211,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class": {
+              "NONE": {
+                "support": 211,
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0
+              },
+              "FORMING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "READY": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "OPENED": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "WAIT_RELEASE": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                211,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 211,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class": {
+              "NONE": {
+                "support": 211,
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0
+              },
+              "FORMING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "READY": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "OPENED": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "WAIT_RELEASE": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                211,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.8355555555555556,
+          "opening_baseline": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 0,
+            "intervals_hit": 0,
+            "predicted_runs": 0,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": []
+          },
+          "opening_learned": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 0,
+            "intervals_hit": 0,
+            "predicted_runs": 0,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": []
+          }
+        },
+        {
+          "video": "both3_behind_the_screen",
+          "group": 3,
+          "history": 0.25,
+          "regularization": 1.0,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 310,
+            "accuracy": 0.8483870967741935,
+            "macro_f1": 0.21275420537283454,
+            "per_class": {
+              "NONE": {
+                "support": 263,
+                "precision": 0.8562091503267973,
+                "recall": 0.9961977186311787,
+                "f1": 0.9209138840070299
+              },
+              "FORMING": {
+                "support": 10,
+                "precision": 0.25,
+                "recall": 0.1,
+                "f1": 0.14285714285714285
+              },
+              "READY": {
+                "support": 23,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "OPENED": {
+                "support": 2,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "WAIT_RELEASE": {
+                "support": 12,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              }
+            },
+            "confusion": [
+              [
+                262,
+                1,
+                0,
+                0,
+                0
+              ],
+              [
+                9,
+                1,
+                0,
+                0,
+                0
+              ],
+              [
+                21,
+                2,
+                0,
+                0,
+                0
+              ],
+              [
+                2,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                12,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 310,
+            "accuracy": 0.8129032258064516,
+            "macro_f1": 0.33492413484461203,
+            "per_class": {
+              "NONE": {
+                "support": 263,
+                "precision": 1.0,
+                "recall": 0.9125475285171103,
+                "f1": 0.9542743538767395
+              },
+              "FORMING": {
+                "support": 10,
+                "precision": 0.43478260869565216,
+                "recall": 1.0,
+                "f1": 0.6060606060606061
+              },
+              "READY": {
+                "support": 23,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "OPENED": {
+                "support": 2,
+                "precision": 0.06060606060606061,
+                "recall": 1.0,
+                "f1": 0.11428571428571428
+              },
+              "WAIT_RELEASE": {
+                "support": 12,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0
+              }
+            },
+            "confusion": [
+              [
+                240,
+                13,
+                0,
+                0,
+                10
+              ],
+              [
+                0,
+                10,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                23,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                2,
+                0
+              ],
+              [
+                0,
+                0,
+                4,
+                8,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.7913978494623656,
+          "opening_baseline": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 1,
+            "intervals_hit": 0,
+            "predicted_runs": 0,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [
+              {
+                "annotation_frames": [
+                  181,
+                  182
+                ],
+                "recurrence_window_end_frame": 464,
+                "matched_run": null,
+                "reappearances": []
+              }
+            ],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": [
+              {
+                "action_frames": [
+                  141,
+                  202
+                ],
+                "observation_end_frame": 464,
+                "runs": [],
+                "gap_seconds": []
+              }
+            ]
+          },
+          "opening_learned": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 1,
+            "intervals_hit": 1,
+            "predicted_runs": 1,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [
+              {
+                "annotation_frames": [
+                  181,
+                  182
+                ],
+                "recurrence_window_end_frame": 464,
+                "matched_run": {
+                  "frames": [
+                    151,
+                    190
+                  ],
+                  "extension_before_seconds": 1.0269569892473118,
+                  "extension_after_seconds": 0.2738551971326165
+                },
+                "reappearances": []
+              }
+            ],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": [
+              {
+                "action_frames": [
+                  141,
+                  202
+                ],
+                "observation_end_frame": 464,
+                "runs": [
+                  [
+                    151,
+                    190
+                  ]
+                ],
+                "gap_seconds": []
+              }
+            ]
+          }
+        },
+        {
+          "video": "contrast3_behind_the_screen",
+          "group": 3,
+          "history": 0.25,
+          "regularization": 1.0,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 470,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class": {
+              "NONE": {
+                "support": 470,
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0
+              },
+              "FORMING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "READY": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "OPENED": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "WAIT_RELEASE": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                470,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 470,
+            "accuracy": 0.9829787234042553,
+            "macro_f1": 0.9914163090128756,
+            "per_class": {
+              "NONE": {
+                "support": 470,
+                "precision": 1.0,
+                "recall": 0.9829787234042553,
+                "f1": 0.9914163090128756
+              },
+              "FORMING": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              },
+              "READY": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "OPENED": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "WAIT_RELEASE": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                462,
+                8,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.24893617021276596,
+          "opening_baseline": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 0,
+            "intervals_hit": 0,
+            "predicted_runs": 0,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": []
+          },
+          "opening_learned": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 0,
+            "intervals_hit": 0,
+            "predicted_runs": 0,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": []
+          }
+        },
+        {
+          "video": "ramune3_behind_the_screen",
+          "group": 3,
+          "history": 0.25,
+          "regularization": 1.0,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 323,
+            "accuracy": 0.8080495356037152,
+            "macro_f1": 0.4547382561605306,
+            "per_class": {
+              "NONE": {
+                "support": 251,
+                "precision": 0.9554655870445344,
+                "recall": 0.9402390438247012,
+                "f1": 0.9477911646586346
+              },
+              "FORMING": {
+                "support": 21,
+                "precision": 0.38095238095238093,
+                "recall": 0.38095238095238093,
+                "f1": 0.38095238095238093
+              },
+              "READY": {
+                "support": 26,
+                "precision": 0.6666666666666666,
+                "recall": 0.38461538461538464,
+                "f1": 0.4878048780487805
+              },
+              "OPENED": {
+                "support": 6,
+                "precision": 0.25,
+                "recall": 1.0,
+                "f1": 0.4
+              },
+              "WAIT_RELEASE": {
+                "support": 19,
+                "precision": 0.0625,
+                "recall": 0.05263157894736842,
+                "f1": 0.05714285714285714
+              }
+            },
+            "confusion": [
+              [
+                236,
+                0,
+                0,
+                0,
+                15
+              ],
+              [
+                8,
+                8,
+                5,
+                0,
+                0
+              ],
+              [
+                3,
+                13,
+                10,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                6,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                18,
+                1
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 323,
+            "accuracy": 0.8018575851393189,
+            "macro_f1": 0.4637309550353029,
+            "per_class": {
+              "NONE": {
+                "support": 251,
+                "precision": 1.0,
+                "recall": 0.8645418326693227,
+                "f1": 0.9273504273504274
+              },
+              "FORMING": {
+                "support": 21,
+                "precision": 0.45454545454545453,
+                "recall": 0.7142857142857143,
+                "f1": 0.5555555555555556
+              },
+              "READY": {
+                "support": 26,
+                "precision": 0.5813953488372093,
+                "recall": 0.9615384615384616,
+                "f1": 0.7246376811594203
+              },
+              "OPENED": {
+                "support": 6,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "WAIT_RELEASE": {
+                "support": 19,
+                "precision": 0.11764705882352941,
+                "recall": 0.10526315789473684,
+                "f1": 0.1111111111111111
+              }
+            },
+            "confusion": [
+              [
+                217,
+                18,
+                0,
+                1,
+                15
+              ],
+              [
+                0,
+                15,
+                6,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                25,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                6,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                6,
+                11,
+                2
+              ]
+            ]
+          },
+          "pose_fraction": 0.7920489296636085,
+          "opening_baseline": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 1,
+            "intervals_hit": 1,
+            "predicted_runs": 1,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [
+              {
+                "annotation_frames": [
+                  180,
+                  185
+                ],
+                "recurrence_window_end_frame": 326,
+                "matched_run": {
+                  "frames": [
+                    180,
+                    203
+                  ],
+                  "extension_before_seconds": 0.0,
+                  "extension_after_seconds": 0.6061559633027523
+                },
+                "reappearances": []
+              }
+            ],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": [
+              {
+                "action_frames": [
+                  129,
+                  204
+                ],
+                "observation_end_frame": 326,
+                "runs": [
+                  [
+                    180,
+                    203
+                  ]
+                ],
+                "gap_seconds": []
+              }
+            ]
+          },
+          "opening_learned": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 1,
+            "intervals_hit": 0,
+            "predicted_runs": 4,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [
+              [
+                168,
+                168
+              ],
+              [
+                186,
+                195
+              ],
+              [
+                202,
+                202
+              ],
+              [
+                283,
+                283
+              ]
+            ],
+            "details": [
+              {
+                "annotation_frames": [
+                  180,
+                  185
+                ],
+                "recurrence_window_end_frame": 326,
+                "matched_run": null,
+                "reappearances": []
+              }
+            ],
+            "occurrences_with_multiple_runs": 1,
+            "occurrence_restarts": 3,
+            "occurrence_details": [
+              {
+                "action_frames": [
+                  129,
+                  204
+                ],
+                "observation_end_frame": 326,
+                "runs": [
+                  [
+                    168,
+                    168
+                  ],
+                  [
+                    186,
+                    195
+                  ],
+                  [
+                    202,
+                    202
+                  ],
+                  [
+                    283,
+                    283
+                  ]
+                ],
+                "gap_seconds": [
+                  0.572480632008155,
+                  0.2020519877675841,
+                  2.694026503567788
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "video": "yusuzumi3_behind_the_screen",
+          "group": 3,
+          "history": 0.25,
+          "regularization": 1.0,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 188,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class": {
+              "NONE": {
+                "support": 188,
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0
+              },
+              "FORMING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "READY": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "OPENED": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "WAIT_RELEASE": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                188,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 188,
+            "accuracy": 0.9946808510638298,
+            "macro_f1": 0.9973333333333333,
+            "per_class": {
+              "NONE": {
+                "support": 188,
+                "precision": 1.0,
+                "recall": 0.9946808510638298,
+                "f1": 0.9973333333333333
+              },
+              "FORMING": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              },
+              "READY": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "OPENED": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "WAIT_RELEASE": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                187,
+                1,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.8376288659793815,
+          "opening_baseline": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 0,
+            "intervals_hit": 0,
+            "predicted_runs": 0,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": []
+          },
+          "opening_learned": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 0,
+            "intervals_hit": 0,
+            "predicted_runs": 0,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": []
+          }
+        },
+        {
+          "video": "both_without_the_screen",
+          "group": 0,
+          "history": 0.75,
+          "regularization": 0.1,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 253,
+            "accuracy": 0.7944664031620553,
+            "macro_f1": 0.3899387434271155,
+            "per_class": {
+              "NONE": {
+                "support": 201,
+                "precision": 0.9516129032258065,
+                "recall": 0.8805970149253731,
+                "f1": 0.9147286821705426
+              },
+              "FORMING": {
+                "support": 10,
+                "precision": 0.125,
+                "recall": 0.2,
+                "f1": 0.15384615384615385
+              },
+              "READY": {
+                "support": 35,
+                "precision": 1.0,
+                "recall": 0.5714285714285714,
+                "f1": 0.7272727272727273
+              },
+              "OPENED": {
+                "support": 2,
+                "precision": 0.08333333333333333,
+                "recall": 1.0,
+                "f1": 0.15384615384615385
+              },
+              "WAIT_RELEASE": {
+                "support": 5,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0
+              }
+            },
+            "confusion": [
+              [
+                177,
+                0,
+                0,
+                17,
+                7
+              ],
+              [
+                8,
+                2,
+                0,
+                0,
+                0
+              ],
+              [
+                1,
+                14,
+                20,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                2,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                5,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 253,
+            "accuracy": 0.7747035573122529,
+            "macro_f1": 0.39680548919679354,
+            "per_class": {
+              "NONE": {
+                "support": 201,
+                "precision": 1.0,
+                "recall": 0.8805970149253731,
+                "f1": 0.9365079365079365
+              },
+              "FORMING": {
+                "support": 10,
+                "precision": 0.45454545454545453,
+                "recall": 1.0,
+                "f1": 0.625
+              },
+              "READY": {
+                "support": 35,
+                "precision": 1.0,
+                "recall": 0.11428571428571428,
+                "f1": 0.20512820512820512
+              },
+              "OPENED": {
+                "support": 2,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "WAIT_RELEASE": {
+                "support": 5,
+                "precision": 0.12195121951219512,
+                "recall": 1.0,
+                "f1": 0.21739130434782608
+              }
+            },
+            "confusion": [
+              [
+                177,
+                0,
+                0,
+                0,
+                24
+              ],
+              [
+                0,
+                10,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                12,
+                4,
+                9,
+                10
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                2
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                5
+              ]
+            ]
+          },
+          "pose_fraction": 0.8946015424164524,
+          "opening_baseline": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 1,
+            "intervals_hit": 1,
+            "predicted_runs": 1,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [
+              {
+                "annotation_frames": [
+                  284,
+                  285
+                ],
+                "recurrence_window_end_frame": 388,
+                "matched_run": {
+                  "frames": [
+                    284,
+                    307
+                  ],
+                  "extension_before_seconds": 0.0,
+                  "extension_after_seconds": 0.7341100257069408
+                },
+                "reappearances": []
+              }
+            ],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": [
+              {
+                "action_frames": [
+                  237,
+                  290
+                ],
+                "observation_end_frame": 388,
+                "runs": [
+                  [
+                    284,
+                    307
+                  ]
+                ],
+                "gap_seconds": []
+              }
+            ]
+          },
+          "opening_learned": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 1,
+            "intervals_hit": 0,
+            "predicted_runs": 1,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [
+              [
+                273,
+                283
+              ]
+            ],
+            "details": [
+              {
+                "annotation_frames": [
+                  284,
+                  285
+                ],
+                "recurrence_window_end_frame": 388,
+                "matched_run": null,
+                "reappearances": []
+              }
+            ],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": [
+              {
+                "action_frames": [
+                  237,
+                  290
+                ],
+                "observation_end_frame": 388,
+                "runs": [
+                  [
+                    273,
+                    283
+                  ]
+                ],
+                "gap_seconds": []
+              }
+            ]
+          }
+        },
+        {
+          "video": "contrast_without_the_screen",
+          "group": 0,
+          "history": 0.75,
+          "regularization": 0.1,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 305,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class": {
+              "NONE": {
+                "support": 305,
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0
+              },
+              "FORMING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "READY": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "OPENED": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "WAIT_RELEASE": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                305,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 305,
+            "accuracy": 0.8721311475409836,
+            "macro_f1": 0.9316987740805605,
+            "per_class": {
+              "NONE": {
+                "support": 305,
+                "precision": 1.0,
+                "recall": 0.8721311475409836,
+                "f1": 0.9316987740805605
+              },
+              "FORMING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "READY": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              },
+              "OPENED": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              },
+              "WAIT_RELEASE": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              }
+            },
+            "confusion": [
+              [
+                266,
+                0,
+                35,
+                1,
+                3
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.7030567685589519,
+          "opening_baseline": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 0,
+            "intervals_hit": 0,
+            "predicted_runs": 0,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": []
+          },
+          "opening_learned": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 0,
+            "intervals_hit": 0,
+            "predicted_runs": 1,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [
+              [
+                0,
+                0
+              ]
+            ],
+            "details": [],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": []
+          }
+        },
+        {
+          "video": "ramune_without_the_screen",
+          "group": 0,
+          "history": 0.75,
+          "regularization": 0.1,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 308,
+            "accuracy": 0.7597402597402597,
+            "macro_f1": 0.17269372693726937,
+            "per_class": {
+              "NONE": {
+                "support": 234,
+                "precision": 0.7597402597402597,
+                "recall": 1.0,
+                "f1": 0.8634686346863468
+              },
+              "FORMING": {
+                "support": 13,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "READY": {
+                "support": 41,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "OPENED": {
+                "support": 2,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "WAIT_RELEASE": {
+                "support": 18,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              }
+            },
+            "confusion": [
+              [
+                234,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                13,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                41,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                2,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                18,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 308,
+            "accuracy": 0.8441558441558441,
+            "macro_f1": 0.4181883560524337,
+            "per_class": {
+              "NONE": {
+                "support": 234,
+                "precision": 0.9822222222222222,
+                "recall": 0.9444444444444444,
+                "f1": 0.9629629629629629
+              },
+              "FORMING": {
+                "support": 13,
+                "precision": 0.45,
+                "recall": 0.6923076923076923,
+                "f1": 0.5454545454545454
+              },
+              "READY": {
+                "support": 41,
+                "precision": 0.4838709677419355,
+                "recall": 0.7317073170731707,
+                "f1": 0.5825242718446602
+              },
+              "OPENED": {
+                "support": 2,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0
+              },
+              "WAIT_RELEASE": {
+                "support": 18,
+                "precision": 0,
+                "recall": 0.0,
+                "f1": 0.0
+              }
+            },
+            "confusion": [
+              [
+                221,
+                0,
+                12,
+                1,
+                0
+              ],
+              [
+                4,
+                9,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                11,
+                30,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                2,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                18,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.7125,
+          "opening_baseline": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 1,
+            "intervals_hit": 0,
+            "predicted_runs": 0,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [
+              {
+                "annotation_frames": [
+                  142,
+                  143
+                ],
+                "recurrence_window_end_frame": 319,
+                "matched_run": null,
+                "reappearances": []
+              }
+            ],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": [
+              {
+                "action_frames": [
+                  82,
+                  167
+                ],
+                "observation_end_frame": 319,
+                "runs": [],
+                "gap_seconds": []
+              }
+            ]
+          },
+          "opening_learned": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 1,
+            "intervals_hit": 0,
+            "predicted_runs": 1,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [
+              [
+                44,
+                44
+              ]
+            ],
+            "details": [
+              {
+                "annotation_frames": [
+                  142,
+                  143
+                ],
+                "recurrence_window_end_frame": 319,
+                "matched_run": null,
+                "reappearances": []
+              }
+            ],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": [
+              {
+                "action_frames": [
+                  82,
+                  167
+                ],
+                "observation_end_frame": 319,
+                "runs": [],
+                "gap_seconds": []
+              }
+            ]
+          }
+        },
+        {
+          "video": "yusuzumi_without_the_screen",
+          "group": 0,
+          "history": 0.75,
+          "regularization": 0.1,
+          "classifier": "rbf",
+          "baseline": {
+            "frames": 157,
+            "accuracy": 1.0,
+            "macro_f1": 1.0,
+            "per_class": {
+              "NONE": {
+                "support": 157,
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0
+              },
+              "FORMING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "READY": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "OPENED": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "WAIT_RELEASE": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              }
+            },
+            "confusion": [
+              [
+                157,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "learned": {
+            "frames": 157,
+            "accuracy": 0.8535031847133758,
+            "macro_f1": 0.9209621993127147,
+            "per_class": {
+              "NONE": {
+                "support": 157,
+                "precision": 1.0,
+                "recall": 0.8535031847133758,
+                "f1": 0.9209621993127147
+              },
+              "FORMING": {
+                "support": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1": 0
+              },
+              "READY": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              },
+              "OPENED": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              },
+              "WAIT_RELEASE": {
+                "support": 0,
+                "precision": 0.0,
+                "recall": 0,
+                "f1": 0.0
+              }
+            },
+            "confusion": [
+              [
+                134,
+                0,
+                8,
+                5,
+                10
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "pose_fraction": 0.9491017964071856,
+          "opening_baseline": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 0,
+            "intervals_hit": 0,
+            "predicted_runs": 0,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [],
+            "details": [],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": []
+          },
+          "opening_learned": {
+            "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+            "intervals": 0,
+            "intervals_hit": 0,
+            "predicted_runs": 3,
+            "reappearance_runs": 0,
+            "openings_with_reappearance": 0,
+            "unanchored_runs": [
+              [
+                2,
+                2
+              ],
+              [
+                11,
+                13
+              ],
+              [
+                44,
+                44
+              ]
+            ],
+            "details": [],
+            "occurrences_with_multiple_runs": 0,
+            "occurrence_restarts": 0,
+            "occurrence_details": []
+          }
+        }
+      ],
+      "behind_baseline": {
+        "frames": 3446,
+        "accuracy": 0.8784097504352872,
+        "macro_f1": 0.38186982545386533,
+        "per_class": {
+          "NONE": {
+            "support": 2943,
+            "precision": 0.9067245119305857,
+            "recall": 0.9942235813795447,
+            "f1": 0.9484602917341978
+          },
+          "FORMING": {
+            "support": 123,
+            "precision": 0.5232558139534884,
+            "recall": 0.36585365853658536,
+            "f1": 0.430622009569378
+          },
+          "READY": {
+            "support": 221,
+            "precision": 0.8448275862068966,
+            "recall": 0.22171945701357465,
+            "f1": 0.35125448028673834
+          },
+          "OPENED": {
+            "support": 25,
+            "precision": 0.1276595744680851,
+            "recall": 0.24,
+            "f1": 0.16666666666666666
+          },
+          "WAIT_RELEASE": {
+            "support": 134,
+            "precision": 0.03571428571428571,
+            "recall": 0.007462686567164179,
+            "f1": 0.012345679012345678
+          }
+        },
+        "confusion": [
+          [
+            2926,
+            2,
+            0,
+            0,
+            15
+          ],
+          [
+            69,
+            45,
+            9,
+            0,
+            0
+          ],
+          [
+            104,
+            33,
+            49,
+            23,
+            12
+          ],
+          [
+            18,
+            1,
+            0,
+            6,
+            0
+          ],
+          [
+            110,
+            5,
+            0,
+            18,
+            1
+          ]
+        ]
+      },
+      "behind_learned": {
+        "frames": 3446,
+        "accuracy": 0.883633197910621,
+        "macro_f1": 0.49264770840048505,
+        "per_class": {
+          "NONE": {
+            "support": 2943,
+            "precision": 0.9884453781512605,
+            "recall": 0.9592252803261978,
+            "f1": 0.9736161407139162
+          },
+          "FORMING": {
+            "support": 123,
+            "precision": 0.5766871165644172,
+            "recall": 0.7642276422764228,
+            "f1": 0.6573426573426573
+          },
+          "READY": {
+            "support": 221,
+            "precision": 0.5454545454545454,
+            "recall": 0.2986425339366516,
+            "f1": 0.38596491228070173
+          },
+          "OPENED": {
+            "support": 25,
+            "precision": 0.05303030303030303,
+            "recall": 0.28,
+            "f1": 0.08917197452229299
+          },
+          "WAIT_RELEASE": {
+            "support": 134,
+            "precision": 0.3160919540229885,
+            "recall": 0.41044776119402987,
+            "f1": 0.35714285714285715
+          }
+        },
+        "confusion": [
+          [
+            2823,
+            49,
+            8,
+            1,
+            62
+          ],
+          [
+            15,
+            94,
+            6,
+            5,
+            3
+          ],
+          [
+            18,
+            17,
+            66,
+            71,
+            49
+          ],
+          [
+            0,
+            0,
+            13,
+            7,
+            5
+          ],
+          [
+            0,
+            3,
+            28,
+            48,
+            55
+          ]
+        ]
+      },
+      "without_baseline": {
+        "frames": 1023,
+        "accuracy": 0.8768328445747801,
+        "macro_f1": 0.3208687426982084,
+        "per_class": {
+          "NONE": {
+            "support": 897,
+            "precision": 0.9131799163179917,
+            "recall": 0.9732441471571907,
+            "f1": 0.94225580140313
+          },
+          "FORMING": {
+            "support": 23,
+            "precision": 0.125,
+            "recall": 0.08695652173913043,
+            "f1": 0.10256410256410256
+          },
+          "READY": {
+            "support": 76,
+            "precision": 1.0,
+            "recall": 0.2631578947368421,
+            "f1": 0.4166666666666667
+          },
+          "OPENED": {
+            "support": 4,
+            "precision": 0.08333333333333333,
+            "recall": 0.5,
+            "f1": 0.14285714285714285
+          },
+          "WAIT_RELEASE": {
+            "support": 23,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          }
+        },
+        "confusion": [
+          [
+            873,
+            0,
+            0,
+            17,
+            7
+          ],
+          [
+            21,
+            2,
+            0,
+            0,
+            0
+          ],
+          [
+            42,
+            14,
+            20,
+            0,
+            0
+          ],
+          [
+            2,
+            0,
+            0,
+            2,
+            0
+          ],
+          [
+            18,
+            0,
+            0,
+            5,
+            0
+          ]
+        ]
+      },
+      "without_learned": {
+        "frames": 1023,
+        "accuracy": 0.8367546432062561,
+        "macro_f1": 0.4042858371286859,
+        "per_class": {
+          "NONE": {
+            "support": 897,
+            "precision": 0.9950124688279302,
+            "recall": 0.8896321070234113,
+            "f1": 0.9393761035903473
+          },
+          "FORMING": {
+            "support": 23,
+            "precision": 0.4523809523809524,
+            "recall": 0.8260869565217391,
+            "f1": 0.5846153846153846
+          },
+          "READY": {
+            "support": 76,
+            "precision": 0.3119266055045872,
+            "recall": 0.4473684210526316,
+            "f1": 0.3675675675675676
+          },
+          "OPENED": {
+            "support": 4,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "WAIT_RELEASE": {
+            "support": 23,
+            "precision": 0.09259259259259259,
+            "recall": 0.21739130434782608,
+            "f1": 0.12987012987012986
+          }
+        },
+        "confusion": [
+          [
+            798,
+            0,
+            55,
+            7,
+            37
+          ],
+          [
+            4,
+            19,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            23,
+            34,
+            9,
+            10
+          ],
+          [
+            0,
+            0,
+            2,
+            0,
+            2
+          ],
+          [
+            0,
+            0,
+            18,
+            0,
+            5
+          ]
+        ]
+      }
+    }
+  },
+  "runtime": {
+    "python": "3.12.13",
+    "numpy": "2.5.1",
+    "opencv": "5.0.0",
+    "mediapipe": "0.10.35",
+    "model_sha256": "59929e1d1ee95287735ddd833b19cf4ac46d29bc7afddbbf6753c459690d574a",
+    "subject_area": [
+      0.35,
+      0.15,
+      0.75,
+      0.9
+    ],
+    "subject_min_torso_height": 0.18,
+    "subject_min_shoulder_width": 0.1,
+    "running_mode": "VIDEO",
+    "timestamps": "zero-based frame / annotation fps"
+  },
+  "frame_predictions": "shared/results/0924-cache/0924-timeline-central-results-predictions.npz",
+  "opening_evaluation": "anchor-overlap-v2; models selected with original strict frame labels"
+}

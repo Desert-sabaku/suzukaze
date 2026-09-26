@@ -1,0 +1,373 @@
+{
+  "format_version": 1,
+  "feature_schema": "0924-relative-position-v1",
+  "phase": {
+    "history": 0.75,
+    "regularization": 0.1,
+    "classifier": "rbf"
+  },
+  "action": {
+    "history": 0.75,
+    "regularization": 0.01,
+    "classifier": "rbf"
+  },
+  "phase_labels": [
+    "NONE",
+    "FORMING",
+    "READY",
+    "OPENED",
+    "WAIT_RELEASE"
+  ],
+  "action_labels": [
+    "NONE",
+    "RAMUNE",
+    "RELAXING",
+    "FANNING",
+    "UCHIMIZU"
+  ],
+  "hold_seconds": 0.75,
+  "release_seconds": 0.6,
+  "setup_seconds": 0.3,
+  "central_mask": [
+    0.35,
+    0.75
+  ],
+  "training_sources": [
+    {
+      "name": "both1_behind_the_screen",
+      "video_sha256": "c37c65a751a690686df561d7fdef0c3b81a6ec1227d71caeff122cc6d5c021f4",
+      "annotation_sha256": "c0a64ff491206400db69df45a884ba4f08ffd76006031cfe7b7bb28d9971996e"
+    },
+    {
+      "name": "both2_behind_the_screen",
+      "video_sha256": "b9131d2f6dc40a8ca18190141d65a1ae2c811bfba2d6f9e7b2440675b1ead846",
+      "annotation_sha256": "7810176198c77ba269374877e169e1317f8eb22f4a34fc4d27687074c9ca0587"
+    },
+    {
+      "name": "both3_behind_the_screen",
+      "video_sha256": "5535d98471e5edadec1041c0bd6a9ee1b01f4d841fd362c1c7da7e511a62ab42",
+      "annotation_sha256": "11e23b54855e0d7fd05eb6df8587427cdaf5f9176fa0589b634264d831150885"
+    },
+    {
+      "name": "contrast1_behind_the_screen",
+      "video_sha256": "382fb185f7307527d718e379755446a7121af719f6f4b749731557d6748b0468",
+      "annotation_sha256": "2bf1c940c82145e3727da0d22237115d23cd78cae96f7f0c54ebe009c72620d5"
+    },
+    {
+      "name": "contrast2_behind_the_screen",
+      "video_sha256": "63c92d0e579c21535f656b8f91c3b431a22b052ccd25cb2fe4cb12810bc710a9",
+      "annotation_sha256": "dbbcd3e49e5af24f19a0599113729744eeee9807514a45884a6622f541150838"
+    },
+    {
+      "name": "contrast3_behind_the_screen",
+      "video_sha256": "d9005969ea07ffb412c012762472370f6c3cb47ab41da80856ab9f89bd192c3c",
+      "annotation_sha256": "1a23631b8ef9fee1723da2f8b4331bccbb5d624a8fa1b265d727d69966d02d5c"
+    },
+    {
+      "name": "ramune1_behind_the_screen",
+      "video_sha256": "f9e8909de0ba6ab72c2aa89486c56ce2451e5ac8954a956af4097705f677d5db",
+      "annotation_sha256": "a2cde612dcdbfc098dfc3642e680d934596dcb31d6a193a116394965155d9906"
+    },
+    {
+      "name": "ramune2_behind_the_screen",
+      "video_sha256": "8c83369352059d2c2b62ce015a50eece8f45aa0c44313dc3d081b1033d9966f3",
+      "annotation_sha256": "c50d0d9b507c593ba1f26b72ebd65d1e4c1c0e35882c4dd8e94e24bdf17a0965"
+    },
+    {
+      "name": "ramune3_behind_the_screen",
+      "video_sha256": "4a4899b42a9bbf8a0421b9e3ef40f5fe7736a21bd89d8ed22dc381a8679d66e7",
+      "annotation_sha256": "431309581ab6bae4bbc5851cd7a1ff8fd045e46fee3b7d54dd959aa6425ca804"
+    },
+    {
+      "name": "yusuzumi1_behind_the_screen",
+      "video_sha256": "f8e1d28ec4032f73c2a95ce107015eb342c210efe2a3f961ba0596025aebd242",
+      "annotation_sha256": "019e07ca62bf6ee557fc494c299c4411d3a2cd2fed5c8924bf29998beab06d53"
+    },
+    {
+      "name": "yusuzumi2_behind_the_screen",
+      "video_sha256": "c720603716fdafcd9c79aa9bb9ce6ff09414cbdee926b65c0273db813945e886",
+      "annotation_sha256": "bc73e549c2f2150efffd5234195217322d54b26d5d678e0ffa4ba8deade9357c"
+    },
+    {
+      "name": "yusuzumi3_behind_the_screen",
+      "video_sha256": "aade199ed875fa0812fdebc546633201ea5576142a9d0e9310583211a2ac9906",
+      "annotation_sha256": "e95afc644b2559876d198924fab5919046d546cd42f373d1f8df825c0eb289d7"
+    }
+  ],
+  "snapshot_sha256": "b6886244b81092e04d3fabc94bf11b381fb4d2103727771d5264454f03e741a0",
+  "pose_provenance": {
+    "clips": [
+      {
+        "name": "both1_behind_the_screen",
+        "fps": 28.450357595551566,
+        "aspect": 1.7777777777777777,
+        "group": 1,
+        "annotation_sha256": "c0a64ff491206400db69df45a884ba4f08ffd76006031cfe7b7bb28d9971996e",
+        "video_sha256": "c37c65a751a690686df561d7fdef0c3b81a6ec1227d71caeff122cc6d5c021f4",
+        "opening_intervals": [
+          [
+            307,
+            311
+          ]
+        ],
+        "ramune_intervals": [
+          [
+            232,
+            355
+          ]
+        ]
+      },
+      {
+        "name": "both2_behind_the_screen",
+        "fps": 29.68561519903498,
+        "aspect": 1.7777777777777777,
+        "group": 2,
+        "annotation_sha256": "7810176198c77ba269374877e169e1317f8eb22f4a34fc4d27687074c9ca0587",
+        "video_sha256": "b9131d2f6dc40a8ca18190141d65a1ae2c811bfba2d6f9e7b2440675b1ead846",
+        "opening_intervals": [
+          [
+            138,
+            141
+          ]
+        ],
+        "ramune_intervals": [
+          [
+            113,
+            152
+          ]
+        ]
+      },
+      {
+        "name": "both3_behind_the_screen",
+        "fps": 29.21251845414472,
+        "aspect": 1.7777777777777777,
+        "group": 3,
+        "annotation_sha256": "11e23b54855e0d7fd05eb6df8587427cdaf5f9176fa0589b634264d831150885",
+        "video_sha256": "5535d98471e5edadec1041c0bd6a9ee1b01f4d841fd362c1c7da7e511a62ab42",
+        "opening_intervals": [
+          [
+            181,
+            182
+          ]
+        ],
+        "ramune_intervals": [
+          [
+            141,
+            202
+          ]
+        ]
+      },
+      {
+        "name": "both_without_the_screen",
+        "fps": 29.968259837909464,
+        "aspect": 1.7777777777777777,
+        "group": 0,
+        "annotation_sha256": "b650eafc07fccc0625e5fb3c4d4fe9f75d9e1b11fd7ad31f449af62dbe2eb3fd",
+        "video_sha256": "8070b2521c191dae978548bc966cfb012d7b7ca7f82f8b33385cabdc3a3d8e1f",
+        "opening_intervals": [
+          [
+            284,
+            285
+          ]
+        ],
+        "ramune_intervals": [
+          [
+            237,
+            290
+          ]
+        ]
+      },
+      {
+        "name": "contrast1_behind_the_screen",
+        "fps": 29.96500730690335,
+        "aspect": 1.7777777777777777,
+        "group": 1,
+        "annotation_sha256": "2bf1c940c82145e3727da0d22237115d23cd78cae96f7f0c54ebe009c72620d5",
+        "video_sha256": "382fb185f7307527d718e379755446a7121af719f6f4b749731557d6748b0468",
+        "opening_intervals": [
+          [
+            349,
+            350
+          ]
+        ],
+        "ramune_intervals": [
+          [
+            265,
+            373
+          ]
+        ]
+      },
+      {
+        "name": "contrast2_behind_the_screen",
+        "fps": 29.964559371256993,
+        "aspect": 1.7777777777777777,
+        "group": 2,
+        "annotation_sha256": "dbbcd3e49e5af24f19a0599113729744eeee9807514a45884a6622f541150838",
+        "video_sha256": "63c92d0e579c21535f656b8f91c3b431a22b052ccd25cb2fe4cb12810bc710a9",
+        "opening_intervals": [],
+        "ramune_intervals": []
+      },
+      {
+        "name": "contrast3_behind_the_screen",
+        "fps": 29.967736862016636,
+        "aspect": 1.7777777777777777,
+        "group": 3,
+        "annotation_sha256": "1a23631b8ef9fee1723da2f8b4331bccbb5d624a8fa1b265d727d69966d02d5c",
+        "video_sha256": "d9005969ea07ffb412c012762472370f6c3cb47ab41da80856ab9f89bd192c3c",
+        "opening_intervals": [],
+        "ramune_intervals": []
+      },
+      {
+        "name": "contrast_without_the_screen",
+        "fps": 29.51455643316371,
+        "aspect": 1.7777777777777777,
+        "group": 0,
+        "annotation_sha256": "6bf82f86e6bcad49ce0f36e05cc4b2f07f670f2e8dd0f5b0c6b81cba527703b0",
+        "video_sha256": "226483ce2c1d68849f7afa7f8ce0461b5c7a300563047f06ed3aa9a4459b0612",
+        "opening_intervals": [],
+        "ramune_intervals": []
+      },
+      {
+        "name": "ramune1_behind_the_screen",
+        "fps": 28.651949271958667,
+        "aspect": 1.7777777777777777,
+        "group": 1,
+        "annotation_sha256": "a2cde612dcdbfc098dfc3642e680d934596dcb31d6a193a116394965155d9906",
+        "video_sha256": "f9e8909de0ba6ab72c2aa89486c56ce2451e5ac8954a956af4097705f677d5db",
+        "opening_intervals": [
+          [
+            161,
+            162
+          ]
+        ],
+        "ramune_intervals": [
+          [
+            96,
+            183
+          ]
+        ]
+      },
+      {
+        "name": "ramune2_behind_the_screen",
+        "fps": 29.210875212434562,
+        "aspect": 1.7777777777777777,
+        "group": 2,
+        "annotation_sha256": "c50d0d9b507c593ba1f26b72ebd65d1e4c1c0e35882c4dd8e94e24bdf17a0965",
+        "video_sha256": "8c83369352059d2c2b62ce015a50eece8f45aa0c44313dc3d081b1033d9966f3",
+        "opening_intervals": [
+          [
+            145,
+            148
+          ]
+        ],
+        "ramune_intervals": [
+          [
+            96,
+            162
+          ]
+        ]
+      },
+      {
+        "name": "ramune3_behind_the_screen",
+        "fps": 29.69532775347732,
+        "aspect": 1.7777777777777777,
+        "group": 3,
+        "annotation_sha256": "431309581ab6bae4bbc5851cd7a1ff8fd045e46fee3b7d54dd959aa6425ca804",
+        "video_sha256": "4a4899b42a9bbf8a0421b9e3ef40f5fe7736a21bd89d8ed22dc381a8679d66e7",
+        "opening_intervals": [
+          [
+            180,
+            185
+          ]
+        ],
+        "ramune_intervals": [
+          [
+            129,
+            204
+          ]
+        ]
+      },
+      {
+        "name": "ramune_without_the_screen",
+        "fps": 29.86579060347563,
+        "aspect": 1.7777777777777777,
+        "group": 0,
+        "annotation_sha256": "91955022fe5b3379ab8a8fdcfe514ad596d935140e9e5c5cb0c461c3bb6a1044",
+        "video_sha256": "9e4f4ef03d0873b43340b814c84fde8d193633c4256912a21474b1bd788ca0fa",
+        "opening_intervals": [
+          [
+            142,
+            143
+          ]
+        ],
+        "ramune_intervals": [
+          [
+            82,
+            167
+          ]
+        ]
+      },
+      {
+        "name": "yusuzumi1_behind_the_screen",
+        "fps": 29.73933824071752,
+        "aspect": 1.7777777777777777,
+        "group": 1,
+        "annotation_sha256": "019e07ca62bf6ee557fc494c299c4411d3a2cd2fed5c8924bf29998beab06d53",
+        "video_sha256": "f8e1d28ec4032f73c2a95ce107015eb342c210efe2a3f961ba0596025aebd242",
+        "opening_intervals": [],
+        "ramune_intervals": []
+      },
+      {
+        "name": "yusuzumi2_behind_the_screen",
+        "fps": 29.444609237319188,
+        "aspect": 1.7777777777777777,
+        "group": 2,
+        "annotation_sha256": "bc73e549c2f2150efffd5234195217322d54b26d5d678e0ffa4ba8deade9357c",
+        "video_sha256": "c720603716fdafcd9c79aa9bb9ce6ff09414cbdee926b65c0273db813945e886",
+        "opening_intervals": [],
+        "ramune_intervals": []
+      },
+      {
+        "name": "yusuzumi3_behind_the_screen",
+        "fps": 29.89152765223108,
+        "aspect": 1.7777777777777777,
+        "group": 3,
+        "annotation_sha256": "e95afc644b2559876d198924fab5919046d546cd42f373d1f8df825c0eb289d7",
+        "video_sha256": "aade199ed875fa0812fdebc546633201ea5576142a9d0e9310583211a2ac9906",
+        "opening_intervals": [],
+        "ramune_intervals": []
+      },
+      {
+        "name": "yusuzumi_without_the_screen",
+        "fps": 29.78933411027405,
+        "aspect": 1.7777777777777777,
+        "group": 0,
+        "annotation_sha256": "3feb590bb6de03d58e98a39de14edb14f704274d7d61b2a4edd33b9e901cff7b",
+        "video_sha256": "b5977e2c3c1359ce9df069aa27f13c734ef333f771bcd5e288fbcd6a9552686f",
+        "opening_intervals": [],
+        "ramune_intervals": []
+      }
+    ],
+    "pose_pipeline_sha256": "b52be82ea5e3f62d09194c53037dec8807c62249d2c467758d685c4f013fba2c",
+    "environment": {
+      "python": "3.12.13",
+      "numpy": "2.5.1",
+      "opencv": "5.0.0",
+      "mediapipe": "0.10.35",
+      "model_sha256": "59929e1d1ee95287735ddd833b19cf4ac46d29bc7afddbbf6753c459690d574a",
+      "subject_area": [
+        0.35,
+        0.15,
+        0.75,
+        0.9
+      ],
+      "subject_min_torso_height": 0.18,
+      "subject_min_shoulder_width": 0.1,
+      "running_mode": "VIDEO",
+      "timestamps": "zero-based frame / annotation fps"
+    }
+  },
+  "phase_report_sha256": "873b0edfe46b8f40e5a919d0d8516f75623b3b1dea467a6f11ade90ebaa68aeb",
+  "action_report_sha256": "57b377717b59e2ff47ea61c82f7b8aab2f1e26f24afef9a18d05f77a0b5386f1",
+  "model_sha256": "541c2cdbc80ddbc1cc67a578420904c1cb22e08a43f577fe4bf916182963e9c6"
+}

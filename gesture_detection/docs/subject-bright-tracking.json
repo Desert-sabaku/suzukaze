@@ -1,0 +1,254 @@
+{
+  "aogi1_3-8": {
+    "frames": 327,
+    "fps": 29.33454538930321,
+    "present": 6,
+    "detected": 5,
+    "absent": 2,
+    "false_positive": 0,
+    "marked": 36,
+    "raw": {
+      "correct_points": 29,
+      "pck_at_0_2": 0.8055555555555556,
+      "step_p95_image_height": 0.04700512905535672,
+      "step_pairs": 1349
+    },
+    "smooth": {
+      "correct_points": 26,
+      "pck_at_0_2": 0.7222222222222222,
+      "step_p95_image_height": 0.02753451971227739,
+      "step_pairs": 1349
+    }
+  },
+  "aogi2_1-7": {
+    "frames": 320,
+    "fps": 29.964791370140084,
+    "present": 5,
+    "detected": 5,
+    "absent": 3,
+    "false_positive": 0,
+    "marked": 30,
+    "raw": {
+      "correct_points": 24,
+      "pck_at_0_2": 0.8,
+      "step_p95_image_height": 0.06338289901730611,
+      "step_pairs": 1222
+    },
+    "smooth": {
+      "correct_points": 22,
+      "pck_at_0_2": 0.7333333333333333,
+      "step_p95_image_height": 0.035041952896099564,
+      "step_pairs": 1222
+    }
+  },
+  "aogi3_2-8": {
+    "frames": 332,
+    "fps": 29.967324784421805,
+    "present": 6,
+    "detected": 5,
+    "absent": 2,
+    "false_positive": 0,
+    "marked": 36,
+    "raw": {
+      "correct_points": 25,
+      "pck_at_0_2": 0.6944444444444444,
+      "step_p95_image_height": 0.12541753690773388,
+      "step_pairs": 1466
+    },
+    "smooth": {
+      "correct_points": 24,
+      "pck_at_0_2": 0.6666666666666666,
+      "step_p95_image_height": 0.055796493999938745,
+      "step_pairs": 1466
+    }
+  },
+  "ramune1_4-7": {
+    "frames": 346,
+    "fps": 29.962244108579938,
+    "present": 6,
+    "detected": 5,
+    "absent": 2,
+    "false_positive": 0,
+    "marked": 35,
+    "raw": {
+      "correct_points": 27,
+      "pck_at_0_2": 0.7714285714285715,
+      "step_p95_image_height": 0.03654124606532906,
+      "step_pairs": 1456
+    },
+    "smooth": {
+      "correct_points": 27,
+      "pck_at_0_2": 0.7714285714285715,
+      "step_p95_image_height": 0.024292255353198414,
+      "step_pairs": 1456
+    }
+  },
+  "ramune2_3-4": {
+    "frames": 312,
+    "fps": 29.668041243648787,
+    "present": 5,
+    "detected": 0,
+    "absent": 3,
+    "false_positive": 0,
+    "marked": 30,
+    "raw": {
+      "correct_points": 0,
+      "pck_at_0_2": 0.0,
+      "step_p95_image_height": null,
+      "step_pairs": 0
+    },
+    "smooth": {
+      "correct_points": 0,
+      "pck_at_0_2": 0.0,
+      "step_p95_image_height": null,
+      "step_pairs": 0
+    }
+  },
+  "ramune3_3-4": {
+    "frames": 318,
+    "fps": 29.95591393797807,
+    "present": 5,
+    "detected": 0,
+    "absent": 3,
+    "false_positive": 0,
+    "marked": 27,
+    "raw": {
+      "correct_points": 0,
+      "pck_at_0_2": 0.0,
+      "step_p95_image_height": null,
+      "step_pairs": 0
+    },
+    "smooth": {
+      "correct_points": 0,
+      "pck_at_0_2": 0.0,
+      "step_p95_image_height": null,
+      "step_pairs": 0
+    }
+  },
+  "uchimizu1_3-5": {
+    "frames": 325,
+    "fps": 29.965056134538493,
+    "present": 6,
+    "detected": 4,
+    "absent": 2,
+    "false_positive": 0,
+    "marked": 32,
+    "raw": {
+      "correct_points": 20,
+      "pck_at_0_2": 0.625,
+      "step_p95_image_height": 0.0321671536211831,
+      "step_pairs": 1230
+    },
+    "smooth": {
+      "correct_points": 19,
+      "pck_at_0_2": 0.59375,
+      "step_p95_image_height": 0.020942982660844107,
+      "step_pairs": 1230
+    }
+  },
+  "uchimziu2_3-5": {
+    "frames": 322,
+    "fps": 29.96649708400546,
+    "present": 5,
+    "detected": 4,
+    "absent": 3,
+    "false_positive": 0,
+    "marked": 29,
+    "raw": {
+      "correct_points": 18,
+      "pck_at_0_2": 0.6206896551724138,
+      "step_p95_image_height": 0.07249729310395113,
+      "step_pairs": 1043
+    },
+    "smooth": {
+      "correct_points": 19,
+      "pck_at_0_2": 0.6551724137931034,
+      "step_p95_image_height": 0.037892887433220473,
+      "step_pairs": 1043
+    }
+  },
+  "utchimizu3_3-5": {
+    "frames": 344,
+    "fps": 29.956458635703918,
+    "present": 4,
+    "detected": 3,
+    "absent": 4,
+    "false_positive": 0,
+    "marked": 24,
+    "raw": {
+      "correct_points": 16,
+      "pck_at_0_2": 0.6666666666666666,
+      "step_p95_image_height": 0.0629219131063823,
+      "step_pairs": 1022
+    },
+    "smooth": {
+      "correct_points": 14,
+      "pck_at_0_2": 0.5833333333333334,
+      "step_p95_image_height": 0.030555643815168974,
+      "step_pairs": 1022
+    }
+  },
+  "yusuzumi1_3-8": {
+    "frames": 329,
+    "fps": 29.964661736310976,
+    "present": 6,
+    "detected": 5,
+    "absent": 2,
+    "false_positive": 0,
+    "marked": 36,
+    "raw": {
+      "correct_points": 30,
+      "pck_at_0_2": 0.8333333333333334,
+      "step_p95_image_height": 0.026889257704253218,
+      "step_pairs": 1457
+    },
+    "smooth": {
+      "correct_points": 29,
+      "pck_at_0_2": 0.8055555555555556,
+      "step_p95_image_height": 0.01672046461819215,
+      "step_pairs": 1457
+    }
+  },
+  "yusuzumi2_2-10": {
+    "frames": 378,
+    "fps": 29.495916350205484,
+    "present": 7,
+    "detected": 5,
+    "absent": 1,
+    "false_positive": 0,
+    "marked": 34,
+    "raw": {
+      "correct_points": 24,
+      "pck_at_0_2": 0.7058823529411765,
+      "step_p95_image_height": 0.03404822491295927,
+      "step_pairs": 1628
+    },
+    "smooth": {
+      "correct_points": 25,
+      "pck_at_0_2": 0.7352941176470589,
+      "step_p95_image_height": 0.015373417197154017,
+      "step_pairs": 1628
+    }
+  },
+  "yusuzumi3_2-9": {
+    "frames": 349,
+    "fps": 29.964454772848253,
+    "present": 6,
+    "detected": 5,
+    "absent": 2,
+    "false_positive": 0,
+    "marked": 36,
+    "raw": {
+      "correct_points": 28,
+      "pck_at_0_2": 0.7777777777777778,
+      "step_p95_image_height": 0.01752603357088185,
+      "step_pairs": 1464
+    },
+    "smooth": {
+      "correct_points": 27,
+      "pck_at_0_2": 0.75,
+      "step_p95_image_height": 0.009091893355036004,
+      "step_pairs": 1464
+    }
+  }
+}

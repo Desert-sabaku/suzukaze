@@ -1,0 +1,654 @@
+{
+  "model_sha256": "541c2cdbc80ddbc1cc67a578420904c1cb22e08a43f577fe4bf916182963e9c6",
+  "reference_sha256": "873b0edfe46b8f40e5a919d0d8516f75623b3b1dea467a6f11ade90ebaa68aeb",
+  "snapshot_sha256": "b6886244b81092e04d3fabc94bf11b381fb4d2103727771d5264454f03e741a0",
+  "outer_fold_replay": [
+    {
+      "video": "both1_behind_the_screen",
+      "frames": 410,
+      "metrics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 1,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              307,
+              311
+            ],
+            "recurrence_window_end_frame": 409,
+            "matched_run": {
+              "frames": [
+                283,
+                339
+              ],
+              "extension_before_seconds": 0.8435746341463415,
+              "extension_after_seconds": 0.9841704065040651
+            },
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              232,
+              355
+            ],
+            "observation_end_frame": 409,
+            "runs": [
+              [
+                283,
+                339
+              ]
+            ],
+            "gap_seconds": []
+          }
+        ],
+        "notifications": 1,
+        "notification_frames": [
+          283
+        ],
+        "active_seconds": 2.003489756097561,
+        "outside_action_seconds": 0.0,
+        "longest_run_seconds": 2.003489756097561
+      }
+    },
+    {
+      "video": "contrast1_behind_the_screen",
+      "frames": 447,
+      "metrics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 1,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              349,
+              350
+            ],
+            "recurrence_window_end_frame": 446,
+            "matched_run": {
+              "frames": [
+                317,
+                394
+              ],
+              "extension_before_seconds": 1.0679123042505592,
+              "extension_after_seconds": 1.468379418344519
+            },
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              265,
+              373
+            ],
+            "observation_end_frame": 446,
+            "runs": [
+              [
+                317,
+                394
+              ]
+            ],
+            "gap_seconds": []
+          }
+        ],
+        "notifications": 1,
+        "notification_frames": [
+          317
+        ],
+        "active_seconds": 2.603036241610738,
+        "outside_action_seconds": 0.7008174496644295,
+        "longest_run_seconds": 2.603036241610738
+      }
+    },
+    {
+      "video": "ramune1_behind_the_screen",
+      "frames": 305,
+      "metrics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 1,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              161,
+              162
+            ],
+            "recurrence_window_end_frame": 304,
+            "matched_run": {
+              "frames": [
+                151,
+                194
+              ],
+              "extension_before_seconds": 0.3490163934426229,
+              "extension_after_seconds": 1.1168524590163933
+            },
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              96,
+              183
+            ],
+            "observation_end_frame": 304,
+            "runs": [
+              [
+                151,
+                194
+              ]
+            ],
+            "gap_seconds": []
+          }
+        ],
+        "notifications": 1,
+        "notification_frames": [
+          151
+        ],
+        "active_seconds": 1.535672131147541,
+        "outside_action_seconds": 0.38391803278688524,
+        "longest_run_seconds": 1.535672131147541
+      }
+    },
+    {
+      "video": "yusuzumi1_behind_the_screen",
+      "frames": 336,
+      "metrics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [],
+        "notifications": 0,
+        "notification_frames": [],
+        "active_seconds": 0.0,
+        "outside_action_seconds": 0.0,
+        "longest_run_seconds": 0.0
+      }
+    },
+    {
+      "video": "both2_behind_the_screen",
+      "frames": 420,
+      "metrics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 1,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              138,
+              141
+            ],
+            "recurrence_window_end_frame": 419,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              113,
+              152
+            ],
+            "observation_end_frame": 419,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ],
+        "notifications": 0,
+        "notification_frames": [],
+        "active_seconds": 0.0,
+        "outside_action_seconds": 0.0,
+        "longest_run_seconds": 0.0
+      }
+    },
+    {
+      "video": "contrast2_behind_the_screen",
+      "frames": 487,
+      "metrics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [],
+        "notifications": 0,
+        "notification_frames": [],
+        "active_seconds": 0.0,
+        "outside_action_seconds": 0.0,
+        "longest_run_seconds": 0.0
+      }
+    },
+    {
+      "video": "ramune2_behind_the_screen",
+      "frames": 271,
+      "metrics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 1,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              145,
+              148
+            ],
+            "recurrence_window_end_frame": 270,
+            "matched_run": {
+              "frames": [
+                147,
+                177
+              ],
+              "extension_before_seconds": 0.0,
+              "extension_after_seconds": 0.9927809348093481
+            },
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              96,
+              162
+            ],
+            "observation_end_frame": 270,
+            "runs": [
+              [
+                147,
+                177
+              ]
+            ],
+            "gap_seconds": []
+          }
+        ],
+        "notifications": 1,
+        "notification_frames": [
+          147
+        ],
+        "active_seconds": 1.0612485854858549,
+        "outside_action_seconds": 0.5135073800738007,
+        "longest_run_seconds": 1.0612485854858549
+      }
+    },
+    {
+      "video": "yusuzumi2_behind_the_screen",
+      "frames": 450,
+      "metrics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [],
+        "notifications": 0,
+        "notification_frames": [],
+        "active_seconds": 0.0,
+        "outside_action_seconds": 0.0,
+        "longest_run_seconds": 0.0
+      }
+    },
+    {
+      "video": "both3_behind_the_screen",
+      "frames": 465,
+      "metrics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 1,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              181,
+              182
+            ],
+            "recurrence_window_end_frame": 464,
+            "matched_run": {
+              "frames": [
+                169,
+                214
+              ],
+              "extension_before_seconds": 0.41078279569892473,
+              "extension_after_seconds": 1.095420788530466
+            },
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              141,
+              202
+            ],
+            "observation_end_frame": 464,
+            "runs": [
+              [
+                169,
+                214
+              ]
+            ],
+            "gap_seconds": []
+          }
+        ],
+        "notifications": 1,
+        "notification_frames": [
+          169
+        ],
+        "active_seconds": 1.5746673835125449,
+        "outside_action_seconds": 0.41078279569892473,
+        "longest_run_seconds": 1.5746673835125449
+      }
+    },
+    {
+      "video": "contrast3_behind_the_screen",
+      "frames": 470,
+      "metrics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [],
+        "notifications": 0,
+        "notification_frames": [],
+        "active_seconds": 0.0,
+        "outside_action_seconds": 0.0,
+        "longest_run_seconds": 0.0
+      }
+    },
+    {
+      "video": "ramune3_behind_the_screen",
+      "frames": 327,
+      "metrics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 1,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              180,
+              185
+            ],
+            "recurrence_window_end_frame": 326,
+            "matched_run": {
+              "frames": [
+                184,
+                223
+              ],
+              "extension_before_seconds": 0.0,
+              "extension_after_seconds": 1.2796625891946993
+            },
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              129,
+              204
+            ],
+            "observation_end_frame": 326,
+            "runs": [
+              [
+                184,
+                223
+              ]
+            ],
+            "gap_seconds": []
+          }
+        ],
+        "notifications": 1,
+        "notification_frames": [
+          184
+        ],
+        "active_seconds": 1.347013251783894,
+        "outside_action_seconds": 0.6398312945973497,
+        "longest_run_seconds": 1.347013251783894
+      }
+    },
+    {
+      "video": "yusuzumi3_behind_the_screen",
+      "frames": 388,
+      "metrics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [],
+        "notifications": 0,
+        "notification_frames": [],
+        "active_seconds": 0.0,
+        "outside_action_seconds": 0.0,
+        "longest_run_seconds": 0.0
+      }
+    },
+    {
+      "video": "both_without_the_screen",
+      "frames": 389,
+      "metrics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 1,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              284,
+              285
+            ],
+            "recurrence_window_end_frame": 388,
+            "matched_run": {
+              "frames": [
+                277,
+                304
+              ],
+              "extension_before_seconds": 0.23358046272493574,
+              "extension_after_seconds": 0.6340041131105398
+            },
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              237,
+              290
+            ],
+            "observation_end_frame": 388,
+            "runs": [
+              [
+                277,
+                304
+              ]
+            ],
+            "gap_seconds": []
+          }
+        ],
+        "notifications": 1,
+        "notification_frames": [
+          277
+        ],
+        "active_seconds": 0.934321850899743,
+        "outside_action_seconds": 0.4671609254498715,
+        "longest_run_seconds": 0.934321850899743
+      }
+    },
+    {
+      "video": "contrast_without_the_screen",
+      "frames": 458,
+      "metrics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [],
+        "notifications": 0,
+        "notification_frames": [],
+        "active_seconds": 0.0,
+        "outside_action_seconds": 0.0,
+        "longest_run_seconds": 0.0
+      }
+    },
+    {
+      "video": "ramune_without_the_screen",
+      "frames": 320,
+      "metrics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 1,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              142,
+              143
+            ],
+            "recurrence_window_end_frame": 319,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              82,
+              167
+            ],
+            "observation_end_frame": 319,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ],
+        "notifications": 0,
+        "notification_frames": [],
+        "active_seconds": 0.0,
+        "outside_action_seconds": 0.0,
+        "longest_run_seconds": 0.0
+      }
+    },
+    {
+      "video": "yusuzumi_without_the_screen",
+      "frames": 334,
+      "metrics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [],
+        "notifications": 0,
+        "notification_frames": [],
+        "active_seconds": 0.0,
+        "outside_action_seconds": 0.0,
+        "longest_run_seconds": 0.0
+      }
+    }
+  ],
+  "real_videos": [
+    {
+      "video": "both_without_the_screen",
+      "frames": 389,
+      "ramune_events": [
+        277
+      ],
+      "pose_and_app_parity": true
+    },
+    {
+      "video": "contrast_without_the_screen",
+      "frames": 458,
+      "ramune_events": [],
+      "pose_and_app_parity": true
+    }
+  ],
+  "note": "Fold parity reproduces research, not new accuracy evidence. Shipped model trains all 12 curtain clips; group 0 alone is held out. Live camera and new motions not validated."
+}
