@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 68fa5e31d170f0f4bbe89bde043a5e9f
+timeCreated: 1532936379
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 127625
+  packageName: Beach - resort
+  packageVersion: 2.0
+  assetPath: Assets/Beach - resort/Models/Materials/Duck.mat
+  uploadId: 634525

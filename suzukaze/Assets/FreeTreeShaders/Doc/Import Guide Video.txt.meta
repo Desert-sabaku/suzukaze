@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: ee6440c9099378048a9c41548ff32cf6
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 383576
+  packageName: Tree Shaders (for Shader Graph)
+  packageVersion: 1.2.3
+  assetPath: Assets/FreeTreeShaders/Doc/Import Guide Video.txt
+  uploadId: 961744
