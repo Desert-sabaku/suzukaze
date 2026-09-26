@@ -19,7 +19,9 @@ def test_score_api_preserves_predictions_and_does_not_read_test_labels(classifie
     rng = np.random.default_rng(924)
     x = rng.normal(size=(40, 8))
     train = [dict(features={0.25: x}, phase=np.arange(40) % 5)]
-    test: dict[str, Any] = dict(features={0.25: x[:8]}, points=np.ones((8, 33, 3)), phase=np.zeros(8, dtype=int))
+    test: dict[str, Any] = dict(
+        features={0.25: x[:8]}, points=np.ones((8, 33, 3)), phase=np.zeros(8, dtype=int)
+    )
     test["points"][0] = 0
     scores = fit_scores(train, [test], "phase", 0.25, 0.1, classifier)[0]
     expected = fit_predict(train, [test], "phase", 0.25, 0.1, classifier)[0]

@@ -130,7 +130,9 @@ def test_prediction_does_not_read_test_labels():
     rng = np.random.default_rng(24)
     x = rng.normal(size=(30, 8))
     train = [dict(features={0.25: x}, action=np.arange(30) % 3)]
-    test: dict[str, Any] = dict(features={0.25: x[:5]}, action=np.zeros(5, dtype=int), points=np.ones((5, 33, 3)))
+    test: dict[str, Any] = dict(
+        features={0.25: x[:5]}, action=np.zeros(5, dtype=int), points=np.ones((5, 33, 3))
+    )
     expected = fit_predict(train, [test], "action", 0.25, 0.1, "rbf")[0]
     test["action"][:] = 4
     actual = fit_predict(train, [test], "action", 0.25, 0.1, "rbf")[0]
