@@ -1,0 +1,4446 @@
+{
+  "protocol": "Synthetic two-copy signal replay: test rearming without resetting temporal state.\n\nThis is not a continuous-camera evaluation. Pose and classifier predictions come\nfrom separately processed source clips; only the temporal state spans the join.\n",
+  "sources": [
+    {
+      "name": "both1_behind_the_screen",
+      "fps": 28.450357595551566,
+      "annotation_sha256": "c0a64ff491206400db69df45a884ba4f08ffd76006031cfe7b7bb28d9971996e",
+      "video_sha256": "c37c65a751a690686df561d7fdef0c3b81a6ec1227d71caeff122cc6d5c021f4"
+    },
+    {
+      "name": "both2_behind_the_screen",
+      "fps": 29.68561519903498,
+      "annotation_sha256": "7810176198c77ba269374877e169e1317f8eb22f4a34fc4d27687074c9ca0587",
+      "video_sha256": "b9131d2f6dc40a8ca18190141d65a1ae2c811bfba2d6f9e7b2440675b1ead846"
+    },
+    {
+      "name": "both3_behind_the_screen",
+      "fps": 29.21251845414472,
+      "annotation_sha256": "11e23b54855e0d7fd05eb6df8587427cdaf5f9176fa0589b634264d831150885",
+      "video_sha256": "5535d98471e5edadec1041c0bd6a9ee1b01f4d841fd362c1c7da7e511a62ab42"
+    },
+    {
+      "name": "both_without_the_screen",
+      "fps": 29.968259837909464,
+      "annotation_sha256": "b650eafc07fccc0625e5fb3c4d4fe9f75d9e1b11fd7ad31f449af62dbe2eb3fd",
+      "video_sha256": "8070b2521c191dae978548bc966cfb012d7b7ca7f82f8b33385cabdc3a3d8e1f"
+    },
+    {
+      "name": "contrast1_behind_the_screen",
+      "fps": 29.96500730690335,
+      "annotation_sha256": "2bf1c940c82145e3727da0d22237115d23cd78cae96f7f0c54ebe009c72620d5",
+      "video_sha256": "382fb185f7307527d718e379755446a7121af719f6f4b749731557d6748b0468"
+    },
+    {
+      "name": "contrast2_behind_the_screen",
+      "fps": 29.964559371256993,
+      "annotation_sha256": "dbbcd3e49e5af24f19a0599113729744eeee9807514a45884a6622f541150838",
+      "video_sha256": "63c92d0e579c21535f656b8f91c3b431a22b052ccd25cb2fe4cb12810bc710a9"
+    },
+    {
+      "name": "contrast3_behind_the_screen",
+      "fps": 29.967736862016636,
+      "annotation_sha256": "1a23631b8ef9fee1723da2f8b4331bccbb5d624a8fa1b265d727d69966d02d5c",
+      "video_sha256": "d9005969ea07ffb412c012762472370f6c3cb47ab41da80856ab9f89bd192c3c"
+    },
+    {
+      "name": "contrast_without_the_screen",
+      "fps": 29.51455643316371,
+      "annotation_sha256": "6bf82f86e6bcad49ce0f36e05cc4b2f07f670f2e8dd0f5b0c6b81cba527703b0",
+      "video_sha256": "226483ce2c1d68849f7afa7f8ce0461b5c7a300563047f06ed3aa9a4459b0612"
+    },
+    {
+      "name": "ramune1_behind_the_screen",
+      "fps": 28.651949271958667,
+      "annotation_sha256": "a2cde612dcdbfc098dfc3642e680d934596dcb31d6a193a116394965155d9906",
+      "video_sha256": "f9e8909de0ba6ab72c2aa89486c56ce2451e5ac8954a956af4097705f677d5db"
+    },
+    {
+      "name": "ramune2_behind_the_screen",
+      "fps": 29.210875212434562,
+      "annotation_sha256": "c50d0d9b507c593ba1f26b72ebd65d1e4c1c0e35882c4dd8e94e24bdf17a0965",
+      "video_sha256": "8c83369352059d2c2b62ce015a50eece8f45aa0c44313dc3d081b1033d9966f3"
+    },
+    {
+      "name": "ramune3_behind_the_screen",
+      "fps": 29.69532775347732,
+      "annotation_sha256": "431309581ab6bae4bbc5851cd7a1ff8fd045e46fee3b7d54dd959aa6425ca804",
+      "video_sha256": "4a4899b42a9bbf8a0421b9e3ef40f5fe7736a21bd89d8ed22dc381a8679d66e7"
+    },
+    {
+      "name": "ramune_without_the_screen",
+      "fps": 29.86579060347563,
+      "annotation_sha256": "91955022fe5b3379ab8a8fdcfe514ad596d935140e9e5c5cb0c461c3bb6a1044",
+      "video_sha256": "9e4f4ef03d0873b43340b814c84fde8d193633c4256912a21474b1bd788ca0fa"
+    },
+    {
+      "name": "yusuzumi1_behind_the_screen",
+      "fps": 29.73933824071752,
+      "annotation_sha256": "019e07ca62bf6ee557fc494c299c4411d3a2cd2fed5c8924bf29998beab06d53",
+      "video_sha256": "f8e1d28ec4032f73c2a95ce107015eb342c210efe2a3f961ba0596025aebd242"
+    },
+    {
+      "name": "yusuzumi2_behind_the_screen",
+      "fps": 29.444609237319188,
+      "annotation_sha256": "bc73e549c2f2150efffd5234195217322d54b26d5d678e0ffa4ba8deade9357c",
+      "video_sha256": "c720603716fdafcd9c79aa9bb9ce6ff09414cbdee926b65c0273db813945e886"
+    },
+    {
+      "name": "yusuzumi3_behind_the_screen",
+      "fps": 29.89152765223108,
+      "annotation_sha256": "e95afc644b2559876d198924fab5919046d546cd42f373d1f8df825c0eb289d7",
+      "video_sha256": "aade199ed875fa0812fdebc546633201ea5576142a9d0e9310583211a2ac9906"
+    },
+    {
+      "name": "yusuzumi_without_the_screen",
+      "fps": 29.78933411027405,
+      "annotation_sha256": "3feb590bb6de03d58e98a39de14edb14f704274d7d61b2a4edd33b9e901cff7b",
+      "video_sha256": "b5977e2c3c1359ce9df069aa27f13c734ef333f771bcd5e288fbcd6a9552686f"
+    }
+  ],
+  "classifier_report_sha256": "57b377717b59e2ff47ea61c82f7b8aab2f1e26f24afef9a18d05f77a0b5386f1",
+  "temporal_report_sha256": "ee5bf6a8d53091967665251c4c844cc755600ab94ea3cdfc10bde266df8d1ebf",
+  "script_sha256": "60d7c35a0a3583607109453c308c32e2f03ae7d7bceb1e0b182de357c998f6f4",
+  "clips": [
+    {
+      "video": "both1_behind_the_screen",
+      "group": 1,
+      "missing_seconds": 0.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 410,
+      "first_hit": true,
+      "second_hit": false,
+      "notification_frames": [
+        253
+      ],
+      "release_runs": [
+        [
+          352,
+          355
+        ],
+        [
+          762,
+          765
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              307,
+              311
+            ],
+            "recurrence_window_end_frame": 641,
+            "matched_run": {
+              "frames": [
+                253,
+                364
+              ],
+              "extension_before_seconds": 1.8980429268292685,
+              "extension_after_seconds": 1.8628939837398375
+            },
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              717,
+              721
+            ],
+            "recurrence_window_end_frame": 819,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              232,
+              355
+            ],
+            "observation_end_frame": 641,
+            "runs": [
+              [
+                253,
+                364
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              642,
+              765
+            ],
+            "observation_end_frame": 819,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "both1_behind_the_screen",
+      "group": 1,
+      "missing_seconds": 0.5,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 424,
+      "first_hit": true,
+      "second_hit": false,
+      "notification_frames": [
+        253
+      ],
+      "release_runs": [
+        [
+          352,
+          355
+        ],
+        [
+          776,
+          779
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              307,
+              311
+            ],
+            "recurrence_window_end_frame": 655,
+            "matched_run": {
+              "frames": [
+                253,
+                364
+              ],
+              "extension_before_seconds": 1.8980429268292685,
+              "extension_after_seconds": 1.8628939837398375
+            },
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              731,
+              735
+            ],
+            "recurrence_window_end_frame": 833,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              232,
+              355
+            ],
+            "observation_end_frame": 655,
+            "runs": [
+              [
+                253,
+                364
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              656,
+              779
+            ],
+            "observation_end_frame": 833,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "both1_behind_the_screen",
+      "group": 1,
+      "missing_seconds": 2.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 467,
+      "first_hit": true,
+      "second_hit": false,
+      "notification_frames": [
+        253
+      ],
+      "release_runs": [
+        [
+          352,
+          355
+        ],
+        [
+          819,
+          822
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              307,
+              311
+            ],
+            "recurrence_window_end_frame": 698,
+            "matched_run": {
+              "frames": [
+                253,
+                364
+              ],
+              "extension_before_seconds": 1.8980429268292685,
+              "extension_after_seconds": 1.8628939837398375
+            },
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              774,
+              778
+            ],
+            "recurrence_window_end_frame": 876,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              232,
+              355
+            ],
+            "observation_end_frame": 698,
+            "runs": [
+              [
+                253,
+                364
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              699,
+              822
+            ],
+            "observation_end_frame": 876,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "contrast1_behind_the_screen",
+      "group": 1,
+      "missing_seconds": 0.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 447,
+      "first_hit": true,
+      "second_hit": false,
+      "notification_frames": [
+        332
+      ],
+      "release_runs": [
+        [
+          381,
+          387
+        ],
+        [
+          828,
+          834
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              349,
+              350
+            ],
+            "recurrence_window_end_frame": 711,
+            "matched_run": {
+              "frames": [
+                332,
+                387
+              ],
+              "extension_before_seconds": 0.5673284116331097,
+              "extension_after_seconds": 1.234773601789709
+            },
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              796,
+              797
+            ],
+            "recurrence_window_end_frame": 893,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              265,
+              373
+            ],
+            "observation_end_frame": 711,
+            "runs": [
+              [
+                332,
+                387
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              712,
+              820
+            ],
+            "observation_end_frame": 893,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "contrast1_behind_the_screen",
+      "group": 1,
+      "missing_seconds": 0.5,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 462,
+      "first_hit": true,
+      "second_hit": false,
+      "notification_frames": [
+        332
+      ],
+      "release_runs": [
+        [
+          381,
+          387
+        ],
+        [
+          843,
+          849
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              349,
+              350
+            ],
+            "recurrence_window_end_frame": 726,
+            "matched_run": {
+              "frames": [
+                332,
+                387
+              ],
+              "extension_before_seconds": 0.5673284116331097,
+              "extension_after_seconds": 1.234773601789709
+            },
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              811,
+              812
+            ],
+            "recurrence_window_end_frame": 908,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              265,
+              373
+            ],
+            "observation_end_frame": 726,
+            "runs": [
+              [
+                332,
+                387
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              727,
+              835
+            ],
+            "observation_end_frame": 908,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "contrast1_behind_the_screen",
+      "group": 1,
+      "missing_seconds": 2.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 507,
+      "first_hit": true,
+      "second_hit": false,
+      "notification_frames": [
+        332
+      ],
+      "release_runs": [
+        [
+          381,
+          387
+        ],
+        [
+          888,
+          894
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              349,
+              350
+            ],
+            "recurrence_window_end_frame": 771,
+            "matched_run": {
+              "frames": [
+                332,
+                387
+              ],
+              "extension_before_seconds": 0.5673284116331097,
+              "extension_after_seconds": 1.234773601789709
+            },
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              856,
+              857
+            ],
+            "recurrence_window_end_frame": 953,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              265,
+              373
+            ],
+            "observation_end_frame": 771,
+            "runs": [
+              [
+                332,
+                387
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              772,
+              880
+            ],
+            "observation_end_frame": 953,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "ramune1_behind_the_screen",
+      "group": 1,
+      "missing_seconds": 0.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 305,
+      "first_hit": true,
+      "second_hit": false,
+      "notification_frames": [
+        113
+      ],
+      "release_runs": [
+        [
+          184,
+          188
+        ],
+        [
+          489,
+          493
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              161,
+              162
+            ],
+            "recurrence_window_end_frame": 400,
+            "matched_run": {
+              "frames": [
+                113,
+                196
+              ],
+              "extension_before_seconds": 1.67527868852459,
+              "extension_after_seconds": 1.186655737704918
+            },
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              466,
+              467
+            ],
+            "recurrence_window_end_frame": 609,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              96,
+              183
+            ],
+            "observation_end_frame": 400,
+            "runs": [
+              [
+                113,
+                196
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              401,
+              488
+            ],
+            "observation_end_frame": 609,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "ramune1_behind_the_screen",
+      "group": 1,
+      "missing_seconds": 0.5,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 319,
+      "first_hit": true,
+      "second_hit": false,
+      "notification_frames": [
+        113
+      ],
+      "release_runs": [
+        [
+          184,
+          188
+        ],
+        [
+          503,
+          507
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              161,
+              162
+            ],
+            "recurrence_window_end_frame": 414,
+            "matched_run": {
+              "frames": [
+                113,
+                196
+              ],
+              "extension_before_seconds": 1.67527868852459,
+              "extension_after_seconds": 1.186655737704918
+            },
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              480,
+              481
+            ],
+            "recurrence_window_end_frame": 623,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              96,
+              183
+            ],
+            "observation_end_frame": 414,
+            "runs": [
+              [
+                113,
+                196
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              415,
+              502
+            ],
+            "observation_end_frame": 623,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "ramune1_behind_the_screen",
+      "group": 1,
+      "missing_seconds": 2.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 362,
+      "first_hit": true,
+      "second_hit": false,
+      "notification_frames": [
+        113
+      ],
+      "release_runs": [
+        [
+          184,
+          188
+        ],
+        [
+          546,
+          550
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              161,
+              162
+            ],
+            "recurrence_window_end_frame": 457,
+            "matched_run": {
+              "frames": [
+                113,
+                196
+              ],
+              "extension_before_seconds": 1.67527868852459,
+              "extension_after_seconds": 1.186655737704918
+            },
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              523,
+              524
+            ],
+            "recurrence_window_end_frame": 666,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              96,
+              183
+            ],
+            "observation_end_frame": 457,
+            "runs": [
+              [
+                113,
+                196
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              458,
+              545
+            ],
+            "observation_end_frame": 666,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "yusuzumi1_behind_the_screen",
+      "group": 1,
+      "missing_seconds": 0.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 0,
+      "join_frame": 336,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [],
+      "release_runs": [
+        [
+          51,
+          69
+        ],
+        [
+          387,
+          405
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": []
+      }
+    },
+    {
+      "video": "yusuzumi1_behind_the_screen",
+      "group": 1,
+      "missing_seconds": 0.5,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 0,
+      "join_frame": 351,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [],
+      "release_runs": [
+        [
+          51,
+          69
+        ],
+        [
+          402,
+          420
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": []
+      }
+    },
+    {
+      "video": "yusuzumi1_behind_the_screen",
+      "group": 1,
+      "missing_seconds": 2.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 0,
+      "join_frame": 395,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [],
+      "release_runs": [
+        [
+          51,
+          69
+        ],
+        [
+          446,
+          464
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": []
+      }
+    },
+    {
+      "video": "both2_behind_the_screen",
+      "group": 2,
+      "missing_seconds": 0.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 420,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [],
+      "release_runs": [],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              138,
+              141
+            ],
+            "recurrence_window_end_frame": 532,
+            "matched_run": null,
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              558,
+              561
+            ],
+            "recurrence_window_end_frame": 839,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              113,
+              152
+            ],
+            "observation_end_frame": 532,
+            "runs": [],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              533,
+              572
+            ],
+            "observation_end_frame": 839,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "both2_behind_the_screen",
+      "group": 2,
+      "missing_seconds": 0.5,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 435,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [],
+      "release_runs": [],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              138,
+              141
+            ],
+            "recurrence_window_end_frame": 547,
+            "matched_run": null,
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              573,
+              576
+            ],
+            "recurrence_window_end_frame": 854,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              113,
+              152
+            ],
+            "observation_end_frame": 547,
+            "runs": [],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              548,
+              587
+            ],
+            "observation_end_frame": 854,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "both2_behind_the_screen",
+      "group": 2,
+      "missing_seconds": 2.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 479,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [],
+      "release_runs": [],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              138,
+              141
+            ],
+            "recurrence_window_end_frame": 591,
+            "matched_run": null,
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              617,
+              620
+            ],
+            "recurrence_window_end_frame": 898,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              113,
+              152
+            ],
+            "observation_end_frame": 591,
+            "runs": [],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              592,
+              631
+            ],
+            "observation_end_frame": 898,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "contrast2_behind_the_screen",
+      "group": 2,
+      "missing_seconds": 0.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 0,
+      "join_frame": 487,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [],
+      "release_runs": [],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": []
+      }
+    },
+    {
+      "video": "contrast2_behind_the_screen",
+      "group": 2,
+      "missing_seconds": 0.5,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 0,
+      "join_frame": 502,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [],
+      "release_runs": [],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": []
+      }
+    },
+    {
+      "video": "contrast2_behind_the_screen",
+      "group": 2,
+      "missing_seconds": 2.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 0,
+      "join_frame": 547,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [],
+      "release_runs": [],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": []
+      }
+    },
+    {
+      "video": "ramune2_behind_the_screen",
+      "group": 2,
+      "missing_seconds": 0.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 271,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [
+        149
+      ],
+      "release_runs": [],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 0,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [
+          [
+            149,
+            177
+          ]
+        ],
+        "details": [
+          {
+            "annotation_frames": [
+              145,
+              148
+            ],
+            "recurrence_window_end_frame": 366,
+            "matched_run": null,
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              416,
+              419
+            ],
+            "recurrence_window_end_frame": 541,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              96,
+              162
+            ],
+            "observation_end_frame": 366,
+            "runs": [
+              [
+                149,
+                177
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              367,
+              433
+            ],
+            "observation_end_frame": 541,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "ramune2_behind_the_screen",
+      "group": 2,
+      "missing_seconds": 0.5,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 286,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [
+        149
+      ],
+      "release_runs": [],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 0,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [
+          [
+            149,
+            177
+          ]
+        ],
+        "details": [
+          {
+            "annotation_frames": [
+              145,
+              148
+            ],
+            "recurrence_window_end_frame": 381,
+            "matched_run": null,
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              431,
+              434
+            ],
+            "recurrence_window_end_frame": 556,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              96,
+              162
+            ],
+            "observation_end_frame": 381,
+            "runs": [
+              [
+                149,
+                177
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              382,
+              448
+            ],
+            "observation_end_frame": 556,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "ramune2_behind_the_screen",
+      "group": 2,
+      "missing_seconds": 2.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 329,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [
+        149
+      ],
+      "release_runs": [],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 0,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [
+          [
+            149,
+            177
+          ]
+        ],
+        "details": [
+          {
+            "annotation_frames": [
+              145,
+              148
+            ],
+            "recurrence_window_end_frame": 424,
+            "matched_run": null,
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              474,
+              477
+            ],
+            "recurrence_window_end_frame": 599,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              96,
+              162
+            ],
+            "observation_end_frame": 424,
+            "runs": [
+              [
+                149,
+                177
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              425,
+              491
+            ],
+            "observation_end_frame": 599,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "yusuzumi2_behind_the_screen",
+      "group": 2,
+      "missing_seconds": 0.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 0,
+      "join_frame": 450,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [],
+      "release_runs": [
+        [
+          40,
+          40
+        ],
+        [
+          43,
+          46
+        ],
+        [
+          490,
+          490
+        ],
+        [
+          493,
+          496
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": []
+      }
+    },
+    {
+      "video": "yusuzumi2_behind_the_screen",
+      "group": 2,
+      "missing_seconds": 0.5,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 0,
+      "join_frame": 465,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [],
+      "release_runs": [
+        [
+          40,
+          40
+        ],
+        [
+          43,
+          46
+        ],
+        [
+          505,
+          505
+        ],
+        [
+          508,
+          511
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": []
+      }
+    },
+    {
+      "video": "yusuzumi2_behind_the_screen",
+      "group": 2,
+      "missing_seconds": 2.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 0,
+      "join_frame": 509,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [],
+      "release_runs": [
+        [
+          40,
+          40
+        ],
+        [
+          43,
+          46
+        ],
+        [
+          549,
+          549
+        ],
+        [
+          552,
+          555
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": []
+      }
+    },
+    {
+      "video": "both3_behind_the_screen",
+      "group": 3,
+      "missing_seconds": 0.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 465,
+      "first_hit": true,
+      "second_hit": false,
+      "notification_frames": [
+        151
+      ],
+      "release_runs": [
+        [
+          209,
+          212
+        ],
+        [
+          674,
+          677
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              181,
+              182
+            ],
+            "recurrence_window_end_frame": 605,
+            "matched_run": {
+              "frames": [
+                151,
+                211
+              ],
+              "extension_before_seconds": 1.0269569892473118,
+              "extension_after_seconds": 0.9927250896057348
+            },
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              646,
+              647
+            ],
+            "recurrence_window_end_frame": 929,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              141,
+              202
+            ],
+            "observation_end_frame": 605,
+            "runs": [
+              [
+                151,
+                211
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              606,
+              667
+            ],
+            "observation_end_frame": 929,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "both3_behind_the_screen",
+      "group": 3,
+      "missing_seconds": 0.5,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 480,
+      "first_hit": true,
+      "second_hit": false,
+      "notification_frames": [
+        151
+      ],
+      "release_runs": [
+        [
+          209,
+          212
+        ],
+        [
+          689,
+          692
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              181,
+              182
+            ],
+            "recurrence_window_end_frame": 620,
+            "matched_run": {
+              "frames": [
+                151,
+                211
+              ],
+              "extension_before_seconds": 1.0269569892473118,
+              "extension_after_seconds": 0.9927250896057348
+            },
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              661,
+              662
+            ],
+            "recurrence_window_end_frame": 944,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              141,
+              202
+            ],
+            "observation_end_frame": 620,
+            "runs": [
+              [
+                151,
+                211
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              621,
+              682
+            ],
+            "observation_end_frame": 944,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "both3_behind_the_screen",
+      "group": 3,
+      "missing_seconds": 2.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 523,
+      "first_hit": true,
+      "second_hit": false,
+      "notification_frames": [
+        151
+      ],
+      "release_runs": [
+        [
+          209,
+          212
+        ],
+        [
+          732,
+          735
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              181,
+              182
+            ],
+            "recurrence_window_end_frame": 663,
+            "matched_run": {
+              "frames": [
+                151,
+                211
+              ],
+              "extension_before_seconds": 1.0269569892473118,
+              "extension_after_seconds": 0.9927250896057348
+            },
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              704,
+              705
+            ],
+            "recurrence_window_end_frame": 987,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              141,
+              202
+            ],
+            "observation_end_frame": 663,
+            "runs": [
+              [
+                151,
+                211
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              664,
+              725
+            ],
+            "observation_end_frame": 987,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "contrast3_behind_the_screen",
+      "group": 3,
+      "missing_seconds": 0.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 0,
+      "join_frame": 470,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [],
+      "release_runs": [],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": []
+      }
+    },
+    {
+      "video": "contrast3_behind_the_screen",
+      "group": 3,
+      "missing_seconds": 0.5,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 0,
+      "join_frame": 485,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [],
+      "release_runs": [],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": []
+      }
+    },
+    {
+      "video": "contrast3_behind_the_screen",
+      "group": 3,
+      "missing_seconds": 2.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 0,
+      "join_frame": 530,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [],
+      "release_runs": [],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": []
+      }
+    },
+    {
+      "video": "ramune3_behind_the_screen",
+      "group": 3,
+      "missing_seconds": 0.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 327,
+      "first_hit": true,
+      "second_hit": false,
+      "notification_frames": [
+        168
+      ],
+      "release_runs": [
+        [
+          214,
+          219
+        ],
+        [
+          541,
+          546
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              180,
+              185
+            ],
+            "recurrence_window_end_frame": 455,
+            "matched_run": {
+              "frames": [
+                168,
+                224
+              ],
+              "extension_before_seconds": 0.4041039755351682,
+              "extension_after_seconds": 1.3133379204892968
+            },
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              507,
+              512
+            ],
+            "recurrence_window_end_frame": 653,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              129,
+              204
+            ],
+            "observation_end_frame": 455,
+            "runs": [
+              [
+                168,
+                224
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              456,
+              531
+            ],
+            "observation_end_frame": 653,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "ramune3_behind_the_screen",
+      "group": 3,
+      "missing_seconds": 0.5,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 342,
+      "first_hit": true,
+      "second_hit": false,
+      "notification_frames": [
+        168
+      ],
+      "release_runs": [
+        [
+          214,
+          219
+        ],
+        [
+          556,
+          561
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              180,
+              185
+            ],
+            "recurrence_window_end_frame": 470,
+            "matched_run": {
+              "frames": [
+                168,
+                224
+              ],
+              "extension_before_seconds": 0.4041039755351682,
+              "extension_after_seconds": 1.3133379204892968
+            },
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              522,
+              527
+            ],
+            "recurrence_window_end_frame": 668,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              129,
+              204
+            ],
+            "observation_end_frame": 470,
+            "runs": [
+              [
+                168,
+                224
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              471,
+              546
+            ],
+            "observation_end_frame": 668,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "ramune3_behind_the_screen",
+      "group": 3,
+      "missing_seconds": 2.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 386,
+      "first_hit": true,
+      "second_hit": false,
+      "notification_frames": [
+        168
+      ],
+      "release_runs": [
+        [
+          214,
+          219
+        ],
+        [
+          600,
+          605
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              180,
+              185
+            ],
+            "recurrence_window_end_frame": 514,
+            "matched_run": {
+              "frames": [
+                168,
+                224
+              ],
+              "extension_before_seconds": 0.4041039755351682,
+              "extension_after_seconds": 1.3133379204892968
+            },
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              566,
+              571
+            ],
+            "recurrence_window_end_frame": 712,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              129,
+              204
+            ],
+            "observation_end_frame": 514,
+            "runs": [
+              [
+                168,
+                224
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              515,
+              590
+            ],
+            "observation_end_frame": 712,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "yusuzumi3_behind_the_screen",
+      "group": 3,
+      "missing_seconds": 0.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 0,
+      "join_frame": 388,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [],
+      "release_runs": [],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": []
+      }
+    },
+    {
+      "video": "yusuzumi3_behind_the_screen",
+      "group": 3,
+      "missing_seconds": 0.5,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 0,
+      "join_frame": 403,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [],
+      "release_runs": [],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": []
+      }
+    },
+    {
+      "video": "yusuzumi3_behind_the_screen",
+      "group": 3,
+      "missing_seconds": 2.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 0,
+      "join_frame": 448,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [],
+      "release_runs": [],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": []
+      }
+    },
+    {
+      "video": "both_without_the_screen",
+      "group": 0,
+      "missing_seconds": 0.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 389,
+      "first_hit": true,
+      "second_hit": false,
+      "notification_frames": [
+        273
+      ],
+      "release_runs": [
+        [
+          310,
+          314
+        ],
+        [
+          699,
+          703
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              284,
+              285
+            ],
+            "recurrence_window_end_frame": 625,
+            "matched_run": {
+              "frames": [
+                273,
+                305
+              ],
+              "extension_before_seconds": 0.3670550128534704,
+              "extension_after_seconds": 0.6673727506426735
+            },
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              673,
+              674
+            ],
+            "recurrence_window_end_frame": 777,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              237,
+              290
+            ],
+            "observation_end_frame": 625,
+            "runs": [
+              [
+                273,
+                305
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              626,
+              679
+            ],
+            "observation_end_frame": 777,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "both_without_the_screen",
+      "group": 0,
+      "missing_seconds": 0.5,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 404,
+      "first_hit": true,
+      "second_hit": false,
+      "notification_frames": [
+        273
+      ],
+      "release_runs": [
+        [
+          310,
+          314
+        ],
+        [
+          714,
+          718
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              284,
+              285
+            ],
+            "recurrence_window_end_frame": 640,
+            "matched_run": {
+              "frames": [
+                273,
+                305
+              ],
+              "extension_before_seconds": 0.3670550128534704,
+              "extension_after_seconds": 0.6673727506426735
+            },
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              688,
+              689
+            ],
+            "recurrence_window_end_frame": 792,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              237,
+              290
+            ],
+            "observation_end_frame": 640,
+            "runs": [
+              [
+                273,
+                305
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              641,
+              694
+            ],
+            "observation_end_frame": 792,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "both_without_the_screen",
+      "group": 0,
+      "missing_seconds": 2.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 449,
+      "first_hit": true,
+      "second_hit": false,
+      "notification_frames": [
+        273
+      ],
+      "release_runs": [
+        [
+          310,
+          314
+        ],
+        [
+          759,
+          763
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 1,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [
+          {
+            "annotation_frames": [
+              284,
+              285
+            ],
+            "recurrence_window_end_frame": 685,
+            "matched_run": {
+              "frames": [
+                273,
+                305
+              ],
+              "extension_before_seconds": 0.3670550128534704,
+              "extension_after_seconds": 0.6673727506426735
+            },
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              733,
+              734
+            ],
+            "recurrence_window_end_frame": 837,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              237,
+              290
+            ],
+            "observation_end_frame": 685,
+            "runs": [
+              [
+                273,
+                305
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              686,
+              739
+            ],
+            "observation_end_frame": 837,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "contrast_without_the_screen",
+      "group": 0,
+      "missing_seconds": 0.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 0,
+      "join_frame": 458,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [
+        458
+      ],
+      "release_runs": [
+        [
+          0,
+          0
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          13,
+          13
+        ],
+        [
+          15,
+          15
+        ],
+        [
+          17,
+          17
+        ],
+        [
+          19,
+          19
+        ],
+        [
+          22,
+          25
+        ],
+        [
+          35,
+          35
+        ],
+        [
+          37,
+          38
+        ],
+        [
+          44,
+          44
+        ],
+        [
+          46,
+          46
+        ],
+        [
+          48,
+          51
+        ],
+        [
+          53,
+          54
+        ],
+        [
+          57,
+          57
+        ],
+        [
+          60,
+          60
+        ],
+        [
+          63,
+          64
+        ],
+        [
+          66,
+          67
+        ],
+        [
+          69,
+          71
+        ],
+        [
+          73,
+          77
+        ],
+        [
+          79,
+          81
+        ],
+        [
+          83,
+          87
+        ],
+        [
+          100,
+          100
+        ],
+        [
+          103,
+          103
+        ],
+        [
+          111,
+          112
+        ],
+        [
+          119,
+          119
+        ],
+        [
+          126,
+          126
+        ],
+        [
+          139,
+          139
+        ],
+        [
+          141,
+          145
+        ],
+        [
+          148,
+          148
+        ],
+        [
+          150,
+          152
+        ],
+        [
+          192,
+          194
+        ],
+        [
+          198,
+          199
+        ],
+        [
+          201,
+          201
+        ],
+        [
+          206,
+          207
+        ],
+        [
+          209,
+          209
+        ],
+        [
+          215,
+          216
+        ],
+        [
+          458,
+          458
+        ],
+        [
+          462,
+          463
+        ],
+        [
+          468,
+          468
+        ],
+        [
+          471,
+          471
+        ],
+        [
+          473,
+          473
+        ],
+        [
+          475,
+          475
+        ],
+        [
+          477,
+          477
+        ],
+        [
+          480,
+          483
+        ],
+        [
+          493,
+          493
+        ],
+        [
+          495,
+          496
+        ],
+        [
+          502,
+          502
+        ],
+        [
+          504,
+          504
+        ],
+        [
+          506,
+          509
+        ],
+        [
+          511,
+          512
+        ],
+        [
+          515,
+          515
+        ],
+        [
+          518,
+          518
+        ],
+        [
+          521,
+          522
+        ],
+        [
+          524,
+          525
+        ],
+        [
+          527,
+          529
+        ],
+        [
+          531,
+          535
+        ],
+        [
+          537,
+          539
+        ],
+        [
+          541,
+          545
+        ],
+        [
+          558,
+          558
+        ],
+        [
+          561,
+          561
+        ],
+        [
+          569,
+          570
+        ],
+        [
+          577,
+          577
+        ],
+        [
+          584,
+          584
+        ],
+        [
+          597,
+          597
+        ],
+        [
+          599,
+          603
+        ],
+        [
+          606,
+          606
+        ],
+        [
+          608,
+          610
+        ],
+        [
+          650,
+          652
+        ],
+        [
+          656,
+          657
+        ],
+        [
+          659,
+          659
+        ],
+        [
+          664,
+          665
+        ],
+        [
+          667,
+          667
+        ],
+        [
+          673,
+          674
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [
+          [
+            458,
+            480
+          ]
+        ],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": []
+      }
+    },
+    {
+      "video": "contrast_without_the_screen",
+      "group": 0,
+      "missing_seconds": 0.5,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 0,
+      "join_frame": 473,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [
+        473
+      ],
+      "release_runs": [
+        [
+          0,
+          0
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          13,
+          13
+        ],
+        [
+          15,
+          15
+        ],
+        [
+          17,
+          17
+        ],
+        [
+          19,
+          19
+        ],
+        [
+          22,
+          25
+        ],
+        [
+          35,
+          35
+        ],
+        [
+          37,
+          38
+        ],
+        [
+          44,
+          44
+        ],
+        [
+          46,
+          46
+        ],
+        [
+          48,
+          51
+        ],
+        [
+          53,
+          54
+        ],
+        [
+          57,
+          57
+        ],
+        [
+          60,
+          60
+        ],
+        [
+          63,
+          64
+        ],
+        [
+          66,
+          67
+        ],
+        [
+          69,
+          71
+        ],
+        [
+          73,
+          77
+        ],
+        [
+          79,
+          81
+        ],
+        [
+          83,
+          87
+        ],
+        [
+          100,
+          100
+        ],
+        [
+          103,
+          103
+        ],
+        [
+          111,
+          112
+        ],
+        [
+          119,
+          119
+        ],
+        [
+          126,
+          126
+        ],
+        [
+          139,
+          139
+        ],
+        [
+          141,
+          145
+        ],
+        [
+          148,
+          148
+        ],
+        [
+          150,
+          152
+        ],
+        [
+          192,
+          194
+        ],
+        [
+          198,
+          199
+        ],
+        [
+          201,
+          201
+        ],
+        [
+          206,
+          207
+        ],
+        [
+          209,
+          209
+        ],
+        [
+          215,
+          216
+        ],
+        [
+          473,
+          473
+        ],
+        [
+          477,
+          478
+        ],
+        [
+          483,
+          483
+        ],
+        [
+          486,
+          486
+        ],
+        [
+          488,
+          488
+        ],
+        [
+          490,
+          490
+        ],
+        [
+          492,
+          492
+        ],
+        [
+          495,
+          498
+        ],
+        [
+          508,
+          508
+        ],
+        [
+          510,
+          511
+        ],
+        [
+          517,
+          517
+        ],
+        [
+          519,
+          519
+        ],
+        [
+          521,
+          524
+        ],
+        [
+          526,
+          527
+        ],
+        [
+          530,
+          530
+        ],
+        [
+          533,
+          533
+        ],
+        [
+          536,
+          537
+        ],
+        [
+          539,
+          540
+        ],
+        [
+          542,
+          544
+        ],
+        [
+          546,
+          550
+        ],
+        [
+          552,
+          554
+        ],
+        [
+          556,
+          560
+        ],
+        [
+          573,
+          573
+        ],
+        [
+          576,
+          576
+        ],
+        [
+          584,
+          585
+        ],
+        [
+          592,
+          592
+        ],
+        [
+          599,
+          599
+        ],
+        [
+          612,
+          612
+        ],
+        [
+          614,
+          618
+        ],
+        [
+          621,
+          621
+        ],
+        [
+          623,
+          625
+        ],
+        [
+          665,
+          667
+        ],
+        [
+          671,
+          672
+        ],
+        [
+          674,
+          674
+        ],
+        [
+          679,
+          680
+        ],
+        [
+          682,
+          682
+        ],
+        [
+          688,
+          689
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [
+          [
+            473,
+            495
+          ]
+        ],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": []
+      }
+    },
+    {
+      "video": "contrast_without_the_screen",
+      "group": 0,
+      "missing_seconds": 2.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 0,
+      "join_frame": 517,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [
+        517
+      ],
+      "release_runs": [
+        [
+          0,
+          0
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          13,
+          13
+        ],
+        [
+          15,
+          15
+        ],
+        [
+          17,
+          17
+        ],
+        [
+          19,
+          19
+        ],
+        [
+          22,
+          25
+        ],
+        [
+          35,
+          35
+        ],
+        [
+          37,
+          38
+        ],
+        [
+          44,
+          44
+        ],
+        [
+          46,
+          46
+        ],
+        [
+          48,
+          51
+        ],
+        [
+          53,
+          54
+        ],
+        [
+          57,
+          57
+        ],
+        [
+          60,
+          60
+        ],
+        [
+          63,
+          64
+        ],
+        [
+          66,
+          67
+        ],
+        [
+          69,
+          71
+        ],
+        [
+          73,
+          77
+        ],
+        [
+          79,
+          81
+        ],
+        [
+          83,
+          87
+        ],
+        [
+          100,
+          100
+        ],
+        [
+          103,
+          103
+        ],
+        [
+          111,
+          112
+        ],
+        [
+          119,
+          119
+        ],
+        [
+          126,
+          126
+        ],
+        [
+          139,
+          139
+        ],
+        [
+          141,
+          145
+        ],
+        [
+          148,
+          148
+        ],
+        [
+          150,
+          152
+        ],
+        [
+          192,
+          194
+        ],
+        [
+          198,
+          199
+        ],
+        [
+          201,
+          201
+        ],
+        [
+          206,
+          207
+        ],
+        [
+          209,
+          209
+        ],
+        [
+          215,
+          216
+        ],
+        [
+          517,
+          517
+        ],
+        [
+          521,
+          522
+        ],
+        [
+          527,
+          527
+        ],
+        [
+          530,
+          530
+        ],
+        [
+          532,
+          532
+        ],
+        [
+          534,
+          534
+        ],
+        [
+          536,
+          536
+        ],
+        [
+          539,
+          542
+        ],
+        [
+          552,
+          552
+        ],
+        [
+          554,
+          555
+        ],
+        [
+          561,
+          561
+        ],
+        [
+          563,
+          563
+        ],
+        [
+          565,
+          568
+        ],
+        [
+          570,
+          571
+        ],
+        [
+          574,
+          574
+        ],
+        [
+          577,
+          577
+        ],
+        [
+          580,
+          581
+        ],
+        [
+          583,
+          584
+        ],
+        [
+          586,
+          588
+        ],
+        [
+          590,
+          594
+        ],
+        [
+          596,
+          598
+        ],
+        [
+          600,
+          604
+        ],
+        [
+          617,
+          617
+        ],
+        [
+          620,
+          620
+        ],
+        [
+          628,
+          629
+        ],
+        [
+          636,
+          636
+        ],
+        [
+          643,
+          643
+        ],
+        [
+          656,
+          656
+        ],
+        [
+          658,
+          662
+        ],
+        [
+          665,
+          665
+        ],
+        [
+          667,
+          669
+        ],
+        [
+          709,
+          711
+        ],
+        [
+          715,
+          716
+        ],
+        [
+          718,
+          718
+        ],
+        [
+          723,
+          724
+        ],
+        [
+          726,
+          726
+        ],
+        [
+          732,
+          733
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [
+          [
+            517,
+            539
+          ]
+        ],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": []
+      }
+    },
+    {
+      "video": "ramune_without_the_screen",
+      "group": 0,
+      "missing_seconds": 0.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 320,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [
+        364
+      ],
+      "release_runs": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          16,
+          16
+        ],
+        [
+          18,
+          18
+        ],
+        [
+          22,
+          22
+        ],
+        [
+          27,
+          28
+        ],
+        [
+          35,
+          37
+        ],
+        [
+          298,
+          299
+        ],
+        [
+          320,
+          320
+        ],
+        [
+          330,
+          330
+        ],
+        [
+          336,
+          336
+        ],
+        [
+          338,
+          338
+        ],
+        [
+          342,
+          342
+        ],
+        [
+          347,
+          348
+        ],
+        [
+          355,
+          357
+        ],
+        [
+          618,
+          619
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 0,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [
+          [
+            364,
+            386
+          ]
+        ],
+        "details": [
+          {
+            "annotation_frames": [
+              142,
+              143
+            ],
+            "recurrence_window_end_frame": 401,
+            "matched_run": null,
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              462,
+              463
+            ],
+            "recurrence_window_end_frame": 639,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              82,
+              167
+            ],
+            "observation_end_frame": 401,
+            "runs": [
+              [
+                364,
+                386
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              402,
+              487
+            ],
+            "observation_end_frame": 639,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "ramune_without_the_screen",
+      "group": 0,
+      "missing_seconds": 0.5,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 335,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [
+        379
+      ],
+      "release_runs": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          16,
+          16
+        ],
+        [
+          18,
+          18
+        ],
+        [
+          22,
+          22
+        ],
+        [
+          27,
+          28
+        ],
+        [
+          35,
+          37
+        ],
+        [
+          298,
+          299
+        ],
+        [
+          335,
+          335
+        ],
+        [
+          345,
+          345
+        ],
+        [
+          351,
+          351
+        ],
+        [
+          353,
+          353
+        ],
+        [
+          357,
+          357
+        ],
+        [
+          362,
+          363
+        ],
+        [
+          370,
+          372
+        ],
+        [
+          633,
+          634
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 0,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [
+          [
+            379,
+            401
+          ]
+        ],
+        "details": [
+          {
+            "annotation_frames": [
+              142,
+              143
+            ],
+            "recurrence_window_end_frame": 416,
+            "matched_run": null,
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              477,
+              478
+            ],
+            "recurrence_window_end_frame": 654,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              82,
+              167
+            ],
+            "observation_end_frame": 416,
+            "runs": [
+              [
+                379,
+                401
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              417,
+              502
+            ],
+            "observation_end_frame": 654,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "ramune_without_the_screen",
+      "group": 0,
+      "missing_seconds": 2.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 1,
+      "join_frame": 380,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [
+        424
+      ],
+      "release_runs": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          16,
+          16
+        ],
+        [
+          18,
+          18
+        ],
+        [
+          22,
+          22
+        ],
+        [
+          27,
+          28
+        ],
+        [
+          35,
+          37
+        ],
+        [
+          298,
+          299
+        ],
+        [
+          380,
+          380
+        ],
+        [
+          390,
+          390
+        ],
+        [
+          396,
+          396
+        ],
+        [
+          398,
+          398
+        ],
+        [
+          402,
+          402
+        ],
+        [
+          407,
+          408
+        ],
+        [
+          415,
+          417
+        ],
+        [
+          678,
+          679
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 2,
+        "intervals_hit": 0,
+        "predicted_runs": 1,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [
+          [
+            424,
+            446
+          ]
+        ],
+        "details": [
+          {
+            "annotation_frames": [
+              142,
+              143
+            ],
+            "recurrence_window_end_frame": 461,
+            "matched_run": null,
+            "reappearances": []
+          },
+          {
+            "annotation_frames": [
+              522,
+              523
+            ],
+            "recurrence_window_end_frame": 699,
+            "matched_run": null,
+            "reappearances": []
+          }
+        ],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": [
+          {
+            "action_frames": [
+              82,
+              167
+            ],
+            "observation_end_frame": 461,
+            "runs": [
+              [
+                424,
+                446
+              ]
+            ],
+            "gap_seconds": []
+          },
+          {
+            "action_frames": [
+              462,
+              547
+            ],
+            "observation_end_frame": 699,
+            "runs": [],
+            "gap_seconds": []
+          }
+        ]
+      }
+    },
+    {
+      "video": "yusuzumi_without_the_screen",
+      "group": 0,
+      "missing_seconds": 0.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 0,
+      "join_frame": 334,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [],
+      "release_runs": [
+        [
+          11,
+          11
+        ],
+        [
+          15,
+          42
+        ],
+        [
+          44,
+          44
+        ],
+        [
+          50,
+          53
+        ],
+        [
+          345,
+          345
+        ],
+        [
+          349,
+          376
+        ],
+        [
+          378,
+          378
+        ],
+        [
+          384,
+          387
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": []
+      }
+    },
+    {
+      "video": "yusuzumi_without_the_screen",
+      "group": 0,
+      "missing_seconds": 0.5,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 0,
+      "join_frame": 349,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [],
+      "release_runs": [
+        [
+          11,
+          11
+        ],
+        [
+          15,
+          42
+        ],
+        [
+          44,
+          44
+        ],
+        [
+          50,
+          53
+        ],
+        [
+          360,
+          360
+        ],
+        [
+          364,
+          391
+        ],
+        [
+          393,
+          393
+        ],
+        [
+          399,
+          402
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": []
+      }
+    },
+    {
+      "video": "yusuzumi_without_the_screen",
+      "group": 0,
+      "missing_seconds": 2.0,
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "anchors_per_copy": 0,
+      "join_frame": 394,
+      "first_hit": false,
+      "second_hit": false,
+      "notification_frames": [],
+      "release_runs": [
+        [
+          11,
+          11
+        ],
+        [
+          15,
+          42
+        ],
+        [
+          44,
+          44
+        ],
+        [
+          50,
+          53
+        ],
+        [
+          405,
+          405
+        ],
+        [
+          409,
+          436
+        ],
+        [
+          438,
+          438
+        ],
+        [
+          444,
+          447
+        ]
+      ],
+      "diagnostics": {
+        "specification": "anchor-overlap-v2; continuous extension accepted; every gap splits runs",
+        "intervals": 0,
+        "intervals_hit": 0,
+        "predicted_runs": 0,
+        "reappearance_runs": 0,
+        "openings_with_reappearance": 0,
+        "unanchored_runs": [],
+        "details": [],
+        "occurrences_with_multiple_runs": 0,
+        "occurrence_restarts": 0,
+        "occurrence_details": []
+      }
+    }
+  ],
+  "aggregates": {
+    "0.0": {
+      "behind": {
+        "clips": 7,
+        "first_hits": 5,
+        "second_hits": 0,
+        "second_hits_given_first": 0,
+        "both_hit_fraction": 0.0,
+        "reappearance_runs": 0
+      },
+      "without": {
+        "clips": 2,
+        "first_hits": 1,
+        "second_hits": 0,
+        "second_hits_given_first": 0,
+        "both_hit_fraction": 0.0,
+        "reappearance_runs": 0
+      }
+    },
+    "0.5": {
+      "behind": {
+        "clips": 7,
+        "first_hits": 5,
+        "second_hits": 0,
+        "second_hits_given_first": 0,
+        "both_hit_fraction": 0.0,
+        "reappearance_runs": 0
+      },
+      "without": {
+        "clips": 2,
+        "first_hits": 1,
+        "second_hits": 0,
+        "second_hits_given_first": 0,
+        "both_hit_fraction": 0.0,
+        "reappearance_runs": 0
+      }
+    },
+    "2.0": {
+      "behind": {
+        "clips": 7,
+        "first_hits": 5,
+        "second_hits": 0,
+        "second_hits_given_first": 0,
+        "both_hit_fraction": 0.0,
+        "reappearance_runs": 0
+      },
+      "without": {
+        "clips": 2,
+        "first_hits": 1,
+        "second_hits": 0,
+        "second_hits_given_first": 0,
+        "both_hit_fraction": 0.0,
+        "reappearance_runs": 0
+      }
+    }
+  }
+}

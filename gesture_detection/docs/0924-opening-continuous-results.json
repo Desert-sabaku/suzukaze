@@ -1,0 +1,189 @@
+{
+  "protocol": "Run frozen 0924 classifiers on a separate, unannotated continuous video. No manual action/phase ground truth; outputs are not accuracy.",
+  "source": "shared/videos/kohara_ramune_01-\u304a\u3044\u3057\u3044\u304b\u306b\u304b\u307e.mov",
+  "provenance": {
+    "source_sha256": "c837c13194c58ffc8ec1ed192a80d0f6e85551b12c74d312fcaf421d02c478a7",
+    "runtime": {
+      "python": "3.12.13",
+      "numpy": "2.5.1",
+      "opencv": "5.0.0",
+      "mediapipe": "0.10.35",
+      "model_sha256": "59929e1d1ee95287735ddd833b19cf4ac46d29bc7afddbbf6753c459690d574a",
+      "subject_area": [
+        0.35,
+        0.15,
+        0.75,
+        0.9
+      ],
+      "subject_min_torso_height": 0.18,
+      "subject_min_shoulder_width": 0.1,
+      "running_mode": "VIDEO",
+      "timestamps": "zero-based frame / annotation fps"
+    },
+    "code_sha256": "b52be82ea5e3f62d09194c53037dec8807c62249d2c467758d685c4f013fba2c",
+    "central_mask": true,
+    "select_subject": false
+  },
+  "fps": 30.029249268768282,
+  "frames": 924,
+  "classifier_parameters": {
+    "phase": [
+      0.75,
+      0.1,
+      "rbf"
+    ],
+    "action": [
+      0.75,
+      0.01,
+      "rbf"
+    ]
+  },
+  "train_videos": [
+    "both1_behind_the_screen",
+    "both2_behind_the_screen",
+    "both3_behind_the_screen",
+    "contrast1_behind_the_screen",
+    "contrast2_behind_the_screen",
+    "contrast3_behind_the_screen",
+    "ramune1_behind_the_screen",
+    "ramune2_behind_the_screen",
+    "ramune3_behind_the_screen",
+    "yusuzumi1_behind_the_screen",
+    "yusuzumi2_behind_the_screen",
+    "yusuzumi3_behind_the_screen"
+  ],
+  "results": {
+    "raw": {
+      "config": {
+        "hold_seconds": 0.0,
+        "release_seconds": 0.0,
+        "setup_seconds": 0.0,
+        "release_mode": "none",
+        "require_initial_setup": false
+      },
+      "notification_frames": [
+        19,
+        217,
+        377,
+        401,
+        533,
+        570,
+        657,
+        751,
+        768,
+        771,
+        908
+      ],
+      "notification_seconds": [
+        0.6327164502164502,
+        7.226287878787878,
+        12.554426406926407,
+        13.353647186147185,
+        17.74936147186147,
+        18.981493506493507,
+        21.87866883116883,
+        25.008950216450216,
+        25.575064935064933,
+        25.67496753246753,
+        30.237186147186147
+      ],
+      "output_runs_frames": [
+        [
+          19,
+          102
+        ],
+        [
+          217,
+          280
+        ],
+        [
+          377,
+          394
+        ],
+        [
+          401,
+          470
+        ],
+        [
+          533,
+          538
+        ],
+        [
+          570,
+          571
+        ],
+        [
+          657,
+          663
+        ],
+        [
+          751,
+          765
+        ],
+        [
+          768,
+          769
+        ],
+        [
+          771,
+          820
+        ],
+        [
+          908,
+          913
+        ]
+      ]
+    },
+    "previous": {
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.3,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "notification_frames": [],
+      "notification_seconds": [],
+      "output_runs_frames": []
+    },
+    "context_release_060": {
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.6,
+        "setup_seconds": 0.3,
+        "release_mode": "context",
+        "require_initial_setup": true
+      },
+      "notification_frames": [],
+      "notification_seconds": [],
+      "output_runs_frames": []
+    },
+    "context_release_100": {
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 1.0,
+        "setup_seconds": 0.3,
+        "release_mode": "context",
+        "require_initial_setup": true
+      },
+      "notification_frames": [],
+      "notification_seconds": [],
+      "output_runs_frames": []
+    },
+    "hands_release_010": {
+      "config": {
+        "hold_seconds": 0.75,
+        "release_seconds": 0.1,
+        "setup_seconds": 0.15,
+        "release_mode": "hands",
+        "require_initial_setup": true
+      },
+      "notification_frames": [],
+      "notification_seconds": [],
+      "output_runs_frames": []
+    }
+  },
+  "frame_predictions": "shared/results/0924-cache/0924-opening-continuous-results-predictions.npz",
+  "script_sha256": "60b3f7ab15736251b82886c40045bd47d4282d37f1d028bb85f6405d3b0f6f9b",
+  "readiness_frames": 0
+}
