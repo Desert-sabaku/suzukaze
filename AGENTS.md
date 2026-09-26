@@ -20,6 +20,10 @@ package; do not import `src` as a package.
 - Output: Fan and speaker via the microcontroller. In addition, Unity footage is output directly via the projector.
 - Control: Unity is used for overall management. `unity_bridge` is used as a supplementary tool. Furthermore, a separate control app is used specifically for controlling the microcontroller.
 
+Firmware for the Raspberry Pi Pico (fan control, TinyGo) lives in
+`firmware/`. See `firmware/README.md` for structure, build, and flashing
+instructions.
+
 ## Build, Test, and Development Commands
 
 Run commands from `gesture_detection/`:
@@ -34,6 +38,8 @@ uv run python -m compileall src  # Basic syntax check
 Python 3.12 or newer is required by `pyproject.toml`. The application needs a
 working camera and displays an OpenCV window; press `Esc` to exit. Keep
 `uv.lock` synchronized whenever dependencies change.
+
+See `firmware/README.md` for TinyGo build and flashing commands.
 
 ## Coding Style & Naming Conventions
 

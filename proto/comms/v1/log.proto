@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package comms.v1;
+
+option go_package = "firmware/gen/comms/v1;comms_v1";
+
+enum LogLevel {
+  LOG_LEVEL_UNSPECIFIED = 0; // 0番は未指定用
+  LOG_LEVEL_DEBUG = 1;
+  LOG_LEVEL_INFO = 2;
+  LOG_LEVEL_WARN = 3;
+  LOG_LEVEL_ERROR = 4;
+}
+
+message LogField {
+  string key = 1;
+  oneof value {
+    string string_val = 2;
+    int64 int_val = 3;
+    double double_val = 4;
+    bool bool_val = 5;
+  }
+}
+
+message LogEntry {
+  uint64 uptime_ms = 1;
+  LogLevel level = 2;
+  string message = 3;
+  repeated LogField fields = 4;
+}
