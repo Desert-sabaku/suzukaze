@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: e84298c3db6c9bb44aaf9b53929afdf2
+timeCreated: 1532936378
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 127625
+  packageName: Beach - resort
+  packageVersion: 2.0
+  assetPath: Assets/Beach - resort/Models/Materials/Sign.mat
+  uploadId: 634525
