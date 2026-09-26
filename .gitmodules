@@ -1,3 +1,3 @@
 [submodule "gesture_detection/shared"]
 	path = gesture_detection/shared
-	url = git@github.com:Desert-sabaku/suzukaze-dataset.git
+	url = https://github.com/Desert-sabaku/suzukaze-dataset.git

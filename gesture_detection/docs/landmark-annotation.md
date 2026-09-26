@@ -3,15 +3,18 @@
 `gesture_detection/` から実行します。
 
 ```bash
-uv run python -m scripts.annotate_landmarks sample_movies/打ち水btn.mp4
+uv run annotate-landmarks sample_movies/打ち水btn.mp4
 ```
 
 先頭と末尾を含めて均等に8フレームを抽出し、既定では
 `output/annotations/<動画名>/` に保存します。`--count`、`--frames`、`--output`で変更できます。
 
 ```bash
-uv run python -m scripts.annotate_landmarks --resume output/annotations/打ち水btn
+uv run annotate-landmarks --resume output/annotations/打ち水btn/annotations.csv
 ```
+
+`--resume` には注釈CSV、注釈セッションディレクトリ、または元動画のパスを指定できます。
+元動画を指定した場合は、新規作成時と同じ保存先を自動的に探します。
 
 | 操作 | 内容 |
 | --- | --- |

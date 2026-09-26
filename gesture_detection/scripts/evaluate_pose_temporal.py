@@ -7,8 +7,9 @@ from pathlib import Path
 import cv2
 import numpy as np
 import torch
-from scripts.evaluate_yolo_pose import DEFAULT_CLIPS, IMPORTANT_KEYPOINTS
 from ultralytics import YOLO
+
+from scripts.evaluate_yolo_pose import DEFAULT_CLIPS, IMPORTANT_KEYPOINTS
 
 
 def choose_person(boxes, previous):
@@ -23,7 +24,8 @@ def choose_person(boxes, previous):
         return int(candidates[np.argmax(areas[candidates])])
     intersection = np.prod(
         np.maximum(
-            0, np.minimum(boxes[:, 2:], previous[2:]) - np.maximum(boxes[:, :2], previous[:2])
+            0,
+            np.minimum(boxes[:, 2:], previous[2:]) - np.maximum(boxes[:, :2], previous[:2]),
         ),
         axis=1,
     )
@@ -74,7 +76,7 @@ def summarize(points, segments):
         "all_seven_available_ratio": float(valid.all(axis=1).mean()),
         "per_joint_available_ratio": valid.mean(axis=0).tolist(),
         "valid_adjacent_pairs": int(adjacent.sum()),
-        "p95_valid_point_displacement": float(np.percentile(jumps, 95)) if len(jumps) else None,
+        "p95_valid_point_displacement": (float(np.percentile(jumps, 95)) if len(jumps) else None),
     }
 
 

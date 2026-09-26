@@ -1,11 +1,15 @@
+from pathlib import Path
+
 import cv2
 import numpy as np
 import pytest
 from scripts.annotate_landmarks import (
     annotate,
+    default_annotation_directory,
     load_rows,
     original_point,
     prepare,
+    resolve_resume_directory,
     sample_indices,
     save_rows,
 )
@@ -15,6 +19,15 @@ def test_sampling_and_coordinate_mapping():
     assert sample_indices(11, 3) == [0, 5, 10]
     assert original_point(640, 360, 1920, 1080, 1280, 720) == (960, 540)
     assert original_point(-1, 0, 1920, 1080, 1280, 720) is None
+
+
+def test_annotation_and_resume_paths(tmp_path):
+    video = Path("shared/videos/bright-behind-the-screen/aogi1_3-8.mp4")
+    expected = tmp_path / "shared" / "annotations" / "bright-behind-the-screen" / "aogi1_3-8"
+    assert default_annotation_directory(video, tmp_path) == expected
+    assert resolve_resume_directory(video, tmp_path) == expected
+    assert resolve_resume_directory(expected / "annotations.csv", tmp_path) == expected
+    assert resolve_resume_directory(expected, tmp_path) == expected
 
 
 def test_extract_resume_and_absent(tmp_path, monkeypatch):
@@ -36,7 +49,7 @@ def test_extract_resume_and_absent(tmp_path, monkeypatch):
     monkeypatch.setattr(cv2, "imshow", lambda *args: None)
     monkeypatch.setattr(cv2, "destroyAllWindows", lambda: None)
     monkeypatch.setattr(cv2, "getWindowProperty", lambda *args: 1)
-    events = iter([ord("a"), ord("a"), ord("q")])
+    events = iter([ord("a"), ord("q")])
     monkeypatch.setattr(cv2, "waitKey", lambda delay: next(events))
     annotate(directory, 32, 24)
     absent = load_rows(directory)

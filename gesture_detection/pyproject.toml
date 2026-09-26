@@ -14,13 +14,19 @@ version = "0.1.0"
 
 [project.scripts]
 gesture-detection = "gesture_detection.app:main"
+annotate-landmarks = "scripts.annotate_landmarks:main"
+annotate-video = "scripts.video_annotation:main"
+
+[tool.setuptools.package-data]
+scripts = ["annotation_labels.json"]
 
 [build-system]
 requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["src", "."]
+include = ["gesture_detection*", "scripts*"]
 
 [tool.setuptools.package-data]
 gesture_detection = ["models/*.npz", "models/*.json"]
