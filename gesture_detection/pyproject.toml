@@ -16,6 +16,8 @@ version = "0.1.0"
 gesture-detection = "gesture_detection.app:main"
 annotate-landmarks = "scripts.annotate_landmarks:main"
 annotate-video = "scripts.video_annotation:main"
+record-cameras = "scripts.video_capture:main"
+record-three-cameras = "scripts.video_capture:main"
 
 [build-system]
 requires = ["setuptools>=77"]

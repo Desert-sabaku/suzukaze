@@ -8,6 +8,7 @@ wheels/
 
 # Virtual environments
 .venv
+recordings/
 
 *.task
 yolov8n-pose.pt
