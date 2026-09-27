@@ -25,6 +25,10 @@ Unity側は100ms程度の間隔で再接続してください。接続はUnity 1
 サーバーを起動しません。ポート競合や未確認イベント容量超過は黙って無視せず、
 認識ワーカーのエラーとしてアプリを終了させます。
 
+2カメラ認識は[2カメラ認識ガイド](multicam-runtime.md)の設定で起動します。
+両カメラの結果を統合し、共有の解除・新準備判定を通過したイベントを1つのサーバーから通知します。
+`MULTICAM_VIDEO_SESSION`による録画再生でも通知サーバーは起動しません。
+
 ## 通信形式
 
 TCPではUTF-8のJSONを1行に1件、LFで区切ります。WebSocketではテキストフレーム
@@ -86,6 +90,11 @@ Unityは見送ったイベントも処理済みに記録し、後の再送で再
 同じホストのPython `time.monotonic()` と同じ時計・原点を使用します。
 `DateTime.UtcNow`、Unityの起動後経過時間、Stopwatchインスタンスの経過時間とは
 比較できません。`source_timestamp` は診断用の入力元時刻で、配送の時計とは区別します。
+
+2カメラ時の`frame_id`・`source_timestamp`は統合tickの連番・時刻です。
+`observed_at`は最後に取得した入力の時刻、イベントの`occurred_at`はそのイベントを生成した
+元フレームの取得時刻を保持します。別カメラの新しい入力や統合処理によってイベントの期限を延ばしません。
+状態統合には直近0.2秒の視点を使うため、配送側の0.5秒の失効より先に`NONE`へ戻る場合があります。
 
 Unity側は実行OSに合わせて同じ時計を実装してください。
 Windowsは `QueryPerformanceCounter / QueryPerformanceFrequency` の商、

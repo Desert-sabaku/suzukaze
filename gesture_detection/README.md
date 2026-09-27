@@ -36,6 +36,12 @@ uv run gesture-detection
 その他の設定は [.env.example](.env.example) を参照してください。
 [学習済みラムネ判定](docs/learned-ramune.md)は設定で切り替えられます。
 
+### 2カメラで認識する
+
+`.env`で`MULTICAM_ENABLED=true`と`MULTICAM_CAMERA_INDICES=1,2`を指定します。
+先頭のカメラで人物選択、2台目で全画面解析を行い、結果を統合します。
+実カメラと録画セッションの設定は[2カメラ認識ガイド](docs/multicam-runtime.md)を参照してください。
+
 ## カメラ映像を録画する
 
 使うカメラのIDを指定します。1台から利用でき、設定はコマンド引数で渡します。
