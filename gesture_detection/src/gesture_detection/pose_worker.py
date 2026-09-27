@@ -51,6 +51,7 @@ class PoseAnalyzer:
         select_subject: bool = POSE_SELECT_SUBJECT,
         ramune_detector: str = RAMUNE_DETECTOR,
         source_fps: float = FPS,
+        recognition_profile: str = "default",
     ):
         if running_mode not in {"IMAGE", "VIDEO"}:
             raise ValueError("running_mode must be IMAGE or VIDEO")
@@ -59,8 +60,10 @@ class PoseAnalyzer:
             raise ValueError("pose confidence thresholds must be between 0 and 1")
         if ramune_detector == "learned" and running_mode != "VIDEO":
             raise ValueError("Learned Ramune requires POSE_RUNNING_MODE=VIDEO")
+        if recognition_profile == "multicam" and running_mode != "VIDEO":
+            raise ValueError("The multicam profile requires POSE_RUNNING_MODE=VIDEO")
         self.recognition = RecognitionCoordinator(
-            ramune_detector=ramune_detector, source_fps=source_fps
+            ramune_detector=ramune_detector, source_fps=source_fps, profile=recognition_profile
         )
         self.learned_profile = ramune_detector == "learned"
         self.subject_selector = (
@@ -81,12 +84,8 @@ class PoseAnalyzer:
         self.display_smoother = LandmarkSmoother()
 
     @staticmethod
-    def _create_landmarker(
-        running_mode: str,
-        detection_confidence: float = 0.5,
-        presence_confidence: float = 0.5,
-        tracking_confidence: float = 0.5,
-    ):
+    def ensure_model() -> None:
+        """Call once before starting multiple inference processes."""
         if not POSE_MODEL_PATH.exists():
             temp_path = POSE_MODEL_PATH.parent / f".{POSE_MODEL_PATH.name}.tmp"
             try:
@@ -97,6 +96,14 @@ class PoseAnalyzer:
                     temp_path.unlink()
                 raise
 
+    @staticmethod
+    def _create_landmarker(
+        running_mode: str,
+        detection_confidence: float = 0.5,
+        presence_confidence: float = 0.5,
+        tracking_confidence: float = 0.5,
+    ):
+        PoseAnalyzer.ensure_model()
         options = vision.PoseLandmarkerOptions(
             base_options=python.BaseOptions(model_asset_path=str(POSE_MODEL_PATH)),
             running_mode=vision.RunningMode[running_mode],

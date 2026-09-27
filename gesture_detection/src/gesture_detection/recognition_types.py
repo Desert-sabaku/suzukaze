@@ -12,6 +12,13 @@ class RecognitionState(TypedDict):
     tracking: bool
 
 
+class OccurrenceEvidence(TypedDict):
+    """Source-clock evidence used to identify a new physical preparation."""
+
+    wrist_index: int
+    setup_timestamp: float
+
+
 class PoseResult(TypedDict):
     """Internal frame result, including diagnostics for local tools.
 
@@ -28,6 +35,11 @@ class PoseResult(TypedDict):
     current: NotRequired[RecognitionState]
     # Per-input occurrence pulses; consume before the latest-value IPC queue.
     occurrences: NotRequired[tuple[str, ...]]
+    occurrence_evidence: NotRequired[dict[str, OccurrenceEvidence]]
+    occurrence_timestamps: NotRequired[dict[str, float]]
+    observed_at: NotRequired[float]
+    locked_events: NotRequired[tuple[str, ...]]
+    release_pending: NotRequired[tuple[str, ...]]
     frame_id: NotRequired[int]
     timestamp: NotRequired[float]
     ramune_state: NotRequired[str]

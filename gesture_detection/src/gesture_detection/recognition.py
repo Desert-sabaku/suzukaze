@@ -5,21 +5,35 @@ from typing import Any
 from .config import FPS, RAMUNE_DETECTOR, RAMUNE_LEARNED_MODEL_PATH
 from .hand_gesture import HandGestureAnalyzer
 from .learned_ramune import LearnedRamuneAnalyzer
-from .ramune import RamuneAnalyzer
-from .recognition_types import PoseResult
+from .ramune import FollowingRamuneAnalyzer, RamuneAnalyzer
+from .recognition_types import OccurrenceEvidence, PoseResult
 from .relaxing import RelaxingAnalyzer
 
 
 class RecognitionCoordinator:
     """Own detector lifetimes and resolve recognition conflicts, not scene policy."""
 
-    def __init__(self, *, ramune_detector: str = RAMUNE_DETECTOR, source_fps: float = FPS) -> None:
+    def __init__(
+        self,
+        *,
+        ramune_detector: str = RAMUNE_DETECTOR,
+        source_fps: float = FPS,
+        profile: str = "default",
+    ) -> None:
         if ramune_detector not in {"rules", "learned"}:
             raise ValueError("Unknown Ramune detector")
-        self.hands = [HandGestureAnalyzer(15), HandGestureAnalyzer(16)]
+        if profile not in {"default", "multicam"} or (
+            profile == "multicam" and ramune_detector != "rules"
+        ):
+            raise ValueError("The multicam profile requires rule-based recognition")
+        self.hands = [
+            HandGestureAnalyzer(i, anchored_scoop=profile == "multicam") for i in (15, 16)
+        ]
         self.ramune = (
             LearnedRamuneAnalyzer(RAMUNE_LEARNED_MODEL_PATH, fps=source_fps)
             if ramune_detector == "learned"
+            else FollowingRamuneAnalyzer()
+            if profile == "multicam"
             else RamuneAnalyzer()
         )
         self.learned_mask = (
@@ -113,6 +127,7 @@ class RecognitionCoordinator:
         if current == "NONE" and self.relaxing_state:
             current = "RELAXING"
         occurrences: tuple[str, ...] = ()
+        evidence: dict[str, OccurrenceEvidence] = {}
         ramune_event = (
             self.ramune.just_opened
             if isinstance(self.ramune, LearnedRamuneAnalyzer)
@@ -120,18 +135,38 @@ class RecognitionCoordinator:
         )
         if self.selected_action == "RAMUNE" and ramune_event:
             occurrences = ("RAMUNE",)
+            if (
+                isinstance(self.ramune, RamuneAnalyzer)
+                and self.ramune.base_index is not None
+                and self.ramune.setup_started_at is not None
+            ):
+                evidence["RAMUNE"] = {
+                    "wrist_index": 31 - self.ramune.base_index,
+                    "setup_timestamp": self.ramune.setup_started_at,
+                }
         elif self.selected_action == "UCHIMIZU" and any(
             hand.uchimizu.completed_at is not None and hand.uchimizu.completed_at != previous
             for hand, previous in zip(self.hands, previous_water, strict=True)
         ):
             # Simultaneous releases retain the existing single-action policy.
             occurrences = ("UCHIMIZU",)
+            for hand, previous in zip(self.hands, previous_water, strict=True):
+                if (
+                    hand.uchimizu.completed_at is not None
+                    and hand.uchimizu.completed_at != previous
+                    and hand.uchimizu.setup_started_at is not None
+                ):
+                    evidence["UCHIMIZU"] = {
+                        "wrist_index": hand.wrist_index,
+                        "setup_timestamp": hand.uchimizu.setup_started_at,
+                    }
         return {
             "landmarks": [(p.x, p.y, p.visibility) for p in landmarks],
             "frame_id": frame_id,
             "timestamp": timestamp,
             "current": {"gesture": current, "tracking": bool(landmarks)},
             "occurrences": occurrences,
+            "occurrence_evidence": evidence,
             "selected_action": self.selected_action,
             "relaxing_state": self.relaxing_state,
             "ramune_state": self.ramune.state,
