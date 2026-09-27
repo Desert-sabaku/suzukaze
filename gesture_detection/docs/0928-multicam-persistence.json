@@ -1,0 +1,4026 @@
+{
+  "source_sha256": "65d1fc7d2693f683693125d12369c751036af09163e5ef474a2db75667a98458",
+  "script_sha256": "b4d920589d123e29e6cfa4742346f07dfab634b9f44de5dbd4e91cde6dc9d140",
+  "tau_seconds": 0.15,
+  "summary": {
+    "rules_camera_roi/camera1": {
+      "relaxing_hits": 0,
+      "relaxing_wrong_label_seconds": 0,
+      "relaxing_unlabelled_seconds": 0
+    },
+    "rules_camera_roi/camera2": {
+      "relaxing_hits": 2,
+      "relaxing_wrong_label_seconds": 0,
+      "relaxing_unlabelled_seconds": 0
+    },
+    "rules_camera_roi_smooth_relaxing/camera1": {
+      "relaxing_hits": 0,
+      "relaxing_wrong_label_seconds": 0.06672843450479232,
+      "relaxing_unlabelled_seconds": 0
+    },
+    "rules_camera_roi_smooth_relaxing/camera2": {
+      "relaxing_hits": 2,
+      "relaxing_wrong_label_seconds": 0.39909803921568626,
+      "relaxing_unlabelled_seconds": 0
+    },
+    "rules_full/camera1": {
+      "relaxing_hits": 0,
+      "relaxing_wrong_label_seconds": 0,
+      "relaxing_unlabelled_seconds": 0
+    },
+    "rules_full/camera2": {
+      "relaxing_hits": 1,
+      "relaxing_wrong_label_seconds": 0,
+      "relaxing_unlabelled_seconds": 0.09915887850467289
+    },
+    "rules_full_smooth_relaxing/camera1": {
+      "relaxing_hits": 0,
+      "relaxing_wrong_label_seconds": 0,
+      "relaxing_unlabelled_seconds": 0
+    },
+    "rules_full_smooth_relaxing/camera2": {
+      "relaxing_hits": 2,
+      "relaxing_wrong_label_seconds": 0.2993235294117647,
+      "relaxing_unlabelled_seconds": 0.29747663551401865
+    }
+  },
+  "rows": [
+    {
+      "take": "20260928_001702",
+      "camera": 1,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 85,
+            "end_frame": 312,
+            "detected": true,
+            "first_response_seconds": 0.16664864864864865,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "FANNING": 0.3999567567567568,
+          "UCHIMIZU": 0.3332972972972973
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 85,
+          "end_frame": 312,
+          "seconds": 7.432529729729731,
+          "longest_seconds": 7.432529729729731,
+          "coverage": 0.9780701754385965,
+          "runs": 1,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001702",
+      "camera": 1,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 85,
+            "end_frame": 312,
+            "detected": true,
+            "first_response_seconds": 0.16664864864864865,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "FANNING": 0.3999567567567568,
+          "UCHIMIZU": 0.3332972972972973
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 85,
+          "end_frame": 312,
+          "seconds": 7.432529729729731,
+          "longest_seconds": 7.432529729729731,
+          "coverage": 0.9780701754385965,
+          "runs": 1,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001702",
+      "camera": 1,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 85,
+            "end_frame": 312,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.36662702702702704
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 85,
+          "end_frame": 312,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001702",
+      "camera": 1,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 85,
+            "end_frame": 312,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.36662702702702704
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 85,
+          "end_frame": 312,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001702",
+      "camera": 2,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 29,
+            "end_frame": 105,
+            "detected": true,
+            "first_response_seconds": 0.09945161290322581,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "FANNING": 0.09945161290322581
+        },
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 29,
+          "end_frame": 105,
+          "seconds": 6.563806451612904,
+          "longest_seconds": 3.779161290322581,
+          "coverage": 0.8571428571428571,
+          "runs": 2,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001702",
+      "camera": 2,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 29,
+            "end_frame": 105,
+            "detected": true,
+            "first_response_seconds": 0.09945161290322581,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "FANNING": 0.09945161290322581
+        },
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 29,
+          "end_frame": 105,
+          "seconds": 6.563806451612904,
+          "longest_seconds": 3.779161290322581,
+          "coverage": 0.8571428571428571,
+          "runs": 2,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001702",
+      "camera": 2,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 29,
+            "end_frame": 105,
+            "detected": true,
+            "first_response_seconds": 0.09945161290322581,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "FANNING": 0.09945161290322581
+        },
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 29,
+          "end_frame": 105,
+          "seconds": 6.762709677419355,
+          "longest_seconds": 3.779161290322581,
+          "coverage": 0.8831168831168831,
+          "runs": 2,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001702",
+      "camera": 2,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 29,
+            "end_frame": 105,
+            "detected": true,
+            "first_response_seconds": 0.09945161290322581,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "FANNING": 0.09945161290322581
+        },
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 29,
+          "end_frame": 105,
+          "seconds": 6.762709677419355,
+          "longest_seconds": 3.779161290322581,
+          "coverage": 0.8831168831168831,
+          "runs": 2,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001715",
+      "camera": 1,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 75,
+            "end_frame": 320,
+            "detected": true,
+            "first_response_seconds": 0.13366585956416466,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.7351622276029056,
+          "FANNING": 0.2673317191283293
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 3
+        }
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 75,
+          "end_frame": 320,
+          "seconds": 7.75261985472155,
+          "longest_seconds": 7.117707021791768,
+          "coverage": 0.943089430894309,
+          "runs": 2,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001715",
+      "camera": 1,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 75,
+            "end_frame": 320,
+            "detected": true,
+            "first_response_seconds": 0.13366585956416466,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.7351622276029056,
+          "FANNING": 0.2673317191283293
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 3
+        }
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 75,
+          "end_frame": 320,
+          "seconds": 7.75261985472155,
+          "longest_seconds": 7.117707021791768,
+          "coverage": 0.943089430894309,
+          "runs": 2,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001715",
+      "camera": 1,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 75,
+            "end_frame": 320,
+            "detected": true,
+            "first_response_seconds": 0.7017457627118644,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "FANNING": 0.2673317191283293,
+          "UCHIMIZU": 0.10024939467312349
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 75,
+          "end_frame": 320,
+          "seconds": 6.950624697336562,
+          "longest_seconds": 3.7426440677966104,
+          "coverage": 0.8455284552845529,
+          "runs": 2,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001715",
+      "camera": 1,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 75,
+            "end_frame": 320,
+            "detected": true,
+            "first_response_seconds": 0.7017457627118644,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "FANNING": 0.2673317191283293,
+          "UCHIMIZU": 0.10024939467312349
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 75,
+          "end_frame": 320,
+          "seconds": 6.950624697336562,
+          "longest_seconds": 3.7426440677966104,
+          "coverage": 0.8455284552845529,
+          "runs": 2,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001715",
+      "camera": 2,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 25,
+            "end_frame": 107,
+            "detected": true,
+            "first_response_seconds": 0.3971510791366906,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "UCHIMIZU": 0.3971510791366906
+        },
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.3971510791366906
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 2
+        }
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 25,
+          "end_frame": 107,
+          "seconds": 4.269374100719424,
+          "longest_seconds": 2.0850431654676256,
+          "coverage": 0.5180722891566265,
+          "runs": 3,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001715",
+      "camera": 2,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 25,
+            "end_frame": 107,
+            "detected": true,
+            "first_response_seconds": 0.3971510791366906,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "UCHIMIZU": 0.3971510791366906
+        },
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.3971510791366906
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 2
+        }
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 25,
+          "end_frame": 107,
+          "seconds": 4.269374100719424,
+          "longest_seconds": 2.0850431654676256,
+          "coverage": 0.5180722891566265,
+          "runs": 3,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001715",
+      "camera": 2,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 25,
+            "end_frame": 107,
+            "detected": true,
+            "first_response_seconds": 0.6950143884892086,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.3971510791366906
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 25,
+          "end_frame": 107,
+          "seconds": 3.3757841726618705,
+          "longest_seconds": 1.191453237410072,
+          "coverage": 0.40963855421686746,
+          "runs": 4,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001715",
+      "camera": 2,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 25,
+            "end_frame": 107,
+            "detected": true,
+            "first_response_seconds": 0.6950143884892086,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.3971510791366906
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 25,
+          "end_frame": 107,
+          "seconds": 3.3757841726618705,
+          "longest_seconds": 1.191453237410072,
+          "coverage": 0.40963855421686746,
+          "runs": 4,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001743",
+      "camera": 1,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 61,
+            "end_frame": 237,
+            "detected": true,
+            "first_response_seconds": 1.5347539936102235,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "UCHIMIZU": 0.3670063897763578
+        },
+        "unlabelled_output_seconds": {
+          "FANNING": 0.4670990415335463,
+          "UCHIMIZU": 0.4337348242811501
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 3
+        }
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 61,
+          "end_frame": 237,
+          "seconds": 2.2687667731629393,
+          "longest_seconds": 1.3679329073482427,
+          "coverage": 0.384180790960452,
+          "runs": 3,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001743",
+      "camera": 1,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 61,
+            "end_frame": 237,
+            "detected": true,
+            "first_response_seconds": 1.5347539936102235,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "UCHIMIZU": 0.3670063897763578
+        },
+        "unlabelled_output_seconds": {
+          "FANNING": 0.4670990415335463,
+          "UCHIMIZU": 0.4337348242811501
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 3
+        }
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 61,
+          "end_frame": 237,
+          "seconds": 2.2687667731629393,
+          "longest_seconds": 1.3679329073482427,
+          "coverage": 0.384180790960452,
+          "runs": 3,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001743",
+      "camera": 1,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 61,
+            "end_frame": 237,
+            "detected": true,
+            "first_response_seconds": 0.7673769968051117,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "FANNING": 0.5004632587859424
+        },
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 61,
+          "end_frame": 237,
+          "seconds": 4.270619808306709,
+          "longest_seconds": 3.069507987220447,
+          "coverage": 0.7231638418079096,
+          "runs": 3,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001743",
+      "camera": 1,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 61,
+            "end_frame": 237,
+            "detected": true,
+            "first_response_seconds": 0.7673769968051117,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "RELAXING": 0.06672843450479232
+        },
+        "unlabelled_output_seconds": {
+          "FANNING": 0.5004632587859424
+        },
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 61,
+          "end_frame": 237,
+          "seconds": 4.270619808306709,
+          "longest_seconds": 3.069507987220447,
+          "coverage": 0.7231638418079096,
+          "runs": 3,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001743",
+      "camera": 2,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 20,
+            "end_frame": 79,
+            "detected": true,
+            "first_response_seconds": 0.29837142857142857,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.29837142857142857
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 20,
+          "end_frame": 79,
+          "seconds": 2.1880571428571427,
+          "longest_seconds": 2.1880571428571427,
+          "coverage": 0.36666666666666664,
+          "runs": 1,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001743",
+      "camera": 2,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 20,
+            "end_frame": 79,
+            "detected": true,
+            "first_response_seconds": 0.29837142857142857,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.29837142857142857
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 20,
+          "end_frame": 79,
+          "seconds": 2.1880571428571427,
+          "longest_seconds": 2.1880571428571427,
+          "coverage": 0.36666666666666664,
+          "runs": 1,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001743",
+      "camera": 2,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 20,
+            "end_frame": 79,
+            "detected": true,
+            "first_response_seconds": 0.29837142857142857,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 20,
+          "end_frame": 79,
+          "seconds": 3.978285714285714,
+          "longest_seconds": 3.978285714285714,
+          "coverage": 0.6666666666666666,
+          "runs": 1,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001743",
+      "camera": 2,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 20,
+            "end_frame": 79,
+            "detected": true,
+            "first_response_seconds": 0.29837142857142857,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "FANNING",
+          "start_frame": 20,
+          "end_frame": 79,
+          "seconds": 3.978285714285714,
+          "longest_seconds": 3.978285714285714,
+          "coverage": 0.6666666666666666,
+          "runs": 1,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001754",
+      "camera": 1,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 86,
+            "end_frame": 187,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 1.9820072727272728
+        },
+        "unlabelled_output_seconds": {
+          "FANNING": 0.1869818181818182,
+          "UCHIMIZU": 0.4487563636363636
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 2
+        }
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 86,
+          "end_frame": 187,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001754",
+      "camera": 1,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 86,
+            "end_frame": 187,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 1.9820072727272728
+        },
+        "unlabelled_output_seconds": {
+          "FANNING": 0.1869818181818182,
+          "UCHIMIZU": 0.4487563636363636
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 2
+        }
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 86,
+          "end_frame": 187,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001754",
+      "camera": 1,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 86,
+            "end_frame": 187,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 1.3088727272727272
+        },
+        "unlabelled_output_seconds": {
+          "FANNING": 0.1869818181818182
+        },
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 86,
+          "end_frame": 187,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001754",
+      "camera": 1,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 86,
+            "end_frame": 187,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 1.3088727272727272
+        },
+        "unlabelled_output_seconds": {
+          "FANNING": 0.1869818181818182
+        },
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 86,
+          "end_frame": 187,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001754",
+      "camera": 2,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 30,
+            "end_frame": 64,
+            "detected": true,
+            "first_response_seconds": 1.5975145631067962,
+            "event_count": 1,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.2995339805825243
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 30,
+          "end_frame": 64,
+          "seconds": 0.39937864077669905,
+          "longest_seconds": 0.39937864077669905,
+          "coverage": 0.11428571428571428,
+          "runs": 1,
+          "event_frames": [
+            46
+          ],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001754",
+      "camera": 2,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 30,
+            "end_frame": 64,
+            "detected": true,
+            "first_response_seconds": 1.5975145631067962,
+            "event_count": 1,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.2995339805825243
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 30,
+          "end_frame": 64,
+          "seconds": 0.39937864077669905,
+          "longest_seconds": 0.39937864077669905,
+          "coverage": 0.11428571428571428,
+          "runs": 1,
+          "event_frames": [
+            46
+          ],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001754",
+      "camera": 2,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 30,
+            "end_frame": 64,
+            "detected": true,
+            "first_response_seconds": 1.5975145631067962,
+            "event_count": 1,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.2995339805825243
+        },
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 30,
+          "end_frame": 64,
+          "seconds": 0.39937864077669905,
+          "longest_seconds": 0.39937864077669905,
+          "coverage": 0.11428571428571428,
+          "runs": 1,
+          "event_frames": [
+            46
+          ],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001754",
+      "camera": 2,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 30,
+            "end_frame": 64,
+            "detected": true,
+            "first_response_seconds": 1.5975145631067962,
+            "event_count": 1,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.2995339805825243
+        },
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 30,
+          "end_frame": 64,
+          "seconds": 0.39937864077669905,
+          "longest_seconds": 0.39937864077669905,
+          "coverage": 0.11428571428571428,
+          "runs": 1,
+          "event_frames": [
+            46
+          ],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001807",
+      "camera": 1,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 103,
+            "end_frame": 166,
+            "detected": true,
+            "first_response_seconds": 0.4333007518796992,
+            "event_count": 1,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.4666315789473684
+        },
+        "unlabelled_output_seconds": {
+          "FANNING": 0.16665413533834586,
+          "UCHIMIZU": 0.4666315789473684
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 3
+        }
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 103,
+          "end_frame": 166,
+          "seconds": 0.2333157894736842,
+          "longest_seconds": 0.2333157894736842,
+          "coverage": 0.109375,
+          "runs": 1,
+          "event_frames": [
+            116
+          ],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001807",
+      "camera": 1,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 103,
+            "end_frame": 166,
+            "detected": true,
+            "first_response_seconds": 0.4333007518796992,
+            "event_count": 1,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.4666315789473684
+        },
+        "unlabelled_output_seconds": {
+          "FANNING": 0.16665413533834586,
+          "UCHIMIZU": 0.4666315789473684
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 3
+        }
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 103,
+          "end_frame": 166,
+          "seconds": 0.2333157894736842,
+          "longest_seconds": 0.2333157894736842,
+          "coverage": 0.109375,
+          "runs": 1,
+          "event_frames": [
+            116
+          ],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001807",
+      "camera": 1,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 103,
+            "end_frame": 166,
+            "detected": true,
+            "first_response_seconds": 0.8332706766917293,
+            "event_count": 2,
+            "extra_events": 1,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.03333082706766917
+        },
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 103,
+          "end_frame": 166,
+          "seconds": 0.2999774436090225,
+          "longest_seconds": 0.26664661654135335,
+          "coverage": 0.140625,
+          "runs": 2,
+          "event_frames": [
+            128,
+            138
+          ],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001807",
+      "camera": 1,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 103,
+            "end_frame": 166,
+            "detected": true,
+            "first_response_seconds": 0.8332706766917293,
+            "event_count": 2,
+            "extra_events": 1,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.03333082706766917
+        },
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 103,
+          "end_frame": 166,
+          "seconds": 0.2999774436090225,
+          "longest_seconds": 0.26664661654135335,
+          "coverage": 0.140625,
+          "runs": 2,
+          "event_frames": [
+            128,
+            138
+          ],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001807",
+      "camera": 2,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 34,
+            "end_frame": 57,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 1.1954157303370785
+        },
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.09961797752808987
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 34,
+          "end_frame": 57,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001807",
+      "camera": 2,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 34,
+            "end_frame": 57,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 1.1954157303370785
+        },
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.09961797752808987
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 34,
+          "end_frame": 57,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001807",
+      "camera": 2,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 34,
+            "end_frame": 57,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 34,
+          "end_frame": 57,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001807",
+      "camera": 2,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 34,
+            "end_frame": 57,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 34,
+          "end_frame": 57,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001817",
+      "camera": 1,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 92,
+            "end_frame": 157,
+            "detected": true,
+            "first_response_seconds": 1.1134223826714802,
+            "event_count": 1,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.23618050541516245
+        },
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.8097617328519855
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 3
+        }
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 92,
+          "end_frame": 157,
+          "seconds": 0.3711407942238267,
+          "longest_seconds": 0.3711407942238267,
+          "coverage": 0.16666666666666666,
+          "runs": 1,
+          "event_frames": [
+            125
+          ],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001817",
+      "camera": 1,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 92,
+            "end_frame": 157,
+            "detected": true,
+            "first_response_seconds": 1.1134223826714802,
+            "event_count": 1,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.23618050541516245
+        },
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.8097617328519855
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 3
+        }
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 92,
+          "end_frame": 157,
+          "seconds": 0.3711407942238267,
+          "longest_seconds": 0.3711407942238267,
+          "coverage": 0.16666666666666666,
+          "runs": 1,
+          "event_frames": [
+            125
+          ],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001817",
+      "camera": 1,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 92,
+            "end_frame": 157,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.33740072202166066
+        },
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 92,
+          "end_frame": 157,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001817",
+      "camera": 1,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 92,
+            "end_frame": 157,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.33740072202166066
+        },
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 92,
+          "end_frame": 157,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001817",
+      "camera": 2,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 31,
+            "end_frame": 52,
+            "detected": true,
+            "first_response_seconds": 0.9942553191489363,
+            "event_count": 1,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.3977021276595745
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 31,
+          "end_frame": 52,
+          "seconds": 0.3977021276595745,
+          "longest_seconds": 0.3977021276595745,
+          "coverage": 0.18181818181818182,
+          "runs": 1,
+          "event_frames": [
+            41
+          ],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001817",
+      "camera": 2,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 31,
+            "end_frame": 52,
+            "detected": true,
+            "first_response_seconds": 0.9942553191489363,
+            "event_count": 1,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.3977021276595745
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 31,
+          "end_frame": 52,
+          "seconds": 0.3977021276595745,
+          "longest_seconds": 0.3977021276595745,
+          "coverage": 0.18181818181818182,
+          "runs": 1,
+          "event_frames": [
+            41
+          ],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001817",
+      "camera": 2,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 31,
+            "end_frame": 52,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.09942553191489363
+        },
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 31,
+          "end_frame": 52,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001817",
+      "camera": 2,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 31,
+            "end_frame": 52,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.09942553191489363
+        },
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "UCHIMIZU",
+          "start_frame": 31,
+          "end_frame": 52,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001828",
+      "camera": 1,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 93,
+            "end_frame": 197,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.5601685393258427
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 3
+        }
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 93,
+          "end_frame": 197,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": 163,
+          "opened_end": 168,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001828",
+      "camera": 1,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 93,
+            "end_frame": 197,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.5601685393258427
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 3
+        }
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 93,
+          "end_frame": 197,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": 163,
+          "opened_end": 168,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001828",
+      "camera": 1,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 93,
+            "end_frame": 197,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 93,
+          "end_frame": 197,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": 163,
+          "opened_end": 168,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001828",
+      "camera": 1,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 93,
+            "end_frame": 197,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 93,
+          "end_frame": 197,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": 163,
+          "opened_end": 168,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001828",
+      "camera": 2,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 32,
+            "end_frame": 68,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 32,
+          "end_frame": 68,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": 57,
+          "opened_end": 61,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001828",
+      "camera": 2,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 32,
+            "end_frame": 68,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 32,
+          "end_frame": 68,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": 57,
+          "opened_end": 61,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001828",
+      "camera": 2,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 32,
+            "end_frame": 68,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 32,
+          "end_frame": 68,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": 57,
+          "opened_end": 61,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001828",
+      "camera": 2,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 32,
+            "end_frame": 68,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 32,
+          "end_frame": 68,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": 57,
+          "opened_end": 61,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001839",
+      "camera": 1,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 76,
+            "end_frame": 191,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 76,
+          "end_frame": 191,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": 156,
+          "opened_end": 163,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001839",
+      "camera": 1,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 76,
+            "end_frame": 191,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 76,
+          "end_frame": 191,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": 156,
+          "opened_end": 163,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001839",
+      "camera": 1,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 76,
+            "end_frame": 191,
+            "detected": true,
+            "first_response_seconds": 3.0930098039215683,
+            "event_count": 1,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "RAMUNE": 0.06651633986928104
+        },
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 76,
+          "end_frame": 191,
+          "seconds": 0.7649379084967319,
+          "longest_seconds": 0.7649379084967319,
+          "coverage": 0.19827586206896552,
+          "runs": 1,
+          "event_frames": [
+            169
+          ],
+          "opened_start": 156,
+          "opened_end": 163,
+          "delay_from_opened_start": 0.43235620915032674
+        }
+      ]
+    },
+    {
+      "take": "20260928_001839",
+      "camera": 1,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 76,
+            "end_frame": 191,
+            "detected": true,
+            "first_response_seconds": 3.0930098039215683,
+            "event_count": 1,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "RAMUNE": 0.06651633986928104
+        },
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 76,
+          "end_frame": 191,
+          "seconds": 0.7649379084967319,
+          "longest_seconds": 0.7649379084967319,
+          "coverage": 0.19827586206896552,
+          "runs": 1,
+          "event_frames": [
+            169
+          ],
+          "opened_start": 156,
+          "opened_end": 163,
+          "delay_from_opened_start": 0.43235620915032674
+        }
+      ]
+    },
+    {
+      "take": "20260928_001839",
+      "camera": 2,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 26,
+            "end_frame": 62,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.4988725490196078
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 2
+        }
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 26,
+          "end_frame": 62,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": 51,
+          "opened_end": 54,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001839",
+      "camera": 2,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 26,
+            "end_frame": 62,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {
+          "RELAXING": 0.2993235294117647
+        },
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.4988725490196078
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 2
+        }
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 26,
+          "end_frame": 62,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": 51,
+          "opened_end": 54,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001839",
+      "camera": 2,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 26,
+            "end_frame": 62,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.2993235294117647
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 26,
+          "end_frame": 62,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": 51,
+          "opened_end": 54,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001839",
+      "camera": 2,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 26,
+            "end_frame": 62,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {
+          "RELAXING": 0.39909803921568626
+        },
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.2993235294117647
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 26,
+          "end_frame": 62,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": 51,
+          "opened_end": 54,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001851",
+      "camera": 1,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 72,
+            "end_frame": 149,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.4677584905660377
+        },
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 72,
+          "end_frame": 149,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": 119,
+          "opened_end": 129,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001851",
+      "camera": 1,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 72,
+            "end_frame": 149,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.4677584905660377
+        },
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 72,
+          "end_frame": 149,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": 119,
+          "opened_end": 129,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001851",
+      "camera": 1,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 72,
+            "end_frame": 149,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.4677584905660377
+        },
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 72,
+          "end_frame": 149,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": 119,
+          "opened_end": 129,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001851",
+      "camera": 1,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 72,
+            "end_frame": 149,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.4677584905660377
+        },
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 72,
+          "end_frame": 149,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": 119,
+          "opened_end": 129,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001851",
+      "camera": 2,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 23,
+            "end_frame": 50,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 23,
+          "end_frame": 50,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": 39,
+          "opened_end": 41,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001851",
+      "camera": 2,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 23,
+            "end_frame": 50,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 23,
+          "end_frame": 50,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": 39,
+          "opened_end": 41,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001851",
+      "camera": 2,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 23,
+            "end_frame": 50,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 23,
+          "end_frame": 50,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": 39,
+          "opened_end": 41,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001851",
+      "camera": 2,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 23,
+            "end_frame": 50,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RAMUNE",
+          "start_frame": 23,
+          "end_frame": 50,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": 39,
+          "opened_end": 41,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001901",
+      "camera": 1,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 60,
+            "end_frame": 297,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.16647058823529412
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 60,
+          "end_frame": 297,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001901",
+      "camera": 1,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 60,
+            "end_frame": 297,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.16647058823529412
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 60,
+          "end_frame": 297,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001901",
+      "camera": 1,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 60,
+            "end_frame": 297,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 60,
+          "end_frame": 297,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001901",
+      "camera": 1,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 60,
+            "end_frame": 297,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 60,
+          "end_frame": 297,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001901",
+      "camera": 2,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 25,
+            "end_frame": 97,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 25,
+          "end_frame": 97,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001901",
+      "camera": 2,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 25,
+            "end_frame": 97,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 25,
+          "end_frame": 97,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001901",
+      "camera": 2,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 25,
+            "end_frame": 97,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 25,
+          "end_frame": 97,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001901",
+      "camera": 2,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 25,
+            "end_frame": 97,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 25,
+          "end_frame": 97,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001913",
+      "camera": 1,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 130,
+            "end_frame": 271,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.36586206896551726
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 130,
+          "end_frame": 271,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001913",
+      "camera": 1,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 130,
+            "end_frame": 271,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.36586206896551726
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 130,
+          "end_frame": 271,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001913",
+      "camera": 1,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 130,
+            "end_frame": 271,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 130,
+          "end_frame": 271,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001913",
+      "camera": 1,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 130,
+            "end_frame": 271,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 130,
+          "end_frame": 271,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001913",
+      "camera": 2,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 43,
+            "end_frame": 88,
+            "detected": true,
+            "first_response_seconds": 0.7932710280373831,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "RELAXING": 0.09915887850467289
+        },
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 43,
+          "end_frame": 88,
+          "seconds": 0.19831775700934579,
+          "longest_seconds": 0.09915887850467289,
+          "coverage": 0.043478260869565216,
+          "runs": 2,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001913",
+      "camera": 2,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 43,
+            "end_frame": 88,
+            "detected": true,
+            "first_response_seconds": 0.892429906542056,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "RELAXING": 0.29747663551401865
+        },
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 43,
+          "end_frame": 88,
+          "seconds": 2.578130841121495,
+          "longest_seconds": 2.379813084112149,
+          "coverage": 0.5652173913043478,
+          "runs": 2,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001913",
+      "camera": 2,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 43,
+            "end_frame": 88,
+            "detected": true,
+            "first_response_seconds": 0.9915887850467289,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 43,
+          "end_frame": 88,
+          "seconds": 0.6941121495327102,
+          "longest_seconds": 0.39663551401869157,
+          "coverage": 0.15217391304347827,
+          "runs": 2,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001913",
+      "camera": 2,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 43,
+            "end_frame": 88,
+            "detected": true,
+            "first_response_seconds": 1.3882242990654203,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 43,
+          "end_frame": 88,
+          "seconds": 1.9831775700934577,
+          "longest_seconds": 1.2890654205607475,
+          "coverage": 0.43478260869565216,
+          "runs": 2,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001925",
+      "camera": 1,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 117,
+            "end_frame": 253,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "UCHIMIZU": 0.3662825396825397
+        },
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.4328793650793651
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 3
+        }
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 117,
+          "end_frame": 253,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001925",
+      "camera": 1,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 117,
+            "end_frame": 253,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "UCHIMIZU": 0.3662825396825397
+        },
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.4328793650793651
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 3
+        }
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 117,
+          "end_frame": 253,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001925",
+      "camera": 1,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 117,
+            "end_frame": 253,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 117,
+          "end_frame": 253,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001925",
+      "camera": 1,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 117,
+            "end_frame": 253,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 117,
+          "end_frame": 253,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001925",
+      "camera": 2,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 36,
+            "end_frame": 84,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.3995809523809524
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 36,
+          "end_frame": 84,
+          "seconds": 0.0,
+          "longest_seconds": 0,
+          "coverage": 0.0,
+          "runs": 0,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001925",
+      "camera": 2,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 36,
+            "end_frame": 84,
+            "detected": true,
+            "first_response_seconds": 3.2965428571428577,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.3995809523809524
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 36,
+          "end_frame": 84,
+          "seconds": 0.0998952380952381,
+          "longest_seconds": 0.0998952380952381,
+          "coverage": 0.02040816326530612,
+          "runs": 1,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001925",
+      "camera": 2,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 36,
+            "end_frame": 84,
+            "detected": true,
+            "first_response_seconds": 3.995809523809524,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 36,
+          "end_frame": 84,
+          "seconds": 0.29968571428571433,
+          "longest_seconds": 0.29968571428571433,
+          "coverage": 0.061224489795918366,
+          "runs": 1,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_001925",
+      "camera": 2,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 36,
+            "end_frame": 84,
+            "detected": true,
+            "first_response_seconds": 3.2965428571428577,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "persistence": [
+        {
+          "label": "RELAXING",
+          "start_frame": 36,
+          "end_frame": 84,
+          "seconds": 0.998952380952381,
+          "longest_seconds": 0.998952380952381,
+          "coverage": 0.20408163265306123,
+          "runs": 1,
+          "event_frames": [],
+          "opened_start": null,
+          "opened_end": null,
+          "delay_from_opened_start": null
+        }
+      ]
+    },
+    {
+      "take": "20260928_002011",
+      "camera": 1,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 1.0700320366132723
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 5
+        }
+      },
+      "persistence": []
+    },
+    {
+      "take": "20260928_002011",
+      "camera": 1,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 1.0700320366132723
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 5
+        }
+      },
+      "persistence": []
+    },
+    {
+      "take": "20260928_002011",
+      "camera": 1,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.3451716247139588
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 3
+        }
+      },
+      "persistence": []
+    },
+    {
+      "take": "20260928_002011",
+      "camera": 1,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.3451716247139588
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 3
+        }
+      },
+      "persistence": []
+    },
+    {
+      "take": "20260928_002011",
+      "camera": 2,
+      "profile": "rules_full",
+      "metrics": {
+        "trials": [],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.3969473684210526
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": []
+    },
+    {
+      "take": "20260928_002011",
+      "camera": 2,
+      "profile": "rules_full_smooth_relaxing",
+      "metrics": {
+        "trials": [],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.3969473684210526
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "persistence": []
+    },
+    {
+      "take": "20260928_002011",
+      "camera": 2,
+      "profile": "rules_camera_roi",
+      "metrics": {
+        "trials": [],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.2977105263157894
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 2
+        }
+      },
+      "persistence": []
+    },
+    {
+      "take": "20260928_002011",
+      "camera": 2,
+      "profile": "rules_camera_roi_smooth_relaxing",
+      "metrics": {
+        "trials": [],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.2977105263157894
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 2
+        }
+      },
+      "persistence": []
+    }
+  ],
+  "note": "Causal EMA only for stillness, unchanged speed/drift/dwell thresholds; exploratory same-footage result, not independent validation."
+}
