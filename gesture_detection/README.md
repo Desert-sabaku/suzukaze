@@ -72,3 +72,4 @@ uv run record-cameras --cameras 0 2
 - [動画の注釈](docs/video-annotation.md)・[関節位置のラベル付け](docs/landmark-annotation.md)
 - [開発・テスト手順](docs/development.md)・[構成と設定](docs/architecture.md)
 - [実機での確認項目](docs/manual-testing.md)・[過去の評価](docs/evaluations.md)
+- [0928 2カメラ検証の成果と再現手順](docs/0928-multicam-handoff.md)

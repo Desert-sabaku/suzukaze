@@ -1,0 +1,3204 @@
+{
+  "recording_context": {
+    "os": "Windows 11",
+    "recorder": "Desert-sabaku/multicam-recorder",
+    "cameras": {
+      "1": "Insta360 Link 2C (left)",
+      "2": "Logicool HD Webcam C615 (right)"
+    },
+    "phase_explanation_ui": {
+      "RAMUNE": false,
+      "RELAXING": false
+    },
+    "note": "Performer reports harder conditions than intended guided operation; the effect of the missing UI has not been measured."
+  },
+  "clock": "frame * session duration / decoded frame count; uniform capture assumed",
+  "profiles": {
+    "rules_full": "rules, full image, subject selector disabled",
+    "rules_subject": "rules, production subject selector enabled",
+    "learned": "frozen 0924 model, production central mask [0.35, 0.75]"
+  },
+  "limitations": [
+    "No per-frame capture timestamps; synchronization is approximate.",
+    "Either-camera score is an oracle opportunity, not deployable fusion.",
+    "Unlabelled frames are not verified negatives.",
+    "Action hits alone do not verify event timing; OPENED scored separately.",
+    "All decoded frames processed; live queue drops and latency not measured."
+  ],
+  "script_sha256": "62f9ed981757caf5b03177ad3677273ff0d92b16517559265e669973fb6b224d",
+  "pose_model_sha256": "59929e1d1ee95287735ddd833b19cf4ac46d29bc7afddbbf6753c459690d574a",
+  "learned_model_sha256": "541c2cdbc80ddbc1cc67a578420904c1cb22e08a43f577fe4bf916182963e9c6",
+  "runtime_sha256": {
+    "__init__.py": "2c3d3ee2079607c6a53d040ae0e31ca00a5c999d2c310a081830c2792dcf9218",
+    "__main__.py": "99635c96a5fa7c38319b14b3b12ea756f976bf4ec6b0f17aebaf55b873815b7f",
+    "gesture_delivery.py": "4e317db160f91f1eadeeabe0e2631dd2a45e00d5ddba6f084925d7ad455a816c",
+    "gesture_position.py": "8dab0b82e4cc09b1759a40a528058b398b1b64ff6c2939ce70c26817f4f32191",
+    "gesture_server.py": "d456d2c0044ab8416a602a2fe2e974363e610254ec8d49c4704256c81926bfc8",
+    "hand_gesture.py": "6dc96add2a801730b5e281bf4f5e11972725040d531954b47ffc5c4e9082311b",
+    "ipc.py": "be647dc401228c189c18072f2fca61e62eca26ec1e668f38fab0b7e4b29e6f5a",
+    "native_logging.py": "78d2fcabab68381ffb3fdb2691b92218e529622ed1061d78628a23bf2e290203",
+    "ramune.py": "5813335b117a877538f988c150bcb5b57f0b4e142baf0d7c53dc64cb3c6e43e0",
+    "relaxing.py": "1fe2fb2874ad3c514cd19e3453fe70668f655a56eb555dcc6bd0a3ebd6ec9720",
+    "signal_processing.py": "a4721da6741c47d3647c3bc4cccd0a697a7c4616bab74a5bd6af4452667def11",
+    "uchimizu.py": "569c99a140d942e917d7d7e5b3ddee4c087afbbea3dfc1641b6888e035917501",
+    "video_output.py": "3b8f20c575442f06d0d024076d53ca88da0e700fb96252e4594275cc12b9a430",
+    "yolo_worker.py": "5cddd3cd7aa78c7b1aa9dd80e54f37a54d3320c9eae85fe789cee6d5808e988a",
+    "qt_setup.py": "05a9ad78407edaf6eaac62ed2385041e9854990a0734971934d858cbddd8dde1",
+    "app.py": "07d9827bc7dde11d181e9083fc5f1d236f958ee19ab874f26f987af3161db9eb",
+    "config.py": "a8331acbbe223cfb1e9db7bd523181e73adc72e8e9fa6db6c176f443378b2e93",
+    "landmark_smoothing.py": "98e1db0156c7d21da150dd6fd0dccf07aed5f0fd9f1a9b7e60350c6a2bc1d3ff",
+    "learned_ramune.py": "39d6021617bfc15c8f8ce3d6ee87258a0aff7ca64912caa28401ea96e032668d",
+    "pose_worker.py": "fbd5d99e2de6758d620dbabb0abb43bed751649597305882fc9b328dbf27a9e3",
+    "recognition.py": "555839750f96e20d6002645ea808ee82ad1c97fbd5f69e8b2d9d514fa77610f5",
+    "recognition_types.py": "2fc9d6f399537a12f238fdb2b860755b5b1a0a597319b9e6ed6b5fc27ea06fbe",
+    "rendering.py": "9e174d2daf54325896b6b05e79472682d043d4638f082e91a5cee48f9e4ed898",
+    "subject_selection.py": "e5911fe69ae291ff34a298ad97845bda7b1f9c9aac3c0f9b4f88d42a4fd0ca96"
+  },
+  "audit": [
+    {
+      "take": "20260928_001702",
+      "camera": 1,
+      "frames": 370,
+      "duration": 12.332,
+      "nominal_fps": 30.0,
+      "effective_fps": 30.00324359390204,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001702",
+      "camera": 2,
+      "frames": 124,
+      "duration": 12.332,
+      "nominal_fps": 30.0,
+      "effective_fps": 10.055141096334738,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001715",
+      "camera": 1,
+      "frames": 413,
+      "duration": 13.801,
+      "nominal_fps": 30.0,
+      "effective_fps": 29.925367726976305,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001715",
+      "camera": 2,
+      "frames": 139,
+      "duration": 13.801,
+      "nominal_fps": 30.0,
+      "effective_fps": 10.071733932323745,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001743",
+      "camera": 1,
+      "frames": 313,
+      "duration": 10.443,
+      "nominal_fps": 30.0,
+      "effective_fps": 29.97223020204922,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001743",
+      "camera": 2,
+      "frames": 105,
+      "duration": 10.443,
+      "nominal_fps": 30.0,
+      "effective_fps": 10.054582016661879,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001754",
+      "camera": 1,
+      "frames": 275,
+      "duration": 10.284,
+      "nominal_fps": 30.0,
+      "effective_fps": 26.74056787242318,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001754",
+      "camera": 2,
+      "frames": 103,
+      "duration": 10.284,
+      "nominal_fps": 30.0,
+      "effective_fps": 10.015558148580318,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001807",
+      "camera": 1,
+      "frames": 266,
+      "duration": 8.866,
+      "nominal_fps": 30.0,
+      "effective_fps": 30.002255808707424,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001807",
+      "camera": 2,
+      "frames": 89,
+      "duration": 8.866,
+      "nominal_fps": 30.0,
+      "effective_fps": 10.038348748026168,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001817",
+      "camera": 1,
+      "frames": 277,
+      "duration": 9.346,
+      "nominal_fps": 30.0,
+      "effective_fps": 29.638347956344962,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001817",
+      "camera": 2,
+      "frames": 94,
+      "duration": 9.346,
+      "nominal_fps": 30.0,
+      "effective_fps": 10.057778728867964,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001828",
+      "camera": 1,
+      "frames": 267,
+      "duration": 9.971,
+      "nominal_fps": 30.0,
+      "effective_fps": 26.777655200080233,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001828",
+      "camera": 2,
+      "frames": 100,
+      "duration": 9.971,
+      "nominal_fps": 30.0,
+      "effective_fps": 10.029084344599339,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001839",
+      "camera": 1,
+      "frames": 306,
+      "duration": 10.177,
+      "nominal_fps": 30.0,
+      "effective_fps": 30.067799941043532,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001839",
+      "camera": 2,
+      "frames": 102,
+      "duration": 10.177,
+      "nominal_fps": 30.0,
+      "effective_fps": 10.022599980347843,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001851",
+      "camera": 1,
+      "frames": 265,
+      "duration": 8.854,
+      "nominal_fps": 30.0,
+      "effective_fps": 29.92997515247346,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001851",
+      "camera": 2,
+      "frames": 89,
+      "duration": 8.854,
+      "nominal_fps": 30.0,
+      "effective_fps": 10.051953919132597,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001901",
+      "camera": 1,
+      "frames": 340,
+      "duration": 11.32,
+      "nominal_fps": 30.0,
+      "effective_fps": 30.035335689045937,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001901",
+      "camera": 2,
+      "frames": 114,
+      "duration": 11.32,
+      "nominal_fps": 30.0,
+      "effective_fps": 10.070671378091873,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001913",
+      "camera": 1,
+      "frames": 319,
+      "duration": 10.61,
+      "nominal_fps": 30.0,
+      "effective_fps": 30.06597549481621,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001913",
+      "camera": 2,
+      "frames": 107,
+      "duration": 10.61,
+      "nominal_fps": 30.0,
+      "effective_fps": 10.084825636192273,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001925",
+      "camera": 1,
+      "frames": 315,
+      "duration": 10.489,
+      "nominal_fps": 30.0,
+      "effective_fps": 30.031461531127846,
+      "annotated": true
+    },
+    {
+      "take": "20260928_001925",
+      "camera": 2,
+      "frames": 105,
+      "duration": 10.489,
+      "nominal_fps": 30.0,
+      "effective_fps": 10.010487177042615,
+      "annotated": true
+    },
+    {
+      "take": "20260928_002011",
+      "camera": 1,
+      "frames": 437,
+      "duration": 15.084,
+      "nominal_fps": 30.0,
+      "effective_fps": 28.971095200212147,
+      "annotated": true
+    },
+    {
+      "take": "20260928_002011",
+      "camera": 2,
+      "frames": 152,
+      "duration": 15.084,
+      "nominal_fps": 30.0,
+      "effective_fps": 10.07690267833466,
+      "annotated": false
+    }
+  ],
+  "rows": [
+    {
+      "take": "20260928_001702",
+      "camera": 1,
+      "profile": "rules_full",
+      "effective_fps": 30.00324359390204,
+      "video_sha256": "32b129f262d99eeca5bcda7c3ac8ed561d30e8eb4aaeb3fc8a41daddd94775d5",
+      "annotation_sha256": "d17aa9fc458370b54a37896eb3619966c45a15e708b857b25585d3ff80b86ce4",
+      "frames": 370,
+      "pose_fraction": 0.9324324324324325,
+      "both_wrists_visible_fraction": 0.8729729729729729,
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 85,
+            "end_frame": 312,
+            "detected": true,
+            "first_response_seconds": 0.16664864864864865,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "FANNING": 0.3999567567567568,
+          "UCHIMIZU": 0.3332972972972973
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001702-camera_01-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001702-camera_01-rules_full.npz"
+    },
+    {
+      "take": "20260928_001702",
+      "camera": 1,
+      "profile": "rules_subject",
+      "effective_fps": 30.00324359390204,
+      "video_sha256": "32b129f262d99eeca5bcda7c3ac8ed561d30e8eb4aaeb3fc8a41daddd94775d5",
+      "annotation_sha256": "d17aa9fc458370b54a37896eb3619966c45a15e708b857b25585d3ff80b86ce4",
+      "frames": 370,
+      "pose_fraction": 0.33783783783783783,
+      "both_wrists_visible_fraction": 0.3324324324324324,
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 85,
+            "end_frame": 312,
+            "detected": true,
+            "first_response_seconds": 5.832702702702703,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "FANNING": 0.4332864864864865,
+          "UCHIMIZU": 0.16664864864864865
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001702-camera_01-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001702-camera_01-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001702",
+      "camera": 1,
+      "profile": "learned",
+      "effective_fps": 30.00324359390204,
+      "video_sha256": "32b129f262d99eeca5bcda7c3ac8ed561d30e8eb4aaeb3fc8a41daddd94775d5",
+      "annotation_sha256": "d17aa9fc458370b54a37896eb3619966c45a15e708b857b25585d3ff80b86ce4",
+      "frames": 370,
+      "pose_fraction": 0.8405405405405405,
+      "both_wrists_visible_fraction": 0.6756756756756757,
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 85,
+            "end_frame": 312,
+            "detected": true,
+            "first_response_seconds": 5.366086486486487,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "FANNING": 0.3999567567567568,
+          "UCHIMIZU": 0.3332972972972973
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001702-camera_01-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001702-camera_01-learned.npz"
+    },
+    {
+      "take": "20260928_001702",
+      "camera": 2,
+      "profile": "rules_full",
+      "effective_fps": 10.055141096334738,
+      "video_sha256": "17f392880de798370752816132ec581a9a9cdae6b705778e0bd7ed6021ed54a5",
+      "annotation_sha256": "da2d96635487cb56ef05dba55b4b45d5af2624ea3d95ccb3792f934e16abd70d",
+      "frames": 124,
+      "pose_fraction": 0.9758064516129032,
+      "both_wrists_visible_fraction": 0.7661290322580645,
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 29,
+            "end_frame": 105,
+            "detected": true,
+            "first_response_seconds": 0.09945161290322581,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "FANNING": 0.09945161290322581
+        },
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001702-camera_02-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001702-camera_02-rules_full.npz"
+    },
+    {
+      "take": "20260928_001702",
+      "camera": 2,
+      "profile": "rules_subject",
+      "effective_fps": 10.055141096334738,
+      "video_sha256": "17f392880de798370752816132ec581a9a9cdae6b705778e0bd7ed6021ed54a5",
+      "annotation_sha256": "da2d96635487cb56ef05dba55b4b45d5af2624ea3d95ccb3792f934e16abd70d",
+      "frames": 124,
+      "pose_fraction": 0.06451612903225806,
+      "both_wrists_visible_fraction": 0.0,
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 29,
+            "end_frame": 105,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001702-camera_02-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001702-camera_02-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001702",
+      "camera": 2,
+      "profile": "learned",
+      "effective_fps": 10.055141096334738,
+      "video_sha256": "17f392880de798370752816132ec581a9a9cdae6b705778e0bd7ed6021ed54a5",
+      "annotation_sha256": "da2d96635487cb56ef05dba55b4b45d5af2624ea3d95ccb3792f934e16abd70d",
+      "frames": 124,
+      "pose_fraction": 0.3951612903225806,
+      "both_wrists_visible_fraction": 0.0,
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 29,
+            "end_frame": 105,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001702-camera_02-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001702-camera_02-learned.npz"
+    },
+    {
+      "take": "20260928_001715",
+      "camera": 1,
+      "profile": "rules_full",
+      "effective_fps": 29.925367726976305,
+      "video_sha256": "50a7730c71ae02f29af2c266512c0b1ca723124fc80a7f95f87cb47fcd2f5365",
+      "annotation_sha256": "39c73e369b9f0672eb081cf4e223df18008e929b7c6366699070137a5d954d4c",
+      "frames": 413,
+      "pose_fraction": 1.0,
+      "both_wrists_visible_fraction": 0.9225181598062954,
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 75,
+            "end_frame": 320,
+            "detected": true,
+            "first_response_seconds": 0.13366585956416466,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.7351622276029056,
+          "FANNING": 0.2673317191283293
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 3
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001715-camera_01-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001715-camera_01-rules_full.npz"
+    },
+    {
+      "take": "20260928_001715",
+      "camera": 1,
+      "profile": "rules_subject",
+      "effective_fps": 29.925367726976305,
+      "video_sha256": "50a7730c71ae02f29af2c266512c0b1ca723124fc80a7f95f87cb47fcd2f5365",
+      "annotation_sha256": "39c73e369b9f0672eb081cf4e223df18008e929b7c6366699070137a5d954d4c",
+      "frames": 413,
+      "pose_fraction": 0.8135593220338984,
+      "both_wrists_visible_fraction": 0.8135593220338984,
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 75,
+            "end_frame": 320,
+            "detected": true,
+            "first_response_seconds": 0.7017457627118644,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "FANNING": 0.20049878934624699
+        },
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001715-camera_01-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001715-camera_01-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001715",
+      "camera": 1,
+      "profile": "learned",
+      "effective_fps": 29.925367726976305,
+      "video_sha256": "50a7730c71ae02f29af2c266512c0b1ca723124fc80a7f95f87cb47fcd2f5365",
+      "annotation_sha256": "39c73e369b9f0672eb081cf4e223df18008e929b7c6366699070137a5d954d4c",
+      "frames": 413,
+      "pose_fraction": 0.9322033898305084,
+      "both_wrists_visible_fraction": 0.3898305084745763,
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 75,
+            "end_frame": 320,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "UCHIMIZU": 0.9022445520581114
+        },
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.8019951573849879
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 5
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001715-camera_01-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001715-camera_01-learned.npz"
+    },
+    {
+      "take": "20260928_001715",
+      "camera": 2,
+      "profile": "rules_full",
+      "effective_fps": 10.071733932323745,
+      "video_sha256": "5f0b3732a9d2e31fb84bbcbef9aeb2d93e21efba548b3f3d19dfac196ae5d385",
+      "annotation_sha256": "122aca9cfbff144d62edeb740a2e2099c2ab1f6def330c627ad454c6aef6e853",
+      "frames": 139,
+      "pose_fraction": 1.0,
+      "both_wrists_visible_fraction": 0.7841726618705036,
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 25,
+            "end_frame": 107,
+            "detected": true,
+            "first_response_seconds": 0.3971510791366906,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "UCHIMIZU": 0.3971510791366906
+        },
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.3971510791366906
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 2
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001715-camera_02-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001715-camera_02-rules_full.npz"
+    },
+    {
+      "take": "20260928_001715",
+      "camera": 2,
+      "profile": "rules_subject",
+      "effective_fps": 10.071733932323745,
+      "video_sha256": "5f0b3732a9d2e31fb84bbcbef9aeb2d93e21efba548b3f3d19dfac196ae5d385",
+      "annotation_sha256": "122aca9cfbff144d62edeb740a2e2099c2ab1f6def330c627ad454c6aef6e853",
+      "frames": 139,
+      "pose_fraction": 0.02877697841726619,
+      "both_wrists_visible_fraction": 0.0,
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 25,
+            "end_frame": 107,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001715-camera_02-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001715-camera_02-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001715",
+      "camera": 2,
+      "profile": "learned",
+      "effective_fps": 10.071733932323745,
+      "video_sha256": "5f0b3732a9d2e31fb84bbcbef9aeb2d93e21efba548b3f3d19dfac196ae5d385",
+      "annotation_sha256": "122aca9cfbff144d62edeb740a2e2099c2ab1f6def330c627ad454c6aef6e853",
+      "frames": 139,
+      "pose_fraction": 0.5755395683453237,
+      "both_wrists_visible_fraction": 0.0,
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 25,
+            "end_frame": 107,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.297863309352518
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001715-camera_02-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001715-camera_02-learned.npz"
+    },
+    {
+      "take": "20260928_001743",
+      "camera": 1,
+      "profile": "rules_full",
+      "effective_fps": 29.97223020204922,
+      "video_sha256": "28ebdd0e1ea44176a10a29a98f071738a0b8b1398d354bd6a2757d61248bc7c9",
+      "annotation_sha256": "5286e5d22c3781d49495402808fa5462ffd5c12397bff7590063c1ee86c2404c",
+      "frames": 313,
+      "pose_fraction": 0.9840255591054313,
+      "both_wrists_visible_fraction": 0.9840255591054313,
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 61,
+            "end_frame": 237,
+            "detected": true,
+            "first_response_seconds": 1.5347539936102235,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "UCHIMIZU": 0.3670063897763578
+        },
+        "unlabelled_output_seconds": {
+          "FANNING": 0.4670990415335463,
+          "UCHIMIZU": 0.4337348242811501
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 3
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001743-camera_01-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001743-camera_01-rules_full.npz"
+    },
+    {
+      "take": "20260928_001743",
+      "camera": 1,
+      "profile": "rules_subject",
+      "effective_fps": 29.97223020204922,
+      "video_sha256": "28ebdd0e1ea44176a10a29a98f071738a0b8b1398d354bd6a2757d61248bc7c9",
+      "annotation_sha256": "5286e5d22c3781d49495402808fa5462ffd5c12397bff7590063c1ee86c2404c",
+      "frames": 313,
+      "pose_fraction": 0.8146964856230032,
+      "both_wrists_visible_fraction": 0.8115015974440895,
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 61,
+            "end_frame": 237,
+            "detected": true,
+            "first_response_seconds": 0.3670063897763578,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "FANNING": 0.5004632587859424
+        },
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001743-camera_01-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001743-camera_01-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001743",
+      "camera": 1,
+      "profile": "learned",
+      "effective_fps": 29.97223020204922,
+      "video_sha256": "28ebdd0e1ea44176a10a29a98f071738a0b8b1398d354bd6a2757d61248bc7c9",
+      "annotation_sha256": "5286e5d22c3781d49495402808fa5462ffd5c12397bff7590063c1ee86c2404c",
+      "frames": 313,
+      "pose_fraction": 0.8690095846645367,
+      "both_wrists_visible_fraction": 0.8306709265175719,
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 61,
+            "end_frame": 237,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "RAMUNE": 0.7340127795527156
+        },
+        "unlabelled_output_seconds": {
+          "RAMUNE": 1.8016677316293928
+        },
+        "unmatched_events": {
+          "RAMUNE": 1
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001743-camera_01-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001743-camera_01-learned.npz"
+    },
+    {
+      "take": "20260928_001743",
+      "camera": 2,
+      "profile": "rules_full",
+      "effective_fps": 10.054582016661879,
+      "video_sha256": "0a6d2401c27c2362dbc9957dcd23408857e9472347866c068d317cb19fee9cfa",
+      "annotation_sha256": "d264ab711422e0732a59b78120c7ef8aded9faa2c15f37e2236a540aef5de427",
+      "frames": 105,
+      "pose_fraction": 0.9904761904761905,
+      "both_wrists_visible_fraction": 0.6285714285714286,
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 20,
+            "end_frame": 79,
+            "detected": true,
+            "first_response_seconds": 0.29837142857142857,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.29837142857142857
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001743-camera_02-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001743-camera_02-rules_full.npz"
+    },
+    {
+      "take": "20260928_001743",
+      "camera": 2,
+      "profile": "rules_subject",
+      "effective_fps": 10.054582016661879,
+      "video_sha256": "0a6d2401c27c2362dbc9957dcd23408857e9472347866c068d317cb19fee9cfa",
+      "annotation_sha256": "d264ab711422e0732a59b78120c7ef8aded9faa2c15f37e2236a540aef5de427",
+      "frames": 105,
+      "pose_fraction": 0.0,
+      "both_wrists_visible_fraction": 0.0,
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 20,
+            "end_frame": 79,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001743-camera_02-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001743-camera_02-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001743",
+      "camera": 2,
+      "profile": "learned",
+      "effective_fps": 10.054582016661879,
+      "video_sha256": "0a6d2401c27c2362dbc9957dcd23408857e9472347866c068d317cb19fee9cfa",
+      "annotation_sha256": "d264ab711422e0732a59b78120c7ef8aded9faa2c15f37e2236a540aef5de427",
+      "frames": 105,
+      "pose_fraction": 0.11428571428571428,
+      "both_wrists_visible_fraction": 0.0,
+      "metrics": {
+        "trials": [
+          {
+            "label": "FANNING",
+            "start_frame": 20,
+            "end_frame": 79,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.3978285714285714
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001743-camera_02-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001743-camera_02-learned.npz"
+    },
+    {
+      "take": "20260928_001754",
+      "camera": 1,
+      "profile": "rules_full",
+      "effective_fps": 26.74056787242318,
+      "video_sha256": "2175d98c7c9405100d73e0196a95733b673cf8af57ad290b1f1e295fa5743a26",
+      "annotation_sha256": "8eda73d65d1b999d3a869d3e378aab7b31a5846b281d1ae9057b8e4f64e72755",
+      "frames": 275,
+      "pose_fraction": 0.850909090909091,
+      "both_wrists_visible_fraction": 0.7854545454545454,
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 86,
+            "end_frame": 187,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 1.9820072727272728
+        },
+        "unlabelled_output_seconds": {
+          "FANNING": 0.1869818181818182,
+          "UCHIMIZU": 0.4487563636363636
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 2
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001754-camera_01-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001754-camera_01-rules_full.npz"
+    },
+    {
+      "take": "20260928_001754",
+      "camera": 1,
+      "profile": "rules_subject",
+      "effective_fps": 26.74056787242318,
+      "video_sha256": "2175d98c7c9405100d73e0196a95733b673cf8af57ad290b1f1e295fa5743a26",
+      "annotation_sha256": "8eda73d65d1b999d3a869d3e378aab7b31a5846b281d1ae9057b8e4f64e72755",
+      "frames": 275,
+      "pose_fraction": 0.6872727272727273,
+      "both_wrists_visible_fraction": 0.6327272727272727,
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 86,
+            "end_frame": 187,
+            "detected": true,
+            "first_response_seconds": 0.7105309090909091,
+            "event_count": 1,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.6357381818181819
+        },
+        "unlabelled_output_seconds": {
+          "FANNING": 0.1869818181818182
+        },
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001754-camera_01-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001754-camera_01-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001754",
+      "camera": 1,
+      "profile": "learned",
+      "effective_fps": 26.74056787242318,
+      "video_sha256": "2175d98c7c9405100d73e0196a95733b673cf8af57ad290b1f1e295fa5743a26",
+      "annotation_sha256": "8eda73d65d1b999d3a869d3e378aab7b31a5846b281d1ae9057b8e4f64e72755",
+      "frames": 275,
+      "pose_fraction": 0.7527272727272727,
+      "both_wrists_visible_fraction": 0.6,
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 86,
+            "end_frame": 187,
+            "detected": true,
+            "first_response_seconds": 2.6177454545454544,
+            "event_count": 1,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "RAMUNE": 0.41136
+        },
+        "unmatched_events": {
+          "RAMUNE": 1
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001754-camera_01-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001754-camera_01-learned.npz"
+    },
+    {
+      "take": "20260928_001754",
+      "camera": 2,
+      "profile": "rules_full",
+      "effective_fps": 10.015558148580318,
+      "video_sha256": "2bdedb27e1bbb33dca6cfc496942bc750296a33dc46ed5dcf73e9ea2b220a6f4",
+      "annotation_sha256": "8d5cb9c546b8aac455cbac9355ae6222ebd6fedb0aa743e31b38293f4e393038",
+      "frames": 103,
+      "pose_fraction": 0.8640776699029126,
+      "both_wrists_visible_fraction": 0.20388349514563106,
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 30,
+            "end_frame": 64,
+            "detected": true,
+            "first_response_seconds": 1.5975145631067962,
+            "event_count": 1,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.2995339805825243
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001754-camera_02-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001754-camera_02-rules_full.npz"
+    },
+    {
+      "take": "20260928_001754",
+      "camera": 2,
+      "profile": "rules_subject",
+      "effective_fps": 10.015558148580318,
+      "video_sha256": "2bdedb27e1bbb33dca6cfc496942bc750296a33dc46ed5dcf73e9ea2b220a6f4",
+      "annotation_sha256": "8d5cb9c546b8aac455cbac9355ae6222ebd6fedb0aa743e31b38293f4e393038",
+      "frames": 103,
+      "pose_fraction": 0.11650485436893204,
+      "both_wrists_visible_fraction": 0.019417475728155338,
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 30,
+            "end_frame": 64,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.2995339805825243
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001754-camera_02-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001754-camera_02-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001754",
+      "camera": 2,
+      "profile": "learned",
+      "effective_fps": 10.015558148580318,
+      "video_sha256": "2bdedb27e1bbb33dca6cfc496942bc750296a33dc46ed5dcf73e9ea2b220a6f4",
+      "annotation_sha256": "8d5cb9c546b8aac455cbac9355ae6222ebd6fedb0aa743e31b38293f4e393038",
+      "frames": 103,
+      "pose_fraction": 0.5533980582524272,
+      "both_wrists_visible_fraction": 0.0,
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 30,
+            "end_frame": 64,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.6989126213592234
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 2
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001754-camera_02-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001754-camera_02-learned.npz"
+    },
+    {
+      "take": "20260928_001807",
+      "camera": 1,
+      "profile": "rules_full",
+      "effective_fps": 30.002255808707424,
+      "video_sha256": "2d3e88e82b7f6ea5627cea9cb49e35e9e6a1eff22e98741daff94745283a033f",
+      "annotation_sha256": "8e5027cf1367dde7d0dd400e08576596d666490f69e0557783ef915cf1997573",
+      "frames": 266,
+      "pose_fraction": 0.6992481203007519,
+      "both_wrists_visible_fraction": 0.6090225563909775,
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 103,
+            "end_frame": 166,
+            "detected": true,
+            "first_response_seconds": 0.4333007518796992,
+            "event_count": 1,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.4666315789473684
+        },
+        "unlabelled_output_seconds": {
+          "FANNING": 0.16665413533834586,
+          "UCHIMIZU": 0.4666315789473684
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 3
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001807-camera_01-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001807-camera_01-rules_full.npz"
+    },
+    {
+      "take": "20260928_001807",
+      "camera": 1,
+      "profile": "rules_subject",
+      "effective_fps": 30.002255808707424,
+      "video_sha256": "2d3e88e82b7f6ea5627cea9cb49e35e9e6a1eff22e98741daff94745283a033f",
+      "annotation_sha256": "8e5027cf1367dde7d0dd400e08576596d666490f69e0557783ef915cf1997573",
+      "frames": 266,
+      "pose_fraction": 0.43609022556390975,
+      "both_wrists_visible_fraction": 0.3533834586466165,
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 103,
+            "end_frame": 166,
+            "detected": true,
+            "first_response_seconds": 0.8332706766917293,
+            "event_count": 1,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.09999248120300751
+        },
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.06666165413533834
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001807-camera_01-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001807-camera_01-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001807",
+      "camera": 1,
+      "profile": "learned",
+      "effective_fps": 30.002255808707424,
+      "video_sha256": "2d3e88e82b7f6ea5627cea9cb49e35e9e6a1eff22e98741daff94745283a033f",
+      "annotation_sha256": "8e5027cf1367dde7d0dd400e08576596d666490f69e0557783ef915cf1997573",
+      "frames": 266,
+      "pose_fraction": 0.6240601503759399,
+      "both_wrists_visible_fraction": 0.2518796992481203,
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 103,
+            "end_frame": 166,
+            "detected": true,
+            "first_response_seconds": 1.4998872180451126,
+            "event_count": 1,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.6332857142857142
+        },
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.7999398496240601
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 3
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001807-camera_01-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001807-camera_01-learned.npz"
+    },
+    {
+      "take": "20260928_001807",
+      "camera": 2,
+      "profile": "rules_full",
+      "effective_fps": 10.038348748026168,
+      "video_sha256": "f0bcc2c275657a04c65acb233b6b6633a2e28a9bd5348c18b882fdc637e5d6c9",
+      "annotation_sha256": "4f68c7948525274abb15a0c7d22b58adadcd92630c27260558d00232012fd6e8",
+      "frames": 89,
+      "pose_fraction": 1.0,
+      "both_wrists_visible_fraction": 0.39325842696629215,
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 34,
+            "end_frame": 57,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 1.1954157303370785
+        },
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.09961797752808987
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001807-camera_02-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001807-camera_02-rules_full.npz"
+    },
+    {
+      "take": "20260928_001807",
+      "camera": 2,
+      "profile": "rules_subject",
+      "effective_fps": 10.038348748026168,
+      "video_sha256": "f0bcc2c275657a04c65acb233b6b6633a2e28a9bd5348c18b882fdc637e5d6c9",
+      "annotation_sha256": "4f68c7948525274abb15a0c7d22b58adadcd92630c27260558d00232012fd6e8",
+      "frames": 89,
+      "pose_fraction": 0.0898876404494382,
+      "both_wrists_visible_fraction": 0.0,
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 34,
+            "end_frame": 57,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001807-camera_02-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001807-camera_02-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001807",
+      "camera": 2,
+      "profile": "learned",
+      "effective_fps": 10.038348748026168,
+      "video_sha256": "f0bcc2c275657a04c65acb233b6b6633a2e28a9bd5348c18b882fdc637e5d6c9",
+      "annotation_sha256": "4f68c7948525274abb15a0c7d22b58adadcd92630c27260558d00232012fd6e8",
+      "frames": 89,
+      "pose_fraction": 0.47191011235955055,
+      "both_wrists_visible_fraction": 0.10112359550561797,
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 34,
+            "end_frame": 57,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.3984719101123595
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001807-camera_02-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001807-camera_02-learned.npz"
+    },
+    {
+      "take": "20260928_001817",
+      "camera": 1,
+      "profile": "rules_full",
+      "effective_fps": 29.638347956344962,
+      "video_sha256": "10c03827fb94bf6efc9c361f92d851840a1adc502214af43fde6be92eeeefdc7",
+      "annotation_sha256": "ef405893f80404b194351a00d681e34ef0c56242f7def4c3f9e4fcaa4b34792e",
+      "frames": 277,
+      "pose_fraction": 0.6967509025270758,
+      "both_wrists_visible_fraction": 0.6534296028880866,
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 92,
+            "end_frame": 157,
+            "detected": true,
+            "first_response_seconds": 1.1134223826714802,
+            "event_count": 1,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.23618050541516245
+        },
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.8097617328519855
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 3
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001817-camera_01-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001817-camera_01-rules_full.npz"
+    },
+    {
+      "take": "20260928_001817",
+      "camera": 1,
+      "profile": "rules_subject",
+      "effective_fps": 29.638347956344962,
+      "video_sha256": "10c03827fb94bf6efc9c361f92d851840a1adc502214af43fde6be92eeeefdc7",
+      "annotation_sha256": "ef405893f80404b194351a00d681e34ef0c56242f7def4c3f9e4fcaa4b34792e",
+      "frames": 277,
+      "pose_fraction": 0.4620938628158845,
+      "both_wrists_visible_fraction": 0.44404332129963897,
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 92,
+            "end_frame": 157,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.573581227436823
+        },
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001817-camera_01-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001817-camera_01-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001817",
+      "camera": 1,
+      "profile": "learned",
+      "effective_fps": 29.638347956344962,
+      "video_sha256": "10c03827fb94bf6efc9c361f92d851840a1adc502214af43fde6be92eeeefdc7",
+      "annotation_sha256": "ef405893f80404b194351a00d681e34ef0c56242f7def4c3f9e4fcaa4b34792e",
+      "frames": 277,
+      "pose_fraction": 0.5487364620938628,
+      "both_wrists_visible_fraction": 0.35018050541516244,
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 92,
+            "end_frame": 157,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "RAMUNE": 0.7085415162454873
+        },
+        "unlabelled_output_seconds": {
+          "RAMUNE": 0.06748014440433213
+        },
+        "unmatched_events": {
+          "RAMUNE": 1
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001817-camera_01-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001817-camera_01-learned.npz"
+    },
+    {
+      "take": "20260928_001817",
+      "camera": 2,
+      "profile": "rules_full",
+      "effective_fps": 10.057778728867964,
+      "video_sha256": "f3c38955e8a541c8e0e8e7b188f58bd97b4c890fdd3a8eca9b27f4ff429f4a64",
+      "annotation_sha256": "181db1a5e5747dc616973de6366bc39483335654ac696d87b3709748bebb8c29",
+      "frames": 94,
+      "pose_fraction": 0.776595744680851,
+      "both_wrists_visible_fraction": 0.20212765957446807,
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 31,
+            "end_frame": 52,
+            "detected": true,
+            "first_response_seconds": 0.9942553191489363,
+            "event_count": 1,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.3977021276595745
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001817-camera_02-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001817-camera_02-rules_full.npz"
+    },
+    {
+      "take": "20260928_001817",
+      "camera": 2,
+      "profile": "rules_subject",
+      "effective_fps": 10.057778728867964,
+      "video_sha256": "f3c38955e8a541c8e0e8e7b188f58bd97b4c890fdd3a8eca9b27f4ff429f4a64",
+      "annotation_sha256": "181db1a5e5747dc616973de6366bc39483335654ac696d87b3709748bebb8c29",
+      "frames": 94,
+      "pose_fraction": 0.07446808510638298,
+      "both_wrists_visible_fraction": 0.0,
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 31,
+            "end_frame": 52,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001817-camera_02-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001817-camera_02-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001817",
+      "camera": 2,
+      "profile": "learned",
+      "effective_fps": 10.057778728867964,
+      "video_sha256": "f3c38955e8a541c8e0e8e7b188f58bd97b4c890fdd3a8eca9b27f4ff429f4a64",
+      "annotation_sha256": "181db1a5e5747dc616973de6366bc39483335654ac696d87b3709748bebb8c29",
+      "frames": 94,
+      "pose_fraction": 0.46808510638297873,
+      "both_wrists_visible_fraction": 0.0,
+      "metrics": {
+        "trials": [
+          {
+            "label": "UCHIMIZU",
+            "start_frame": 31,
+            "end_frame": 52,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001817-camera_02-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001817-camera_02-learned.npz"
+    },
+    {
+      "take": "20260928_001828",
+      "camera": 1,
+      "profile": "rules_full",
+      "effective_fps": 26.777655200080233,
+      "video_sha256": "37e0827f62a5676bedf88efded1abb121ad49291c0c24e362212760b7724945b",
+      "annotation_sha256": "bde019993ec531b03bc69b1f66c8caa1cfd299b91bc29d18715f7d35474d3fca",
+      "frames": 267,
+      "pose_fraction": 0.9925093632958801,
+      "both_wrists_visible_fraction": 0.7827715355805244,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 93,
+            "end_frame": 197,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.5601685393258427
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 3
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001828-camera_01-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001828-camera_01-rules_full.npz"
+    },
+    {
+      "take": "20260928_001828",
+      "camera": 1,
+      "profile": "rules_subject",
+      "effective_fps": 26.777655200080233,
+      "video_sha256": "37e0827f62a5676bedf88efded1abb121ad49291c0c24e362212760b7724945b",
+      "annotation_sha256": "bde019993ec531b03bc69b1f66c8caa1cfd299b91bc29d18715f7d35474d3fca",
+      "frames": 267,
+      "pose_fraction": 0.5880149812734082,
+      "both_wrists_visible_fraction": 0.5243445692883895,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 93,
+            "end_frame": 197,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001828-camera_01-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001828-camera_01-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001828",
+      "camera": 1,
+      "profile": "learned",
+      "effective_fps": 26.777655200080233,
+      "video_sha256": "37e0827f62a5676bedf88efded1abb121ad49291c0c24e362212760b7724945b",
+      "annotation_sha256": "bde019993ec531b03bc69b1f66c8caa1cfd299b91bc29d18715f7d35474d3fca",
+      "frames": 267,
+      "pose_fraction": 0.7752808988764045,
+      "both_wrists_visible_fraction": 0.5692883895131086,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 93,
+            "end_frame": 197,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.2614119850187266
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001828-camera_01-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001828-camera_01-learned.npz"
+    },
+    {
+      "take": "20260928_001828",
+      "camera": 2,
+      "profile": "rules_full",
+      "effective_fps": 10.029084344599339,
+      "video_sha256": "9fce33691de757c636d7bee9886c333dc66b378c15951ee3ee88185408f6a449",
+      "annotation_sha256": "fbba412877d7cca9745b2fb9c2e2384abe7fa180bbb8c4aea35b7c1d6cf4bf84",
+      "frames": 100,
+      "pose_fraction": 0.94,
+      "both_wrists_visible_fraction": 0.42,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 32,
+            "end_frame": 68,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001828-camera_02-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001828-camera_02-rules_full.npz"
+    },
+    {
+      "take": "20260928_001828",
+      "camera": 2,
+      "profile": "rules_subject",
+      "effective_fps": 10.029084344599339,
+      "video_sha256": "9fce33691de757c636d7bee9886c333dc66b378c15951ee3ee88185408f6a449",
+      "annotation_sha256": "fbba412877d7cca9745b2fb9c2e2384abe7fa180bbb8c4aea35b7c1d6cf4bf84",
+      "frames": 100,
+      "pose_fraction": 0.07,
+      "both_wrists_visible_fraction": 0.0,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 32,
+            "end_frame": 68,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001828-camera_02-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001828-camera_02-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001828",
+      "camera": 2,
+      "profile": "learned",
+      "effective_fps": 10.029084344599339,
+      "video_sha256": "9fce33691de757c636d7bee9886c333dc66b378c15951ee3ee88185408f6a449",
+      "annotation_sha256": "fbba412877d7cca9745b2fb9c2e2384abe7fa180bbb8c4aea35b7c1d6cf4bf84",
+      "frames": 100,
+      "pose_fraction": 0.58,
+      "both_wrists_visible_fraction": 0.0,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 32,
+            "end_frame": 68,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001828-camera_02-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001828-camera_02-learned.npz"
+    },
+    {
+      "take": "20260928_001839",
+      "camera": 1,
+      "profile": "rules_full",
+      "effective_fps": 30.067799941043532,
+      "video_sha256": "67d78b9c3448b3ab8320a5704fce99c003da43a01c5464059789674d42795f42",
+      "annotation_sha256": "9a9c2f71fd85047b0b2bc8dd26350612c1c8938fd21a4ffb6545e8d9b79585ea",
+      "frames": 306,
+      "pose_fraction": 0.6928104575163399,
+      "both_wrists_visible_fraction": 0.29411764705882354,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 76,
+            "end_frame": 191,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001839-camera_01-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001839-camera_01-rules_full.npz"
+    },
+    {
+      "take": "20260928_001839",
+      "camera": 1,
+      "profile": "rules_subject",
+      "effective_fps": 30.067799941043532,
+      "video_sha256": "67d78b9c3448b3ab8320a5704fce99c003da43a01c5464059789674d42795f42",
+      "annotation_sha256": "9a9c2f71fd85047b0b2bc8dd26350612c1c8938fd21a4ffb6545e8d9b79585ea",
+      "frames": 306,
+      "pose_fraction": 0.24509803921568626,
+      "both_wrists_visible_fraction": 0.16666666666666666,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 76,
+            "end_frame": 191,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001839-camera_01-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001839-camera_01-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001839",
+      "camera": 1,
+      "profile": "learned",
+      "effective_fps": 30.067799941043532,
+      "video_sha256": "67d78b9c3448b3ab8320a5704fce99c003da43a01c5464059789674d42795f42",
+      "annotation_sha256": "9a9c2f71fd85047b0b2bc8dd26350612c1c8938fd21a4ffb6545e8d9b79585ea",
+      "frames": 306,
+      "pose_fraction": 0.5196078431372549,
+      "both_wrists_visible_fraction": 0.3333333333333333,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 76,
+            "end_frame": 191,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.43235620915032674
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 2
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001839-camera_01-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001839-camera_01-learned.npz"
+    },
+    {
+      "take": "20260928_001839",
+      "camera": 2,
+      "profile": "rules_full",
+      "effective_fps": 10.022599980347843,
+      "video_sha256": "f49a865f8558b0f6d481d8c546af4c19f2305b04e53e9887dc960e710a98ca93",
+      "annotation_sha256": "9790486400f424e4aaf1b663fcf84b4b29c9da2443964c9e6290b67d93c1e164",
+      "frames": 102,
+      "pose_fraction": 0.8823529411764706,
+      "both_wrists_visible_fraction": 0.4215686274509804,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 26,
+            "end_frame": 62,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.4988725490196078
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 2
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001839-camera_02-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001839-camera_02-rules_full.npz"
+    },
+    {
+      "take": "20260928_001839",
+      "camera": 2,
+      "profile": "rules_subject",
+      "effective_fps": 10.022599980347843,
+      "video_sha256": "f49a865f8558b0f6d481d8c546af4c19f2305b04e53e9887dc960e710a98ca93",
+      "annotation_sha256": "9790486400f424e4aaf1b663fcf84b4b29c9da2443964c9e6290b67d93c1e164",
+      "frames": 102,
+      "pose_fraction": 0.049019607843137254,
+      "both_wrists_visible_fraction": 0.0,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 26,
+            "end_frame": 62,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001839-camera_02-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001839-camera_02-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001839",
+      "camera": 2,
+      "profile": "learned",
+      "effective_fps": 10.022599980347843,
+      "video_sha256": "f49a865f8558b0f6d481d8c546af4c19f2305b04e53e9887dc960e710a98ca93",
+      "annotation_sha256": "9790486400f424e4aaf1b663fcf84b4b29c9da2443964c9e6290b67d93c1e164",
+      "frames": 102,
+      "pose_fraction": 0.45098039215686275,
+      "both_wrists_visible_fraction": 0.0,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 26,
+            "end_frame": 62,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001839-camera_02-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001839-camera_02-learned.npz"
+    },
+    {
+      "take": "20260928_001851",
+      "camera": 1,
+      "profile": "rules_full",
+      "effective_fps": 29.92997515247346,
+      "video_sha256": "006a1e1b5455230555e739308fe6878957fbf6795ec8ba0473def2c502894bda",
+      "annotation_sha256": "efd0885f190fb1a8ec7546058a7d785934cad0a4c416b301c75b3d3155dea2eb",
+      "frames": 265,
+      "pose_fraction": 0.6452830188679245,
+      "both_wrists_visible_fraction": 0.6415094339622641,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 72,
+            "end_frame": 149,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {
+          "FANNING": 0.4677584905660377
+        },
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001851-camera_01-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001851-camera_01-rules_full.npz"
+    },
+    {
+      "take": "20260928_001851",
+      "camera": 1,
+      "profile": "rules_subject",
+      "effective_fps": 29.92997515247346,
+      "video_sha256": "006a1e1b5455230555e739308fe6878957fbf6795ec8ba0473def2c502894bda",
+      "annotation_sha256": "efd0885f190fb1a8ec7546058a7d785934cad0a4c416b301c75b3d3155dea2eb",
+      "frames": 265,
+      "pose_fraction": 0.09056603773584905,
+      "both_wrists_visible_fraction": 0.09056603773584905,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 72,
+            "end_frame": 149,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001851-camera_01-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001851-camera_01-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001851",
+      "camera": 1,
+      "profile": "learned",
+      "effective_fps": 29.92997515247346,
+      "video_sha256": "006a1e1b5455230555e739308fe6878957fbf6795ec8ba0473def2c502894bda",
+      "annotation_sha256": "efd0885f190fb1a8ec7546058a7d785934cad0a4c416b301c75b3d3155dea2eb",
+      "frames": 265,
+      "pose_fraction": 0.37358490566037733,
+      "both_wrists_visible_fraction": 0.2528301886792453,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 72,
+            "end_frame": 149,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001851-camera_01-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001851-camera_01-learned.npz"
+    },
+    {
+      "take": "20260928_001851",
+      "camera": 2,
+      "profile": "rules_full",
+      "effective_fps": 10.051953919132597,
+      "video_sha256": "8b8ba98159ac229d7e670146a41b326e19400eb98e0299c254ae824c69f9ddfc",
+      "annotation_sha256": "b2964a89ea3b8e2b966e07317cbb2693c118b6b55868d7ac53373d56ee1322c3",
+      "frames": 89,
+      "pose_fraction": 0.7078651685393258,
+      "both_wrists_visible_fraction": 0.5955056179775281,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 23,
+            "end_frame": 50,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001851-camera_02-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001851-camera_02-rules_full.npz"
+    },
+    {
+      "take": "20260928_001851",
+      "camera": 2,
+      "profile": "rules_subject",
+      "effective_fps": 10.051953919132597,
+      "video_sha256": "8b8ba98159ac229d7e670146a41b326e19400eb98e0299c254ae824c69f9ddfc",
+      "annotation_sha256": "b2964a89ea3b8e2b966e07317cbb2693c118b6b55868d7ac53373d56ee1322c3",
+      "frames": 89,
+      "pose_fraction": 0.033707865168539325,
+      "both_wrists_visible_fraction": 0.0,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 23,
+            "end_frame": 50,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001851-camera_02-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001851-camera_02-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001851",
+      "camera": 2,
+      "profile": "learned",
+      "effective_fps": 10.051953919132597,
+      "video_sha256": "8b8ba98159ac229d7e670146a41b326e19400eb98e0299c254ae824c69f9ddfc",
+      "annotation_sha256": "b2964a89ea3b8e2b966e07317cbb2693c118b6b55868d7ac53373d56ee1322c3",
+      "frames": 89,
+      "pose_fraction": 0.5280898876404494,
+      "both_wrists_visible_fraction": 0.0449438202247191,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RAMUNE",
+            "start_frame": 23,
+            "end_frame": 50,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": 0,
+            "extra_events": 0,
+            "opened_phase_hit": false
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001851-camera_02-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001851-camera_02-learned.npz"
+    },
+    {
+      "take": "20260928_001901",
+      "camera": 1,
+      "profile": "rules_full",
+      "effective_fps": 30.035335689045937,
+      "video_sha256": "375a68244bc4c8a2a24ed62a26359af0c3176326b15dbbfc4279d5f15af4ccca",
+      "annotation_sha256": "b9b10fbd677e4dc154ba6c97dc2f6cabfe804dd02e301260d7dfece2e90882f5",
+      "frames": 340,
+      "pose_fraction": 0.9323529411764706,
+      "both_wrists_visible_fraction": 0.8911764705882353,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 60,
+            "end_frame": 297,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.16647058823529412
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001901-camera_01-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001901-camera_01-rules_full.npz"
+    },
+    {
+      "take": "20260928_001901",
+      "camera": 1,
+      "profile": "rules_subject",
+      "effective_fps": 30.035335689045937,
+      "video_sha256": "375a68244bc4c8a2a24ed62a26359af0c3176326b15dbbfc4279d5f15af4ccca",
+      "annotation_sha256": "b9b10fbd677e4dc154ba6c97dc2f6cabfe804dd02e301260d7dfece2e90882f5",
+      "frames": 340,
+      "pose_fraction": 0.3323529411764706,
+      "both_wrists_visible_fraction": 0.3323529411764706,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 60,
+            "end_frame": 297,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001901-camera_01-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001901-camera_01-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001901",
+      "camera": 1,
+      "profile": "learned",
+      "effective_fps": 30.035335689045937,
+      "video_sha256": "375a68244bc4c8a2a24ed62a26359af0c3176326b15dbbfc4279d5f15af4ccca",
+      "annotation_sha256": "b9b10fbd677e4dc154ba6c97dc2f6cabfe804dd02e301260d7dfece2e90882f5",
+      "frames": 340,
+      "pose_fraction": 0.8823529411764706,
+      "both_wrists_visible_fraction": 0.8705882352941177,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 60,
+            "end_frame": 297,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001901-camera_01-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001901-camera_01-learned.npz"
+    },
+    {
+      "take": "20260928_001901",
+      "camera": 2,
+      "profile": "rules_full",
+      "effective_fps": 10.070671378091873,
+      "video_sha256": "93717d6bd7d83c42293dc37b1b01deb3b75f343528a9b35747f3e902ce8c8e44",
+      "annotation_sha256": "5dce86827b28762e1c360cd27a1ba22c5f6b344f37a6e23384bac931021283ff",
+      "frames": 114,
+      "pose_fraction": 0.9473684210526315,
+      "both_wrists_visible_fraction": 0.05263157894736842,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 25,
+            "end_frame": 97,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001901-camera_02-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001901-camera_02-rules_full.npz"
+    },
+    {
+      "take": "20260928_001901",
+      "camera": 2,
+      "profile": "rules_subject",
+      "effective_fps": 10.070671378091873,
+      "video_sha256": "93717d6bd7d83c42293dc37b1b01deb3b75f343528a9b35747f3e902ce8c8e44",
+      "annotation_sha256": "5dce86827b28762e1c360cd27a1ba22c5f6b344f37a6e23384bac931021283ff",
+      "frames": 114,
+      "pose_fraction": 0.0,
+      "both_wrists_visible_fraction": 0.0,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 25,
+            "end_frame": 97,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001901-camera_02-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001901-camera_02-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001901",
+      "camera": 2,
+      "profile": "learned",
+      "effective_fps": 10.070671378091873,
+      "video_sha256": "93717d6bd7d83c42293dc37b1b01deb3b75f343528a9b35747f3e902ce8c8e44",
+      "annotation_sha256": "5dce86827b28762e1c360cd27a1ba22c5f6b344f37a6e23384bac931021283ff",
+      "frames": 114,
+      "pose_fraction": 0.017543859649122806,
+      "both_wrists_visible_fraction": 0.0,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 25,
+            "end_frame": 97,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001901-camera_02-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001901-camera_02-learned.npz"
+    },
+    {
+      "take": "20260928_001913",
+      "camera": 1,
+      "profile": "rules_full",
+      "effective_fps": 30.06597549481621,
+      "video_sha256": "19eb37fc9846f3f0f600d1608834b62378df4bb3d9649ba4deb59a2a0f360cac",
+      "annotation_sha256": "35204e124069114f04b98e2bab0f1c3267917544ea24315ccf306f4951f4bb71",
+      "frames": 319,
+      "pose_fraction": 0.9561128526645768,
+      "both_wrists_visible_fraction": 0.8714733542319749,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 130,
+            "end_frame": 271,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.36586206896551726
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001913-camera_01-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001913-camera_01-rules_full.npz"
+    },
+    {
+      "take": "20260928_001913",
+      "camera": 1,
+      "profile": "rules_subject",
+      "effective_fps": 30.06597549481621,
+      "video_sha256": "19eb37fc9846f3f0f600d1608834b62378df4bb3d9649ba4deb59a2a0f360cac",
+      "annotation_sha256": "35204e124069114f04b98e2bab0f1c3267917544ea24315ccf306f4951f4bb71",
+      "frames": 319,
+      "pose_fraction": 0.15673981191222572,
+      "both_wrists_visible_fraction": 0.15673981191222572,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 130,
+            "end_frame": 271,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001913-camera_01-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001913-camera_01-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001913",
+      "camera": 1,
+      "profile": "learned",
+      "effective_fps": 30.06597549481621,
+      "video_sha256": "19eb37fc9846f3f0f600d1608834b62378df4bb3d9649ba4deb59a2a0f360cac",
+      "annotation_sha256": "35204e124069114f04b98e2bab0f1c3267917544ea24315ccf306f4951f4bb71",
+      "frames": 319,
+      "pose_fraction": 0.8213166144200627,
+      "both_wrists_visible_fraction": 0.18808777429467086,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 130,
+            "end_frame": 271,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001913-camera_01-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001913-camera_01-learned.npz"
+    },
+    {
+      "take": "20260928_001913",
+      "camera": 2,
+      "profile": "rules_full",
+      "effective_fps": 10.084825636192273,
+      "video_sha256": "018ca943d5fb3da129879e7c46f76d8a3c4b7f8271d1aa52a57ec484f206762d",
+      "annotation_sha256": "62821ef59d843247e2acf355ced0f7ca787d840e226e45ec583100a2f82ab892",
+      "frames": 107,
+      "pose_fraction": 0.9439252336448598,
+      "both_wrists_visible_fraction": 0.0,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 43,
+            "end_frame": 88,
+            "detected": true,
+            "first_response_seconds": 0.7932710280373831,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "RELAXING": 0.09915887850467289
+        },
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001913-camera_02-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001913-camera_02-rules_full.npz"
+    },
+    {
+      "take": "20260928_001913",
+      "camera": 2,
+      "profile": "rules_subject",
+      "effective_fps": 10.084825636192273,
+      "video_sha256": "018ca943d5fb3da129879e7c46f76d8a3c4b7f8271d1aa52a57ec484f206762d",
+      "annotation_sha256": "62821ef59d843247e2acf355ced0f7ca787d840e226e45ec583100a2f82ab892",
+      "frames": 107,
+      "pose_fraction": 0.056074766355140186,
+      "both_wrists_visible_fraction": 0.0,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 43,
+            "end_frame": 88,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001913-camera_02-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001913-camera_02-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001913",
+      "camera": 2,
+      "profile": "learned",
+      "effective_fps": 10.084825636192273,
+      "video_sha256": "018ca943d5fb3da129879e7c46f76d8a3c4b7f8271d1aa52a57ec484f206762d",
+      "annotation_sha256": "62821ef59d843247e2acf355ced0f7ca787d840e226e45ec583100a2f82ab892",
+      "frames": 107,
+      "pose_fraction": 0.2616822429906542,
+      "both_wrists_visible_fraction": 0.08411214953271028,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 43,
+            "end_frame": 88,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001913-camera_02-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001913-camera_02-learned.npz"
+    },
+    {
+      "take": "20260928_001925",
+      "camera": 1,
+      "profile": "rules_full",
+      "effective_fps": 30.031461531127846,
+      "video_sha256": "9b7474834ead00754dc503bb0ca9e29b831e34554a2500bf82588d8a3298e7a5",
+      "annotation_sha256": "0fae6938e871110e1cb18b9a5851f80270ef9b228b5373c5a55060b4b1bc5305",
+      "frames": 315,
+      "pose_fraction": 0.9396825396825397,
+      "both_wrists_visible_fraction": 0.8888888888888888,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 117,
+            "end_frame": 253,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "UCHIMIZU": 0.3662825396825397
+        },
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.4328793650793651
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 3
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001925-camera_01-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001925-camera_01-rules_full.npz"
+    },
+    {
+      "take": "20260928_001925",
+      "camera": 1,
+      "profile": "rules_subject",
+      "effective_fps": 30.031461531127846,
+      "video_sha256": "9b7474834ead00754dc503bb0ca9e29b831e34554a2500bf82588d8a3298e7a5",
+      "annotation_sha256": "0fae6938e871110e1cb18b9a5851f80270ef9b228b5373c5a55060b4b1bc5305",
+      "frames": 315,
+      "pose_fraction": 0.5142857142857142,
+      "both_wrists_visible_fraction": 0.49206349206349204,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 117,
+            "end_frame": 253,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001925-camera_01-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001925-camera_01-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001925",
+      "camera": 1,
+      "profile": "learned",
+      "effective_fps": 30.031461531127846,
+      "video_sha256": "9b7474834ead00754dc503bb0ca9e29b831e34554a2500bf82588d8a3298e7a5",
+      "annotation_sha256": "0fae6938e871110e1cb18b9a5851f80270ef9b228b5373c5a55060b4b1bc5305",
+      "frames": 315,
+      "pose_fraction": 0.9079365079365079,
+      "both_wrists_visible_fraction": 0.6730158730158731,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 117,
+            "end_frame": 253,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {
+          "UCHIMIZU": 0.1664920634920635
+        },
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.998952380952381
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 5
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001925-camera_01-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001925-camera_01-learned.npz"
+    },
+    {
+      "take": "20260928_001925",
+      "camera": 2,
+      "profile": "rules_full",
+      "effective_fps": 10.010487177042615,
+      "video_sha256": "32c50bd31024b1ea43b917323913e8d21ba30943951c4cda8160a9dc32d52a02",
+      "annotation_sha256": "faded3c737cfbe3c3ac53627e51a5a9ca3a9e835b044d4409308fc899e9c44e9",
+      "frames": 105,
+      "pose_fraction": 0.9619047619047619,
+      "both_wrists_visible_fraction": 0.0,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 36,
+            "end_frame": 84,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.3995809523809524
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001925-camera_02-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_001925-camera_02-rules_full.npz"
+    },
+    {
+      "take": "20260928_001925",
+      "camera": 2,
+      "profile": "rules_subject",
+      "effective_fps": 10.010487177042615,
+      "video_sha256": "32c50bd31024b1ea43b917323913e8d21ba30943951c4cda8160a9dc32d52a02",
+      "annotation_sha256": "faded3c737cfbe3c3ac53627e51a5a9ca3a9e835b044d4409308fc899e9c44e9",
+      "frames": 105,
+      "pose_fraction": 0.0380952380952381,
+      "both_wrists_visible_fraction": 0.0,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 36,
+            "end_frame": 84,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001925-camera_02-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_001925-camera_02-rules_subject.npz"
+    },
+    {
+      "take": "20260928_001925",
+      "camera": 2,
+      "profile": "learned",
+      "effective_fps": 10.010487177042615,
+      "video_sha256": "32c50bd31024b1ea43b917323913e8d21ba30943951c4cda8160a9dc32d52a02",
+      "annotation_sha256": "faded3c737cfbe3c3ac53627e51a5a9ca3a9e835b044d4409308fc899e9c44e9",
+      "frames": 105,
+      "pose_fraction": 0.37142857142857144,
+      "both_wrists_visible_fraction": 0.0,
+      "metrics": {
+        "trials": [
+          {
+            "label": "RELAXING",
+            "start_frame": 36,
+            "end_frame": 84,
+            "detected": false,
+            "first_response_seconds": null,
+            "event_count": null,
+            "extra_events": null,
+            "opened_phase_hit": null
+          }
+        ],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_001925-camera_02-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_001925-camera_02-learned.npz"
+    },
+    {
+      "take": "20260928_002011",
+      "camera": 1,
+      "profile": "rules_full",
+      "effective_fps": 28.971095200212147,
+      "video_sha256": "77078e31e42f0f4182c95c3822e2ddd27e76413453f947ad53635d4dbba921ad",
+      "annotation_sha256": "88b250f396ee914e9ddf7137a63e9eb36dd9d447e41f6883ff25972c38667521",
+      "frames": 437,
+      "pose_fraction": 0.9473684210526315,
+      "both_wrists_visible_fraction": 0.7620137299771167,
+      "metrics": {
+        "trials": [],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 1.0700320366132723
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 5
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_002011-camera_01-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_002011-camera_01-rules_full.npz"
+    },
+    {
+      "take": "20260928_002011",
+      "camera": 1,
+      "profile": "rules_subject",
+      "effective_fps": 28.971095200212147,
+      "video_sha256": "77078e31e42f0f4182c95c3822e2ddd27e76413453f947ad53635d4dbba921ad",
+      "annotation_sha256": "88b250f396ee914e9ddf7137a63e9eb36dd9d447e41f6883ff25972c38667521",
+      "frames": 437,
+      "pose_fraction": 0.18764302059496568,
+      "both_wrists_visible_fraction": 0.18764302059496568,
+      "metrics": {
+        "trials": [],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_002011-camera_01-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_002011-camera_01-rules_subject.npz"
+    },
+    {
+      "take": "20260928_002011",
+      "camera": 1,
+      "profile": "learned",
+      "effective_fps": 28.971095200212147,
+      "video_sha256": "77078e31e42f0f4182c95c3822e2ddd27e76413453f947ad53635d4dbba921ad",
+      "annotation_sha256": "88b250f396ee914e9ddf7137a63e9eb36dd9d447e41f6883ff25972c38667521",
+      "frames": 437,
+      "pose_fraction": 0.6338672768878718,
+      "both_wrists_visible_fraction": 0.3501144164759725,
+      "metrics": {
+        "trials": [],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.4487231121281464
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 2
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_002011-camera_01-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_002011-camera_01-learned.npz"
+    },
+    {
+      "take": "20260928_002011",
+      "camera": 2,
+      "profile": "rules_full",
+      "effective_fps": 10.07690267833466,
+      "video_sha256": "33bfece283f7001c02f8cd1717d69bb996b581f92660ee0b36f5b0f6f5f91b0d",
+      "annotation_sha256": null,
+      "frames": 152,
+      "pose_fraction": 0.9868421052631579,
+      "both_wrists_visible_fraction": 0.625,
+      "metrics": {
+        "trials": [],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "UCHIMIZU": 0.3969473684210526
+        },
+        "unmatched_events": {
+          "UCHIMIZU": 1
+        }
+      },
+      "predictions": "shared/results/0928-multicam/20260928_002011-camera_02-rules_full.json",
+      "cache": "shared/results/0928-multicam/20260928_002011-camera_02-rules_full.npz"
+    },
+    {
+      "take": "20260928_002011",
+      "camera": 2,
+      "profile": "rules_subject",
+      "effective_fps": 10.07690267833466,
+      "video_sha256": "33bfece283f7001c02f8cd1717d69bb996b581f92660ee0b36f5b0f6f5f91b0d",
+      "annotation_sha256": null,
+      "frames": 152,
+      "pose_fraction": 0.19736842105263158,
+      "both_wrists_visible_fraction": 0.13815789473684212,
+      "metrics": {
+        "trials": [],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {},
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_002011-camera_02-rules_subject.json",
+      "cache": "shared/results/0928-multicam/20260928_002011-camera_02-rules_subject.npz"
+    },
+    {
+      "take": "20260928_002011",
+      "camera": 2,
+      "profile": "learned",
+      "effective_fps": 10.07690267833466,
+      "video_sha256": "33bfece283f7001c02f8cd1717d69bb996b581f92660ee0b36f5b0f6f5f91b0d",
+      "annotation_sha256": null,
+      "frames": 152,
+      "pose_fraction": 0.8618421052631579,
+      "both_wrists_visible_fraction": 0.23684210526315788,
+      "metrics": {
+        "trials": [],
+        "wrong_label_seconds": {},
+        "unlabelled_output_seconds": {
+          "FANNING": 0.09923684210526315
+        },
+        "unmatched_events": {}
+      },
+      "predictions": "shared/results/0928-multicam/20260928_002011-camera_02-learned.json",
+      "cache": "shared/results/0928-multicam/20260928_002011-camera_02-learned.npz"
+    }
+  ],
+  "summary": {
+    "rules_full": {
+      "counts": {
+        "FANNING": {
+          "trials": 3,
+          "camera1": 3,
+          "camera2": 3,
+          "either": 3,
+          "camera2_rescues": 0,
+          "camera1_rescues": 0
+        },
+        "RAMUNE": {
+          "trials": 3,
+          "camera1": 0,
+          "camera2": 0,
+          "either": 0,
+          "camera2_rescues": 0,
+          "camera1_rescues": 0
+        },
+        "RELAXING": {
+          "trials": 3,
+          "camera1": 0,
+          "camera2": 1,
+          "either": 1,
+          "camera2_rescues": 1,
+          "camera1_rescues": 0
+        },
+        "UCHIMIZU": {
+          "trials": 3,
+          "camera1": 2,
+          "camera2": 2,
+          "either": 3,
+          "camera2_rescues": 1,
+          "camera1_rescues": 1
+        }
+      },
+      "pairs": [
+        {
+          "take": "20260928_001702",
+          "label": "FANNING",
+          "camera1": true,
+          "camera2": true,
+          "either": true,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001715",
+          "label": "FANNING",
+          "camera1": true,
+          "camera2": true,
+          "either": true,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001743",
+          "label": "FANNING",
+          "camera1": true,
+          "camera2": true,
+          "either": true,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001754",
+          "label": "UCHIMIZU",
+          "camera1": false,
+          "camera2": true,
+          "either": true,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001807",
+          "label": "UCHIMIZU",
+          "camera1": true,
+          "camera2": false,
+          "either": true,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001817",
+          "label": "UCHIMIZU",
+          "camera1": true,
+          "camera2": true,
+          "either": true,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001828",
+          "label": "RAMUNE",
+          "camera1": false,
+          "camera2": false,
+          "either": false,
+          "opened1": false,
+          "opened2": false
+        },
+        {
+          "take": "20260928_001839",
+          "label": "RAMUNE",
+          "camera1": false,
+          "camera2": false,
+          "either": false,
+          "opened1": false,
+          "opened2": false
+        },
+        {
+          "take": "20260928_001851",
+          "label": "RAMUNE",
+          "camera1": false,
+          "camera2": false,
+          "either": false,
+          "opened1": false,
+          "opened2": false
+        },
+        {
+          "take": "20260928_001901",
+          "label": "RELAXING",
+          "camera1": false,
+          "camera2": false,
+          "either": false,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001913",
+          "label": "RELAXING",
+          "camera1": false,
+          "camera2": true,
+          "either": true,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001925",
+          "label": "RELAXING",
+          "camera1": false,
+          "camera2": false,
+          "either": false,
+          "opened1": null,
+          "opened2": null
+        }
+      ]
+    },
+    "rules_subject": {
+      "counts": {
+        "FANNING": {
+          "trials": 3,
+          "camera1": 3,
+          "camera2": 0,
+          "either": 3,
+          "camera2_rescues": 0,
+          "camera1_rescues": 3
+        },
+        "RAMUNE": {
+          "trials": 3,
+          "camera1": 0,
+          "camera2": 0,
+          "either": 0,
+          "camera2_rescues": 0,
+          "camera1_rescues": 0
+        },
+        "RELAXING": {
+          "trials": 3,
+          "camera1": 0,
+          "camera2": 0,
+          "either": 0,
+          "camera2_rescues": 0,
+          "camera1_rescues": 0
+        },
+        "UCHIMIZU": {
+          "trials": 3,
+          "camera1": 2,
+          "camera2": 0,
+          "either": 2,
+          "camera2_rescues": 0,
+          "camera1_rescues": 2
+        }
+      },
+      "pairs": [
+        {
+          "take": "20260928_001702",
+          "label": "FANNING",
+          "camera1": true,
+          "camera2": false,
+          "either": true,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001715",
+          "label": "FANNING",
+          "camera1": true,
+          "camera2": false,
+          "either": true,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001743",
+          "label": "FANNING",
+          "camera1": true,
+          "camera2": false,
+          "either": true,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001754",
+          "label": "UCHIMIZU",
+          "camera1": true,
+          "camera2": false,
+          "either": true,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001807",
+          "label": "UCHIMIZU",
+          "camera1": true,
+          "camera2": false,
+          "either": true,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001817",
+          "label": "UCHIMIZU",
+          "camera1": false,
+          "camera2": false,
+          "either": false,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001828",
+          "label": "RAMUNE",
+          "camera1": false,
+          "camera2": false,
+          "either": false,
+          "opened1": false,
+          "opened2": false
+        },
+        {
+          "take": "20260928_001839",
+          "label": "RAMUNE",
+          "camera1": false,
+          "camera2": false,
+          "either": false,
+          "opened1": false,
+          "opened2": false
+        },
+        {
+          "take": "20260928_001851",
+          "label": "RAMUNE",
+          "camera1": false,
+          "camera2": false,
+          "either": false,
+          "opened1": false,
+          "opened2": false
+        },
+        {
+          "take": "20260928_001901",
+          "label": "RELAXING",
+          "camera1": false,
+          "camera2": false,
+          "either": false,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001913",
+          "label": "RELAXING",
+          "camera1": false,
+          "camera2": false,
+          "either": false,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001925",
+          "label": "RELAXING",
+          "camera1": false,
+          "camera2": false,
+          "either": false,
+          "opened1": null,
+          "opened2": null
+        }
+      ]
+    },
+    "learned": {
+      "counts": {
+        "FANNING": {
+          "trials": 3,
+          "camera1": 1,
+          "camera2": 0,
+          "either": 1,
+          "camera2_rescues": 0,
+          "camera1_rescues": 1
+        },
+        "RAMUNE": {
+          "trials": 3,
+          "camera1": 0,
+          "camera2": 0,
+          "either": 0,
+          "camera2_rescues": 0,
+          "camera1_rescues": 0
+        },
+        "RELAXING": {
+          "trials": 3,
+          "camera1": 0,
+          "camera2": 0,
+          "either": 0,
+          "camera2_rescues": 0,
+          "camera1_rescues": 0
+        },
+        "UCHIMIZU": {
+          "trials": 3,
+          "camera1": 2,
+          "camera2": 0,
+          "either": 2,
+          "camera2_rescues": 0,
+          "camera1_rescues": 2
+        }
+      },
+      "pairs": [
+        {
+          "take": "20260928_001702",
+          "label": "FANNING",
+          "camera1": true,
+          "camera2": false,
+          "either": true,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001715",
+          "label": "FANNING",
+          "camera1": false,
+          "camera2": false,
+          "either": false,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001743",
+          "label": "FANNING",
+          "camera1": false,
+          "camera2": false,
+          "either": false,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001754",
+          "label": "UCHIMIZU",
+          "camera1": true,
+          "camera2": false,
+          "either": true,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001807",
+          "label": "UCHIMIZU",
+          "camera1": true,
+          "camera2": false,
+          "either": true,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001817",
+          "label": "UCHIMIZU",
+          "camera1": false,
+          "camera2": false,
+          "either": false,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001828",
+          "label": "RAMUNE",
+          "camera1": false,
+          "camera2": false,
+          "either": false,
+          "opened1": false,
+          "opened2": false
+        },
+        {
+          "take": "20260928_001839",
+          "label": "RAMUNE",
+          "camera1": false,
+          "camera2": false,
+          "either": false,
+          "opened1": false,
+          "opened2": false
+        },
+        {
+          "take": "20260928_001851",
+          "label": "RAMUNE",
+          "camera1": false,
+          "camera2": false,
+          "either": false,
+          "opened1": false,
+          "opened2": false
+        },
+        {
+          "take": "20260928_001901",
+          "label": "RELAXING",
+          "camera1": false,
+          "camera2": false,
+          "either": false,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001913",
+          "label": "RELAXING",
+          "camera1": false,
+          "camera2": false,
+          "either": false,
+          "opened1": null,
+          "opened2": null
+        },
+        {
+          "take": "20260928_001925",
+          "label": "RELAXING",
+          "camera1": false,
+          "camera2": false,
+          "either": false,
+          "opened1": null,
+          "opened2": null
+        }
+      ]
+    }
+  }
+}

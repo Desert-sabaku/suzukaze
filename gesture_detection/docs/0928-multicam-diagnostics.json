@@ -1,0 +1,2173 @@
+{
+  "source_sha256": "0efff690bf44eab37c65bd9622e7ff52ae14617b3e7f21d6f87ddb0f1a9e1f31",
+  "script_sha256": "cd9268efdd72ee067dc0602a80155f43e71bbe9bb4584a9fe8627ea6efe18d40",
+  "totals": {
+    "rules_full/camera1": {
+      "frames": 3726,
+      "pose_fraction": 0.870907139023081,
+      "wrong_label_seconds": {
+        "UCHIMIZU": 0.7332889294588976,
+        "FANNING": 3.1525778476558415
+      },
+      "unlabelled_output_seconds": {
+        "FANNING": 1.4880234709387965,
+        "UCHIMIZU": 4.752724586223089
+      },
+      "unmatched_events": {
+        "UCHIMIZU": 23
+      }
+    },
+    "rules_full/camera2": {
+      "frames": 1271,
+      "pose_fraction": 0.9221085759244689,
+      "wrong_label_seconds": {
+        "UCHIMIZU": 0.3971510791366906,
+        "FANNING": 1.1954157303370785
+      },
+      "unlabelled_output_seconds": {
+        "FANNING": 0.09945161290322581,
+        "UCHIMIZU": 2.390830094878868,
+        "RELAXING": 0.09915887850467289
+      },
+      "unmatched_events": {
+        "UCHIMIZU": 9
+      }
+    },
+    "rules_subject/camera1": {
+      "frames": 3726,
+      "pose_fraction": 0.4643048845947397,
+      "wrong_label_seconds": {
+        "FANNING": 1.3093118904580123
+      },
+      "unlabelled_output_seconds": {
+        "FANNING": 1.321230352800494,
+        "UCHIMIZU": 0.23331030278398698
+      },
+      "unmatched_events": {
+        "UCHIMIZU": 2
+      }
+    },
+    "rules_subject/camera2": {
+      "frames": 1271,
+      "pose_fraction": 0.05035405192761605,
+      "wrong_label_seconds": {},
+      "unlabelled_output_seconds": {
+        "UCHIMIZU": 0.2995339805825243
+      },
+      "unmatched_events": {
+        "UCHIMIZU": 1
+      }
+    },
+    "learned/camera1": {
+      "frames": 3726,
+      "pose_fraction": 0.7530864197530864,
+      "wrong_label_seconds": {
+        "UCHIMIZU": 1.068736615550175,
+        "RAMUNE": 1.442554295798203,
+        "FANNING": 0.6332857142857142
+      },
+      "unlabelled_output_seconds": {
+        "FANNING": 0.3999567567567568,
+        "UCHIMIZU": 3.62795287942778,
+        "RAMUNE": 2.280507876033725
+      },
+      "unmatched_events": {
+        "UCHIMIZU": 17,
+        "RAMUNE": 3
+      }
+    },
+    "learned/camera2": {
+      "frames": 1271,
+      "pose_fraction": 0.3965381589299764,
+      "wrong_label_seconds": {},
+      "unlabelled_output_seconds": {
+        "UCHIMIZU": 1.7930764122526723
+      },
+      "unmatched_events": {
+        "UCHIMIZU": 5
+      }
+    }
+  },
+  "details": [
+    {
+      "take": "20260928_001702",
+      "camera": 1,
+      "profile": "rules_full",
+      "label": "FANNING",
+      "pose_fraction": 1.0,
+      "required_six_visible": 1.0,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 228
+      },
+      "gesture_seconds": {
+        "NONE": 0.16664864864864865,
+        "FANNING": 7.432529729729731
+      },
+      "event_seconds": [
+        {
+          "seconds": 11.998702702702703,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 12.3
+    },
+    {
+      "take": "20260928_001715",
+      "camera": 1,
+      "profile": "rules_full",
+      "label": "FANNING",
+      "pose_fraction": 1.0,
+      "required_six_visible": 1.0,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 246
+      },
+      "gesture_seconds": {
+        "NONE": 0.4678305084745763,
+        "FANNING": 7.75261985472155
+      },
+      "event_seconds": [
+        {
+          "seconds": 0.43441404358353514,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 13.433418886198547,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 13.500251815980631,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 13.733333333333333
+    },
+    {
+      "take": "20260928_001743",
+      "camera": 1,
+      "profile": "rules_full",
+      "label": "FANNING",
+      "pose_fraction": 1.0,
+      "required_six_visible": 1.0,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 177
+      },
+      "gesture_seconds": {
+        "NONE": 3.269693290734824,
+        "UCHIMIZU": 0.3670063897763578,
+        "FANNING": 2.2687667731629393
+      },
+      "event_seconds": [
+        {
+          "seconds": 2.202038338658147,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 10.009265175718848,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 10.075993610223641,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 10.4
+    },
+    {
+      "take": "20260928_001754",
+      "camera": 1,
+      "profile": "rules_full",
+      "label": "UCHIMIZU",
+      "pose_fraction": 1.0,
+      "required_six_visible": 1.0,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 101,
+        "FORMING": 1
+      },
+      "gesture_seconds": {
+        "NONE": 1.8324218181818182,
+        "FANNING": 1.9820072727272728
+      },
+      "event_seconds": [
+        {
+          "seconds": 9.087316363636363,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 9.76045090909091,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 9.133333333333333
+    },
+    {
+      "take": "20260928_001807",
+      "camera": 1,
+      "profile": "rules_full",
+      "label": "UCHIMIZU",
+      "pose_fraction": 1.0,
+      "required_six_visible": 0.796875,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 62,
+        "FORMING": 2
+      },
+      "gesture_seconds": {
+        "NONE": 1.4332255639097744,
+        "UCHIMIZU": 0.2333157894736842,
+        "FANNING": 0.4666315789473684
+      },
+      "event_seconds": [
+        {
+          "seconds": 3.8663759398496236,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 6.099541353383458,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 7.63275939849624,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 7.732751879699247,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 8.833333333333334
+    },
+    {
+      "take": "20260928_001817",
+      "camera": 1,
+      "profile": "rules_full",
+      "label": "UCHIMIZU",
+      "pose_fraction": 1.0,
+      "required_six_visible": 1.0,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 66
+      },
+      "gesture_seconds": {
+        "NONE": 1.619523465703971,
+        "FANNING": 0.23618050541516245,
+        "UCHIMIZU": 0.3711407942238267
+      },
+      "event_seconds": [
+        {
+          "seconds": 4.217509025270758,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 6.275653429602888,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 7.017935018050541,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 7.254115523465703,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 9.2
+    },
+    {
+      "take": "20260928_001828",
+      "camera": 1,
+      "profile": "rules_full",
+      "label": "RAMUNE",
+      "pose_fraction": 1.0,
+      "required_six_visible": 1.0,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 38,
+        "FORMING": 26,
+        "READY": 41
+      },
+      "gesture_seconds": {
+        "NONE": 3.921179775280899
+      },
+      "event_seconds": [
+        {
+          "seconds": 2.128640449438202,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 9.784277153558053,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 9.89631086142322,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 8.866666666666667
+    },
+    {
+      "take": "20260928_001839",
+      "camera": 1,
+      "profile": "rules_full",
+      "label": "RAMUNE",
+      "pose_fraction": 0.9741379310344828,
+      "required_six_visible": 0.23275862068965517,
+      "torso_inside_image": 0.9741379310344828,
+      "ramune_states": {
+        "IDLE": 116
+      },
+      "gesture_seconds": {
+        "NONE": 3.8579477124183
+      },
+      "event_seconds": [],
+      "container_last_seconds": 10.166666666666666
+    },
+    {
+      "take": "20260928_001851",
+      "camera": 1,
+      "profile": "rules_full",
+      "label": "RAMUNE",
+      "pose_fraction": 1.0,
+      "required_six_visible": 1.0,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 59,
+        "FORMING": 19
+      },
+      "gesture_seconds": {
+        "NONE": 2.1383245283018866,
+        "FANNING": 0.4677584905660377
+      },
+      "event_seconds": [],
+      "container_last_seconds": 8.8
+    },
+    {
+      "take": "20260928_001901",
+      "camera": 1,
+      "profile": "rules_full",
+      "label": "RELAXING",
+      "pose_fraction": 1.0,
+      "required_six_visible": 1.0,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 238
+      },
+      "gesture_seconds": {
+        "NONE": 7.924
+      },
+      "event_seconds": [
+        {
+          "seconds": 11.153529411764707,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 11.3,
+      "max_still_seconds": 0.0,
+      "speed_exceeds_threshold_fraction": 1.0
+    },
+    {
+      "take": "20260928_001913",
+      "camera": 1,
+      "profile": "rules_full",
+      "label": "RELAXING",
+      "pose_fraction": 1.0,
+      "required_six_visible": 1.0,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 140,
+        "FORMING": 2
+      },
+      "gesture_seconds": {
+        "NONE": 4.72294670846395
+      },
+      "event_seconds": [
+        {
+          "seconds": 3.2262382445141067,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 10.6,
+      "max_still_seconds": 0.0,
+      "speed_exceeds_threshold_fraction": 1.0
+    },
+    {
+      "take": "20260928_001925",
+      "camera": 1,
+      "profile": "rules_full",
+      "label": "RELAXING",
+      "pose_fraction": 1.0,
+      "required_six_visible": 1.0,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 137
+      },
+      "gesture_seconds": {
+        "NONE": 4.195600000000001,
+        "UCHIMIZU": 0.3662825396825397
+      },
+      "event_seconds": [
+        {
+          "seconds": 1.7315174603174603,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 4.428688888888889,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 10.422403174603176,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 10.466666666666667,
+      "max_still_seconds": 0.0,
+      "speed_exceeds_threshold_fraction": 1.0
+    },
+    {
+      "take": "20260928_001702",
+      "camera": 2,
+      "profile": "rules_full",
+      "label": "FANNING",
+      "pose_fraction": 1.0,
+      "required_six_visible": 1.0,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 77
+      },
+      "gesture_seconds": {
+        "NONE": 1.0939677419354839,
+        "FANNING": 6.563806451612904
+      },
+      "event_seconds": [],
+      "container_last_seconds": 4.1
+    },
+    {
+      "take": "20260928_001715",
+      "camera": 2,
+      "profile": "rules_full",
+      "label": "FANNING",
+      "pose_fraction": 1.0,
+      "required_six_visible": 1.0,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 83
+      },
+      "gesture_seconds": {
+        "NONE": 3.5743597122302155,
+        "FANNING": 4.269374100719424,
+        "UCHIMIZU": 0.3971510791366906
+      },
+      "event_seconds": [
+        {
+          "seconds": 3.8722230215827333,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 10.82236690647482,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 4.6
+    },
+    {
+      "take": "20260928_001743",
+      "camera": 2,
+      "profile": "rules_full",
+      "label": "FANNING",
+      "pose_fraction": 1.0,
+      "required_six_visible": 0.9,
+      "torso_inside_image": 0.9833333333333333,
+      "ramune_states": {
+        "IDLE": 60
+      },
+      "gesture_seconds": {
+        "NONE": 3.7793714285714284,
+        "FANNING": 2.1880571428571427
+      },
+      "event_seconds": [
+        {
+          "seconds": 10.144628571428571,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 3.466666666666667
+    },
+    {
+      "take": "20260928_001754",
+      "camera": 2,
+      "profile": "rules_full",
+      "label": "UCHIMIZU",
+      "pose_fraction": 1.0,
+      "required_six_visible": 0.42857142857142855,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 35
+      },
+      "gesture_seconds": {
+        "NONE": 3.095184466019418,
+        "UCHIMIZU": 0.39937864077669905
+      },
+      "event_seconds": [
+        {
+          "seconds": 4.59285436893204,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 8.18726213592233,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 3.4
+    },
+    {
+      "take": "20260928_001807",
+      "camera": 2,
+      "profile": "rules_full",
+      "label": "UCHIMIZU",
+      "pose_fraction": 1.0,
+      "required_six_visible": 0.875,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 24
+      },
+      "gesture_seconds": {
+        "NONE": 1.1954157303370785,
+        "FANNING": 1.1954157303370785
+      },
+      "event_seconds": [
+        {
+          "seconds": 8.16867415730337,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 2.933333333333333
+    },
+    {
+      "take": "20260928_001817",
+      "camera": 2,
+      "profile": "rules_full",
+      "label": "UCHIMIZU",
+      "pose_fraction": 1.0,
+      "required_six_visible": 0.45454545454545453,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 22
+      },
+      "gesture_seconds": {
+        "NONE": 1.7896595744680852,
+        "UCHIMIZU": 0.3977021276595745
+      },
+      "event_seconds": [
+        {
+          "seconds": 4.076446808510639,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 7.158638297872341,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 3.1
+    },
+    {
+      "take": "20260928_001828",
+      "camera": 2,
+      "profile": "rules_full",
+      "label": "RAMUNE",
+      "pose_fraction": 1.0,
+      "required_six_visible": 0.8918918918918919,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 17,
+        "FORMING": 6,
+        "READY": 14
+      },
+      "gesture_seconds": {
+        "NONE": 3.68927
+      },
+      "event_seconds": [],
+      "container_last_seconds": 3.3
+    },
+    {
+      "take": "20260928_001839",
+      "camera": 2,
+      "profile": "rules_full",
+      "label": "RAMUNE",
+      "pose_fraction": 1.0,
+      "required_six_visible": 0.8918918918918919,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 11,
+        "FORMING": 10,
+        "READY": 16
+      },
+      "gesture_seconds": {
+        "NONE": 3.691656862745098
+      },
+      "event_seconds": [
+        {
+          "seconds": 7.981960784313725,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 9.179254901960784,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 3.3666666666666667
+    },
+    {
+      "take": "20260928_001851",
+      "camera": 2,
+      "profile": "rules_full",
+      "label": "RAMUNE",
+      "pose_fraction": 1.0,
+      "required_six_visible": 1.0,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 8,
+        "FORMING": 4,
+        "READY": 16
+      },
+      "gesture_seconds": {
+        "NONE": 2.7855280898876402
+      },
+      "event_seconds": [],
+      "container_last_seconds": 2.933333333333333
+    },
+    {
+      "take": "20260928_001901",
+      "camera": 2,
+      "profile": "rules_full",
+      "label": "RELAXING",
+      "pose_fraction": 1.0,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.958904109589041,
+      "ramune_states": {
+        "IDLE": 73
+      },
+      "gesture_seconds": {
+        "NONE": 7.248771929824561
+      },
+      "event_seconds": [],
+      "container_last_seconds": 3.7666666666666666,
+      "max_still_seconds": 0.59578947368421,
+      "speed_exceeds_threshold_fraction": 0.34782608695652173
+    },
+    {
+      "take": "20260928_001913",
+      "camera": 2,
+      "profile": "rules_full",
+      "label": "RELAXING",
+      "pose_fraction": 1.0,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 46
+      },
+      "gesture_seconds": {
+        "NONE": 4.362990654205607,
+        "RELAXING": 0.19831775700934579
+      },
+      "event_seconds": [],
+      "container_last_seconds": 3.533333333333333,
+      "max_still_seconds": 1.0907476635514017,
+      "speed_exceeds_threshold_fraction": 0.17391304347826086
+    },
+    {
+      "take": "20260928_001925",
+      "camera": 2,
+      "profile": "rules_full",
+      "label": "RELAXING",
+      "pose_fraction": 1.0,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 49
+      },
+      "gesture_seconds": {
+        "NONE": 4.894866666666667
+      },
+      "event_seconds": [
+        {
+          "seconds": 1.898009523809524,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 3.466666666666667,
+      "max_still_seconds": 0.6992666666666665,
+      "speed_exceeds_threshold_fraction": 0.2608695652173913
+    },
+    {
+      "take": "20260928_001702",
+      "camera": 1,
+      "profile": "rules_subject",
+      "label": "FANNING",
+      "pose_fraction": 0.32456140350877194,
+      "required_six_visible": 0.32456140350877194,
+      "torso_inside_image": 0.32456140350877194,
+      "ramune_states": {
+        "IDLE": 228
+      },
+      "gesture_seconds": {
+        "NONE": 5.832702702702703,
+        "FANNING": 1.7664756756756759
+      },
+      "event_seconds": [
+        {
+          "seconds": 11.965372972972974,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 12.3
+    },
+    {
+      "take": "20260928_001715",
+      "camera": 1,
+      "profile": "rules_subject",
+      "label": "FANNING",
+      "pose_fraction": 0.943089430894309,
+      "required_six_visible": 0.943089430894309,
+      "torso_inside_image": 0.943089430894309,
+      "ramune_states": {
+        "IDLE": 246
+      },
+      "gesture_seconds": {
+        "NONE": 2.606484261501211,
+        "FANNING": 5.613966101694915
+      },
+      "event_seconds": [],
+      "container_last_seconds": 13.733333333333333
+    },
+    {
+      "take": "20260928_001743",
+      "camera": 1,
+      "profile": "rules_subject",
+      "label": "FANNING",
+      "pose_fraction": 1.0,
+      "required_six_visible": 1.0,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 177
+      },
+      "gesture_seconds": {
+        "NONE": 2.2687667731629393,
+        "FANNING": 3.6366996805111818
+      },
+      "event_seconds": [],
+      "container_last_seconds": 10.4
+    },
+    {
+      "take": "20260928_001754",
+      "camera": 1,
+      "profile": "rules_subject",
+      "label": "UCHIMIZU",
+      "pose_fraction": 0.9705882352941176,
+      "required_six_visible": 0.9705882352941176,
+      "torso_inside_image": 0.9705882352941176,
+      "ramune_states": {
+        "IDLE": 101,
+        "FORMING": 1
+      },
+      "gesture_seconds": {
+        "NONE": 2.804727272727273,
+        "UCHIMIZU": 0.3739636363636364,
+        "FANNING": 0.6357381818181819
+      },
+      "event_seconds": [
+        {
+          "seconds": 3.926618181818182,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 9.133333333333333
+    },
+    {
+      "take": "20260928_001807",
+      "camera": 1,
+      "profile": "rules_subject",
+      "label": "UCHIMIZU",
+      "pose_fraction": 0.90625,
+      "required_six_visible": 0.75,
+      "torso_inside_image": 0.90625,
+      "ramune_states": {
+        "IDLE": 60,
+        "FORMING": 4
+      },
+      "gesture_seconds": {
+        "NONE": 1.9998496240601502,
+        "UCHIMIZU": 0.03333082706766917,
+        "FANNING": 0.09999248120300751
+      },
+      "event_seconds": [
+        {
+          "seconds": 4.266345864661654,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 6.099541353383458,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 8.833333333333334
+    },
+    {
+      "take": "20260928_001817",
+      "camera": 1,
+      "profile": "rules_subject",
+      "label": "UCHIMIZU",
+      "pose_fraction": 0.9393939393939394,
+      "required_six_visible": 0.9393939393939394,
+      "torso_inside_image": 0.9393939393939394,
+      "ramune_states": {
+        "IDLE": 66
+      },
+      "gesture_seconds": {
+        "NONE": 1.6532635379061371,
+        "FANNING": 0.573581227436823
+      },
+      "event_seconds": [],
+      "container_last_seconds": 9.2
+    },
+    {
+      "take": "20260928_001828",
+      "camera": 1,
+      "profile": "rules_subject",
+      "label": "RAMUNE",
+      "pose_fraction": 0.9809523809523809,
+      "required_six_visible": 0.9809523809523809,
+      "torso_inside_image": 0.9809523809523809,
+      "ramune_states": {
+        "IDLE": 29,
+        "FORMING": 35,
+        "READY": 41
+      },
+      "gesture_seconds": {
+        "NONE": 3.921179775280899
+      },
+      "event_seconds": [],
+      "container_last_seconds": 8.866666666666667
+    },
+    {
+      "take": "20260928_001839",
+      "camera": 1,
+      "profile": "rules_subject",
+      "label": "RAMUNE",
+      "pose_fraction": 0.25,
+      "required_six_visible": 0.25,
+      "torso_inside_image": 0.25,
+      "ramune_states": {
+        "IDLE": 97,
+        "FORMING": 10,
+        "READY": 9
+      },
+      "gesture_seconds": {
+        "NONE": 3.8579477124183
+      },
+      "event_seconds": [],
+      "container_last_seconds": 10.166666666666666
+    },
+    {
+      "take": "20260928_001851",
+      "camera": 1,
+      "profile": "rules_subject",
+      "label": "RAMUNE",
+      "pose_fraction": 0.0,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.0,
+      "ramune_states": {
+        "IDLE": 78
+      },
+      "gesture_seconds": {
+        "NONE": 2.6060830188679245
+      },
+      "event_seconds": [],
+      "container_last_seconds": 8.8
+    },
+    {
+      "take": "20260928_001901",
+      "camera": 1,
+      "profile": "rules_subject",
+      "label": "RELAXING",
+      "pose_fraction": 0.36134453781512604,
+      "required_six_visible": 0.36134453781512604,
+      "torso_inside_image": 0.36134453781512604,
+      "ramune_states": {
+        "IDLE": 238
+      },
+      "gesture_seconds": {
+        "NONE": 7.924
+      },
+      "event_seconds": [],
+      "container_last_seconds": 11.3,
+      "max_still_seconds": 0.0,
+      "speed_exceeds_threshold_fraction": 1.0
+    },
+    {
+      "take": "20260928_001913",
+      "camera": 1,
+      "profile": "rules_subject",
+      "label": "RELAXING",
+      "pose_fraction": 0.0,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.0,
+      "ramune_states": {
+        "IDLE": 142
+      },
+      "gesture_seconds": {
+        "NONE": 4.72294670846395
+      },
+      "event_seconds": [],
+      "container_last_seconds": 10.6,
+      "max_still_seconds": 0.0,
+      "speed_exceeds_threshold_fraction": null
+    },
+    {
+      "take": "20260928_001925",
+      "camera": 1,
+      "profile": "rules_subject",
+      "label": "RELAXING",
+      "pose_fraction": 0.3284671532846715,
+      "required_six_visible": 0.3284671532846715,
+      "torso_inside_image": 0.3284671532846715,
+      "ramune_states": {
+        "IDLE": 136,
+        "FORMING": 1
+      },
+      "gesture_seconds": {
+        "NONE": 4.56188253968254
+      },
+      "event_seconds": [],
+      "container_last_seconds": 10.466666666666667,
+      "max_still_seconds": 0.0,
+      "speed_exceeds_threshold_fraction": 1.0
+    },
+    {
+      "take": "20260928_001702",
+      "camera": 2,
+      "profile": "rules_subject",
+      "label": "FANNING",
+      "pose_fraction": 0.0,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.0,
+      "ramune_states": {
+        "IDLE": 77
+      },
+      "gesture_seconds": {
+        "NONE": 7.657774193548388
+      },
+      "event_seconds": [],
+      "container_last_seconds": 4.1
+    },
+    {
+      "take": "20260928_001715",
+      "camera": 2,
+      "profile": "rules_subject",
+      "label": "FANNING",
+      "pose_fraction": 0.0,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.0,
+      "ramune_states": {
+        "IDLE": 83
+      },
+      "gesture_seconds": {
+        "NONE": 8.24088489208633
+      },
+      "event_seconds": [],
+      "container_last_seconds": 4.6
+    },
+    {
+      "take": "20260928_001743",
+      "camera": 2,
+      "profile": "rules_subject",
+      "label": "FANNING",
+      "pose_fraction": 0.0,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.0,
+      "ramune_states": {
+        "IDLE": 60
+      },
+      "gesture_seconds": {
+        "NONE": 5.967428571428571
+      },
+      "event_seconds": [],
+      "container_last_seconds": 3.466666666666667
+    },
+    {
+      "take": "20260928_001754",
+      "camera": 2,
+      "profile": "rules_subject",
+      "label": "UCHIMIZU",
+      "pose_fraction": 0.0,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.0,
+      "ramune_states": {
+        "IDLE": 35
+      },
+      "gesture_seconds": {
+        "NONE": 3.4945631067961167
+      },
+      "event_seconds": [
+        {
+          "seconds": 8.78633009708738,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 3.4
+    },
+    {
+      "take": "20260928_001807",
+      "camera": 2,
+      "profile": "rules_subject",
+      "label": "UCHIMIZU",
+      "pose_fraction": 0.0,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.0,
+      "ramune_states": {
+        "IDLE": 24
+      },
+      "gesture_seconds": {
+        "NONE": 2.390831460674157
+      },
+      "event_seconds": [],
+      "container_last_seconds": 2.933333333333333
+    },
+    {
+      "take": "20260928_001817",
+      "camera": 2,
+      "profile": "rules_subject",
+      "label": "UCHIMIZU",
+      "pose_fraction": 0.0,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.0,
+      "ramune_states": {
+        "IDLE": 22
+      },
+      "gesture_seconds": {
+        "NONE": 2.1873617021276597
+      },
+      "event_seconds": [],
+      "container_last_seconds": 3.1
+    },
+    {
+      "take": "20260928_001828",
+      "camera": 2,
+      "profile": "rules_subject",
+      "label": "RAMUNE",
+      "pose_fraction": 0.0,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.0,
+      "ramune_states": {
+        "IDLE": 37
+      },
+      "gesture_seconds": {
+        "NONE": 3.68927
+      },
+      "event_seconds": [],
+      "container_last_seconds": 3.3
+    },
+    {
+      "take": "20260928_001839",
+      "camera": 2,
+      "profile": "rules_subject",
+      "label": "RAMUNE",
+      "pose_fraction": 0.0,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.0,
+      "ramune_states": {
+        "IDLE": 37
+      },
+      "gesture_seconds": {
+        "NONE": 3.691656862745098
+      },
+      "event_seconds": [],
+      "container_last_seconds": 3.3666666666666667
+    },
+    {
+      "take": "20260928_001851",
+      "camera": 2,
+      "profile": "rules_subject",
+      "label": "RAMUNE",
+      "pose_fraction": 0.0,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.0,
+      "ramune_states": {
+        "IDLE": 28
+      },
+      "gesture_seconds": {
+        "NONE": 2.7855280898876402
+      },
+      "event_seconds": [],
+      "container_last_seconds": 2.933333333333333
+    },
+    {
+      "take": "20260928_001901",
+      "camera": 2,
+      "profile": "rules_subject",
+      "label": "RELAXING",
+      "pose_fraction": 0.0,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.0,
+      "ramune_states": {
+        "IDLE": 73
+      },
+      "gesture_seconds": {
+        "NONE": 7.248771929824561
+      },
+      "event_seconds": [],
+      "container_last_seconds": 3.7666666666666666,
+      "max_still_seconds": 0.0,
+      "speed_exceeds_threshold_fraction": null
+    },
+    {
+      "take": "20260928_001913",
+      "camera": 2,
+      "profile": "rules_subject",
+      "label": "RELAXING",
+      "pose_fraction": 0.0,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.0,
+      "ramune_states": {
+        "IDLE": 46
+      },
+      "gesture_seconds": {
+        "NONE": 4.561308411214953
+      },
+      "event_seconds": [],
+      "container_last_seconds": 3.533333333333333,
+      "max_still_seconds": 0.0,
+      "speed_exceeds_threshold_fraction": null
+    },
+    {
+      "take": "20260928_001925",
+      "camera": 2,
+      "profile": "rules_subject",
+      "label": "RELAXING",
+      "pose_fraction": 0.0,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.0,
+      "ramune_states": {
+        "IDLE": 49
+      },
+      "gesture_seconds": {
+        "NONE": 4.894866666666667
+      },
+      "event_seconds": [],
+      "container_last_seconds": 3.466666666666667,
+      "max_still_seconds": 0.0,
+      "speed_exceeds_threshold_fraction": null
+    },
+    {
+      "take": "20260928_001702",
+      "camera": 1,
+      "profile": "learned",
+      "label": "FANNING",
+      "pose_fraction": 0.9956140350877193,
+      "required_six_visible": 0.8114035087719298,
+      "torso_inside_image": 0.9824561403508771,
+      "ramune_states": {
+        "IDLE": 228
+      },
+      "gesture_seconds": {
+        "NONE": 5.366086486486487,
+        "FANNING": 2.233091891891892
+      },
+      "event_seconds": [
+        {
+          "seconds": 11.998702702702703,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 12.3
+    },
+    {
+      "take": "20260928_001715",
+      "camera": 1,
+      "profile": "learned",
+      "label": "FANNING",
+      "pose_fraction": 1.0,
+      "required_six_visible": 0.3008130081300813,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 246
+      },
+      "gesture_seconds": {
+        "UCHIMIZU": 0.9022445520581114,
+        "NONE": 7.318205811138015
+      },
+      "event_seconds": [
+        {
+          "seconds": 2.506234866828087,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 9.791024213075062,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 10.492769975786926,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 12.698256658595643,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 13.500251815980631,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 13.733333333333333
+    },
+    {
+      "take": "20260928_001743",
+      "camera": 1,
+      "profile": "learned",
+      "label": "FANNING",
+      "pose_fraction": 1.0,
+      "required_six_visible": 1.0,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 3,
+        "READY": 152,
+        "OPENED": 22
+      },
+      "gesture_seconds": {
+        "NONE": 5.171453674121405,
+        "RAMUNE": 0.7340127795527156
+      },
+      "event_seconds": [
+        {
+          "seconds": 7.206670926517571,
+          "events": [
+            "RAMUNE"
+          ]
+        }
+      ],
+      "container_last_seconds": 10.4
+    },
+    {
+      "take": "20260928_001754",
+      "camera": 1,
+      "profile": "learned",
+      "label": "UCHIMIZU",
+      "pose_fraction": 1.0,
+      "required_six_visible": 0.7450980392156863,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 68,
+        "READY": 32,
+        "FORMING": 2
+      },
+      "gesture_seconds": {
+        "NONE": 3.6648436363636363,
+        "UCHIMIZU": 0.14958545454545455
+      },
+      "event_seconds": [
+        {
+          "seconds": 5.8338327272727275,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 8.301992727272728,
+          "events": [
+            "RAMUNE"
+          ]
+        }
+      ],
+      "container_last_seconds": 9.133333333333333
+    },
+    {
+      "take": "20260928_001807",
+      "camera": 1,
+      "profile": "learned",
+      "label": "UCHIMIZU",
+      "pose_fraction": 1.0,
+      "required_six_visible": 0.46875,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 64
+      },
+      "gesture_seconds": {
+        "NONE": 1.4332255639097744,
+        "FANNING": 0.6332857142857142,
+        "UCHIMIZU": 0.06666165413533834
+      },
+      "event_seconds": [
+        {
+          "seconds": 2.79978947368421,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 2.8997819548872177,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 4.932962406015037,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 5.899556390977443,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 8.833333333333334
+    },
+    {
+      "take": "20260928_001817",
+      "camera": 1,
+      "profile": "learned",
+      "label": "UCHIMIZU",
+      "pose_fraction": 1.0,
+      "required_six_visible": 0.7424242424242424,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 9,
+        "READY": 36,
+        "OPENED": 21
+      },
+      "gesture_seconds": {
+        "NONE": 1.5183032490974728,
+        "RAMUNE": 0.7085415162454873
+      },
+      "event_seconds": [
+        {
+          "seconds": 4.62238989169675,
+          "events": [
+            "RAMUNE"
+          ]
+        }
+      ],
+      "container_last_seconds": 9.2
+    },
+    {
+      "take": "20260928_001828",
+      "camera": 1,
+      "profile": "learned",
+      "label": "RAMUNE",
+      "pose_fraction": 1.0,
+      "required_six_visible": 1.0,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 105
+      },
+      "gesture_seconds": {
+        "NONE": 3.921179775280899
+      },
+      "event_seconds": [
+        {
+          "seconds": 7.805014981273408,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 8.866666666666667
+    },
+    {
+      "take": "20260928_001839",
+      "camera": 1,
+      "profile": "learned",
+      "label": "RAMUNE",
+      "pose_fraction": 0.6379310344827587,
+      "required_six_visible": 0.46551724137931033,
+      "torso_inside_image": 0.6379310344827587,
+      "ramune_states": {
+        "IDLE": 113,
+        "READY": 3
+      },
+      "gesture_seconds": {
+        "NONE": 3.8579477124183
+      },
+      "event_seconds": [
+        {
+          "seconds": 6.751408496732026,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 7.7824117647058815,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 10.166666666666666
+    },
+    {
+      "take": "20260928_001851",
+      "camera": 1,
+      "profile": "learned",
+      "label": "RAMUNE",
+      "pose_fraction": 0.782051282051282,
+      "required_six_visible": 0.4230769230769231,
+      "torso_inside_image": 0.782051282051282,
+      "ramune_states": {
+        "IDLE": 78
+      },
+      "gesture_seconds": {
+        "NONE": 2.6060830188679245
+      },
+      "event_seconds": [],
+      "container_last_seconds": 8.8
+    },
+    {
+      "take": "20260928_001901",
+      "camera": 1,
+      "profile": "learned",
+      "label": "RELAXING",
+      "pose_fraction": 1.0,
+      "required_six_visible": 1.0,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 238
+      },
+      "gesture_seconds": {
+        "NONE": 7.924
+      },
+      "event_seconds": [],
+      "container_last_seconds": 11.3,
+      "max_still_seconds": 0.03329411764705981,
+      "speed_exceeds_threshold_fraction": 0.9915966386554622
+    },
+    {
+      "take": "20260928_001913",
+      "camera": 1,
+      "profile": "learned",
+      "label": "RELAXING",
+      "pose_fraction": 1.0,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 142
+      },
+      "gesture_seconds": {
+        "NONE": 4.72294670846395
+      },
+      "event_seconds": [],
+      "container_last_seconds": 10.6,
+      "max_still_seconds": 0.0,
+      "speed_exceeds_threshold_fraction": 1.0
+    },
+    {
+      "take": "20260928_001925",
+      "camera": 1,
+      "profile": "learned",
+      "label": "RELAXING",
+      "pose_fraction": 1.0,
+      "required_six_visible": 0.5255474452554745,
+      "torso_inside_image": 1.0,
+      "ramune_states": {
+        "IDLE": 137
+      },
+      "gesture_seconds": {
+        "NONE": 4.395390476190476,
+        "UCHIMIZU": 0.1664920634920635
+      },
+      "event_seconds": [
+        {
+          "seconds": 2.1643968253968255,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 4.195600000000001,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 4.894866666666667,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 8.62428888888889,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 9.756434920634922,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 10.466666666666667,
+      "max_still_seconds": 0.0,
+      "speed_exceeds_threshold_fraction": 1.0
+    },
+    {
+      "take": "20260928_001702",
+      "camera": 2,
+      "profile": "learned",
+      "label": "FANNING",
+      "pose_fraction": 0.19480519480519481,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.19480519480519481,
+      "ramune_states": {
+        "IDLE": 77
+      },
+      "gesture_seconds": {
+        "NONE": 7.657774193548388
+      },
+      "event_seconds": [],
+      "container_last_seconds": 4.1
+    },
+    {
+      "take": "20260928_001715",
+      "camera": 2,
+      "profile": "learned",
+      "label": "FANNING",
+      "pose_fraction": 0.4578313253012048,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.4578313253012048,
+      "ramune_states": {
+        "IDLE": 83
+      },
+      "gesture_seconds": {
+        "NONE": 8.24088489208633
+      },
+      "event_seconds": [
+        {
+          "seconds": 1.5886043165467625,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 4.6
+    },
+    {
+      "take": "20260928_001743",
+      "camera": 2,
+      "profile": "learned",
+      "label": "FANNING",
+      "pose_fraction": 0.0,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.0,
+      "ramune_states": {
+        "IDLE": 60
+      },
+      "gesture_seconds": {
+        "NONE": 5.967428571428571
+      },
+      "event_seconds": [
+        {
+          "seconds": 0.8951142857142858,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 3.466666666666667
+    },
+    {
+      "take": "20260928_001754",
+      "camera": 2,
+      "profile": "learned",
+      "label": "UCHIMIZU",
+      "pose_fraction": 0.4,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.4,
+      "ramune_states": {
+        "IDLE": 35
+      },
+      "gesture_seconds": {
+        "NONE": 3.4945631067961167
+      },
+      "event_seconds": [
+        {
+          "seconds": 8.78633009708738,
+          "events": [
+            "UCHIMIZU"
+          ]
+        },
+        {
+          "seconds": 9.984466019417477,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 3.4
+    },
+    {
+      "take": "20260928_001807",
+      "camera": 2,
+      "profile": "learned",
+      "label": "UCHIMIZU",
+      "pose_fraction": 0.5,
+      "required_six_visible": 0.16666666666666666,
+      "torso_inside_image": 0.5,
+      "ramune_states": {
+        "IDLE": 24
+      },
+      "gesture_seconds": {
+        "NONE": 2.390831460674157
+      },
+      "event_seconds": [
+        {
+          "seconds": 7.770202247191011,
+          "events": [
+            "UCHIMIZU"
+          ]
+        }
+      ],
+      "container_last_seconds": 2.933333333333333
+    },
+    {
+      "take": "20260928_001817",
+      "camera": 2,
+      "profile": "learned",
+      "label": "UCHIMIZU",
+      "pose_fraction": 0.8181818181818182,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.8181818181818182,
+      "ramune_states": {
+        "IDLE": 22
+      },
+      "gesture_seconds": {
+        "NONE": 2.1873617021276597
+      },
+      "event_seconds": [],
+      "container_last_seconds": 3.1
+    },
+    {
+      "take": "20260928_001828",
+      "camera": 2,
+      "profile": "learned",
+      "label": "RAMUNE",
+      "pose_fraction": 0.6756756756756757,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.6756756756756757,
+      "ramune_states": {
+        "IDLE": 37
+      },
+      "gesture_seconds": {
+        "NONE": 3.68927
+      },
+      "event_seconds": [],
+      "container_last_seconds": 3.3
+    },
+    {
+      "take": "20260928_001839",
+      "camera": 2,
+      "profile": "learned",
+      "label": "RAMUNE",
+      "pose_fraction": 0.5135135135135135,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.5135135135135135,
+      "ramune_states": {
+        "IDLE": 37
+      },
+      "gesture_seconds": {
+        "NONE": 3.691656862745098
+      },
+      "event_seconds": [],
+      "container_last_seconds": 3.3666666666666667
+    },
+    {
+      "take": "20260928_001851",
+      "camera": 2,
+      "profile": "learned",
+      "label": "RAMUNE",
+      "pose_fraction": 0.9642857142857143,
+      "required_six_visible": 0.14285714285714285,
+      "torso_inside_image": 0.9642857142857143,
+      "ramune_states": {
+        "IDLE": 28
+      },
+      "gesture_seconds": {
+        "NONE": 2.7855280898876402
+      },
+      "event_seconds": [],
+      "container_last_seconds": 2.933333333333333
+    },
+    {
+      "take": "20260928_001901",
+      "camera": 2,
+      "profile": "learned",
+      "label": "RELAXING",
+      "pose_fraction": 0.0,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.0,
+      "ramune_states": {
+        "IDLE": 73
+      },
+      "gesture_seconds": {
+        "NONE": 7.248771929824561
+      },
+      "event_seconds": [],
+      "container_last_seconds": 3.7666666666666666,
+      "max_still_seconds": 0.0,
+      "speed_exceeds_threshold_fraction": null
+    },
+    {
+      "take": "20260928_001913",
+      "camera": 2,
+      "profile": "learned",
+      "label": "RELAXING",
+      "pose_fraction": 0.0,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.0,
+      "ramune_states": {
+        "IDLE": 46
+      },
+      "gesture_seconds": {
+        "NONE": 4.561308411214953
+      },
+      "event_seconds": [],
+      "container_last_seconds": 3.533333333333333,
+      "max_still_seconds": 0.0,
+      "speed_exceeds_threshold_fraction": null
+    },
+    {
+      "take": "20260928_001925",
+      "camera": 2,
+      "profile": "learned",
+      "label": "RELAXING",
+      "pose_fraction": 0.0,
+      "required_six_visible": 0.0,
+      "torso_inside_image": 0.0,
+      "ramune_states": {
+        "IDLE": 49
+      },
+      "gesture_seconds": {
+        "NONE": 4.894866666666667
+      },
+      "event_seconds": [],
+      "container_last_seconds": 3.466666666666667,
+      "max_still_seconds": 0.0,
+      "speed_exceeds_threshold_fraction": null
+    }
+  ],
+  "annotation_boundary_deltas": [
+    {
+      "take": "20260928_001702",
+      "start_delta_seconds": 0.05106974716652113,
+      "end_delta_seconds": 0.10966556233652902
+    },
+    {
+      "take": "20260928_001715",
+      "start_delta_seconds": -0.02404062222377057,
+      "end_delta_seconds": -0.003606093333566207
+    },
+    {
+      "take": "20260928_001743",
+      "start_delta_seconds": -0.04607439525330892,
+      "end_delta_seconds": 0.015887722501141788
+    },
+    {
+      "take": "20260928_001754",
+      "start_delta_seconds": -0.22074746690202973,
+      "end_delta_seconds": -0.5406134510150045
+    },
+    {
+      "take": "20260928_001807",
+      "start_delta_seconds": -0.0460639520148689,
+      "end_delta_seconds": 0.21159457632846124
+    },
+    {
+      "take": "20260928_001817",
+      "start_delta_seconds": -0.021895153237575737,
+      "end_delta_seconds": -0.061378216452875556
+    },
+    {
+      "take": "20260928_001828",
+      "start_delta_seconds": -0.2823249438202251,
+      "end_delta_seconds": -0.5142347191011245
+    },
+    {
+      "take": "20260928_001839",
+      "start_delta_seconds": 0.06651633986928118,
+      "end_delta_seconds": -0.09977450980392177
+    },
+    {
+      "take": "20260928_001851",
+      "start_delta_seconds": -0.1175027347890607,
+      "end_delta_seconds": 0.06194233623065504
+    },
+    {
+      "take": "20260928_001901",
+      "start_delta_seconds": 0.4848090815273478,
+      "end_delta_seconds": -0.1904189886480907
+    },
+    {
+      "take": "20260928_001913",
+      "start_delta_seconds": -0.059992675709724,
+      "end_delta_seconds": -0.22163097295872092
+    },
+    {
+      "take": "20260928_001925",
+      "start_delta_seconds": -0.2996857142857139,
+      "end_delta_seconds": 0.033298412698412605
+    }
+  ],
+  "configuration": {
+    "PROJECT_ROOT": "/home/kanazawa/procon/suzukaze/gesture_detection",
+    "POSE_MODEL_PATH": "/home/kanazawa/procon/suzukaze/gesture_detection/pose_landmarker_lite.task",
+    "POSE_MODEL_URL": "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
+    "POSE_RUNNING_MODE": "VIDEO",
+    "POSE_DISPLAY_SMOOTHING": true,
+    "POSE_DISPLAY_TIME_CONSTANT": 0.06,
+    "POSE_DISPLAY_MAX_GAP": 0.25,
+    "POSE_SELECT_SUBJECT": true,
+    "SUBJECT_AREA": [
+      0.35,
+      0.15,
+      0.75,
+      0.9
+    ],
+    "SUBJECT_MIN_TORSO_HEIGHT": 0.18,
+    "SUBJECT_MIN_SHOULDER_WIDTH": 0.1,
+    "SUBJECT_ACQUIRE_SECONDS": 0.2,
+    "SUBJECT_RELEASE_SECONDS": 0.5,
+    "SUBJECT_MAX_FRAME_GAP": 0.5,
+    "SUBJECT_MIN_VISIBILITY": 0.5,
+    "SUBJECT_MIN_SCALE_RATIO": 0.65,
+    "SUBJECT_MAX_SCALE_RATIO": 1.55,
+    "SUBJECT_MAX_CENTER_DISTANCE": 0.6,
+    "SUPPRESS_MEDIAPIPE_STARTUP_LOGS": true,
+    "YOLO_MODEL_PATH": "/home/kanazawa/procon/suzukaze/gesture_detection/yolov8n.pt",
+    "CAMERA_INDEX": 0,
+    "CAMERA_BACKEND": 0,
+    "CAMERA_FOURCC": "MJPG",
+    "OUTPUT_DIR": "/home/kanazawa/procon/suzukaze/gesture_detection/output",
+    "VIDEO_OUTPUT_PATH": "/home/kanazawa/procon/suzukaze/gesture_detection/output/camera1790534912.output.mp4",
+    "VIDEO_OUTPUT_BUFFER_FRAMES": 8,
+    "FPS": 30,
+    "RAMUNE_DETECTOR": "rules",
+    "RAMUNE_LEARNED_MODEL_PATH": "/home/kanazawa/procon/suzukaze/gesture_detection/src/gesture_detection/models/ramune_0924.npz",
+    "WINDOW_SECONDS": 1,
+    "BUFFER_SIZE": 30,
+    "RELAXING_LANDMARKS": [
+      0,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32
+    ],
+    "RELAXING_TORSO_LANDMARKS": [
+      11,
+      12,
+      23,
+      24
+    ],
+    "RELAXING_MIN_VISIBILITY": 0.5,
+    "RELAXING_MAX_SPEED": 0.3,
+    "RELAXING_MAX_DRIFT": 0.05,
+    "RELAXING_DWELL_SECONDS": 1.0,
+    "RELAXING_MAX_FRAME_GAP": 0.25,
+    "RIGHT_WRIST_INDEX": 16,
+    "YOLO_BOTTLE_CLASS_ID": 39,
+    "YOLO_CONFIDENCE_THRESHOLD": 0.5,
+    "YOLO_TTL_SECONDS": 0.5,
+    "YOLO_EMA_ALPHA": 0.3,
+    "READY_FACE_EXCLUSION_DISTANCE": 1.0,
+    "FANNING_FACE_DISTANCE": 1.5,
+    "FANNING_MAX_TORSO_HEIGHT": 0.5,
+    "FANNING_POSITION_DWELL_SECONDS": 0.2,
+    "WINDOW_TITLE": "Gesture Recognition (Async Pipeline)",
+    "POSE_CONNECTIONS": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        7
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        4,
+        5
+      ],
+      [
+        5,
+        6
+      ],
+      [
+        6,
+        8
+      ],
+      [
+        9,
+        10
+      ],
+      [
+        11,
+        12
+      ],
+      [
+        11,
+        13
+      ],
+      [
+        13,
+        15
+      ],
+      [
+        15,
+        17
+      ],
+      [
+        15,
+        19
+      ],
+      [
+        15,
+        21
+      ],
+      [
+        17,
+        19
+      ],
+      [
+        12,
+        14
+      ],
+      [
+        14,
+        16
+      ],
+      [
+        16,
+        18
+      ],
+      [
+        16,
+        20
+      ],
+      [
+        16,
+        22
+      ],
+      [
+        18,
+        20
+      ],
+      [
+        11,
+        23
+      ],
+      [
+        12,
+        24
+      ],
+      [
+        23,
+        24
+      ],
+      [
+        23,
+        25
+      ],
+      [
+        24,
+        26
+      ],
+      [
+        25,
+        27
+      ],
+      [
+        26,
+        28
+      ],
+      [
+        27,
+        29
+      ],
+      [
+        28,
+        30
+      ],
+      [
+        29,
+        31
+      ],
+      [
+        30,
+        32
+      ],
+      [
+        27,
+        31
+      ],
+      [
+        28,
+        32
+      ]
+    ],
+    "RAMUNE_ALIGN_TOLERANCE": 0.6,
+    "RAMUNE_BASE_X_TOLERANCE": 0.5,
+    "RAMUNE_BASE_TOLERANCE": 0.3,
+    "RAMUNE_MIN_READY_GAP": 0.3,
+    "RAMUNE_MAX_READY_GAP": 0.9,
+    "RAMUNE_CONTACT_GAP": 0.3,
+    "RAMUNE_MIN_PRESS": 0.25,
+    "RAMUNE_DWELL_SECONDS": 0.25,
+    "RAMUNE_PRESS_TIMEOUT": 1.5,
+    "RAMUNE_HOLD_SECONDS": 0.8,
+    "RAMUNE_MAX_FRAME_GAP": 0.5,
+    "UCHIMIZU_MIN_RAISE": 0.1,
+    "UCHIMIZU_MIN_DROP": 0.15,
+    "UCHIMIZU_LOW_HEIGHT": 0.55,
+    "UCHIMIZU_FINISH_HEIGHT": 0.5,
+    "UCHIMIZU_X_MARGIN": 0.25,
+    "UCHIMIZU_MAX_FRAME_GAP": 0.8,
+    "UCHIMIZU_RAISE_WINDOW_SECONDS": 1.2,
+    "UCHIMIZU_READY_TIMEOUT_SECONDS": 1.5,
+    "UCHIMIZU_FEEDBACK_SECONDS": 0.35,
+    "UCHIMIZU_COOLDOWN_SECONDS": 0.6,
+    "FANNING_POSITION_GRACE_SECONDS": 0.35,
+    "FANNING_EXIT_TORSO_HEIGHT": 0.75,
+    "FANNING_REVERSAL_DISTANCE": 0.08,
+    "FANNING_MIN_REVERSALS": 3,
+    "FANNING_UCHIMIZU_GRACE_SECONDS": 1,
+    "GESTURE_DELIVERY_ENABLED": false,
+    "GESTURE_DELIVERY_HOST": "127.0.0.1",
+    "GESTURE_DELIVERY_PORT": 5001,
+    "GESTURE_STATE_INTERVAL": 0.1,
+    "GESTURE_STALE_TIMEOUT": 0.5,
+    "GESTURE_EVENT_TTL": 1.0,
+    "GESTURE_RETRY_INTERVAL": 0.1,
+    "GESTURE_MAX_PENDING": 64
+  },
+  "note": "Boundary deltas mix annotation ambiguity and capture timing; not a synchronization measurement."
+}
