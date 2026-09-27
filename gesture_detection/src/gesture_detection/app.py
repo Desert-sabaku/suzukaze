@@ -14,6 +14,7 @@ from .config import (
     CAMERA_INDEX,
     FPS,
     GESTURE_DELIVERY_ENABLED,
+    MULTICAM_ENABLED,
     POSE_CONNECTIONS,
     VIDEO_OUTPUT_BUFFER_FRAMES,
     VIDEO_OUTPUT_PATH,
@@ -298,7 +299,12 @@ class GestureApplication:
 
 
 def main() -> None:
-    GestureApplication().run()
+    if MULTICAM_ENABLED:
+        from .multicam_app import MultiCameraApplication
+
+        MultiCameraApplication().run()
+    else:
+        GestureApplication().run()
 
 
 if __name__ == "__main__":
