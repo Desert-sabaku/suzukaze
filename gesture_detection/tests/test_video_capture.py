@@ -1,5 +1,6 @@
 import csv
 import json
+import threading
 from unittest.mock import Mock
 
 import cv2
@@ -67,27 +68,82 @@ def test_recording_common_timeline_and_metadata(tmp_path, count):
             video.release()
 
 
-def test_grab_all_before_retrieve(monkeypatch):
-    calls = []
-    cameras = []
-    for i in range(3):
-        camera = Mock()
-        camera.grab.side_effect = lambda i=i: calls.append(("grab", i)) or True
-        camera.retrieve.side_effect = lambda i=i: (
-            calls.append(("retrieve", i)) or True,
-            frames()[i],
-        )
-        cameras.append(camera)
+def test_capture_samples_latest_without_waiting_for_next_frame():
+    cameras = [Mock(), Mock()]
+    cameras[0].latest.return_value = (frames(10, 1)[0], 10.0)
+    cameras[1].latest.return_value = (frames(20, 1)[0], 10.1)
     result, stamps = recorder.capture_frames(cameras)
-    assert len(result) == len(stamps) == 3
-    assert calls == [("grab", i) for i in range(3)] + [("retrieve", i) for i in range(3)]
-    cameras[1].grab.side_effect = lambda: False
-    with pytest.raises(RuntimeError, match="slot 2"):
-        recorder.capture_frames(cameras)
+    assert stamps == [10.0, 10.1]
+    assert [image.mean() for image in result] == [10, 20]
+
+
+def test_reader_discards_backlog_and_owns_frame_buffer():
+    camera = Mock()
+    drained = threading.Event()
+    unblock = threading.Event()
+    reused = frames(10, 1)[0]
+    calls = [0]
+
+    def read():
+        calls[0] += 1
+        if calls[0] <= 2:
+            reused.fill(calls[0] * 10)
+            return True, reused
+        drained.set()
+        assert unblock.wait(2)
+        return False, None
+
+    camera.read.side_effect = read
+    reader = recorder.CameraReader(camera, 7)
+    try:
+        assert drained.wait(2)
+        reused.fill(99)
+        image, stamp = reader.latest()
+        assert np.all(image == 20)
+        assert stamp > 0
+        assert reader.latest()[0] is image
+    finally:
+        reader._stop.set()
+        unblock.set()
+        reader.release()
+    camera.release.assert_called_once()
+
+
+def test_reader_reports_capture_failure():
+    camera = Mock()
+    camera.read.return_value = (False, None)
+    reader = recorder.CameraReader(camera, 4)
+    try:
+        with pytest.raises(RuntimeError, match="Camera 4: read failed"):
+            reader.latest()
+    finally:
+        reader.release()
+    camera.release.assert_called_once()
+
+
+def test_reader_timeout_and_stale_frames(monkeypatch):
+    camera = Mock()
+    unblock = threading.Event()
+    camera.read.side_effect = lambda: (unblock.wait(2) and False, None)
+    reader = recorder.CameraReader(camera, 3)
+    try:
+        with pytest.raises(RuntimeError, match="first frame"):
+            reader.latest(timeout=0.01)
+        with reader._lock:
+            reader._latest = (frames(1, 1)[0], 1.0)
+        reader._ready.set()
+        monkeypatch.setattr(recorder.time, "monotonic", lambda: 10.0)
+        with pytest.raises(RuntimeError, match="no new frames"):
+            reader.latest()
+    finally:
+        reader._stop.set()
+        unblock.set()
+        reader.release()
 
 
 def test_camera_open_failure_releases_all(monkeypatch):
     cameras = [Mock(), Mock()]
+    cameras[0].get.return_value = 0
     cameras[0].isOpened.return_value = True
     cameras[1].isOpened.return_value = False
     monkeypatch.setattr(recorder.cv2, "VideoCapture", Mock(side_effect=cameras))
@@ -203,7 +259,8 @@ def test_snapshot_and_resolution_change(tmp_path):
         take.close("error")
 
 
-def test_interactive_multiple_takes_markers_and_snapshots(monkeypatch, tmp_path):
+@pytest.mark.parametrize("qt_save_error", [False, True])
+def test_interactive_multiple_takes_markers_and_snapshots(monkeypatch, tmp_path, qt_save_error):
     args = recorder.parse_args(
         [
             "--countdown",
@@ -226,13 +283,27 @@ def test_interactive_multiple_takes_markers_and_snapshots(monkeypatch, tmp_path)
     monkeypatch.setattr(recorder.time, "monotonic", lambda: clock[0])
     monkeypatch.setattr(recorder.time, "sleep", lambda delay: None)
     monkeypatch.setattr(recorder, "configure_qt_fonts", lambda: None)
-    for name in ("namedWindow", "imshow", "destroyAllWindows"):
+    window_mock = Mock()
+    monkeypatch.setattr(recorder.cv2, "namedWindow", window_mock)
+    for name in ("imshow", "destroyAllWindows"):
         monkeypatch.setattr(recorder.cv2, name, Mock())
     monkeypatch.setattr(recorder.cv2, "getWindowProperty", lambda *args: 1)
-    keys = [ord("r"), -1, ord("m"), ord("s"), ord("r"), ord("r"), -1, ord("q")]
+    keys: list[int | cv2.error] = [
+        ord("r"),
+        -1,
+        ord("m"),
+        ord("s"),
+        ord("r"),
+        ord("r"),
+        -1,
+        ord("q"),
+    ]
+    if qt_save_error:
+        keys.insert(2, cv2.error("file extension not recognized in function 'saveView'"))
     monkeypatch.setattr(recorder.cv2, "waitKey", Mock(side_effect=keys))
     monkeypatch.setattr(recorder.shutil, "disk_usage", lambda path: Mock(free=1024**3))
     assert recorder.run(args) == 0
+    window_mock.assert_called_once_with(recorder.WINDOW, cv2.WINDOW_NORMAL | cv2.WINDOW_GUI_NORMAL)
     takes = sorted(tmp_path.glob("*/take_*/metadata.json"))
     assert len(takes) == 2
     assert len(json.loads(takes[0].read_text())["markers"]) == 1
@@ -240,3 +311,56 @@ def test_interactive_multiple_takes_markers_and_snapshots(monkeypatch, tmp_path)
     assert all(json.loads(p.read_text())["status"] == "stopped" for p in takes)
     for camera in cameras:
         camera.release.assert_called_once()
+
+
+@pytest.mark.parametrize("input_format", ["auto", "MJPG", "YUYV"])
+def test_camera_input_mode_and_reader_ownership(monkeypatch, input_format):
+    camera = Mock()
+    camera.get.return_value = 0
+    constructor = Mock(return_value=camera)
+    reader = Mock()
+    factory = Mock(return_value=reader)
+    monkeypatch.setattr(recorder.cv2, "VideoCapture", constructor)
+    monkeypatch.setattr(recorder, "CameraReader", factory)
+    args = recorder.parse_args(
+        ["--cameras", "2", "--input-format", input_format, "--backend", "v4l2"]
+    )
+    assert recorder.open_cameras(args) == [reader]
+    constructor.assert_called_once_with(2, cv2.CAP_V4L2)
+    factory.assert_called_once_with(camera, 2)
+    format_calls = [
+        call for call in camera.set.call_args_list if call.args[0] == cv2.CAP_PROP_FOURCC
+    ]
+    assert len(format_calls) == (0 if input_format == "auto" else 1)
+    camera.release.assert_not_called()
+
+
+def test_preview_preserves_bottom_of_input_image():
+    source = np.full((720, 1280, 3), (30, 100, 200), dtype=np.uint8)
+    source[360:] = (220, 100, 30)
+    canvas = recorder.preview([source], [0], "READY")
+    assert np.all(canvas[60, 240] == (30, 100, 200))
+    assert np.all(canvas[290, 240] == (220, 100, 30))
+
+
+def test_preview_save_error_is_nonfatal(monkeypatch, capsys):
+    error = cv2.error("file extension not recognized in function 'saveView'")
+    monkeypatch.setattr(recorder.cv2, "waitKey", Mock(side_effect=[error, ord("s")]))
+    assert recorder.read_preview_key() == -1
+    assert "Recording continues" in capsys.readouterr().err
+    assert recorder.read_preview_key() == ord("s")
+
+
+def test_other_preview_errors_are_not_suppressed(monkeypatch):
+    monkeypatch.setattr(recorder.cv2, "waitKey", Mock(side_effect=cv2.error("GUI failure")))
+    with pytest.raises(cv2.error, match="GUI failure"):
+        recorder.read_preview_key()
+
+
+def test_default_output_uses_project_shared_videos(monkeypatch, tmp_path):
+    from pathlib import Path
+
+    monkeypatch.chdir(tmp_path)
+    expected = Path(recorder.__file__).resolve().parents[1] / "shared" / "videos"
+    assert recorder.parse_args([]).output == expected
+    assert recorder.parse_args(["--output", "custom"]).output == Path("custom")

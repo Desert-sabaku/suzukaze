@@ -8,7 +8,9 @@ import shutil
 import signal
 import sys
 import tempfile
+import threading
 import time
+from collections.abc import Sequence
 from datetime import datetime
 from pathlib import Path
 
@@ -37,14 +39,29 @@ def nonnegative_float(value: str) -> float:
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--cameras", nargs="+", type=int, default=[0, 1, 2], metavar="ID")
-    parser.add_argument("--output", type=Path, default=Path("recordings"))
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path(__file__).resolve().parents[1] / "shared" / "videos",
+        help="output root (default: project shared/videos)",
+    )
     parser.add_argument("--width", type=positive_int, default=1280)
     parser.add_argument("--height", type=positive_int, default=720)
     parser.add_argument("--fps", type=positive_int, default=30)
+    parser.add_argument(
+        "--input-format",
+        choices=["MJPG", "YUYV", "auto"],
+        default="MJPG",
+        help="camera transport format, independent of output --codec",
+    )
+    parser.add_argument("--backend", choices=["auto", "v4l2", "dshow", "msmf"], default="auto")
     parser.add_argument("--codec", choices=["mp4v", "MJPG"], default="mp4v")
     parser.add_argument("--countdown", type=nonnegative_float, default=3)
     parser.add_argument(
-        "--duration", type=nonnegative_float, default=0, help="seconds per take; 0 means unlimited"
+        "--duration",
+        type=nonnegative_float,
+        default=0,
+        help="seconds per take; 0 means unlimited",
     )
     parser.add_argument("--auto-start", action="store_true")
     parser.add_argument("--no-preview", action="store_true", help="auto-start without a GUI")
@@ -55,37 +72,114 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return args
 
 
-def capture_frames(cameras: list) -> tuple[list[np.ndarray], list[float]]:
-    # Grab all cameras before decoding to reduce software-induced skew.
-    stamps = []
-    for index, camera in enumerate(cameras):
-        if not camera.grab():
-            raise RuntimeError(f"Camera slot {index + 1}: grab failed (disconnected?)")
-        stamps.append(time.monotonic())
-    frames = []
-    for index, camera in enumerate(cameras):
-        ok, frame = camera.retrieve()
-        if not ok or frame is None:
-            raise RuntimeError(f"Camera slot {index + 1}: retrieve failed")
+class CameraReader:
+    """One owner per capture; discard old frames instead of queueing them."""
+
+    def __init__(self, camera: cv2.VideoCapture, camera_id: int) -> None:
+        self.camera = camera
+        self.camera_id = camera_id
+        self._lock = threading.Lock()
+        self._ready = threading.Event()
+        self._stop = threading.Event()
+        self._latest: tuple[np.ndarray, float] | None = None
+        self._error: str | None = None
+        self._thread = threading.Thread(target=self._read, name=f"camera-{camera_id}", daemon=True)
+        self._thread.start()
+
+    def _read(self) -> None:
+        try:
+            while not self._stop.is_set():
+                ok, frame = self.camera.read()
+                stamp = time.monotonic()
+                if not ok or frame is None or not frame.size:
+                    raise RuntimeError("read failed (disconnected or unsupported input mode)")
+                # Some backends reuse the receive buffer. Publish owned, immutable-by-convention data.
+                owned = frame.copy()
+                with self._lock:
+                    self._latest = (owned, stamp)
+                self._ready.set()
+        except Exception as error:
+            with self._lock:
+                self._error = str(error)
+            self._ready.set()
+        finally:
+            # Never release a VideoCapture while another thread is inside read().
+            self.camera.release()
+
+    def latest(self, timeout: float = 5.0) -> tuple[np.ndarray, float]:
+        if not self._ready.wait(timeout):
+            raise RuntimeError(f"Camera {self.camera_id}: timed out waiting for first frame")
+        with self._lock:
+            if self._error is not None:
+                raise RuntimeError(f"Camera {self.camera_id}: {self._error}")
+            latest = self._latest
+        if latest is None or time.monotonic() - latest[1] > timeout:
+            raise RuntimeError(f"Camera {self.camera_id}: no new frames for {timeout:g}s")
+        return latest
+
+    def release(self) -> None:
+        self._stop.set()
+        self._thread.join(timeout=1.0)
+        if self._thread.is_alive():
+            print(
+                f"Camera {self.camera_id}: driver read is still blocked; "
+                "capture will close when it returns",
+                file=sys.stderr,
+            )
+
+
+def capture_frames(cameras: Sequence[CameraReader]) -> tuple[list[np.ndarray], list[float]]:
+    frames, stamps = [], []
+    for camera in cameras:
+        frame, stamp = camera.latest()
         frames.append(frame)
+        stamps.append(stamp)
     return frames, stamps
 
 
 def open_cameras(args: argparse.Namespace) -> list:
     cameras = []
+    readers = []
     try:
         for camera_id in args.cameras:
-            camera = cv2.VideoCapture(camera_id)
+            backend = {
+                "auto": cv2.CAP_ANY,
+                "v4l2": cv2.CAP_V4L2,
+                "dshow": cv2.CAP_DSHOW,
+                "msmf": cv2.CAP_MSMF,
+            }[args.backend]
+            camera = cv2.VideoCapture(camera_id, backend)
             cameras.append(camera)
             if not camera.isOpened():
                 raise RuntimeError(f"Cannot open camera {camera_id}")
+            if args.input_format != "auto":
+                if not camera.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter.fourcc(*args.input_format)):
+                    print(
+                        f"Camera {camera_id}: requested input format {args.input_format} "
+                        "was not accepted",
+                        file=sys.stderr,
+                    )
             camera.set(cv2.CAP_PROP_FRAME_WIDTH, args.width)
             camera.set(cv2.CAP_PROP_FRAME_HEIGHT, args.height)
             camera.set(cv2.CAP_PROP_FPS, args.fps)
-            camera.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-        return cameras
+            buffered = camera.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+            fourcc = int(camera.get(cv2.CAP_PROP_FOURCC))
+            format_name = "".join(chr((fourcc >> (8 * i)) & 255) for i in range(4)).strip("\x00")
+            print(
+                f"Camera {camera_id}: backend={camera.getBackendName()} "
+                f"input={format_name or 'unknown'} "
+                f"{camera.get(cv2.CAP_PROP_FRAME_WIDTH):g}x"
+                f"{camera.get(cv2.CAP_PROP_FRAME_HEIGHT):g} "
+                f"fps={camera.get(cv2.CAP_PROP_FPS):g} buffer=1 accepted={buffered}",
+                flush=True,
+            )
+        for camera_id, camera in zip(args.cameras, cameras, strict=True):
+            readers.append(CameraReader(camera, camera_id))
+        return readers
     except BaseException:
-        for camera in cameras:
+        for reader in readers:
+            reader.release()
+        for camera in cameras[len(readers) :]:
             camera.release()
         raise
 
@@ -94,7 +188,11 @@ class Take:
     """Resample complete camera batches to a common constant-FPS timeline."""
 
     def __init__(
-        self, path: Path, args: argparse.Namespace, frames: list[np.ndarray], started: float
+        self,
+        path: Path,
+        args: argparse.Namespace,
+        frames: list[np.ndarray],
+        started: float,
     ) -> None:
         path.mkdir()
         self.path = path
@@ -114,8 +212,8 @@ class Take:
             "sizes": self.sizes,
             "fps": self.fps,
             "codec": args.codec,
-            "timestamp_description": "Host monotonic time after grab, relative to take start; "
-            "not sensor exposure time. Repeated frames fill slow batches.",
+            "timestamp_description": "Host monotonic time after read, relative to take start; "
+            "not sensor exposure time. Latest frames sampled independently; identical camera timestamps indicate reused images. Repeated batches fill slow output.",
         }
         try:
             extension = "mp4" if args.codec == "mp4v" else "avi"
@@ -206,9 +304,11 @@ class Take:
         self.save_metadata(reason)
 
 
-def preview(frames: list[np.ndarray], ids: list[int], status: str) -> np.ndarray:
+def preview(
+    frames: list[np.ndarray], ids: list[int], status: str, stamps: list[float] | None = None
+) -> np.ndarray:
     tiles = []
-    for camera_id, frame in zip(ids, frames, strict=True):
+    for index, (camera_id, frame) in enumerate(zip(ids, frames, strict=True)):
         height, width = frame.shape[:2]
         scale = min(480 / width, 300 / height)
         resized = cv2.resize(frame, (max(1, int(width * scale)), max(1, int(height * scale))))
@@ -224,6 +324,17 @@ def preview(frames: list[np.ndarray], ids: list[int], status: str) -> np.ndarray
             (40, 230, 80),
             1,
         )
+        if stamps is not None:
+            age_ms = max(0, (time.monotonic() - stamps[index]) * 1000)
+            cv2.putText(
+                tile,
+                f"Host frame age: {age_ms:.0f} ms",
+                (10, 58),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.45,
+                (0, 220, 255),
+                1,
+            )
         tiles.append(tile)
     columns = min(3, len(tiles))
     rows = math.ceil(len(tiles) / columns)
@@ -240,6 +351,21 @@ def save_snapshot(session: Path, ids: list[int], frames: list[np.ndarray]) -> No
         if not cv2.imwrite(str(directory / f"camera_{camera_id}.png"), frame):
             raise RuntimeError(f"Failed to save snapshot for camera {camera_id}")
     print(f"Snapshot: {directory}", flush=True)
+
+
+def read_preview_key() -> int:
+    """Keep Qt's optional save-dialog errors separate from recording failures."""
+    try:
+        return cv2.waitKey(1) & 0xFF
+    except cv2.error as error:
+        if "saveView" not in str(error) or "file extension not recognized" not in str(error):
+            raise
+        print(
+            "OpenCV preview save failed: use the S key without Ctrl to save PNG snapshots. "
+            "Recording continues.",
+            file=sys.stderr,
+        )
+        return -1
 
 
 def run(args: argparse.Namespace) -> int:
@@ -259,7 +385,7 @@ def run(args: argparse.Namespace) -> int:
         print(f"Actual resolutions: {[(f.shape[1], f.shape[0]) for f in frames]}")
         if not args.no_preview:
             configure_qt_fonts()
-            cv2.namedWindow(WINDOW, cv2.WINDOW_NORMAL)
+            cv2.namedWindow(WINDOW, cv2.WINDOW_NORMAL | cv2.WINDOW_GUI_NORMAL)
         pending = time.monotonic() + args.countdown if args.auto_start or args.no_preview else None
         take_number = 0
         disk_check = 0.0
@@ -293,8 +419,10 @@ def run(args: argparse.Namespace) -> int:
                 status = f"REC {now - take.started:.1f}s DUP {take.duplicates}"
             key = -1
             if not args.no_preview:
-                cv2.imshow(WINDOW, preview(frames, args.cameras, status))
-                key = cv2.waitKey(1) & 0xFF
+                # Encoding may take time; show a fresh sample rather than the saved batch.
+                frames, stamps = capture_frames(cameras)
+                cv2.imshow(WINDOW, preview(frames, args.cameras, status, stamps))
+                key = read_preview_key()
                 if cv2.getWindowProperty(WINDOW, cv2.WND_PROP_VISIBLE) < 1:
                     break
             if key in (27, ord("q")):
