@@ -207,6 +207,54 @@ FANNING_MIN_REVERSALS = 3
 # Let the scoop/release leave the FFT window before accepting residual fanning.
 FANNING_UCHIMIZU_GRACE_SECONDS = WINDOW_SECONDS
 
+# Opt-in paired-camera profile, frozen from the 0928 event experiment.
+MULTICAM_SCOOP_MIN_MOTION_SECONDS = 0.08
+MULTICAM_RELEASE_SECONDS = 0.3
+MULTICAM_RELEASE_MAX_GAP = 0.25
+MULTICAM_FUSION_FPS = 30.0
+MULTICAM_MAX_AGE_SECONDS = 0.2
+MULTICAM_EVENT_DEDUP_SECONDS = 0.6
+
+
+def _boolean(name: str, default: str) -> bool:
+    value = getenv(name, default).strip().lower()
+    if value not in {"true", "false", "1", "0", "yes", "no", "on", "off"}:
+        raise ValueError(f"{name} must be a boolean")
+    return value in {"true", "1", "yes", "on"}
+
+
+MULTICAM_ENABLED = _boolean("MULTICAM_ENABLED", "false")
+MULTICAM_CAMERA_INDICES = tuple(
+    int(v.strip()) for v in getenv("MULTICAM_CAMERA_INDICES", "1,2").split(",")
+)
+if (
+    len(MULTICAM_CAMERA_INDICES) != 2
+    or len(set(MULTICAM_CAMERA_INDICES)) != 2
+    or min(MULTICAM_CAMERA_INDICES) < 0
+):
+    raise ValueError("MULTICAM_CAMERA_INDICES must contain two distinct non-negative camera IDs")
+MULTICAM_SELECT_SUBJECT = (
+    _boolean("MULTICAM_FIRST_SELECT_SUBJECT", "true"),
+    _boolean("MULTICAM_SECOND_SELECT_SUBJECT", "false"),
+)
+MULTICAM_VIDEO_SESSION = (
+    _env_path("MULTICAM_VIDEO_SESSION", "") if getenv("MULTICAM_VIDEO_SESSION") else None
+)
+MULTICAM_TRACE_PATH = (
+    _env_path("MULTICAM_TRACE_PATH", "") if getenv("MULTICAM_TRACE_PATH") else None
+)
+MULTICAM_HEADLESS = _boolean("MULTICAM_HEADLESS", "false")
+MULTICAM_WIDTH = int(getenv("MULTICAM_WIDTH", "1280"))
+MULTICAM_HEIGHT = int(getenv("MULTICAM_HEIGHT", "720"))
+if min(MULTICAM_WIDTH, MULTICAM_HEIGHT) <= 0:
+    raise ValueError("MULTICAM_WIDTH and MULTICAM_HEIGHT must be positive")
+if MULTICAM_ENABLED and (POSE_RUNNING_MODE != "VIDEO" or RAMUNE_DETECTOR != "rules"):
+    raise ValueError(
+        "Multicamera recognition requires POSE_RUNNING_MODE=VIDEO and RAMUNE_DETECTOR=rules"
+    )
+if MULTICAM_ENABLED and VIDEO_SOURCE is not None:
+    raise ValueError("Use MULTICAM_VIDEO_SESSION instead of VIDEO_SOURCE in multicamera mode")
+
 # Local gesture notifications, separate from unity_bridge's WebSocket port.
 GESTURE_DELIVERY_ENABLED = getenv("GESTURE_DELIVERY_ENABLED", "false").lower() in {
     "1",
