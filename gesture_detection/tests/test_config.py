@@ -132,3 +132,36 @@ def test_subject_area_and_opt_out_are_configurable():
     config = read_config({"SUBJECT_AREA": "0.2,0.1,0.8,0.9", "POSE_SELECT_SUBJECT": "false"})
     assert config["SUBJECT_AREA"] == (0.2, 0.1, 0.8, 0.9)
     assert not config["POSE_SELECT_SUBJECT"]
+
+
+def test_multicam_is_opt_in_with_independent_subject_selection():
+    assert not read_config({})["MULTICAM_ENABLED"]
+    config = read_config(
+        {
+            "MULTICAM_ENABLED": "true",
+            "MULTICAM_CAMERA_INDICES": "0,2",
+            "MULTICAM_VIDEO_SESSION": "shared/videos/take/session.json",
+        }
+    )
+    assert config["MULTICAM_CAMERA_INDICES"] == (0, 2)
+    assert config["MULTICAM_SELECT_SUBJECT"] == (True, False)
+    assert config["MULTICAM_VIDEO_SESSION"] == PROJECT_ROOT / "shared/videos/take/session.json"
+
+
+@pytest.mark.parametrize(
+    "settings",
+    [
+        {"MULTICAM_CAMERA_INDICES": "1,1"},
+        {"MULTICAM_CAMERA_INDICES": "1"},
+        {"MULTICAM_CAMERA_INDICES": "-1,2"},
+        {"MULTICAM_ENABLED": "maybe"},
+        {"MULTICAM_WIDTH": "0"},
+        {"MULTICAM_SECOND_SELECT_SUBJECT": "invalid"},
+        {"MULTICAM_ENABLED": "true", "POSE_RUNNING_MODE": "IMAGE"},
+        {"MULTICAM_ENABLED": "true", "RAMUNE_DETECTOR": "learned"},
+        {"MULTICAM_ENABLED": "true", "VIDEO_SOURCE": "single.mp4"},
+    ],
+)
+def test_multicam_rejects_ambiguous_or_invalid_settings(settings):
+    with pytest.raises(ValueError):
+        read_config(settings)
