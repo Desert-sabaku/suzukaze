@@ -67,14 +67,19 @@ def draw_messages(
         )
 
 
-def draw_ramune_guide(image: npt.NDArray[np.uint8], state: str) -> None:
+def draw_ramune_guide(
+    image: npt.NDArray[np.uint8],
+    state: str,
+    *,
+    release_message: str = "Ramune: lift the upper hand to try again",
+) -> None:
     """Show the next physical action in a compact bottom panel."""
     messages = {
         "IDLE": "Ramune: make a ring; place the other hand above",
         "FORMING": "Ramune: hold the lower hand still...",
         "READY": "Ramune: press DOWN with the upper hand!",
         "OPENED": "POP! Ramune opened!",
-        "WAIT_RELEASE": "Ramune: lift the upper hand to try again",
+        "WAIT_RELEASE": release_message,
     }
     height, width = image.shape[:2]
     text = messages.get(state, messages["IDLE"])

@@ -18,14 +18,15 @@ from .config import (
 )
 from .gesture_position import is_fanning_position, normalized_wrist_distances
 from .signal_processing import resample_time_window
-from .uchimizu import UchimizuAnalyzer
+from .uchimizu import AnchoredUchimizuAnalyzer, UchimizuAnalyzer
 
 
 class HandGestureAnalyzer:
     """Track one wrist without mixing motion or cooldowns with the other hand."""
 
-    def __init__(self, wrist_index: int):
+    def __init__(self, wrist_index: int, *, anchored_scoop: bool = False):
         self.wrist_index = wrist_index
+        self._uchimizu_type = AnchoredUchimizuAnalyzer if anchored_scoop else UchimizuAnalyzer
         self.wrist_y_history = deque(maxlen=BUFFER_SIZE)
         self.wrist_t_history = deque(maxlen=BUFFER_SIZE)
         self.wrist_dy_history = deque(maxlen=max(3, int(FPS * 0.3)))
@@ -37,7 +38,7 @@ class HandGestureAnalyzer:
         self.wrist_t_history.clear()
         self.wrist_dy_history.clear()
         self.uchimizu_state = "IDLE"
-        self.uchimizu = UchimizuAnalyzer(self.wrist_index)
+        self.uchimizu = self._uchimizu_type(self.wrist_index)
         self.uchimizu_score = 0.0
         self.fanning_score = 0.0
         self.fanning_suppressed_until = 0.0

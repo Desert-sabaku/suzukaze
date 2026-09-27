@@ -5,6 +5,10 @@
 - `src/gesture_detection/app.py`: 入力ループ、ワーカーの生存期間、描画と保存
 - `src/gesture_detection/pose_worker.py`: MediaPipe 推論、入力時刻の変換、ワーカー実行
 - `src/gesture_detection/recognition.py`: 認識状態の所有、各判定器の更新・リセット、認識上の競合調停
+- `src/gesture_detection/multicam_app.py`: 2カメラの実行・比較表示・統合後の通知
+- `src/gesture_detection/multicam_input.py`: カメラ別取得・推論プロセスと録画セッション入力
+- `src/gesture_detection/multicam_fusion.py`: 共通時計による所作結果の統合・失効・重複除去
+- `src/gesture_detection/event_rearm.py`: 両視点の解除証拠と新しい準備による再許可
 - `src/gesture_detection/hand_gesture.py`: 片手ごとの履歴、扇ぎ判定と打ち水の誤認識抑制
 - `src/gesture_detection/recognition_types.py`: 現在の認識状態と内部診断用の結果型
 - `src/gesture_detection/relaxing.py`: 入力元時刻による静止判定
@@ -39,6 +43,23 @@ MediaPipe を起動せずに認識処理を検証できます。各判定器の�
 `gesture_server.py` が別スレッドで状態通知と期限内の再送を行います。
 演出制御はUnityに残します。通知は既定で無効で、動画評価時にも停止します。
 設定・通信契約は[Unityへの通知](unity-delivery.md)を参照してください。
+
+## 2カメラの実行経路
+
+`MULTICAM_ENABLED=true`では`MultiCameraApplication`を使用します。
+各カメラが専用のspawnプロセスで取得・推論し、`RecognitionCoordinator(profile="multicam")`が
+ラムネの準備追従と打ち水の画像上の移動証拠を使用します。
+結果には発火した手と準備開始時刻を付け、親側の`MultiCameraFusion`で統合します。
+
+イベントを含む結果キューは満杯時に待機し、表示用プレビューだけを最新値優先にします。
+共有の解除・再準備判定後に1つの`DeliveryOutbox`へ渡すため、通知サーバーも1つです。
+扇ぎ・夕涼みには一回限りのロックを適用しません。
+
+カメラ別の結果は元入力の`frame_id`・`timestamp`を保持します。
+統合結果のそれらは統合tickの連番・時刻です。`observed_at`は最後の取得時刻、
+`occurrence_timestamps`は各イベントの元の取得時刻であり、配送時に期限を延命しません。
+録画セッションでは`session.json`の記録枚数と実時間を使った近似時計で全フレームを再生し、
+ライブ通知を停止します。詳細は[2カメラ認識ガイド](multicam-runtime.md)を参照してください。
 
 ## 設定と入力
 

@@ -70,7 +70,10 @@ class DeliveryOutbox:
             for kind in result.get("occurrences", ()):
                 if kind not in {"RAMUNE", "UCHIMIZU"}:
                     raise ValueError("Unknown occurrence")
-                if now >= observed_at + self.event_ttl:
+                occurred_at = result.get("occurrence_timestamps", {}).get(kind, observed_at)
+                if not math.isfinite(occurred_at) or occurred_at > now:
+                    raise ValueError("Invalid occurrence source time")
+                if now >= occurred_at + self.event_ttl:
                     continue
                 if len(self._pending) >= self.max_pending:
                     raise RuntimeError("Gesture event outbox capacity exceeded")
@@ -81,8 +84,8 @@ class DeliveryOutbox:
                     "session_id": self.session_id,
                     "event_id": self._event_sequence,
                     "gesture": kind,
-                    "occurred_at": observed_at,
-                    "expires_at": observed_at + self.event_ttl,
+                    "occurred_at": occurred_at,
+                    "expires_at": occurred_at + self.event_ttl,
                     "frame_id": result.get("frame_id"),
                     "source_timestamp": result.get("timestamp"),
                 }

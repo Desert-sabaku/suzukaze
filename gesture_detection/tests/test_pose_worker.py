@@ -21,6 +21,13 @@ def landmarks():
     return points
 
 
+def test_multicam_profile_requires_video_before_loading_a_model():
+    with patch.object(PoseAnalyzer, "_create_landmarker") as create:
+        with pytest.raises(ValueError, match="multicam profile requires"):
+            PoseAnalyzer(running_mode="IMAGE", recognition_profile="multicam")
+    create.assert_not_called()
+
+
 @pytest.fixture
 def analyzer():
     with patch.object(PoseAnalyzer, "_create_landmarker"):

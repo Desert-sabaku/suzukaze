@@ -1,6 +1,8 @@
+import math
 from collections import deque
 
 from .config import (
+    MULTICAM_SCOOP_MIN_MOTION_SECONDS,
     READY_FACE_EXCLUSION_DISTANCE,
     UCHIMIZU_COOLDOWN_SECONDS,
     UCHIMIZU_FEEDBACK_SECONDS,
@@ -28,6 +30,7 @@ class UchimizuAnalyzer:
 
     def reset(self) -> None:
         self.state = "IDLE"
+        self.setup_started_at: float | None = None
         self.history: deque[tuple[float, float]] = deque()
         self.peak = 0.0
         self.ready_at = 0.0
@@ -93,9 +96,85 @@ class UchimizuAnalyzer:
             for _, previous_height in self.history
         ):
             self.state = "READY"
+            self.setup_started_at = now
             self.ready_at = now
             self.peak = height
             self.history.clear()
         else:
             self.history.append((now, height))
         return False
+
+
+class AnchoredUchimizuAnalyzer(UchimizuAnalyzer):
+    """Also require wrist rise/drop in image coordinates at a fixed torso scale."""
+
+    def reset(self) -> None:
+        super().reset()
+        self.low_positions: deque[tuple[float, float, float]] = deque()
+        self.anchor_scale: float | None = None
+        self.absolute_peak = 0.0
+        self.peak_time = 0.0
+
+    def update(self, landmarks: Landmarks, now: float) -> bool:
+        if len(landmarks) < 25:
+            self.reset()
+            return False
+        needed = [landmarks[i] for i in (0, 11, 12, 23, 24, self.wrist_index)]
+        if any(
+            getattr(p, "visibility", 1.0) <= 0.5 or not math.isfinite(p.x) or not math.isfinite(p.y)
+            for p in needed
+        ):
+            self.reset()
+            return False
+        shoulder_y = (landmarks[11].y + landmarks[12].y) / 2
+        scale = (landmarks[23].y + landmarks[24].y) / 2 - shoulder_y
+        if scale <= 1e-6:
+            self.reset()
+            return False
+        if self.last_time is not None and not 0 < now - self.last_time <= UCHIMIZU_MAX_FRAME_GAP:
+            self.reset()
+        wrist = landmarks[self.wrist_index]
+        height = (wrist.y - shoulder_y) / scale
+        margin = abs(landmarks[11].x - landmarks[12].x) * UCHIMIZU_X_MARGIN
+        xs = [landmarks[i].x for i in (11, 12, 23, 24)]
+        central = min(xs) - margin <= wrist.x <= max(xs) + margin
+        away = (
+            normalized_wrist_distances(landmarks, self.wrist_index)[0]
+            >= READY_FACE_EXCLUSION_DISTANCE
+        )
+        while self.low_positions and now - self.low_positions[0][0] > UCHIMIZU_RAISE_WINDOW_SECONDS:
+            self.low_positions.popleft()
+        before, previous_completed = self.state, self.completed_at
+        history_before = list(self.history)
+        if before == "READY" and wrist.y < self.absolute_peak:
+            self.absolute_peak, self.peak_time = wrist.y, now
+        detected = super().update(landmarks, now)
+        if self.state == "READY" and before != "READY":
+            candidates = [
+                (t, y, s)
+                for t, y, s in self.low_positions
+                if (y - wrist.y) / s >= UCHIMIZU_MIN_RAISE
+                and now - t >= MULTICAM_SCOOP_MIN_MOTION_SECONDS
+            ]
+            if not candidates:
+                self.state = "IDLE"
+                self.setup_started_at = None
+                self.history.extend(history_before)
+                return False
+            _, _, self.anchor_scale = max(candidates, key=lambda v: (v[1] - wrist.y) / v[2])
+            self.absolute_peak, self.peak_time = wrist.y, now
+        if detected and self.completed_at != previous_completed:
+            if (
+                self.anchor_scale is None
+                or (wrist.y - self.absolute_peak) / self.anchor_scale < UCHIMIZU_MIN_DROP
+                or now - self.peak_time < MULTICAM_SCOOP_MIN_MOTION_SECONDS
+            ):
+                self.reset()
+                return False
+        if self.state == "IDLE" and self.completed_at is None:
+            if central and away:
+                if height >= UCHIMIZU_LOW_HEIGHT:
+                    self.low_positions.append((now, wrist.y, scale))
+            else:
+                self.low_positions.clear()
+        return detected
