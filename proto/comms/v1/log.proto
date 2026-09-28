@@ -15,10 +15,12 @@ enum LogLevel {
 message LogField {
   string key = 1;
   oneof value {
-    string string_val = 2;
-    int64 int_val = 3;
-    double double_val = 4;
-    bool bool_val = 5;
+    bytes bytes_val = 2;
+    string string_val = 3;
+    int64 int_val = 4;
+    uint64 uint_val = 5;
+    double double_val = 6;
+    bool bool_val = 7;
   }
 }
 

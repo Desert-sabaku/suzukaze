@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package comms.v1;
 
+import "comms/v1/heartbeat.proto";
 import "comms/v1/log.proto";
 
 option go_package = "firmware/gen/comms/v1;comms_v1";
@@ -9,5 +10,8 @@ option go_package = "firmware/gen/comms/v1;comms_v1";
 message Packet {
   oneof payload {
     LogEntry log_entry = 1;
+    HandshakeReq handshake_req = 2;
+    HandshakeResp handshake_resp = 3;
+    Heartbeat heartbeat = 4;
   }
 }

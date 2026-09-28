@@ -104,7 +104,7 @@ class MCUClient:
 
                 continue
         except KeyboardInterrupt:
-            print("Stopping listening...")
+            print("Stopping listening...")  # noqa: T201
         finally:
             self.close()
 

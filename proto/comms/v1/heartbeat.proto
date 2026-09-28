@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package comms.v1;
+
+option go_package = "firmware/gen/comms/v1;comms_v1";
+
+message VersionInfo {
+  // protoファイルのハッシュ値 (先頭8文字)
+  string schema_hash = 1;
+
+  // Git コミットハッシュ (例: "a1b2c3d", "a1b2c3d-dirty")
+  string commit_hash = 2;
+}
+
+message HandshakeReq {
+  VersionInfo client_version = 1;
+}
+
+message HandshakeResp {
+  VersionInfo controller_version = 1;
+
+  uint64 uptime_ms = 2;
+
+  // スキーマが一致しているかどうか
+  bool matched = 3;
+}
+
+message Heartbeat {
+  uint64 uptime_ms = 1;
+}
