@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: f102fc0964f73a0449f92a495303e38e
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 389712
+  packageName: Free URP Riverside Plants & Trees
+  packageVersion: 1.0
+  assetPath: Assets/R3DWorks/Free/URP_RiversidePlants/Shaders/functions.hlsl
+  uploadId: 944088

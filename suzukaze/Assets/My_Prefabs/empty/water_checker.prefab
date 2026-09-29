@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3324711661442147397
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5531104274189387185}
+  - component: {fileID: 8491902531224807214}
+  m_Layer: 0
+  m_Name: water_checker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5531104274189387185
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3324711661442147397}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 68.48096, y: 10.00122, z: 52.70033}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8491902531224807214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3324711661442147397}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44f288444e3094940a4bb25024421c45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnderwaterEffect
+  waterPlane: {fileID: 0}
+  targetCamera: {fileID: 0}
+  underwaterVolume: {fileID: 0}
+  fogColor: {r: 0.1, g: 0.3, b: 0.4, a: 1}
+  fogDensity: 0.05
+  playerMove: {fileID: 0}
+  audioMixer: {fileID: 24100000, guid: ad39a450b6ef34e4883bcabedabf317e, type: 2}
+  underwaterSnapshot: {fileID: -1019612537261286236, guid: ad39a450b6ef34e4883bcabedabf317e, type: 2}
+  normalSnapshot: {fileID: 24500006, guid: ad39a450b6ef34e4883bcabedabf317e, type: 2}
+  audioTransitionTime: 0.5
+  bubbleParticle: {fileID: 0}

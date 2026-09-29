@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 42cb25da4967c2c4bbb29fe3be0a8ff5
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: d2faf10b161e86434a6c2abc48ce57c1, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 389712
+  packageName: Free URP Riverside Plants & Trees
+  packageVersion: 1.0
+  assetPath: Assets/R3DWorks/Free/URP_RiversidePlants/Scripts/R3DWind.cs
+  uploadId: 944088

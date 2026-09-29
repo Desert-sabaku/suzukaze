@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: a265e3695bc09a441a06f786667fde09
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 60072b568d64c40a485e0fc55012dc9f, type: 3}
+AssetOrigin:
+  serializedVersion: 1
+  productId: 389712
+  packageName: Free URP Riverside Plants & Trees
+  packageVersion: 1.0
+  assetPath: Assets/R3DWorks/Free/URP_RiversidePlants/Shaders/SubGraphs/4DNoise.shadersubgraph
+  uploadId: 944088
