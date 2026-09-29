@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: c3252555bfba08a43b376c674a1a4cf1
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 383576
+  packageName: Tree Shaders (for Shader Graph)
+  packageVersion: 1.2.3
+  assetPath: Assets/FreeTreeShaders/Doc/Free Tree Shaders Guide.pdf
+  uploadId: 961744

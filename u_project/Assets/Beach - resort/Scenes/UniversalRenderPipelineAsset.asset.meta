@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2544ed4cba2a1724bba30d10f21b1331
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 127625
+  packageName: Beach - resort
+  packageVersion: 2.0
+  assetPath: Assets/Beach - resort/Scenes/UniversalRenderPipelineAsset.asset
+  uploadId: 634525
