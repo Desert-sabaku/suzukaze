@@ -8,13 +8,20 @@ import asyncio
 import json
 from typing import Any
 
+from suzukaze_gesture_protocol import (
+    MAX_MESSAGE_BYTES,
+    FrameDecoder,
+    decode_message,
+    frame_message,
+)
 from websockets.exceptions import ConnectionClosed
-
-MAX_MESSAGE_BYTES = 8192
 
 
 class GestureRelay:
-    def __init__(self, port: int = 5001) -> None:
+    def __init__(self, port: int = 5001, message_format: str = "json") -> None:
+        if message_format not in {"json", "protobuf"}:
+            raise ValueError("Expected json or protobuf gesture format")
+        self.message_format = message_format
         self.port = port
         self._connected = False
 
@@ -41,7 +48,7 @@ class GestureRelay:
             done, _ = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
             for task in done:
                 task.result()
-        except OSError, ValueError, TimeoutError, ConnectionClosed:
+        except OSError, ValueError, TypeError, TimeoutError, ConnectionClosed:
             pass
         finally:
             for task in tasks:
@@ -61,6 +68,16 @@ class GestureRelay:
                 self._connected = False
 
     async def _to_unity(self, reader: asyncio.StreamReader, websocket: Any) -> None:
+        if self.message_format == "protobuf":
+            decoder = FrameDecoder()
+            while chunk := await reader.read(4096):
+                for payload in decoder.feed(chunk):
+                    if decode_message(payload)["type"] not in {"state", "event"}:
+                        raise ValueError("Expected state or event payload")
+                    # Validate without re-encoding: retain unknown protobuf fields.
+                    await asyncio.wait_for(websocket.send(payload), 0.5)
+            decoder.eof()
+            return
         while True:
             line = await reader.readline()
             if not line:
@@ -74,6 +91,14 @@ class GestureRelay:
 
     async def _to_detection(self, websocket: Any, writer: asyncio.StreamWriter) -> None:
         async for message in websocket:
+            if self.message_format == "protobuf":
+                if not isinstance(message, bytes):
+                    raise ValueError("Expected a binary ACK")
+                if decode_message(message)["type"] != "ack":
+                    raise ValueError("Only ACKs are accepted in gesture mode")
+                writer.write(frame_message(message))
+                await asyncio.wait_for(writer.drain(), 0.5)
+                continue
             if (
                 not isinstance(message, str)
                 or len(message.encode("utf-8")) > MAX_MESSAGE_BYTES

@@ -31,6 +31,35 @@ Unity側は100ms程度の間隔で再接続してください。接続はUnity 1
 
 ## 通信形式
 
+`GESTURE_DELIVERY_FORMAT=json|protobuf` で明示的に選択します。既定は `json` です。
+認識側（1・2カメラ共通）、ブリッジ、Unityまたはプローブで同じ形式を指定してください。
+自動判別・形式のネゴシエーションはありません。
+
+Protobufで起動する例（各プロジェクトで先に `uv sync`）:
+
+```bash
+# gesture_detection/（または .env に設定）
+GESTURE_DELIVERY_ENABLED=true GESTURE_DELIVERY_FORMAT=protobuf uv run gesture-detection
+# unity_bridge/（別ターミナル）
+uv run unity-bridge --gesture-port 5001 --gesture-format protobuf
+uv run unity-gesture-probe --format protobuf
+```
+
+ブリッジの `--gesture-format` とプローブの `--format` は環境変数
+`GESTURE_DELIVERY_FORMAT` より優先されます。未指定なら環境変数、次に `json` を使います。
+この指定はジェスチャー配送専用です。シリアル中継の形式は変わりません。
+
+Protobufは共有の [gesture protocol](../../gesture_protocol/README.md) を使用します。
+TCPは4バイトの符号なしビッグエンディアン長 + ペイロード、WebSocketは1つの
+バイナリメッセージに1ペイロード（長さヘッダーなし）です。ペイロードは1〜8192バイト。
+分割・連結されたTCPフレームを復元し、不正な長さ・途中EOF・不正なProtobuf・
+逆方向の種類（認識側へのstate/event、Unity側へのACK）は切断します。
+ブリッジは検証後の元バイト列を転送するため、未知フィールドも保持します。
+不正な接続でも配送ワーカーは動作を継続し、再接続を受け付けます。
+期限・再送・ACK・重複判定の意味は両形式で同じです。
+
+以下のJSON例はProtobufでも同じ意味のフィールドを表します。
+
 TCPではUTF-8のJSONを1行に1件、LFで区切ります。WebSocketではテキストフレーム
 1件にJSONを1個載せます。1件8 KiB以内で、画像・ランドマーク・診断文字列は送りません。
 `version=1`、認識ワーカー起動ごとのUUID `session_id` を共通で含めます。

@@ -12,6 +12,7 @@ from mediapipe.tasks.python import vision
 
 from .config import (
     FPS,
+    GESTURE_DELIVERY_FORMAT,
     GESTURE_DELIVERY_HOST,
     GESTURE_DELIVERY_PORT,
     GESTURE_EVENT_TTL,
@@ -203,6 +204,7 @@ def pose_worker(
             outbox,
             host=GESTURE_DELIVERY_HOST,
             port=GESTURE_DELIVERY_PORT,
+            message_format=GESTURE_DELIVERY_FORMAT,
             state_interval=GESTURE_STATE_INTERVAL,
         )
         if outbox is not None

@@ -32,6 +32,7 @@ class UnityBridge:
         serial_port: str | None = DEFAULT_SERIAL_PORT,
         baudrate: int = DEFAULT_BAUDRATE,
         gesture_port: int | None = None,
+        gesture_format: str = "json",
     ) -> None:
         self.host = host
         self.websocket_port = websocket_port
@@ -40,7 +41,9 @@ class UnityBridge:
         if gesture_port is not None and serial_port is not None:
             raise ValueError("Gesture relay and serial relay are separate modes")
         self.gesture_relay = (
-            GestureRelay(gesture_port) if gesture_port is not None else None
+            GestureRelay(gesture_port, gesture_format)
+            if gesture_port is not None
+            else None
         )
         self._stop = threading.Event()
         self._serial: Any | None = None
@@ -59,7 +62,7 @@ class UnityBridge:
                 self.gesture_relay.serve if self.gesture_relay else self._serve_client,
                 self.host,
                 self.websocket_port,
-                max_size=MAX_MESSAGE_BYTES,
+                max_size=8192 if self.gesture_relay else MAX_MESSAGE_BYTES,
                 close_timeout=0.5,
             ):
                 print(f"Waiting for Unity on ws://{self.host}:{self.websocket_port}")
@@ -180,7 +183,15 @@ def _parse_args() -> argparse.Namespace:
         type=int,
         help="Relay local gesture TCP to Unity instead of serial (typically 5001).",
     )
+    parser.add_argument(
+        "--gesture-format",
+        choices=("json", "protobuf"),
+        default=os.getenv("GESTURE_DELIVERY_FORMAT", "json"),
+        help="Gesture wire format (default: GESTURE_DELIVERY_FORMAT or json).",
+    )
     args = parser.parse_args()
+    if args.gesture_format not in {"json", "protobuf"}:
+        parser.error("--gesture-format must be json or protobuf")
     if args.gesture_port is not None:
         if not 1 <= args.gesture_port <= 65535:
             parser.error("--gesture-port must be between 1 and 65535")
@@ -198,7 +209,12 @@ def main() -> None:
         None if args.no_serial or args.gesture_port is not None else args.serial_port
     )
     bridge = UnityBridge(
-        args.host, args.websocket_port, serial_port, args.baudrate, args.gesture_port
+        args.host,
+        args.websocket_port,
+        serial_port,
+        args.baudrate,
+        args.gesture_port,
+        args.gesture_format,
     )
     try:
         bridge.run()

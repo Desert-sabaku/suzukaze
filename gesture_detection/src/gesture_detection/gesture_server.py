@@ -6,9 +6,16 @@ import socket
 import threading
 import time
 
+from suzukaze_gesture_protocol import (
+    MAX_MESSAGE_BYTES,
+    FrameDecoder,
+    decode_message,
+    encode_message,
+    frame_message,
+)
+
 from .gesture_delivery import DeliveryOutbox
 
-MAX_MESSAGE_BYTES = 8192
 logger = logging.getLogger(__name__)
 
 
@@ -20,7 +27,11 @@ class GestureServer:
         host: str = "127.0.0.1",
         port: int = 5001,
         state_interval: float = 0.1,
+        message_format: str = "json",
     ) -> None:
+        if message_format not in {"json", "protobuf"}:
+            raise ValueError("Expected json or protobuf gesture format")
+        self.message_format = message_format
         self.outbox = outbox
         self.host = host
         self.port = port
@@ -72,13 +83,14 @@ class GestureServer:
                     client.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
                     try:
                         self._serve(client)
-                    except (OSError, ValueError) as error:
+                    except (OSError, ValueError, TypeError) as error:
                         logger.info("Gesture client disconnected: %s", error)
         except BaseException as error:
             self._error = error
 
     def _serve(self, client: socket.socket) -> None:
         buffer = b""
+        decoder = FrameDecoder()
         next_state = 0.0
         reconnect = True
         while not self._stop.is_set():
@@ -93,13 +105,27 @@ class GestureServer:
                 if self._stop.is_set():
                     return
                 # The receiver also checks expiry after any socket buffering.
-                client.sendall((json.dumps(message, allow_nan=False) + "\n").encode("utf-8"))
+                payload = (
+                    frame_message(encode_message(message))
+                    if self.message_format == "protobuf"
+                    else (json.dumps(message, allow_nan=False) + "\n").encode("utf-8")
+                )
+                client.sendall(payload)
             try:
                 chunk = client.recv(4096)
             except TimeoutError:
                 continue
             if not chunk:
+                if self.message_format == "protobuf":
+                    decoder.eof()
                 return
+            if self.message_format == "protobuf":
+                for payload in decoder.feed(chunk):
+                    ack = decode_message(payload)
+                    if ack["type"] != "ack":
+                        raise ValueError("Expected ACK payload")
+                    self.outbox.acknowledge(ack)
+                continue
             buffer += chunk
             while b"\n" in buffer:
                 line, buffer = buffer.split(b"\n", 1)
