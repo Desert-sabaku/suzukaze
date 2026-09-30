@@ -1,0 +1,38 @@
+[
+  {
+    "message": {"version": 1, "type": "state", "session_id": "fixture", "sequence": 1, "sent_at": 10.0, "stale_timeout": 0.5, "fresh": false, "gesture": "NONE", "tracking": false, "observed_at": null, "frame_id": null, "source_timestamp": null},
+    "protobuf_hex": "08011207666978747572655216080111000000000000244019000000000000e03f2801"
+  },
+  {
+    "message": {"version": 1, "type": "state", "session_id": "fixture", "sequence": 18446744073709551615, "sent_at": 10.0, "stale_timeout": 0.5, "fresh": true, "gesture": "FANNING", "tracking": true, "observed_at": 0.0, "frame_id": 0, "source_timestamp": 0.0},
+    "protobuf_hex": "0801120766697874757265523708ffffffffffffffffff0111000000000000244019000000000000e03f2001280230013900000000000000004000490000000000000000"
+  },
+  {
+    "message": {"version": 1, "type": "state", "session_id": "fixture", "sequence": 3, "sent_at": 10.0, "stale_timeout": 0.5, "fresh": true, "gesture": "RELAXING", "tracking": true, "observed_at": 9.75, "frame_id": 18446744073709551615, "source_timestamp": 9.5},
+    "protobuf_hex": "08011207666978747572655237080311000000000000244019000000000000e03f20012803300139000000000080234040ffffffffffffffffff01490000000000002340"
+  },
+  {
+    "message": {"version": 1, "type": "event", "session_id": "fixture", "event_id": 1, "gesture": "RAMUNE", "occurred_at": 10.0, "expires_at": 11.0, "frame_id": null, "source_timestamp": null},
+    "protobuf_hex": "08011207666978747572655a1608011001190000000000002440210000000000002640"
+  },
+  {
+    "message": {"version": 1, "type": "event", "session_id": "fixture", "event_id": 2, "gesture": "UCHIMIZU", "occurred_at": 10.0, "expires_at": 11.0, "frame_id": null, "source_timestamp": null},
+    "protobuf_hex": "08011207666978747572655a1608021002190000000000002440210000000000002640"
+  },
+  {
+    "message": {"version": 1, "type": "ack", "session_id": "fixture", "event_id": 18446744073709551615, "status": "accepted"},
+    "protobuf_hex": "0801120766697874757265620d08ffffffffffffffffff011001"
+  },
+  {
+    "message": {"version": 1, "type": "ack", "session_id": "fixture", "event_id": 18446744073709551615, "status": "ignored"},
+    "protobuf_hex": "0801120766697874757265620d08ffffffffffffffffff011002"
+  },
+  {
+    "message": {"version": 1, "type": "ack", "session_id": "fixture", "event_id": 18446744073709551615, "status": "expired"},
+    "protobuf_hex": "0801120766697874757265620d08ffffffffffffffffff011003"
+  },
+  {
+    "message": {"version": 1, "type": "ack", "session_id": "fixture", "event_id": 18446744073709551615, "status": "duplicate"},
+    "protobuf_hex": "0801120766697874757265620d08ffffffffffffffffff011004"
+  }
+]

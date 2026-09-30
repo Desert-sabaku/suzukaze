@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package gesture.v1;
+
+option csharp_namespace = "Suzukaze.Gesture.Protocol";
+
+message GestureEnvelope {
+  uint32 version = 1;
+  string session_id = 2;
+  oneof payload {
+    State state = 10;
+    Event event = 11;
+    Ack ack = 12;
+  }
+}
+
+message State {
+  uint64 sequence = 1;
+  double sent_at = 2;
+  double stale_timeout = 3;
+  bool fresh = 4;
+  ContinuousGesture gesture = 5;
+  bool tracking = 6;
+  optional double observed_at = 7;
+  optional uint64 frame_id = 8;
+  optional double source_timestamp = 9;
+}
+
+message Event {
+  uint64 event_id = 1;
+  OccurrenceGesture gesture = 2;
+  double occurred_at = 3;
+  double expires_at = 4;
+  optional uint64 frame_id = 5;
+  optional double source_timestamp = 6;
+}
+
+message Ack {
+  uint64 event_id = 1;
+  AckStatus status = 2;
+}
+
+enum ContinuousGesture {
+  CONTINUOUS_GESTURE_UNSPECIFIED = 0;
+  CONTINUOUS_GESTURE_NONE = 1;
+  CONTINUOUS_GESTURE_FANNING = 2;
+  CONTINUOUS_GESTURE_RELAXING = 3;
+}
+
+enum OccurrenceGesture {
+  OCCURRENCE_GESTURE_UNSPECIFIED = 0;
+  OCCURRENCE_GESTURE_RAMUNE = 1;
+  OCCURRENCE_GESTURE_UCHIMIZU = 2;
+}
+
+enum AckStatus {
+  ACK_STATUS_UNSPECIFIED = 0;
+  ACK_STATUS_ACCEPTED = 1;
+  ACK_STATUS_IGNORED = 2;
+  ACK_STATUS_EXPIRED = 3;
+  ACK_STATUS_DUPLICATE = 4;
+}

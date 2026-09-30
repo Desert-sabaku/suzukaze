@@ -1,0 +1,7 @@
+{
+    "name": "Suzukaze.Gesture.Protocol",
+    "rootNamespace": "Suzukaze.Gesture.Protocol",
+    "references": [],
+    "defineConstraints": ["SUZUKAZE_GESTURE_PROTOBUF"],
+    "autoReferenced": true
+}
