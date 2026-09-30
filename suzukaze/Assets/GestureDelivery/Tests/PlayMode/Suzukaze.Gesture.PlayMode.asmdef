@@ -1,0 +1,5 @@
+{
+  "name": "Suzukaze.Gesture.PlayMode",
+  "references": ["Suzukaze.Gesture.Delivery", "Suzukaze.Gesture.Protocol", "Suzukaze.Gesture.Unity"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}
