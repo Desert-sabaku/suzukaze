@@ -9,6 +9,7 @@ import serial
 
 from mcu.gen.comms.v1.comms_pb2 import Packet
 from mcu.gen.comms.v1.heartbeat_pb2 import HandshakeReq, VersionInfo
+from mcu.gen.comms.v1.pwm_pb2 import PwmFade
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -135,6 +136,12 @@ class MCUClient:
 
         msg = "Handshake timed out"
         raise SerialTimeoutError(msg)
+
+    def send_fade(self, pin: int, value: int, duration_ms: int) -> None:
+        """PwmFadeを送る. valueは0-255(ファームウェア側で内部分解能にスケールする)."""
+        self.send_packet(
+            Packet(pwm_fade=PwmFade(pin=pin, value=value, duration_ms=duration_ms)),
+        )
 
     def start_listening(self) -> None:
         try:

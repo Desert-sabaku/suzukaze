@@ -5,22 +5,15 @@ import (
 	"math"
 	"sync"
 	"time"
+
+	comms_v1 "firmware/gen/comms/v1"
 )
 
 const (
-	pwmPeriod   = time.Second / (25 * 1000) // 25kHz
-	maxValue    = 7999
-	fadeSteps   = 100
-	fadeGamma   = 2.2
-	maxLineSize = 256 // guard against a runaway line if no '\n' ever arrives
+	pwmPeriod = time.Second / (25 * 1000) // 25kHz
+	fadeSteps = 100
+	fadeGamma = 2.2
 )
-
-// Message is a fade instruction received over USB serial as a JSON line.
-type Message struct {
-	Pin      int           `json:"pin"`
-	Value    int           `json:"value"`
-	Duration time.Duration `json:"duration"`
-}
 
 // pwmDevice is satisfied by *machine.PWM0..7 (unexported concrete type),
 // enabling them to be stored in a slice and passed around by interface.
@@ -37,70 +30,69 @@ var (
 		machine.PWM4, machine.PWM5, machine.PWM6, machine.PWM7,
 	}
 
-	pinChans sync.Map // map[int]chan Message
+	pinChans sync.Map // map[uint32]chan *comms_v1.PwmFade
 )
 
-
-// dispatch sends msg to the pin's fade worker, starting the worker on first
+// dispatch sends cmd to the pin's fade worker, starting the worker on first
 // use. If the worker is already fading, the in-flight fade is interrupted.
-func dispatch(msg Message) {
-	chAny, loaded := pinChans.LoadOrStore(msg.Pin, make(chan Message, 1))
-	ch := chAny.(chan Message)
+func dispatch(cmd *comms_v1.PwmFade) {
+	chAny, loaded := pinChans.LoadOrStore(cmd.GetPin(), make(chan *comms_v1.PwmFade, 1))
+	ch := chAny.(chan *comms_v1.PwmFade)
 
 	if !loaded {
-		go fadeWorker(msg.Pin, ch)
+		go fadeWorker(cmd.GetPin(), ch)
 	}
 
 	select {
-	case ch <- msg:
+	case ch <- cmd:
 	default:
 		select {
 		case <-ch:
 		default:
 		}
-		ch <- msg
+		ch <- cmd
 	}
 }
 
-// fadeWorker owns PWM output for a single pin and applies incoming Messages
+// fadeWorker owns PWM output for a single pin and applies incoming commands
 // one at a time, interrupting any fade currently in progress.
-func fadeWorker(pinNum int, ch chan Message) {
+func fadeWorker(pinNum uint32, ch chan *comms_v1.PwmFade) {
 	pin := machine.Pin(pinNum)
 
 	slice, err := machine.PWMPeripheral(pin)
 	if err != nil {
-		// log.Error().Err(err).Int("pin", pinNum).Msg("Invalid PWM pin")
+		Log.Error().Err(NewAppError("INVALID_PWM_PIN", "invalid PWM pin").Wrap(err).Uint("pin", uint(pinNum)))
 		return
 	}
 	pwm := pwmPeripherals[slice]
 
 	if err := pwm.Configure(machine.PWMConfig{Period: uint64(pwmPeriod)}); err != nil {
-		// log.Error().Err(err).Int("pin", pinNum).Msg("Failed to configure PWM")
+		Log.Error().Err(NewAppError("PWM_CONFIGURE_FAILED", "failed to configure PWM").Wrap(err).Uint("pin", uint(pinNum)))
 		return
 	}
 
 	channel, err := pwm.Channel(pin)
 	if err != nil {
-		// log.Error().Err(err).Int("pin", pinNum).Msg("Failed to get PWM channel")
+		Log.Error().Err(NewAppError("PWM_CHANNEL_FAILED", "failed to get PWM channel").Wrap(err).Uint("pin", uint(pinNum)))
 		return
 	}
 
-	msg := <-ch
+	cmd := <-ch
 	for {
-		if next := fade(pwm, channel, msg, ch); next != nil {
-			msg = *next
+		if next := fade(pwm, channel, cmd, ch); next != nil {
+			cmd = next
 			continue
 		}
-		msg = <-ch
+		cmd = <-ch
 	}
 }
 
-// fade ramps duty from 0 to msg.Value over msg.Duration, applying a gamma
-// 2.2 curve. It returns early with the interrupting Message if a new
-// Message arrives on ch before the fade completes.
-func fade(pwm pwmDevice, channel uint8, msg Message, ch chan Message) *Message {
+// fade ramps duty from 0 to cmd.Value (0-255) over cmd.DurationMs, applying a
+// gamma 2.2 curve. It returns early with the interrupting command if a new
+// one arrives on ch before the fade completes.
+func fade(pwm pwmDevice, channel uint8, cmd *comms_v1.PwmFade, ch chan *comms_v1.PwmFade) *comms_v1.PwmFade {
 	top := float64(pwm.Top())
-	interval := msg.Duration / fadeSteps
+	interval := time.Duration(cmd.GetDurationMs()) * time.Millisecond / fadeSteps
 	if interval <= 0 {
 		interval = time.Millisecond
 	}
@@ -108,12 +100,12 @@ func fade(pwm pwmDevice, channel uint8, msg Message, ch chan Message) *Message {
 	for i := 0; i <= fadeSteps; i++ {
 		select {
 		case next := <-ch:
-			return &next
+			return next
 		default:
 		}
 
 		t := float64(i) / fadeSteps
-		duty := math.Pow(t*float64(msg.Value)/maxValue, fadeGamma) * top
+		duty := math.Pow(t*float64(cmd.GetValue())/255, fadeGamma) * top
 		pwm.Set(channel, uint32(duty))
 		time.Sleep(interval)
 	}

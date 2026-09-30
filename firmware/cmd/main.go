@@ -52,6 +52,9 @@ func receiveLoop(pt *PacketTransceiver) {
 		if req := pkt.GetHandshakeReq(); req != nil {
 			handleHandshake(pt, req)
 		}
+		if cmd := pkt.GetPwmFade(); cmd != nil {
+			dispatch(cmd)
+		}
 	}
 }
 
