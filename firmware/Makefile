@@ -9,14 +9,14 @@ SCHEMA_HASH := $(shell cat ../proto/comms/v1/*.proto | sha256sum | cut -c1-8)
 # TinyGoに埋め込むフラグ
 LDFLAGS := -X main.GitCommit=$(GIT_COMMIT) -X main.SchemaHash=$(SCHEMA_HASH)
 
-all: build
+all: flash
 
 build:
 	@echo "=== Building firmware (Commit: $(GIT_COMMIT), Schema: $(SCHEMA_HASH)) ==="
 	tinygo build -target=$(TARGET) -ldflags="$(LDFLAGS)" -o firmware.uf2 ./cmd
 
 flash:
-	@echo "=== Flashing to $(TARGET) ==="
+	@echo "=== Flashing to $(TARGET) (Commit: $(GIT_COMMIT), Schema: $(SCHEMA_HASH)) ==="
 	tinygo flash -target=$(TARGET) -ldflags="$(LDFLAGS)" ./cmd
 
 clean:

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/binary"
 	"io"
+	"sync"
 
 	comms_v1 "firmware/gen/comms/v1"
 )
@@ -25,6 +26,7 @@ type PacketTransceiver struct {
   br *bufio.Reader
   w io.Writer
   rxBuf [MaxPayloadSize]byte
+  txMu sync.Mutex // txBuf はheartbeatとreceiveLoopから同時に書かれうる共有バッファ
   txBuf [MaxPacketSize]byte
 }
 
@@ -82,6 +84,9 @@ func (pt *PacketTransceiver) ReadPacket(pkt *comms_v1.Packet) error {
 }
 
 func (pt *PacketTransceiver) SendPacket(pkt *comms_v1.Packet) error {
+  pt.txMu.Lock()
+  defer pt.txMu.Unlock()
+
   size := uint16(pkt.SizeVT())
   if size > MaxPayloadSize {
     return NewErrPayloadTooLarge().Uint16("payload_bytes", size)

@@ -1,13 +1,40 @@
-import json
+import struct
 
-from mcu import FanController
+from mcu.client import MCUClient
+from mcu.gen.comms.v1.comms_pb2 import Packet
+from mcu.gen.comms.v1.heartbeat_pb2 import HandshakeResp, VersionInfo
 
 
-def test_fade_writes_one_json_line():
-    with FanController("loop://") as controller:
-        controller.fade(pin=25, value=4000, duration_seconds=1.0)
+def test_send_packet_writes_framed_bytes() -> None:
+    with MCUClient("loop://") as client:
+        pkt = Packet(handshake_resp=HandshakeResp(uptime_ms=123, matched=True))
+        client.send_packet(pkt)
 
-        line = controller._serial.readline()
-        message = json.loads(line)
+        header = client.read_exact(4)
+        (length,) = struct.unpack(">H", client.read_exact(2))
+        payload = client.read_exact(length)
 
-    assert message == {"pin": 25, "value": 4000, "duration": 1_000_000_000}
+        assert header == MCUClient.MAGIC_HEADER
+        received = Packet()
+        received.ParseFromString(payload)
+        assert received == pkt
+
+
+def test_handshake_returns_matching_response() -> None:
+    with MCUClient("loop://") as client:
+        resp_pkt = Packet(
+            handshake_resp=HandshakeResp(
+                controller_version=VersionInfo(schema_hash="a28de0fe", commit_hash="dev"),
+                uptime_ms=42,
+                matched=True,
+            ),
+        )
+        payload = resp_pkt.SerializeToString()
+        assert client.ser is not None
+        client.ser.write(MCUClient.MAGIC_HEADER + struct.pack(">H", len(payload)) + payload)
+
+        resp = client.handshake()
+
+        assert resp.matched is True
+        assert resp.controller_version.schema_hash == "a28de0fe"
+        assert resp.uptime_ms == 42
