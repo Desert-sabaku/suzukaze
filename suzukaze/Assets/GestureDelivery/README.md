@@ -37,6 +37,11 @@ Only one receiver may own the connection, even during disable/re-enable or
 replacement: cancellation completes before its successor starts connecting.
 Disabling clears pending work and delivers neutral state; destruction cancels
 the worker and releases its socket/CTS asynchronously without blocking Unity.
+Delivery history (sequence and live accepted/ignored IDs) belongs to the play
+session, so destroying and replacing the Behaviour cannot repeat an event whose
+ACK was lost. Pending queues and continuous state are cleared on replacement.
+Subsystem registration resets history for each new play session, including
+when domain reload is disabled, while retaining the old worker's cleanup barrier.
 
 ```csharp
 public void DeliverState(StateView state)
@@ -127,7 +132,8 @@ reconnection/cancellation. The compatibility build targets .NET Standard 2.1
 with C# 8 and warnings as errors; .NET 8 alone would not catch API drift.
 
 In Unity Test Runner run **EditMode** and **PlayMode** under `Tests/`. PlayMode
-tests cover persistent ownership/disable/re-enable and diagnostic opt-in;
+tests cover persistent ownership, destruction/replacement with a lost ACK,
+new-play-session isolation, disable/re-enable, and diagnostic opt-in;
 ownership tests skip non-Windows platforms. In a Windows test scene manually
 exercise session restart, focus loss, scene changes, sink acceptance, and
 Windows standalone Mono/IL2CPP builds with a real protobuf bridge. Portable

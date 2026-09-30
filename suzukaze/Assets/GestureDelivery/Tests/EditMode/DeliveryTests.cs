@@ -192,5 +192,38 @@ namespace Suzukaze.Gesture.Delivery.Tests
             byte[] bytes = WireTests.Hex("08011207666978747572655a1608011001190000000000002440210000000000002640a00601");
             Assert.DoesNotThrow(() => WireMessage.Validate(GestureEnvelope.Parser.ParseFrom(bytes)));
         }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ReplacementOwnerRetainsLostAckDecisionButNotPendingWork(bool accept)
+        {
+            var history = new DeliveryPolicy(); var clock = new TestClock();
+            var sink = new TestSink { Accept = accept };
+            var old = new ReceiverHandoff(history);
+            long oldToken = old.BeginConnection();
+            old.Publish(oldToken, State()); old.Publish(oldToken, Occurrence());
+            old.Tick(clock, sink); // Intentionally lose the ACK before replacement.
+            old.Publish(oldToken, Occurrence(2));
+            old.Suspend();
+
+            var replacement = new ReceiverHandoff(history);
+            replacement.Tick(clock, sink);
+            Assert.That(sink.State.Gesture, Is.EqualTo(ContinuousGesture.None));
+            Assert.That(sink.State.Fresh, Is.False);
+            long token = replacement.BeginConnection();
+            replacement.Publish(token, Occurrence()); replacement.Tick(clock, sink);
+            Assert.That(replacement.TakeAck(token).Ack.Status, Is.EqualTo(AckStatus.Duplicate));
+            Assert.That(sink.Calls, Is.EqualTo(1));
+            Assert.That(old.TakeAck(oldToken), Is.Null);
+            Assert.That(old.Publish(oldToken, Occurrence(2)), Is.False);
+            Assert.That(replacement.TakeAck(token), Is.Null, "Old pending event must not migrate");
+
+            var newPlaySession = new ReceiverHandoff(new DeliveryPolicy());
+            token = newPlaySession.BeginConnection();
+            newPlaySession.Publish(token, Occurrence()); newPlaySession.Tick(clock, sink);
+            Assert.That(newPlaySession.TakeAck(token).Ack.Status,
+                Is.EqualTo(accept ? AckStatus.Accepted : AckStatus.Ignored));
+            Assert.That(sink.Calls, Is.EqualTo(2));
+        }
     }
 }

@@ -23,10 +23,17 @@ namespace Suzukaze.Gesture.Delivery
         private TaskCompletionSource<bool> disconnected;
 
         public ReceiverHandoff(int pendingCapacity = 64, int dedupCapacity = 1024)
+            : this(new DeliveryPolicy(dedupCapacity), pendingCapacity)
+        {
+        }
+
+        // History can outlive a connection owner. Its policy methods still belong
+        // exclusively to the main thread; pending queues remain owner-local.
+        public ReceiverHandoff(DeliveryPolicy history, int pendingCapacity = 64)
         {
             if (pendingCapacity < 1) throw new ArgumentOutOfRangeException(nameof(pendingCapacity));
             capacity = pendingCapacity;
-            policy = new DeliveryPolicy(dedupCapacity);
+            policy = history ?? throw new ArgumentNullException(nameof(history));
         }
 
         public long BeginConnection()

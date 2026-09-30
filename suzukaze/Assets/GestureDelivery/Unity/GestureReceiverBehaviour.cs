@@ -10,6 +10,7 @@ namespace Suzukaze.Gesture.Delivery
     {
         private static GestureReceiverBehaviour owner;
         private static Task retiring = Task.CompletedTask;
+        private static DeliveryPolicy history = new DeliveryPolicy();
         [SerializeField] private string endpoint = "ws://127.0.0.1:5000";
         [Tooltip("Must implement IGestureSink. Missing/destroyed sink ignores events.")]
         [SerializeField] private MonoBehaviour sink;
@@ -20,6 +21,16 @@ namespace Suzukaze.Gesture.Delivery
         private Task worker;
         public bool IsOwner => owner == this;
         public string LastError => receiver?.LastError;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetPlaySession()
+        {
+            // Also runs when domain reload is disabled. Retire any old worker
+            // before releasing ownership, but retain its cleanup barrier.
+            if (owner != null) owner.RetireWorker();
+            owner = null;
+            history = new DeliveryPolicy();
+        }
 
         public void SetSink(MonoBehaviour value)
         {
@@ -33,11 +44,15 @@ namespace Suzukaze.Gesture.Delivery
             if (owner != null && owner != this) { Destroy(gameObject); return; }
             owner = this;
             DontDestroyOnLoad(gameObject);
-            handoff = new ReceiverHandoff();
+            history.Disconnected();
+            handoff = new ReceiverHandoff(history);
         }
 
         private void OnEnable()
         {
+            // With scene/domain reload disabled an existing component can re-enter
+            // without a new Awake. Bind it to the new play session's history.
+            if (owner == null) Awake();
             if (!IsOwner) return;
             StartWorker();
         }
@@ -105,7 +120,14 @@ namespace Suzukaze.Gesture.Delivery
         private void OnDestroy()
         {
             if (!IsOwner) return;
+            RetireWorker();
             owner = null;
+        }
+
+        private void RetireWorker()
+        {
+            handoff?.Suspend();
+            history.Disconnected();
             var cancellation = stopping;
             cancellation?.Cancel();
             // No Unity API in continuation; observe completion and release resources.
@@ -116,6 +138,10 @@ namespace Suzukaze.Gesture.Delivery
                     TaskScheduler.Default);
             }
             else cancellation?.Dispose();
+            worker = null;
+            stopping = null;
+            receiver = null;
+            clock = null;
         }
     }
 }
