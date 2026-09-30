@@ -119,7 +119,10 @@ def test_invalid_delivery_settings(values):
 
 def test_delivery_format_default_and_override():
     assert read_config({})["GESTURE_DELIVERY_FORMAT"] == "json"
-    assert read_config({"GESTURE_DELIVERY_FORMAT": "protobuf"})["GESTURE_DELIVERY_FORMAT"] == "protobuf"
+    assert (
+        read_config({"GESTURE_DELIVERY_FORMAT": "protobuf"})["GESTURE_DELIVERY_FORMAT"]
+        == "protobuf"
+    )
 
 
 @pytest.mark.parametrize("area", ["0,0,1", "0.8,0,0.2,1", "0,0,1,2", "nan,0,1,1"])
