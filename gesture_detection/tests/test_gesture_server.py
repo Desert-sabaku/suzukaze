@@ -19,7 +19,7 @@ def test_tcp_reconnect_fragmented_ack_and_stale_state():
     outbox = DeliveryOutbox(event_ttl=5.0, stale_timeout=0.1)
     now = time.monotonic()
     outbox.publish(result("RAMUNE", "RAMUNE"), observed_at=now, now=now)
-    server = GestureServer(outbox, port=0, state_interval=0.02)
+    server = GestureServer(outbox, port=0, state_interval=0.02, message_format="json")
     server.start()
     try:
         with socket.create_connection(("127.0.0.1", server.port), timeout=2) as client:

@@ -7,11 +7,12 @@ from gesture_detection.gesture_delivery import DeliveryOutbox
 from gesture_detection.gesture_server import GestureServer
 from websockets.asyncio.server import serve
 
+from unity_bridge.core import UnityBridge
 from unity_bridge.gesture_probe import GestureReceiver, decode_payload, encode_ack
 from unity_bridge.gesture_relay import GestureRelay
 
 
-@pytest.mark.parametrize("message_format", ["json", "protobuf"])
+@pytest.mark.parametrize("message_format", [None, "json", "protobuf"])
 def test_recognition_outbox_through_bridge_to_receiver_and_back(message_format):
     async def scenario():
         outbox = DeliveryOutbox()
@@ -29,20 +30,30 @@ def test_recognition_outbox_through_bridge_to_receiver_and_back(message_format):
             observed_at=now,
             now=now,
         )
-        server = GestureServer(
-            outbox, port=0, state_interval=0.02, message_format=message_format
-        )
+        if message_format is None:
+            server = GestureServer(outbox, port=0, state_interval=0.02)
+        else:
+            server = GestureServer(
+                outbox, port=0, state_interval=0.02, message_format=message_format
+            )
+        wire_format = message_format or "protobuf"
         server.start()
         adopted = []
         receiver = GestureReceiver()
         try:
-            relay = GestureRelay(server.port, message_format)
+            if message_format is None:
+                bridge = UnityBridge(serial_port=None, gesture_port=server.port)
+                relay = bridge.gesture_relay
+                assert relay is not None
+                assert GestureRelay(server.port).message_format == "protobuf"
+            else:
+                relay = GestureRelay(server.port, message_format)
             async with serve(relay.serve, "127.0.0.1", 0, close_timeout=0.1) as ws:
                 port = ws.sockets[0].getsockname()[1]
                 async with websockets.connect(f"ws://127.0.0.1:{port}") as client:
                     while True:
                         message = decode_payload(
-                            await asyncio.wait_for(client.recv(), 1), message_format
+                            await asyncio.wait_for(client.recv(), 1), wire_format
                         )
                         ack = receiver.receive(
                             message,
@@ -51,11 +62,11 @@ def test_recognition_outbox_through_bridge_to_receiver_and_back(message_format):
                         )
                         if ack is not None:
                             assert ack["status"] == "accepted"
-                            await client.send(encode_ack(ack, message_format))
+                            await client.send(encode_ack(ack, wire_format))
                             break
                     for _ in range(30):
                         message = decode_payload(
-                            await asyncio.wait_for(client.recv(), 1), message_format
+                            await asyncio.wait_for(client.recv(), 1), wire_format
                         )
                         receiver.receive(message, time.monotonic(), lambda _: True)
                         if message["type"] == "state" and not message["fresh"]:

@@ -18,7 +18,7 @@ from websockets.exceptions import ConnectionClosed
 
 
 class GestureRelay:
-    def __init__(self, port: int = 5001, message_format: str = "json") -> None:
+    def __init__(self, port: int = 5001, message_format: str = "protobuf") -> None:
         if message_format not in {"json", "protobuf"}:
             raise ValueError("Expected json or protobuf gesture format")
         self.message_format = message_format

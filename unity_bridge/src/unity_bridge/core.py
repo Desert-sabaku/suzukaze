@@ -32,7 +32,7 @@ class UnityBridge:
         serial_port: str | None = DEFAULT_SERIAL_PORT,
         baudrate: int = DEFAULT_BAUDRATE,
         gesture_port: int | None = None,
-        gesture_format: str = "json",
+        gesture_format: str = "protobuf",
     ) -> None:
         self.host = host
         self.websocket_port = websocket_port
@@ -186,8 +186,8 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--gesture-format",
         choices=("json", "protobuf"),
-        default=os.getenv("GESTURE_DELIVERY_FORMAT", "json"),
-        help="Gesture wire format (default: GESTURE_DELIVERY_FORMAT or json).",
+        default=os.getenv("GESTURE_DELIVERY_FORMAT", "protobuf"),
+        help="Gesture wire format (default: GESTURE_DELIVERY_FORMAT or protobuf).",
     )
     args = parser.parse_args()
     if args.gesture_format not in {"json", "protobuf"}:

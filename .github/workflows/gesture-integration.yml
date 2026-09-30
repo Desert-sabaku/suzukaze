@@ -1,0 +1,59 @@
+name: Gesture cross-language integration
+
+on:
+  pull_request:
+    paths:
+      - 'gesture_detection/**'
+      - 'gesture_protocol/**'
+      - 'unity_bridge/**'
+      - 'suzukaze/Assets/GestureDelivery/**'
+      - 'tools/**'
+      - '.github/workflows/gesture-integration.yml'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  delivery:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.14'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      # Sync transport dependencies first, then install actual repository packages
+      # without their heavyweight camera/model/UI dependencies (especially Windows).
+      - name: Prepare isolated production-package fixture
+        shell: pwsh
+        run: |
+          uv sync --locked --project tools/gesture-integration
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $python = if ($IsWindows) { 'tools/gesture-integration/.venv/Scripts/python.exe' } else { 'tools/gesture-integration/.venv/bin/python' }
+          uv pip install --python $python --no-deps -e gesture_protocol -e gesture_detection -e unity_bridge
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          "GESTURE_E2E_PYTHON=$((Resolve-Path $python).Path)" >> $env:GITHUB_ENV
+          "GESTURE_E2E_FIXTURE=$((Resolve-Path 'tools/gesture-integration/fixture.py').Path)" >> $env:GITHUB_ENV
+      - name: Check fixture Python
+        run: uv run --project tools/gesture-integration --no-sync ruff check tools/gesture-integration/fixture.py
+      - name: Restore pinned Unity protobuf runtime
+        run: uv run --project tools/gesture-integration --no-sync python tools/restore_unity_protobuf.py
+      - name: Restore locked portable test dependencies
+        run: dotnet restore tools/GestureDelivery.Integration --locked-mode
+      - name: Real Python to C# delivery and ACK (native QPC on Windows)
+        run: dotnet test tools/GestureDelivery.Integration --no-restore --logger "trx;LogFileName=gesture-integration.trx" --results-directory tools/GestureDelivery.Integration/TestResults
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gesture-integration-${{ matrix.os }}
+          path: tools/GestureDelivery.Integration/TestResults/*.trx
