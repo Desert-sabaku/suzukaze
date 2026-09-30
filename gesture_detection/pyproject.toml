@@ -1,5 +1,6 @@
 [project]
 dependencies = [
+  "suzukaze-gesture-protocol",
   "mediapipe>=0.10.35",
   "numpy>=2.5.1",
   "opencv-python>=5.0.0.93",
@@ -18,6 +19,9 @@ annotate-landmarks = "scripts.annotate_landmarks:main"
 annotate-video = "scripts.video_annotation:main"
 record-cameras = "scripts.video_capture:main"
 record-three-cameras = "scripts.video_capture:main"
+
+[tool.uv.sources]
+suzukaze-gesture-protocol = { path = "../gesture_protocol", editable = true }
 
 [build-system]
 requires = ["setuptools>=77"]

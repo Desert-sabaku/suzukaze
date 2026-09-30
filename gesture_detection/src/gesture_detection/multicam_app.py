@@ -216,6 +216,7 @@ class MultiCameraApplication:
                     outbox,
                     host=config.GESTURE_DELIVERY_HOST,
                     port=config.GESTURE_DELIVERY_PORT,
+                    message_format=config.GESTURE_DELIVERY_FORMAT,
                     state_interval=config.GESTURE_STATE_INTERVAL,
                 )
                 stack.callback(server.close)

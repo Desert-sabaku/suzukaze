@@ -25,6 +25,20 @@ uv run unity-gesture-probe
 uv run unity-gesture-probe --ignore-events
 ```
 
+既定の形式はJSONです。Protobufを使う場合は認識側に
+`GESTURE_DELIVERY_FORMAT=protobuf` を設定し、次のように起動します:
+
+```bash
+uv run unity-bridge --gesture-port 5001 --gesture-format protobuf
+uv run unity-gesture-probe --format protobuf
+```
+
+両CLIは `GESTURE_DELIVERY_FORMAT=json|protobuf` も読みます（CLI指定が優先）。
+認識側・ブリッジ・受信側で同じ形式にしてください。自動判別はありません。
+ProtobufはTCPの4バイトBE長付きフレームと、WebSocketのバイナリメッセージ
+（1ペイロード、ヘッダーなし）を使い、最大8192バイトです。検証後も元ペイロードを
+転送して未知フィールドを保持します。シリアル中継は別モードです。
+
 認識側の有効化、メッセージ仕様、時計、期限と受信側責務は
 [Unityへのジェスチャー通知](../gesture_detection/docs/unity-delivery.md)を参照してください。
 UnityのC#コードはこのブランチに含まれていません。
@@ -51,5 +65,7 @@ uv run ruff check src test
 uv run ruff format --check src test
 ```
 
-統合テストだけは認識側の `../gesture_detection/src` を参照します。
-認識モデルの依存パッケージはブリッジ環境にインストールしません。
+両Pythonプロジェクトは軽量な `../gesture_protocol` を直接依存として使います。
+既存の `gesture_detection` 依存もあるため、通常の `uv sync` は認識モデルの
+依存パッケージもインストールします。統合テストは実際のTCPサーバー・WebSocket
+中継・プローブ受信処理をJSON/Protobufの両形式で検証し、カメラは不要です。
