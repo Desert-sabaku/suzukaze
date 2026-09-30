@@ -1,0 +1,17 @@
+[build-system]
+requires = ["hatchling==1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "suzukaze-gesture-protocol"
+version = "0.1.0"
+description = "Shared protobuf codec and stream framing for Suzukaze gestures"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["protobuf==6.33.5"]
+
+[dependency-groups]
+dev = ["pytest==8.4.2", "protoc-wheel-0==30.2"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/suzukaze_gesture_protocol"]

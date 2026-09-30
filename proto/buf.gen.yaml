@@ -1,4 +1,8 @@
 version: v2
+inputs:
+  - directory: .
+    paths:
+      - comms
 plugins:
   - remote: buf.build/protocolbuffers/go
     out: ../firmware/gen
