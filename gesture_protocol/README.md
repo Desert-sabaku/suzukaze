@@ -76,14 +76,12 @@ never invokes it. No MCU schemas or generated outputs are modified.
 
 C# output: `../suzukaze/Assets/GestureDelivery/Generated/Gesture.cs`, namespace
 `Suzukaze.Gesture.Protocol`, assembly `Suzukaze.Gesture.Protocol`.
-The Unity integration must supply compatible `Google.Protobuf` **3.33.5**
-(C# and Python runtimes have different major-version numbering). Its DLL
-must be available to this assembly via Unity's normal auto-reference setup.
-Dependency installation and Unity runtime behavior belong to the integration.
-Until that dependency is included, the generated Unity assembly is gated by
-`SUZUKAZE_GESTURE_PROTOBUF` so the schema-only PR does not break existing Unity
-projects. The receiver PR removes this constraint when it supplies the DLLs;
-users do not need to add a scripting define for the complete integration.
+The Unity integration includes compatible `Google.Protobuf` **3.33.5**
+(C# and Python runtimes have different major-version numbering), its required
+plugin dependency, and checksum-verified restore tooling. Unity's normal
+auto-reference setup makes the DLL available to this assembly; no scripting
+define is required. See `../suzukaze/Assets/GestureDelivery/README.md` for
+dependency setup, receiver behavior, and Windows limitations.
 
 `tests/fixtures/messages.json` contains flat dictionaries and deterministic
 protobuf hex (without frame headers), usable by Python and C# tests. Hex
