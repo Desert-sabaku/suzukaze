@@ -1,0 +1,2 @@
+# These are authored portable projects, not Unity-generated IDE projects.
+!**/*.csproj
