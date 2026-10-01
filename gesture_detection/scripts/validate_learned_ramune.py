@@ -22,7 +22,9 @@ from .export_ramune_model import build_bundle, load_snapshot
 
 def objects(points: np.ndarray) -> list:
     return (
-        [SimpleNamespace(x=p[0], y=p[1], visibility=p[2]) for p in points] if points.any() else []
+        [SimpleNamespace(x=p[0], y=p[1], visibility=p[2]) for p in points]
+        if points.any()
+        else []
     )
 
 
@@ -35,7 +37,10 @@ def verify(
         output, pulses, phase, action, state = [], [], [], [], []
         for i, points in enumerate(clip["points"]):
             opened = detector.update(
-                objects(points), i / clip["fps"], aspect_ratio=clip["aspect"], frame_id=i
+                objects(points),
+                i / clip["fps"],
+                aspect_ratio=clip["aspect"],
+                frame_id=i,
             )
             output.append(3 if opened else 0)
             phase.append(detector.phase)
@@ -50,7 +55,11 @@ def verify(
         np.testing.assert_array_equal(output, expected["output/" + name])
         np.testing.assert_array_equal(state, expected["state/" + name])
         rows.append(
-            dict(video=name, frames=len(output), metrics=measure(clip, np.array(output), pulses))
+            dict(
+                video=name,
+                frames=len(output),
+                metrics=measure(clip, np.array(output), pulses),
+            )
         )
         print("stream parity", name, flush=True)
     return rows
@@ -59,18 +68,28 @@ def verify(
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--snapshot", type=Path, default=ROOT / "shared/results/0924-cache/runtime-source.npz"
+        "--snapshot",
+        type=Path,
+        default=ROOT / "shared/results/0924-cache/runtime-source.npz",
     )
     parser.add_argument("--videos", nargs="*", default=[])
     parser.add_argument(
-        "--app-clock", action="store_true", help="Use video PTS via the actual application clock"
+        "--app-clock",
+        action="store_true",
+        help="Use video PTS via the actual application clock",
     )
-    parser.add_argument("--output", type=Path, default=ROOT / "docs/0924-runtime-validation.json")
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=ROOT / "shared/results/0924-runtime-validation.json",
+    )
     args = parser.parse_args()
     clips, _ = load_snapshot(args.snapshot)
-    reference_path = ROOT / "docs/0924-opening-features-results.json"
+    reference_path = ROOT / "shared/results/0924-opening-features-results.json"
     reference = json.loads(reference_path.read_text())
-    action_ref = json.loads((ROOT / "docs/0924-timeline-central-results.json").read_text())
+    action_ref = json.loads(
+        (ROOT / "shared/results/0924-timeline-central-results.json").read_text()
+    )
     with np.load(ROOT / reference["frame_predictions"], allow_pickle=False) as data:
         expected = {
             k.removeprefix("relative_position/"): data[k].copy()
@@ -85,7 +104,9 @@ def main() -> None:
             training = [c for c in clips if c["group"] not in (0, group)]
             testing = [c for c in clips if c["group"] == group]
             action = next(
-                r for r in action_ref["results"]["action"]["clips"] if r["group"] == group
+                r
+                for r in action_ref["results"]["action"]["clips"]
+                if r["group"] == group
             )
             bundle = build_bundle(
                 training, {k: selection[k] for k in keys}, {k: action[k] for k in keys}
@@ -122,13 +143,22 @@ def main() -> None:
                     np.testing.assert_allclose(
                         result["landmarks"] or np.zeros((33, 3)), points, atol=1e-6
                     )
-                reference_points = np.array(result["landmarks"]) if args.app_clock else points
+                reference_points = (
+                    np.array(result["landmarks"]) if args.app_clock else points
+                )
                 previous = reference_coordinator.process(
                     objects(reference_points), timestamp, i, aspect_ratio=clip["aspect"]
                 )
-                for key in ("current", "occurrences", "ramune_state", "selected_action"):
+                for key in (
+                    "current",
+                    "occurrences",
+                    "ramune_state",
+                    "selected_action",
+                ):
                     if result[key] != previous[key]:
-                        raise ValueError(f"App replay differs: {name} frame {i} key {key}")
+                        raise ValueError(
+                            f"App replay differs: {name} frame {i} key {key}"
+                        )
                 if "RAMUNE" in result["occurrences"]:
                     events.append(i)
                 output.append(3 if result["selected_action"] == "RAMUNE" else 0)
@@ -154,9 +184,13 @@ def main() -> None:
         snapshot_sha256=digest(args.snapshot),
         outer_fold_replay=fold_rows,
         real_videos=videos,
-        video_clock="application-video-PTS" if args.app_clock else "uniform-annotation-fps",
+        video_clock=(
+            "application-video-PTS" if args.app_clock else "uniform-annotation-fps"
+        ),
         script_sha256=digest(Path(__file__)),
-        runtime_sha256={p.name: digest(p) for p in (ROOT / "src/gesture_detection").glob("*.py")},
+        runtime_sha256={
+            p.name: digest(p) for p in (ROOT / "src/gesture_detection").glob("*.py")
+        },
         note="Fold parity reproduces research, not new accuracy evidence. Shipped model trains all 12 curtain clips; group 0 alone is held out. Live camera and new motions not validated.",
     )
     args.output.write_text(json.dumps(report, indent=2) + "\n")

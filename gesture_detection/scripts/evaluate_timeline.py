@@ -78,7 +78,9 @@ def extract(
     video_hash = digest(source)
     if video_hash != doc["source"]["sha256"]:
         raise ValueError(f"Video hash mismatch: {source}")
-    code = b"".join(p.read_bytes() for p in sorted((ROOT / "src/gesture_detection").glob("*.py")))
+    code = b"".join(
+        p.read_bytes() for p in sorted((ROOT / "src/gesture_detection").glob("*.py"))
+    )
     key = hashlib.sha256(
         code
         + config.POSE_MODEL_PATH.read_bytes()
@@ -123,7 +125,9 @@ def extract(
         finally:
             capture.release()
             analyzer.close()
-        with tempfile.NamedTemporaryFile(dir=cache_root, suffix=".npz", delete=False) as temporary:
+        with tempfile.NamedTemporaryFile(
+            dir=cache_root, suffix=".npz", delete=False
+        ) as temporary:
             np.savez_compressed(
                 temporary, points=points, baseline=predictions, baseline_phase=states
             )
@@ -206,11 +210,14 @@ def fit_scores(
     penalty = np.eye(x.shape[1]) * regularization * len(x)
     penalty[-1, -1] = 0
     beta = np.linalg.solve(
-        x.T @ (weights[:, None] * x) + penalty, x.T @ (weights[:, None] * np.eye(classes)[y])
+        x.T @ (weights[:, None] * x) + penalty,
+        x.T @ (weights[:, None] * np.eye(classes)[y]),
     )
     output = []
     for clip in test:
-        tx = design_matrix(np.clip((clip["features"][history] - mean) / scale, -10, 10), classifier)
+        tx = design_matrix(
+            np.clip((clip["features"][history] - mean) / scale, -10, 10), classifier
+        )
         scores = tx @ beta
         scores[:, counts == 0] = -np.inf
         output.append(scores)
@@ -235,7 +242,9 @@ def fit_predict(
     return [
         predict_from_scores(scores, clip["points"])
         for clip, scores in zip(
-            test, fit_scores(train, test, target, history, regularization, classifier), strict=True
+            test,
+            fit_scores(train, test, target, history, regularization, classifier),
+            strict=True,
         )
     ]
 
@@ -247,7 +256,11 @@ def metrics(truth: np.ndarray, pred: np.ndarray, names: list[str]) -> dict:
     np.add.at(matrix, (truth, pred), 1)
     rows = {}
     for i, name in enumerate(names):
-        tp, support, predicted = int(matrix[i, i]), int(matrix[i].sum()), int(matrix[:, i].sum())
+        tp, support, predicted = (
+            int(matrix[i, i]),
+            int(matrix[i].sum()),
+            int(matrix[:, i].sum()),
+        )
         rows[name] = dict(
             support=support,
             precision=tp / predicted if predicted else 0,
@@ -281,13 +294,18 @@ def choose(
                     inner_test = [c for c in train if c["group"] == group]
                     predictions.extend(
                         fit_predict(
-                            inner_train, inner_test, target, history, regularization, classifier
+                            inner_train,
+                            inner_test,
+                            target,
+                            history,
+                            regularization,
+                            classifier,
                         )
                     )
                     truths.extend(c[target] for c in inner_test)
-                score = metrics(np.concatenate(truths), np.concatenate(predictions), names)[
-                    "macro_f1"
-                ]
+                score = metrics(
+                    np.concatenate(truths), np.concatenate(predictions), names
+                )["macro_f1"]
                 candidates.append((score, history, regularization, classifier))
                 if audit is not None:
                     audit.append(
@@ -302,7 +320,9 @@ def choose(
     return history, regularization, classifier
 
 
-def evaluate(clips: list[dict], classifiers: tuple[str, ...] = ("linear", "rbf")) -> dict:
+def evaluate(
+    clips: list[dict], classifiers: tuple[str, ...] = ("linear", "rbf")
+) -> dict:
     report = {}
     for target, names, baseline_key in [
         ("action", ACTIONS, "baseline"),
@@ -313,7 +333,9 @@ def evaluate(clips: list[dict], classifiers: tuple[str, ...] = ("linear", "rbf")
             train = [c for c in clips if c["group"] not in (0, group)]
             test = [c for c in clips if c["group"] == group]
             history, regularization, classifier = choose(train, target, classifiers)
-            predictions = fit_predict(train, test, target, history, regularization, classifier)
+            predictions = fit_predict(
+                train, test, target, history, regularization, classifier
+            )
             for clip, pred in zip(test, predictions, strict=True):
                 rows.append(
                     dict(
@@ -324,7 +346,9 @@ def evaluate(clips: list[dict], classifiers: tuple[str, ...] = ("linear", "rbf")
                         classifier=classifier,
                         baseline=metrics(clip[target], clip[baseline_key], names),
                         learned=metrics(clip[target], pred, names),
-                        pose_fraction=float((clip["points"][:, :, 2] > 0.5).any(axis=1).mean()),
+                        pose_fraction=float(
+                            (clip["points"][:, :, 2] > 0.5).any(axis=1).mean()
+                        ),
                         predictions=pred.tolist(),
                     )
                 )
@@ -349,7 +373,9 @@ def positive_runs(mask: np.ndarray) -> list[tuple[int, int]]:
     edges = np.diff(np.r_[False, mask, False].astype(int))
     return [
         (int(a), int(b - 1))
-        for a, b in zip(np.flatnonzero(edges == 1), np.flatnonzero(edges == -1), strict=True)
+        for a, b in zip(
+            np.flatnonzero(edges == 1), np.flatnonzero(edges == -1), strict=True
+        )
     ]
 
 
@@ -413,7 +439,9 @@ def opening_diagnostics(clip: dict, prediction: np.ndarray) -> dict:
                 runs=[list(run) for run in observed],
                 gap_seconds=[
                     (a - previous_end - 1) / fps
-                    for (_, previous_end), (a, _) in zip(observed[:-1], observed[1:], strict=True)
+                    for (_, previous_end), (a, _) in zip(
+                        observed[:-1], observed[1:], strict=True
+                    )
                 ],
             )
         )
@@ -424,9 +452,13 @@ def opening_diagnostics(clip: dict, prediction: np.ndarray) -> dict:
         predicted_runs=len(runs),
         reappearance_runs=len(repeated),
         openings_with_reappearance=sum(bool(d["reappearances"]) for d in details),
-        unanchored_runs=[list(run) for i, run in enumerate(runs) if i not in matched | repeated],
+        unanchored_runs=[
+            list(run) for i, run in enumerate(runs) if i not in matched | repeated
+        ],
         details=details,
-        occurrences_with_multiple_runs=sum(len(d["runs"]) > 1 for d in occurrence_details),
+        occurrences_with_multiple_runs=sum(
+            len(d["runs"]) > 1 for d in occurrence_details
+        ),
         occurrence_restarts=sum(max(0, len(d["runs"]) - 1) for d in occurrence_details),
         occurrence_details=occurrence_details,
     )
@@ -443,7 +475,9 @@ def rescore_openings(output: Path, cache: Path) -> None:
         for row in report["results"]["phase"]["clips"]:
             path = ROOT / "shared/annotations/0924" / row["video"] / "timeline.json"
             if digest(path) != sources[row["video"]]["annotation_sha256"]:
-                raise ValueError("Annotations changed since frozen prediction evaluation")
+                raise ValueError(
+                    "Annotations changed since frozen prediction evaluation"
+                )
             clip = extract(
                 path,
                 cache,
@@ -451,7 +485,9 @@ def rescore_openings(output: Path, cache: Path) -> None:
                 central_mask=report.get("central_mask", False),
             )
             row["opening_baseline"] = opening_diagnostics(clip, clip["baseline_phase"])
-            row["opening_learned"] = opening_diagnostics(clip, predictions["phase/" + row["video"]])
+            row["opening_learned"] = opening_diagnostics(
+                clip, predictions["phase/" + row["video"]]
+            )
     report["opening_evaluation"] = (
         "anchor-overlap-v2; models selected with original strict frame labels"
     )
@@ -487,13 +523,21 @@ def enrich(report: dict, clips: list[dict]) -> None:
     for row in report["phase"]["clips"]:
         clip = next(c for c in clips if c["name"] == row["video"])
         row["opening_baseline"] = opening_diagnostics(clip, clip["baseline_phase"])
-        row["opening_learned"] = opening_diagnostics(clip, np.asarray(row["predictions"]))
+        row["opening_learned"] = opening_diagnostics(
+            clip, np.asarray(row["predictions"])
+        )
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=ROOT / "docs/0924-timeline-results.json")
-    parser.add_argument("--cache", type=Path, default=ROOT / "shared/results/0924-cache")
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=ROOT / "shared/results/0924-timeline-results.json",
+    )
+    parser.add_argument(
+        "--cache", type=Path, default=ROOT / "shared/results/0924-cache"
+    )
     parser.add_argument("--linear-only", action="store_true")
     parser.add_argument("--central-mask", action="store_true")
     parser.add_argument("--no-subject-selection", action="store_true")
@@ -514,14 +558,17 @@ def main() -> None:
         clip["features"] = {h: features(clip, h) for h in (0.25, 0.75)}
         clips.append(clip)
     if {c["group"] for c in clips} != {0, 1, 2, 3}:
-        raise ValueError("Expected three behind-screen takes and without-screen controls")
+        raise ValueError(
+            "Expected three behind-screen takes and without-screen controls"
+        )
     print("Nested grouped evaluation", flush=True)
     report = dict(
         select_subject=not args.no_subject_selection,
         central_mask=args.central_mask,
         protocol="Behind: outer take 1/2/3, inner leave-take-out; without: held out; full source fps; causal features; unlabelled action=NONE; unknown phase excluded; inclusive endpoints",
         sources=[
-            {k: c[k] for k in ("name", "fps", "annotation_sha256", "video_sha256")} for c in clips
+            {k: c[k] for k in ("name", "fps", "annotation_sha256", "video_sha256")}
+            for c in clips
         ],
         opening_evaluation="anchor-overlap-v2; models selected with original strict frame labels",
         classifier_candidates=["linear"] if args.linear_only else ["linear", "rbf"],
@@ -532,7 +579,9 @@ def main() -> None:
     frame_predictions = {}
     for target, result in report["results"].items():
         for row in result["clips"]:
-            frame_predictions[target + "/" + row["video"]] = np.asarray(row.pop("predictions"))
+            frame_predictions[target + "/" + row["video"]] = np.asarray(
+                row.pop("predictions")
+            )
     prediction_path = args.cache / (args.output.stem + "-predictions.npz")
     np.savez_compressed(prediction_path, **frame_predictions)
     report["frame_predictions"] = (

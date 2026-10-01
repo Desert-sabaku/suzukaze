@@ -158,7 +158,9 @@ def evaluate_clip(
             result = cast(PoseResult, analyzer.process(prepared, timestamp, frames))
             inference_seconds += time.perf_counter() - inference_started
             if result.get("frame_id") != frames or result.get("timestamp") != timestamp:
-                raise RuntimeError("Pose result metadata does not match its input frame")
+                raise RuntimeError(
+                    "Pose result metadata does not match its input frame"
+                )
 
             action = GestureApplication._primary_action(result)
             actions[action] += 1
@@ -168,12 +170,15 @@ def evaluate_clip(
                 first_expected_at = timestamp
 
             in_expected_interval = any(
-                start <= timestamp <= end for start, end in EXPECTED_INTERVALS[source.name]
+                start <= timestamp <= end
+                for start, end in EXPECTED_INTERVALS[source.name]
             )
             if in_expected_interval:
                 evaluated_frames += 1
                 expected_action_evaluated_frames += int(action == expected_action)
-                other_action_evaluated_frames += int(action not in {expected_action, "NONE"})
+                other_action_evaluated_frames += int(
+                    action not in {expected_action, "NONE"}
+                )
 
             landmarks = result["landmarks"]
             if landmarks:
@@ -183,11 +188,16 @@ def evaluate_clip(
                     all(landmarks[index][2] > 0.5 for index in IMPORTANT_LANDMARKS)
                 )
                 current_important = np.asarray(
-                    [(landmarks[index][0], landmarks[index][1]) for index in IMPORTANT_LANDMARKS]
+                    [
+                        (landmarks[index][0], landmarks[index][1])
+                        for index in IMPORTANT_LANDMARKS
+                    ]
                 )
                 if previous_important is not None:
                     important_jumps.extend(
-                        np.linalg.norm(current_important - previous_important, axis=1).tolist()
+                        np.linalg.norm(
+                            current_important - previous_important, axis=1
+                        ).tolist()
                     )
                 previous_important = current_important
             else:
@@ -203,15 +213,21 @@ def evaluate_clip(
         "frames": frames,
         "pose_frames": pose_frames,
         "pose_frame_ratio": pose_frames / frames if frames else 0.0,
-        "mean_landmark_visibility": visibility_sum / pose_frames if pose_frames else 0.0,
+        "mean_landmark_visibility": (
+            visibility_sum / pose_frames if pose_frames else 0.0
+        ),
         "important_landmarks_visible_frames": important_visible,
-        "important_landmarks_visible_ratio": important_visible / frames if frames else 0.0,
+        "important_landmarks_visible_ratio": (
+            important_visible / frames if frames else 0.0
+        ),
         "expected_action_frames": actions[expected_action],
         "expected_action_ratio": actions[expected_action] / frames if frames else 0.0,
         "evaluated_frames": evaluated_frames,
         "expected_action_evaluated_frames": expected_action_evaluated_frames,
         "expected_action_evaluated_ratio": (
-            expected_action_evaluated_frames / evaluated_frames if evaluated_frames else 0.0
+            expected_action_evaluated_frames / evaluated_frames
+            if evaluated_frames
+            else 0.0
         ),
         "other_action_evaluated_frames": other_action_evaluated_frames,
         "mean_important_landmark_jump": (
@@ -230,7 +246,9 @@ def evaluate_clip(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--sample-dir", type=Path, default=PROJECT_ROOT / "sample_movies")
+    parser.add_argument(
+        "--sample-dir", type=Path, default=PROJECT_ROOT / "sample_movies"
+    )
     parser.add_argument(
         "--lite-model", type=Path, default=PROJECT_ROOT / "pose_landmarker_lite.task"
     )
@@ -238,7 +256,9 @@ def parse_args() -> argparse.Namespace:
         "--full-model", type=Path, default=PROJECT_ROOT / "pose_landmarker_full.task"
     )
     parser.add_argument(
-        "--output", type=Path, default=PROJECT_ROOT / "docs" / "curtain-comparison.json"
+        "--output",
+        type=Path,
+        default=PROJECT_ROOT / "shared" / "results" / "curtain-comparison.json",
     )
     parser.add_argument(
         "--condition",
@@ -258,7 +278,9 @@ def main() -> None:
     for path in (args.lite_model, args.full_model):
         if not path.is_file():
             raise FileNotFoundError(path)
-    missing = [name for name in EXPECTED_ACTIONS if not (args.sample_dir / name).is_file()]
+    missing = [
+        name for name in EXPECTED_ACTIONS if not (args.sample_dir / name).is_file()
+    ]
     if missing:
         raise FileNotFoundError(f"Missing sample clips: {', '.join(missing)}")
 
@@ -293,7 +315,9 @@ def main() -> None:
             args.full_model,
             half_resolution,
         ),
-        Condition("full_clahe", "Full / luminance CLAHE", args.full_model, clahe_luminance),
+        Condition(
+            "full_clahe", "Full / luminance CLAHE", args.full_model, clahe_luminance
+        ),
         Condition(
             "full_half_clahe",
             "Full / area downsample to 50% then luminance CLAHE",

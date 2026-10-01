@@ -14,11 +14,18 @@ from pathlib import Path
 import numpy as np
 
 from .evaluate_opening_repetition import repeat_clip, summarize
-from .evaluate_opening_temporal import TemporalConfig, aggregate, apply_temporal, measure
+from .evaluate_opening_temporal import (
+    TemporalConfig,
+    aggregate,
+    apply_temporal,
+    measure,
+)
 from .evaluate_timeline import ROOT, digest, extract, features, fit_predict
 
 
-def score_config(samples: list[tuple[dict, np.ndarray, np.ndarray]], cfg: TemporalConfig) -> dict:
+def score_config(
+    samples: list[tuple[dict, np.ndarray, np.ndarray]], cfg: TemporalConfig
+) -> dict:
     single, repeated = [], []
     for clip, phase, action in samples:
         out, events = apply_temporal(phase, action, clip["points"], clip["fps"], cfg)
@@ -38,7 +45,9 @@ def tune_rearm(
         for release in (0.3, 0.6, 1.0):
             for setup in (0.15, 0.3, 0.5):
                 cfg = TemporalConfig(hold, release, setup, mode, True)
-                trials.append(dict(config=asdict(cfg), metrics=score_config(samples, cfg)))
+                trials.append(
+                    dict(config=asdict(cfg), metrics=score_config(samples, cfg))
+                )
     selected = max(
         trials,
         key=lambda t: (
@@ -52,7 +61,9 @@ def tune_rearm(
     return TemporalConfig(**selected["config"]), trials
 
 
-def evaluate_sample(clip: dict, phase: np.ndarray, action: np.ndarray, cfg: TemporalConfig) -> dict:
+def evaluate_sample(
+    clip: dict, phase: np.ndarray, action: np.ndarray, cfg: TemporalConfig
+) -> dict:
     out, events = apply_temporal(phase, action, clip["points"], clip["fps"], cfg)
     single = measure(clip, out, events)
     repetitions = []
@@ -86,12 +97,14 @@ def evaluate_sample(clip: dict, phase: np.ndarray, action: np.ndarray, cfg: Temp
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--output", type=Path, default=ROOT / "docs/0924-opening-rearm-results.json"
+        "--output",
+        type=Path,
+        default=ROOT / "shared/results/0924-opening-rearm-results.json",
     )
     args = parser.parse_args()
-    previous_path = ROOT / "docs/0924-opening-temporal-results.json"
+    previous_path = ROOT / "shared/results/0924-opening-temporal-results.json"
     previous = json.loads(previous_path.read_text())
-    phase_report_path = ROOT / "docs/0924-timeline-central-results.json"
+    phase_report_path = ROOT / "shared/results/0924-timeline-central-results.json"
     phase_report = json.loads(phase_report_path.read_text())
     source_hashes = {s["name"]: s["annotation_sha256"] for s in phase_report["sources"]}
     clips = []
@@ -99,7 +112,10 @@ def main() -> None:
         if digest(path) != source_hashes[path.parent.name]:
             raise ValueError("Annotation changed since source predictions")
         c = extract(
-            path, ROOT / "shared/results/0924-cache", select_subject=False, central_mask=True
+            path,
+            ROOT / "shared/results/0924-cache",
+            select_subject=False,
+            central_mask=True,
         )
         c["features"] = {h: features(c, h) for h in (0.25, 0.75)}
         clips.append(c)
@@ -122,9 +138,12 @@ def main() -> None:
                 itrain = [c for c in train if c["group"] != inner]
                 itest = [c for c in train if c["group"] == inner]
                 predicted = {
-                    t: fit_predict(itrain, itest, t, *params[t]) for t in ("phase", "action")
+                    t: fit_predict(itrain, itest, t, *params[t])
+                    for t in ("phase", "action")
                 }
-                samples.extend(zip(itest, predicted["phase"], predicted["action"], strict=True))
+                samples.extend(
+                    zip(itest, predicted["phase"], predicted["action"], strict=True)
+                )
             old_cfg = TemporalConfig(**reference["selected"])
             selected, trials = tune_rearm(samples, old_cfg.hold_seconds)
             selections.append(
@@ -138,14 +157,19 @@ def main() -> None:
             )
             configs = dict(
                 previous=old_cfg,
-                context_fixed=TemporalConfig(old_cfg.hold_seconds, 0.6, 0.3, "context", True),
+                context_fixed=TemporalConfig(
+                    old_cfg.hold_seconds, 0.6, 0.3, "context", True
+                ),
                 retuned=selected,
             )
             for c in test:
                 for family, cfg in configs.items():
                     families[family].append(
                         evaluate_sample(
-                            c, outer["phase/" + c["name"]], outer["action/" + c["name"]], cfg
+                            c,
+                            outer["phase/" + c["name"]],
+                            outer["action/" + c["name"]],
+                            cfg,
                         )
                     )
     results = {}
@@ -153,7 +177,9 @@ def main() -> None:
         summary = {}
         for env in ("behind", "without"):
             relevant = [r for r in rows if bool(r["group"]) == (env == "behind")]
-            summary[env] = dict(single=aggregate([r["single"] for r in relevant]), repetition={})
+            summary[env] = dict(
+                single=aggregate([r["single"] for r in relevant]), repetition={}
+            )
             for missing in (0.0, 0.5, 2.0):
                 summary[env]["repetition"][str(missing)] = summarize(
                     [

@@ -18,9 +18,14 @@ def prepare_snapshot(path: Path) -> None:
     if config.RAMUNE_DETECTOR != "rules":
         raise ValueError("Prepare poses with RAMUNE_DETECTOR=rules")
     arrays, records = {}, []
-    for annotation in sorted((ROOT / "shared/annotations/0924").glob("*/timeline.json")):
+    for annotation in sorted(
+        (ROOT / "shared/annotations/0924").glob("*/timeline.json")
+    ):
         clip = extract(
-            annotation, ROOT / "shared/results/0924-cache", select_subject=False, central_mask=True
+            annotation,
+            ROOT / "shared/results/0924-cache",
+            select_subject=False,
+            central_mask=True,
         )
         records.append(
             {
@@ -44,9 +49,14 @@ def prepare_snapshot(path: Path) -> None:
     metadata = dict(
         clips=records,
         pose_pipeline_sha256=hashlib.sha256(
-            b"".join(p.read_bytes() for p in sorted((ROOT / "src/gesture_detection").glob("*.py")))
+            b"".join(
+                p.read_bytes()
+                for p in sorted((ROOT / "src/gesture_detection").glob("*.py"))
+            )
         ).hexdigest(),
-        environment=json.loads((ROOT / "shared/results/0924-cache/environment.json").read_text()),
+        environment=json.loads(
+            (ROOT / "shared/results/0924-cache/environment.json").read_text()
+        ),
     )
     arrays["metadata"] = np.array(json.dumps(metadata))
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -60,7 +70,8 @@ def load_snapshot(path: Path) -> tuple[list[dict], dict]:
             dict(
                 c,
                 **{
-                    key: data[c["name"] + "/" + key].copy() for key in ("points", "action", "phase")
+                    key: data[c["name"] + "/" + key].copy()
+                    for key in ("points", "action", "phase")
                 },
             )
             for c in metadata["clips"]
@@ -76,9 +87,11 @@ def fit_model(clips: list[dict], target: str, params: dict) -> dict[str, np.ndar
     history = params["history"]
     x = np.concatenate(
         [
-            feature_sets(c)["relative_position"][history]
-            if target == "phase"
-            else features(c, history)
+            (
+                feature_sets(c)["relative_position"][history]
+                if target == "phase"
+                else features(c, history)
+            )
             for c in clips
         ]
     )
@@ -94,14 +107,18 @@ def fit_model(clips: list[dict], target: str, params: dict) -> dict[str, np.ndar
     beta = np.linalg.solve(
         x.T @ (weights[:, None] * x) + penalty, x.T @ (weights[:, None] * np.eye(5)[y])
     )
-    projection = np.random.default_rng(924).normal(size=(len(mean), 64)) / np.sqrt(len(mean))
+    projection = np.random.default_rng(924).normal(size=(len(mean), 64)) / np.sqrt(
+        len(mean)
+    )
     return dict(mean=mean, scale=scale, beta=beta, counts=counts, projection=projection)
 
 
 def build_bundle(clips: list[dict], phase_params: dict, action_params: dict) -> dict:
     arrays = {}
     for target, params in (("phase", phase_params), ("action", action_params)):
-        arrays.update({target + "_" + k: v for k, v in fit_model(clips, target, params).items()})
+        arrays.update(
+            {target + "_" + k: v for k, v in fit_model(clips, target, params).items()}
+        )
     metadata = dict(
         format_version=1,
         feature_schema="0924-relative-position-v1",
@@ -114,7 +131,8 @@ def build_bundle(clips: list[dict], phase_params: dict, action_params: dict) -> 
         setup_seconds=0.3,
         central_mask=[0.35, 0.75],
         training_sources=[
-            {k: c[k] for k in ("name", "video_sha256", "annotation_sha256")} for c in clips
+            {k: c[k] for k in ("name", "video_sha256", "annotation_sha256")}
+            for c in clips
         ],
     )
     arrays["metadata"] = np.array(json.dumps(metadata))
@@ -124,20 +142,26 @@ def build_bundle(clips: list[dict], phase_params: dict, action_params: dict) -> 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--snapshot", type=Path, default=ROOT / "shared/results/0924-cache/runtime-source.npz"
+        "--snapshot",
+        type=Path,
+        default=ROOT / "shared/results/0924-cache/runtime-source.npz",
     )
     parser.add_argument(
-        "--output", type=Path, default=ROOT / "src/gesture_detection/models/ramune_0924.npz"
+        "--output",
+        type=Path,
+        default=ROOT / "src/gesture_detection/models/ramune_0924.npz",
     )
     parser.add_argument("--prepare-snapshot", action="store_true")
     args = parser.parse_args()
     if args.prepare_snapshot:
         if args.snapshot.exists():
-            raise ValueError("Choose a new --snapshot path to preserve the frozen source")
+            raise ValueError(
+                "Choose a new --snapshot path to preserve the frozen source"
+            )
         prepare_snapshot(args.snapshot)
     clips, provenance = load_snapshot(args.snapshot)
-    phase_path = ROOT / "docs/0924-opening-features-results.json"
-    action_path = ROOT / "docs/0924-timeline-central-results.json"
+    phase_path = ROOT / "shared/results/0924-opening-features-results.json"
+    action_path = ROOT / "shared/results/0924-timeline-central-results.json"
     phase = next(
         s
         for s in json.loads(phase_path.read_text())["selections"]["relative_position"]

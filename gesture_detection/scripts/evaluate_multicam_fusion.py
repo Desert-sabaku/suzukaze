@@ -27,7 +27,8 @@ def fuse(streams: list[list[dict]], duration: float) -> tuple[list[dict], dict]:
         arrivals = []
         for camera, stream in enumerate(streams):
             while (
-                pointers[camera] < len(stream) and stream[pointers[camera]]["seconds"] <= now + 1e-9
+                pointers[camera] < len(stream)
+                and stream[pointers[camera]]["seconds"] <= now + 1e-9
             ):
                 row = stream[pointers[camera]]
                 latest[camera] = row
@@ -42,7 +43,9 @@ def fuse(streams: list[list[dict]], duration: float) -> tuple[list[dict], dict]:
                 last_event[label] = timestamp
                 events.append(label)
         candidates = {
-            row["gesture"] for row in latest if row is not None and now - row["seconds"] <= MAX_AGE
+            row["gesture"]
+            for row in latest
+            if row is not None and now - row["seconds"] <= MAX_AGE
         }
         candidates.update(events)
         candidates.discard("NONE")
@@ -51,7 +54,8 @@ def fuse(streams: list[list[dict]], duration: float) -> tuple[list[dict], dict]:
         gesture = max(candidates, key=PRIORITY.__getitem__) if candidates else "NONE"
         output.append(dict(frame=i, seconds=now, gesture=gesture, events=events))
     return output, dict(
-        suppressed_events=dict(suppressed), conflicting_state_seconds=conflicts / GRID_FPS
+        suppressed_events=dict(suppressed),
+        conflicting_state_seconds=conflicts / GRID_FPS,
     )
 
 
@@ -61,16 +65,19 @@ def clock_intervals(intervals: list[dict], source_fps: float) -> list[dict]:
         dict(
             x,
             start_frame=math.ceil(x["start_frame"] / source_fps * GRID_FPS - 1e-9),
-            end_frame=math.ceil((x["end_frame"] + 1) / source_fps * GRID_FPS - 1e-9) - 1,
+            end_frame=math.ceil((x["end_frame"] + 1) / source_fps * GRID_FPS - 1e-9)
+            - 1,
         )
         for x in intervals
     ]
 
 
 def main() -> None:
-    temporal_path = ROOT / "docs/0928-multicam-temporal-results.json"
+    temporal_path = ROOT / "shared/results/0928-multicam-temporal-results.json"
     temporal = json.loads(temporal_path.read_text())
-    baseline = json.loads((ROOT / "docs/0928-multicam-results.json").read_text())
+    baseline = json.loads(
+        (ROOT / "shared/results/0928-multicam-results.json").read_text()
+    )
     output = ROOT / "shared/results/0928-multicam-temporal"
     rows, ramune = [], []
     for row in temporal["rows"]:
@@ -98,14 +105,20 @@ def main() -> None:
                 [
                     r
                     for r in temporal["rows"]
-                    if r["take"] == take and r["input"] == profile and r["variant"] == variant
+                    if r["take"] == take
+                    and r["input"] == profile
+                    and r["variant"] == variant
                 ],
                 key=lambda r: r["camera"],
             )
             if len(selected) != 2:
                 raise ValueError("Expected two camera streams")
-            session = json.loads((ROOT / "shared/videos/0928" / take / "session.json").read_text())
-            streams = [json.loads((ROOT / r["predictions"]).read_text()) for r in selected]
+            session = json.loads(
+                (ROOT / "shared/videos/0928" / take / "session.json").read_text()
+            )
+            streams = [
+                json.loads((ROOT / r["predictions"]).read_text()) for r in selected
+            ]
             fused, diagnostic = fuse(streams, session["duration_seconds"])
             for suffix, predictions in (("", fused), ("_envelope", envelope(fused))):
                 name = f"{profile}-{variant}-fusion{suffix}"
@@ -113,7 +126,11 @@ def main() -> None:
                 path.write_text(json.dumps(predictions, indent=2) + "\n")
                 for camera in (1, 2):
                     annotation_path = (
-                        ROOT / "shared/annotations" / take / f"camera_{camera:02}" / "timeline.json"
+                        ROOT
+                        / "shared/annotations"
+                        / take
+                        / f"camera_{camera:02}"
+                        / "timeline.json"
                     )
                     annotation = (
                         json.loads(annotation_path.read_text())
@@ -121,12 +138,19 @@ def main() -> None:
                         else None
                     )
                     reference = next(
-                        r for r in baseline["rows"] if r["take"] == take and r["camera"] == camera
+                        r
+                        for r in baseline["rows"]
+                        if r["take"] == take and r["camera"] == camera
                     )
-                    if annotation and digest(annotation_path) != reference["annotation_sha256"]:
+                    if (
+                        annotation
+                        and digest(annotation_path) != reference["annotation_sha256"]
+                    ):
                         raise ValueError("Annotation changed")
                     intervals = (
-                        clock_intervals(annotation["intervals"], reference["effective_fps"])
+                        clock_intervals(
+                            annotation["intervals"], reference["effective_fps"]
+                        )
                         if annotation
                         else []
                     )
@@ -150,7 +174,9 @@ def main() -> None:
                 and r["annotation_camera"] == camera
                 and r["metrics"]["trials"]
             ]
-            hits, repeated, extras, unmatched, wrong, outside = (Counter() for _ in range(6))
+            hits, repeated, extras, unmatched, wrong, outside = (
+                Counter() for _ in range(6)
+            )
             tails, stable = [], Counter()
             for row in selected:
                 for trial in row["metrics"]["trials"]:
@@ -193,7 +219,7 @@ def main() -> None:
             "Single-run trial count does not guarantee full action coverage or correct event timing beyond the stated tolerance.",
         ],
     )
-    (ROOT / "docs/0928-multicam-fusion-results.json").write_text(
+    (ROOT / "shared/results/0928-multicam-fusion-results.json").write_text(
         json.dumps(report, indent=2) + "\n"
     )
     print(json.dumps(summary, indent=2))

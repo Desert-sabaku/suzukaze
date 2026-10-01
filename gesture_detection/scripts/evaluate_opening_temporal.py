@@ -82,7 +82,11 @@ def apply_temporal(
         before = state
         initial = not events
         phase_only = initial_setup_phase_only if initial else rearm_setup_phase_only
-        ready = bool(tracked[index] and predicted in (1, 2) and (phase_only or action[index] == 1))
+        ready = bool(
+            tracked[index]
+            and predicted in (1, 2)
+            and (phase_only or action[index] == 1)
+        )
         if state == "ARMED" and predicted == 3:
             state = "OPENED"
             last_open = now
@@ -118,9 +122,11 @@ def apply_temporal(
                     initial_setup=initial,
                     setup_evidence=ready,
                     release_evidence=bool(release[index]),
-                    setup_elapsed_seconds=(now - setup_since)
-                    if setup_since is not None and before == "WAIT_SETUP" and ready
-                    else 0.0,
+                    setup_elapsed_seconds=(
+                        (now - setup_since)
+                        if setup_since is not None and before == "WAIT_SETUP" and ready
+                        else 0.0
+                    ),
                     blocked_opened=bool(predicted == 3 and output[index] != 3),
                 )
             )
@@ -171,7 +177,9 @@ def aggregate(rows: list[dict]) -> dict:
     )
     total = {key: sum(row[key] for row in rows) for key in fields}
     total["unanchored_runs"] = sum(len(row["unanchored_runs"]) for row in rows)
-    hits, anchors, runs = (total[k] for k in ("intervals_hit", "intervals", "predicted_runs"))
+    hits, anchors, runs = (
+        total[k] for k in ("intervals_hit", "intervals", "predicted_runs")
+    )
     total["run_precision"] = hits / runs if runs else 0.0
     total["anchor_recall"] = hits / anchors if anchors else 0.0
     total["run_f1"] = 2 * hits / (anchors + runs) if anchors + runs else 0.0
@@ -187,7 +195,9 @@ def tune(
     for config in candidates(family) if options is None else options:
         rows = []
         for clip, phase, action in validation:
-            output, events = apply_temporal(phase, action, clip["points"], clip["fps"], config)
+            output, events = apply_temporal(
+                phase, action, clip["points"], clip["fps"], config
+            )
             rows.append(measure(clip, output, events))
         trials.append(dict(config=asdict(config), metrics=aggregate(rows)))
     # Equal run F1: prefer more anchors, fewer outputs outside action and shorter hold.
@@ -206,7 +216,14 @@ def tune(
 def run(clips: list[dict]) -> tuple[dict, dict]:
     rows = {
         family: []
-        for family in ("raw", "hold", "lock", "context_lock", "hands_lock", "prepared_hands")
+        for family in (
+            "raw",
+            "hold",
+            "lock",
+            "context_lock",
+            "hands_lock",
+            "prepared_hands",
+        )
     }
     selections, saved_predictions = [], {}
     for group in (1, 2, 3, 0):
@@ -215,7 +232,8 @@ def run(clips: list[dict]) -> tuple[dict, dict]:
         print(f"Outer group {group}: train {len(train)}, test {len(test)}", flush=True)
         params = {target: choose(train, target) for target in ("phase", "action")}
         outer_predictions = {
-            target: fit_predict(train, test, target, *params[target]) for target in params
+            target: fit_predict(train, test, target, *params[target])
+            for target in params
         }
         validation = []
         for inner in sorted({c["group"] for c in train}):
@@ -225,7 +243,9 @@ def run(clips: list[dict]) -> tuple[dict, dict]:
                 target: fit_predict(inner_train, inner_test, target, *params[target])
                 for target in params
             }
-            validation.extend(zip(inner_test, predicted["phase"], predicted["action"], strict=True))
+            validation.extend(
+                zip(inner_test, predicted["phase"], predicted["action"], strict=True)
+            )
         configs = {"raw": TemporalConfig()}
         for family in ("hold", "lock", "context_lock", "hands_lock", "prepared_hands"):
             options = None
@@ -258,7 +278,9 @@ def run(clips: list[dict]) -> tuple[dict, dict]:
             test, outer_predictions["phase"], outer_predictions["action"], strict=True
         ):
             for family, config in configs.items():
-                output, events = apply_temporal(phase, action, clip["points"], clip["fps"], config)
+                output, events = apply_temporal(
+                    phase, action, clip["points"], clip["fps"], config
+                )
                 rows[family].append(
                     dict(
                         video=clip["name"],
@@ -305,9 +327,12 @@ def plot_predictions(clips: list[dict], predictions: dict, path: Path) -> None:
             (0, "prepared_hands", "#238636"),
         ]:
             runs = positive_runs(predictions[family + "/" + name] == 3)
-            ax.broken_barh([(a, b - a + 1) for a, b in runs], (y - 0.25, 0.5), facecolors=color)
+            ax.broken_barh(
+                [(a, b - a + 1) for a, b in runs], (y - 0.25, 0.5), facecolors=color
+            )
         ax.set_yticks(
-            [0, 1, 2, 3], ["Hold + release/setup", "Hold only", "Raw", "Annotation anchor"]
+            [0, 1, 2, 3],
+            ["Hold + release/setup", "Hold only", "Raw", "Annotation anchor"],
         )
         ax.set_xlim(left, right)
         ax.set_ylim(-0.6, 3.6)
@@ -322,7 +347,9 @@ def plot_predictions(clips: list[dict], predictions: dict, path: Path) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--output", type=Path, default=ROOT / "docs/0924-opening-temporal-results.json"
+        "--output",
+        type=Path,
+        default=ROOT / "shared/results/0924-opening-temporal-results.json",
     )
     parser.add_argument("--plot", action="store_true")
     args = parser.parse_args()
@@ -346,7 +373,9 @@ def main() -> None:
         {k: c[k] for k in ("name", "annotation_sha256", "video_sha256")} for c in clips
     ]
     report["script_sha256"] = digest(Path(__file__))
-    report["classifier_script_sha256"] = digest(Path(__file__).with_name("evaluate_timeline.py"))
+    report["classifier_script_sha256"] = digest(
+        Path(__file__).with_name("evaluate_timeline.py")
+    )
     prediction_path = cache / (args.output.stem + "-predictions.npz")
     np.savez_compressed(prediction_path, **predictions)
     report["frame_predictions"] = str(prediction_path.relative_to(ROOT))

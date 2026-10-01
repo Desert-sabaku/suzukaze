@@ -34,8 +34,12 @@ def main() -> None:
         help="Also compare actual application replay traces, including the EOF tick",
     )
     args = parser.parse_args()
-    baseline = json.loads((ROOT / "docs/0928-multicam-results.json").read_text())
-    reference = json.loads((ROOT / "docs/0928-multicam-events-results.json").read_text())
+    baseline = json.loads(
+        (ROOT / "shared/results/0928-multicam-results.json").read_text()
+    )
+    reference = json.loads(
+        (ROOT / "shared/results/0928-multicam-events-results.json").read_text()
+    )
     takes = sorted({r["take"] for r in baseline["rows"]})
     requested = args.takes or [take for take, _ in args.trace]
     if requested:
@@ -50,7 +54,9 @@ def main() -> None:
             source = next(
                 r
                 for r in baseline["rows"]
-                if r["take"] == take and r["camera"] == camera and r["profile"] == profile
+                if r["take"] == take
+                and r["camera"] == camera
+                and r["profile"] == profile
             )
             expected_row = next(
                 r
@@ -68,7 +74,9 @@ def main() -> None:
                     "Frozen 0928 caches are needed; reproduce the handoff pipeline on the research revision first"
                 ) from error
             coordinator = RecognitionCoordinator(
-                ramune_detector="rules", source_fps=source["effective_fps"], profile="multicam"
+                ramune_detector="rules",
+                source_fps=source["effective_fps"],
+                profile="multicam",
             )
             output = []
             for i, frame in enumerate(points):
@@ -100,12 +108,15 @@ def main() -> None:
         expected = json.loads((ROOT / expected_row["predictions"]).read_text())
         fusion = MultiCameraFusion()
         indices = [0, 0]
-        session = json.loads((ROOT / "shared/videos/0928" / take / "session.json").read_text())
+        session = json.loads(
+            (ROOT / "shared/videos/0928" / take / "session.json").read_text()
+        )
         for tick in range(math.ceil(session["duration_seconds"] * MULTICAM_FUSION_FPS)):
             now = tick / MULTICAM_FUSION_FPS
             for slot, stream in enumerate(streams):
                 while (
-                    indices[slot] < len(stream) and stream[indices[slot]]["timestamp"] <= now + 1e-9
+                    indices[slot] < len(stream)
+                    and stream[indices[slot]]["timestamp"] <= now + 1e-9
                 ):
                     fusion.submit(slot, stream[indices[slot]])
                     indices[slot] += 1
@@ -133,7 +144,9 @@ def main() -> None:
         expected = json.loads((ROOT / row["predictions"]).read_text())
         actual = [json.loads(line) for line in Path(path).read_text().splitlines()]
         if len(actual) != len(expected) + 1:
-            raise AssertionError("Application trace must include all grid ticks and the EOF tick")
+            raise AssertionError(
+                "Application trace must include all grid ticks and the EOF tick"
+            )
         for item, target in zip(actual[:-1], expected, strict=True):
             result = item["fused"]
             observed = dict(
@@ -143,13 +156,19 @@ def main() -> None:
                 events=result["occurrences"],
             )
             if observed != target:
-                raise AssertionError(f"Application replay differs: {take}: {observed} != {target}")
+                raise AssertionError(
+                    f"Application replay differs: {take}: {observed} != {target}"
+                )
         for slot in (0, 1):
             source = next(
-                r for r in baseline["rows"] if r["take"] == take and r["camera"] == slot + 1
+                r
+                for r in baseline["rows"]
+                if r["take"] == take and r["camera"] == slot + 1
             )
             if actual[-1]["views"][str(slot)]["frame_id"] != source["frames"] - 1:
-                raise AssertionError("Application did not consume all native video frames")
+                raise AssertionError(
+                    "Application did not consume all native video frames"
+                )
         print(take, "actual application trace parity and native EOF verified")
 
 

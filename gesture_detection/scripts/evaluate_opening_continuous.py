@@ -31,7 +31,10 @@ def video_points(source: Path) -> dict:
         source_sha256=digest(source),
         runtime=runtime_settings(),
         code_sha256=hashlib.sha256(
-            b"".join(p.read_bytes() for p in sorted((ROOT / "src/gesture_detection").glob("*.py")))
+            b"".join(
+                p.read_bytes()
+                for p in sorted((ROOT / "src/gesture_detection").glob("*.py"))
+            )
         ).hexdigest(),
         central_mask=True,
         select_subject=False,
@@ -42,7 +45,9 @@ def video_points(source: Path) -> dict:
     if not capture.isOpened():
         raise ValueError(f"Cannot open {source}")
     fps = capture.get(cv2.CAP_PROP_FPS)
-    aspect = capture.get(cv2.CAP_PROP_FRAME_WIDTH) / capture.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    aspect = capture.get(cv2.CAP_PROP_FRAME_WIDTH) / capture.get(
+        cv2.CAP_PROP_FRAME_HEIGHT
+    )
     if not np.isfinite(fps) or fps <= 0:
         capture.release()
         raise ValueError("Invalid video FPS")
@@ -89,10 +94,14 @@ def video_points(source: Path) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--source", type=Path, default=ROOT / "shared/videos/kohara_ramune_01-おいしいかにかま.mov"
+        "--source",
+        type=Path,
+        default=ROOT / "shared/videos/kohara_ramune_01-おいしいかにかま.mov",
     )
     parser.add_argument(
-        "--output", type=Path, default=ROOT / "docs/0924-opening-continuous-results.json"
+        "--output",
+        type=Path,
+        default=ROOT / "shared/results/0924-opening-continuous-results.json",
     )
     args = parser.parse_args()
     data = video_points(args.source)
@@ -102,13 +111,18 @@ def main() -> None:
         if "without" in path.parent.name:
             continue
         c = extract(
-            path, ROOT / "shared/results/0924-cache", select_subject=False, central_mask=True
+            path,
+            ROOT / "shared/results/0924-cache",
+            select_subject=False,
+            central_mask=True,
         )
         c["features"] = {h: features(c, h) for h in (0.25, 0.75)}
         train.append(c)
     if data["provenance"]["source_sha256"] in {c["video_sha256"] for c in train}:
         raise ValueError("Continuous test source must be outside the training videos")
-    previous = json.loads((ROOT / "docs/0924-opening-temporal-results.json").read_text())
+    previous = json.loads(
+        (ROOT / "shared/results/0924-opening-temporal-results.json").read_text()
+    )
     selection = next(
         row
         for row in previous["selections"]
@@ -142,10 +156,13 @@ def main() -> None:
     save = ROOT / "shared/results/0924-cache" / (args.output.stem + "-predictions.npz")
     np.savez_compressed(save, **saved)
     report = dict(
-        protocol=__doc__ + " No manual action/phase ground truth; outputs are not accuracy.",
-        source=str(args.source.relative_to(ROOT))
-        if args.source.is_relative_to(ROOT)
-        else str(args.source),
+        protocol=__doc__
+        + " No manual action/phase ground truth; outputs are not accuracy.",
+        source=(
+            str(args.source.relative_to(ROOT))
+            if args.source.is_relative_to(ROOT)
+            else str(args.source)
+        ),
         provenance=data["provenance"],
         fps=clip["fps"],
         frames=len(clip["points"]),

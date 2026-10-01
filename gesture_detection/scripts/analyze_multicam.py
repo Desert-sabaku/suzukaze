@@ -14,7 +14,7 @@ from .evaluate_multicam import PROFILES, ROOT, digest
 
 
 def main() -> None:
-    report_path = ROOT / "docs/0928-multicam-results.json"
+    report_path = ROOT / "shared/results/0928-multicam-results.json"
     report = json.loads(report_path.read_text())
     totals = {}
     details = []
@@ -24,7 +24,9 @@ def main() -> None:
             rows = [
                 r
                 for r in report["rows"]
-                if r["profile"] == profile and r["camera"] == camera and r["metrics"]["trials"]
+                if r["profile"] == profile
+                and r["camera"] == camera
+                and r["metrics"]["trials"]
             ]
             frames = sum(r["frames"] for r in rows)
             wrong, outside, events = Counter(), Counter(), Counter()
@@ -50,10 +52,14 @@ def main() -> None:
                         pose_fraction=float(np.any(active, axis=(1, 2)).mean()),
                         required_six_visible=float(visible.all(axis=1).mean()),
                         torso_inside_image=float(
-                            (((torso >= 0) & (torso <= 1)).all(axis=(1, 2)) & present).mean()
+                            (
+                                ((torso >= 0) & (torso <= 1)).all(axis=(1, 2)) & present
+                            ).mean()
                         ),
                         ramune_states=dict(
-                            Counter(p["ramune_state"] for p in predictions[start : end + 1])
+                            Counter(
+                                p["ramune_state"] for p in predictions[start : end + 1]
+                            )
                         ),
                         gesture_seconds={
                             k: v / row["effective_fps"]
@@ -100,7 +106,8 @@ def main() -> None:
                         )
             totals[f"{profile}/camera{camera}"] = dict(
                 frames=frames,
-                pose_fraction=sum(r["pose_fraction"] * r["frames"] for r in rows) / frames,
+                pose_fraction=sum(r["pose_fraction"] * r["frames"] for r in rows)
+                / frames,
                 wrong_label_seconds=dict(wrong),
                 unlabelled_output_seconds=dict(outside),
                 unmatched_events=dict(events),
@@ -127,7 +134,9 @@ def main() -> None:
         },
         note="Boundary deltas mix annotation ambiguity and capture timing; not a synchronization measurement.",
     )
-    (ROOT / "docs/0928-multicam-diagnostics.json").write_text(json.dumps(output, indent=2) + "\n")
+    (ROOT / "shared/results/0928-multicam-diagnostics.json").write_text(
+        json.dumps(output, indent=2) + "\n"
+    )
     print(json.dumps(totals, indent=2))
     print(json.dumps(alignment, indent=2))
     for detail in details:

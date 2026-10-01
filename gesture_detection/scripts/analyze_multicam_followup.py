@@ -13,11 +13,17 @@ from gesture_detection.relaxing import RelaxingAnalyzer
 from .evaluate_multicam import ROOT, digest, score
 from .evaluate_multicam_followup import objects
 
-TAU = 0.15  # Fixed before scoring: time-based, equal physical duration for both cameras.
+TAU = (
+    0.15  # Fixed before scoring: time-based, equal physical duration for both cameras.
+)
 
 
-def output_runs(predictions: list[dict], start: int, end: int, label: str, fps: float) -> dict:
-    mask = np.array([p["gesture"] == label for p in predictions[start : end + 1]], dtype=int)
+def output_runs(
+    predictions: list[dict], start: int, end: int, label: str, fps: float
+) -> dict:
+    mask = np.array(
+        [p["gesture"] == label for p in predictions[start : end + 1]], dtype=int
+    )
     changes = np.diff(np.r_[0, mask, 0])
     lengths = np.flatnonzero(changes == -1) - np.flatnonzero(changes == 1)
     return dict(
@@ -52,17 +58,23 @@ def smoothed_relaxing(
 
 
 def main() -> None:
-    source = ROOT / "docs/0928-multicam-followup-results.json"
+    source = ROOT / "shared/results/0928-multicam-followup-results.json"
     report = json.loads(source.read_text())
-    baseline = json.loads((ROOT / "docs/0928-multicam-results.json").read_text())
-    fps_lookup = {(r["take"], r["camera"]): r["effective_fps"] for r in baseline["rows"]}
+    baseline = json.loads(
+        (ROOT / "shared/results/0928-multicam-results.json").read_text()
+    )
+    fps_lookup = {
+        (r["take"], r["camera"]): r["effective_fps"] for r in baseline["rows"]
+    }
     output_dir = ROOT / "shared/results/0928-multicam-followup"
     rows = []
     for original in report["rows"]:
         if original["profile"] not in ("rules_full", "rules_camera_roi"):
             continue
         take, camera = original["take"], original["camera"]
-        path = ROOT / "shared/annotations" / take / f"camera_{camera:02}" / "timeline.json"
+        path = (
+            ROOT / "shared/annotations" / take / f"camera_{camera:02}" / "timeline.json"
+        )
         annotation = json.loads(path.read_text()) if path.exists() else None
         intervals = annotation["intervals"] if annotation else []
         fps = fps_lookup[take, camera]
@@ -89,7 +101,11 @@ def main() -> None:
             for action in intervals:
                 if action["track"] != "action":
                     continue
-                label, start, end = action["label"], action["start_frame"], action["end_frame"]
+                label, start, end = (
+                    action["label"],
+                    action["start_frame"],
+                    action["end_frame"],
+                )
                 opened = [
                     x
                     for x in intervals
@@ -97,7 +113,11 @@ def main() -> None:
                     and x["label"] == "OPENED"
                     and start <= x["start_frame"] <= x["end_frame"] <= end
                 ]
-                pulses = [p["frame"] for p in predictions[start : end + 1] if label in p["events"]]
+                pulses = [
+                    p["frame"]
+                    for p in predictions[start : end + 1]
+                    if label in p["events"]
+                ]
                 row["persistence"].append(
                     dict(
                         label=label,
@@ -107,9 +127,11 @@ def main() -> None:
                         event_frames=pulses,
                         opened_start=opened[0]["start_frame"] if opened else None,
                         opened_end=opened[0]["end_frame"] if opened else None,
-                        delay_from_opened_start=(pulses[0] - opened[0]["start_frame"]) / fps
-                        if pulses and opened
-                        else None,
+                        delay_from_opened_start=(
+                            (pulses[0] - opened[0]["start_frame"]) / fps
+                            if pulses and opened
+                            else None
+                        ),
                     )
                 )
             rows.append(row)
@@ -123,7 +145,9 @@ def main() -> None:
             chosen = [
                 r
                 for r in rows
-                if r["profile"] == profile and r["camera"] == camera and r["metrics"]["trials"]
+                if r["profile"] == profile
+                and r["camera"] == camera
+                and r["metrics"]["trials"]
             ]
             wrong, outside = Counter(), Counter()
             for row in chosen:
@@ -147,7 +171,9 @@ def main() -> None:
         rows=rows,
         note="Causal EMA only for stillness, unchanged speed/drift/dwell thresholds; exploratory same-footage result, not independent validation.",
     )
-    (ROOT / "docs/0928-multicam-persistence.json").write_text(json.dumps(result, indent=2) + "\n")
+    (ROOT / "shared/results/0928-multicam-persistence.json").write_text(
+        json.dumps(result, indent=2) + "\n"
+    )
     print(json.dumps(summary, indent=2))
     for row in rows:
         for interval in row["persistence"]:

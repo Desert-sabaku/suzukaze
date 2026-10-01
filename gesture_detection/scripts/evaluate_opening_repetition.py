@@ -24,10 +24,16 @@ def repeat_clip(
     offset = len(phase) + gap
     repeated = dict(clip)
     for key in ("phase", "action"):
-        repeated[key] = np.concatenate([clip[key], np.full(gap, -1, dtype=int), clip[key]])
-    repeated["points"] = np.concatenate([clip["points"], np.zeros((gap, 33, 3)), clip["points"]])
+        repeated[key] = np.concatenate(
+            [clip[key], np.full(gap, -1, dtype=int), clip[key]]
+        )
+    repeated["points"] = np.concatenate(
+        [clip["points"], np.zeros((gap, 33, 3)), clip["points"]]
+    )
     for key in ("ramune_intervals", "opening_intervals"):
-        repeated[key] = list(clip[key]) + [(a + offset, b + offset) for a, b in clip[key]]
+        repeated[key] = list(clip[key]) + [
+            (a + offset, b + offset) for a, b in clip[key]
+        ]
     repeated_phase = np.concatenate([phase, np.zeros(gap, dtype=int), phase])
     repeated_action = np.concatenate([action, np.zeros(gap, dtype=int), action])
     return repeated, repeated_phase, repeated_action, offset
@@ -40,10 +46,14 @@ def summarize(rows: list[dict]) -> dict:
         clips=len(positive),
         first_hits=first,
         second_hits=sum(row["second_hit"] for row in positive),
-        second_hits_given_first=sum(row["first_hit"] and row["second_hit"] for row in positive),
-        both_hit_fraction=sum(row["first_hit"] and row["second_hit"] for row in positive) / first
-        if first
-        else None,
+        second_hits_given_first=sum(
+            row["first_hit"] and row["second_hit"] for row in positive
+        ),
+        both_hit_fraction=(
+            sum(row["first_hit"] and row["second_hit"] for row in positive) / first
+            if first
+            else None
+        ),
         reappearance_runs=sum(row["diagnostics"]["reappearance_runs"] for row in rows),
     )
 
@@ -51,11 +61,13 @@ def summarize(rows: list[dict]) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--output", type=Path, default=ROOT / "docs/0924-opening-repetition-results.json"
+        "--output",
+        type=Path,
+        default=ROOT / "shared/results/0924-opening-repetition-results.json",
     )
     args = parser.parse_args()
-    classifier_path = ROOT / "docs/0924-timeline-central-results.json"
-    temporal_path = ROOT / "docs/0924-opening-temporal-results.json"
+    classifier_path = ROOT / "shared/results/0924-timeline-central-results.json"
+    temporal_path = ROOT / "shared/results/0924-opening-temporal-results.json"
     classifier = json.loads(classifier_path.read_text())
     temporal = json.loads(temporal_path.read_text())
     configs = {
@@ -70,17 +82,26 @@ def main() -> None:
             if digest(path) != sources[name]["annotation_sha256"]:
                 raise ValueError("Annotations changed since frozen predictions")
             clip = extract(
-                path, ROOT / "shared/results/0924-cache", select_subject=False, central_mask=True
+                path,
+                ROOT / "shared/results/0924-cache",
+                select_subject=False,
+                central_mask=True,
             )
             phase, action = predictions["phase/" + name], predictions["action/" + name]
-            standalone, _ = apply_temporal(phase, action, clip["points"], clip["fps"], config)
+            standalone, _ = apply_temporal(
+                phase, action, clip["points"], clip["fps"], config
+            )
             for missing in (0.0, 0.5, 2.0):
                 repeated, p, a, offset = repeat_clip(clip, phase, action, missing)
-                output, events = apply_temporal(p, a, repeated["points"], clip["fps"], config)
+                output, events = apply_temporal(
+                    p, a, repeated["points"], clip["fps"], config
+                )
                 np.testing.assert_array_equal(output[: len(phase)], standalone)
                 diagnostic = opening_diagnostics(repeated, output)
                 count = len(clip["opening_intervals"])
-                first_hit = any(d["matched_run"] is not None for d in diagnostic["details"][:count])
+                first_hit = any(
+                    d["matched_run"] is not None for d in diagnostic["details"][:count]
+                )
                 second_hit = any(
                     d["matched_run"] is not None for d in diagnostic["details"][count:]
                 )
@@ -117,7 +138,8 @@ def main() -> None:
                 [
                     row
                     for row in rows
-                    if row["missing_seconds"] == missing and bool(row["group"]) == (env == "behind")
+                    if row["missing_seconds"] == missing
+                    and bool(row["group"]) == (env == "behind")
                 ]
             )
             for env in ("behind", "without")

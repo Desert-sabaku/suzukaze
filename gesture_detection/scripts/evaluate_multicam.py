@@ -54,7 +54,11 @@ def score(intervals: list[dict], predictions: list[dict], fps: float) -> dict:
                 event_count=len(hits) if event else None,
                 extra_events=max(0, len(hits) - 1) if event else None,
                 opened_phase_hit=(
-                    any(x["start_frame"] <= f <= x["end_frame"] for x in opened for f in hits)
+                    any(
+                        x["start_frame"] <= f <= x["end_frame"]
+                        for x in opened
+                        for f in hits
+                    )
                     if opened
                     else None
                 ),
@@ -65,7 +69,11 @@ def score(intervals: list[dict], predictions: list[dict], fps: float) -> dict:
     wrong = Counter()
     outside_events = Counter()
     for p in predictions:
-        truth = {x["label"] for x in actions if x["start_frame"] <= p["frame"] <= x["end_frame"]}
+        truth = {
+            x["label"]
+            for x in actions
+            if x["start_frame"] <= p["frame"] <= x["end_frame"]
+        }
         if p["gesture"] != "NONE" and p["gesture"] not in truth:
             (wrong if truth else outside)[p["gesture"]] += 1
         for event in p["events"]:
@@ -85,7 +93,9 @@ def summarize(rows: list[dict]) -> dict:
         pairs = []
         for take in sorted({r["take"] for r in rows}):
             cameras = {
-                r["camera"]: r for r in rows if r["take"] == take and r["profile"] == profile
+                r["camera"]: r
+                for r in rows
+                if r["take"] == take and r["profile"] == profile
             }
             if set(cameras) != {1, 2}:
                 continue
@@ -109,9 +119,16 @@ def summarize(rows: list[dict]) -> dict:
             selected = [p for p in pairs if p["label"] == label]
             counts[label] = dict(
                 trials=len(selected),
-                **{k: sum(p[k] for p in selected) for k in ("camera1", "camera2", "either")},
-                camera2_rescues=sum(p["camera2"] and not p["camera1"] for p in selected),
-                camera1_rescues=sum(p["camera1"] and not p["camera2"] for p in selected),
+                **{
+                    k: sum(p[k] for p in selected)
+                    for k in ("camera1", "camera2", "either")
+                },
+                camera2_rescues=sum(
+                    p["camera2"] and not p["camera1"] for p in selected
+                ),
+                camera1_rescues=sum(
+                    p["camera1"] and not p["camera2"] for p in selected
+                ),
             )
         result[profile] = dict(counts=counts, pairs=pairs)
     return result
@@ -121,8 +138,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--videos", type=Path, default=ROOT / "shared/videos/0928")
     parser.add_argument("--annotations", type=Path, default=ROOT / "shared/annotations")
-    parser.add_argument("--output", type=Path, default=ROOT / "docs/0928-multicam-results.json")
-    parser.add_argument("--cache", type=Path, default=ROOT / "shared/results/0928-multicam")
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=ROOT / "shared/results/0928-multicam-results.json",
+    )
+    parser.add_argument(
+        "--cache", type=Path, default=ROOT / "shared/results/0928-multicam"
+    )
     args = parser.parse_args()
     args.cache.mkdir(parents=True, exist_ok=True)
     rows, audit, sheets = [], [], []
@@ -134,7 +157,9 @@ def main() -> None:
             source = session_path.parent / camera["file"]
             annotation_path = args.annotations / take / source.stem / "timeline.json"
             annotation = (
-                json.loads(annotation_path.read_text()) if annotation_path.exists() else None
+                json.loads(annotation_path.read_text())
+                if annotation_path.exists()
+                else None
             )
             video_hash = digest(source)
             if annotation and annotation["source"]["sha256"] != video_hash:
@@ -244,7 +269,10 @@ def main() -> None:
         recording_context={
             "os": "Windows 11",
             "recorder": "Desert-sabaku/multicam-recorder",
-            "cameras": {"1": "Insta360 Link 2C (left)", "2": "Logicool HD Webcam C615 (right)"},
+            "cameras": {
+                "1": "Insta360 Link 2C (left)",
+                "2": "Logicool HD Webcam C615 (right)",
+            },
             "phase_explanation_ui": {"RAMUNE": False, "RELAXING": False},
             "note": "Performer reports harder conditions than intended guided operation; the effect of the missing UI has not been measured.",
         },
@@ -264,7 +292,9 @@ def main() -> None:
         script_sha256=digest(Path(__file__)),
         pose_model_sha256=digest(POSE_MODEL_PATH),
         learned_model_sha256=digest(DEFAULT_MODEL),
-        runtime_sha256={p.name: digest(p) for p in (ROOT / "src/gesture_detection").glob("*.py")},
+        runtime_sha256={
+            p.name: digest(p) for p in (ROOT / "src/gesture_detection").glob("*.py")
+        },
         audit=audit,
         rows=rows,
         summary=summarize(rows),

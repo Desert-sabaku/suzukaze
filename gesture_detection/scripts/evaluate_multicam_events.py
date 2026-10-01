@@ -20,7 +20,13 @@ from .evaluate_multicam_temporal import FollowingRamune
 from .multicam_event_policy import AnchoredUchimizu, EventLatch, apply_gesture_policy
 from .multicam_temporal_metrics import temporal_score
 
-VARIANTS = ("peak", "peak_anchor", "peak_latch", "peak_anchor_latch", "peak_anchor_hand_latch")
+VARIANTS = (
+    "peak",
+    "peak_anchor",
+    "peak_latch",
+    "peak_anchor_latch",
+    "peak_anchor_hand_latch",
+)
 
 
 def infer_events(
@@ -32,16 +38,25 @@ def infer_events(
     output, event_evidence = [], []
     hand_setups, ramune_setup = {}, None
     with patch.object(
-        hand_gesture, "UchimizuAnalyzer", AnchoredUchimizu if anchored else UchimizuAnalyzer
+        hand_gesture,
+        "UchimizuAnalyzer",
+        AnchoredUchimizu if anchored else UchimizuAnalyzer,
     ):
         coordinator = RecognitionCoordinator(ramune_detector="rules", source_fps=fps)
         coordinator.ramune = FollowingRamune()
         for i, frame in enumerate(points):
-            previous_hands = [(id(h.uchimizu), h.uchimizu.state) for h in coordinator.hands]
+            previous_hands = [
+                (id(h.uchimizu), h.uchimizu.state) for h in coordinator.hands
+            ]
             previous_ramune = coordinator.ramune.state
-            result = coordinator.process(objects(frame), i / fps, i, aspect_ratio=aspect)
+            result = coordinator.process(
+                objects(frame), i / fps, i, aspect_ratio=aspect
+            )
             for hand, previous in zip(coordinator.hands, previous_hands, strict=True):
-                if hand.uchimizu.state == "READY" and previous != (id(hand.uchimizu), "READY"):
+                if hand.uchimizu.state == "READY" and previous != (
+                    id(hand.uchimizu),
+                    "READY",
+                ):
                     hand_setups[hand.wrist_index] = i / fps
                 elif hand.uchimizu.state == "IDLE":
                     hand_setups.pop(hand.wrist_index, None)
@@ -56,7 +71,10 @@ def infer_events(
             )
             event_wrists, event_setups = {}, {}
             for hand in coordinator.hands:
-                if "UCHIMIZU" in row["events"] and hand.uchimizu.completed_at == i / fps:
+                if (
+                    "UCHIMIZU" in row["events"]
+                    and hand.uchimizu.completed_at == i / fps
+                ):
                     event_wrists["UCHIMIZU"] = hand.wrist_index
                     if hand.wrist_index in hand_setups:
                         event_setups["UCHIMIZU"] = hand_setups[hand.wrist_index]
@@ -70,7 +88,9 @@ def infer_events(
                 )
             output.append(latch.update(row, frame, event_wrists) if latched else row)
     return output, dict(
-        scoop=dict(AnchoredUchimizu.audit), latch=dict(latch.audit), event_evidence=event_evidence
+        scoop=dict(AnchoredUchimizu.audit),
+        latch=dict(latch.audit),
+        event_evidence=event_evidence,
     )
 
 
@@ -94,10 +114,16 @@ def shared_latch(
         wrists, setups = {}, {}
         for label in row["events"]:
             arrivals = [
-                (e["seconds"], camera, e["wrists"][label], e.get("setups", {}).get(label))
+                (
+                    e["seconds"],
+                    camera,
+                    e["wrists"][label],
+                    e.get("setups", {}).get(label),
+                )
                 for camera, stream in enumerate(evidence)
                 for e in stream
-                if label in e["wrists"] and now - 1 / GRID_FPS + 1e-9 < e["seconds"] <= now + 1e-9
+                if label in e["wrists"]
+                and now - 1 / GRID_FPS + 1e-9 < e["seconds"] <= now + 1e-9
             ]
             if arrivals:
                 owner = min(arrivals, key=lambda x: x[:2])
@@ -105,7 +131,13 @@ def shared_latch(
                 if owner[3] is not None:
                     setups[label] = owner[3]
         output.append(
-            latch.update(row, np.zeros((33, 3)), wrists, release_views=recent, event_setups=setups)
+            latch.update(
+                row,
+                np.zeros((33, 3)),
+                wrists,
+                release_views=recent,
+                event_setups=setups,
+            )
         )
     return output, dict(latch.audit)
 
@@ -150,16 +182,18 @@ def summarize(rows: list[dict]) -> dict:
 
 
 def main() -> None:
-    temporal_path = ROOT / "docs/0928-multicam-temporal-results.json"
-    baseline_path = ROOT / "docs/0928-multicam-results.json"
-    followup_path = ROOT / "docs/0928-multicam-followup-results.json"
+    temporal_path = ROOT / "shared/results/0928-multicam-temporal-results.json"
+    baseline_path = ROOT / "shared/results/0928-multicam-results.json"
+    followup_path = ROOT / "shared/results/0928-multicam-followup-results.json"
     temporal = json.loads(temporal_path.read_text())
     baseline = json.loads(baseline_path.read_text())
     followup = json.loads(followup_path.read_text())
     for name, expected in baseline["runtime_sha256"].items():
         if digest(ROOT / "src/gesture_detection" / name) != expected:
             raise ValueError("Baseline runtime changed")
-    inputs = [r for r in baseline["rows"] if r["profile"] in ("rules_full", "rules_subject")]
+    inputs = [
+        r for r in baseline["rows"] if r["profile"] in ("rules_full", "rules_subject")
+    ]
     inputs += [r for r in followup["rows"] if r["profile"] == "rules_camera_roi"]
     output_dir = ROOT / "shared/results/0928-multicam-events"
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -167,12 +201,18 @@ def main() -> None:
     pose_cache, evidence_cache, shared_controls = {}, {}, []
     for source in inputs:
         take, camera, profile = source["take"], source["camera"], source["profile"]
-        reference = next(r for r in baseline["rows"] if r["take"] == take and r["camera"] == camera)
+        reference = next(
+            r for r in baseline["rows"] if r["take"] == take and r["camera"] == camera
+        )
         fps = reference["effective_fps"]
         annotation_path = (
             ROOT / "shared/annotations" / take / f"camera_{camera:02}" / "timeline.json"
         )
-        ann = json.loads(annotation_path.read_text()) if annotation_path.exists() else None
+        ann = (
+            json.loads(annotation_path.read_text())
+            if annotation_path.exists()
+            else None
+        )
         if ann and digest(annotation_path) != reference["annotation_sha256"]:
             raise ValueError("Annotation changed")
         intervals = ann["intervals"] if ann else []
@@ -192,7 +232,9 @@ def main() -> None:
                     and r["input"] == profile
                     and r["variant"] == "follow_peak"
                 )
-                if predictions != json.loads((ROOT / previous["predictions"]).read_text()):
+                if predictions != json.loads(
+                    (ROOT / previous["predictions"]).read_text()
+                ):
                     raise ValueError("Baseline replay mismatch")
             streams[take, camera, profile, variant] = predictions
             evidence_cache[take, camera, profile, variant] = audit["event_evidence"]
@@ -212,17 +254,35 @@ def main() -> None:
             # Counterfactual splice control: the entire original clip is repeated,
             # including its original preparation and return, with no detector reset.
             if any(t["detected"] and t["kind"] == "event" for t in metrics["trials"]):
-                repeated, _ = infer_events(np.concatenate([points, points]), fps, aspect, variant)
+                repeated, _ = infer_events(
+                    np.concatenate([points, points]), fps, aspect, variant
+                )
                 n = len(points)
                 doubled = intervals + [
-                    dict(x, start_frame=x["start_frame"] + n, end_frame=x["end_frame"] + n)
+                    dict(
+                        x,
+                        start_frame=x["start_frame"] + n,
+                        end_frame=x["end_frame"] + n,
+                    )
                     for x in intervals
                 ]
                 control = apply_gesture_policy(temporal_score(doubled, repeated, fps))
                 repeats.append(
-                    dict(take=take, camera=camera, input=profile, variant=variant, metrics=control)
+                    dict(
+                        take=take,
+                        camera=camera,
+                        input=profile,
+                        variant=variant,
+                        metrics=control,
+                    )
                 )
-        print(take, camera, profile, "parity verified; event candidates scored", flush=True)
+        print(
+            take,
+            camera,
+            profile,
+            "parity verified; event candidates scored",
+            flush=True,
+        )
     fusion_rows = []
     combinations = {
         "full": ("rules_full", "rules_full"),
@@ -230,7 +290,9 @@ def main() -> None:
         "asymmetric": ("rules_subject", "rules_full"),
     }
     for take in sorted({r["take"] for r in rows}):
-        session = json.loads((ROOT / "shared/videos/0928" / take / "session.json").read_text())
+        session = json.loads(
+            (ROOT / "shared/videos/0928" / take / "session.json").read_text()
+        )
         for name, profiles in combinations.items():
             for variant in VARIANTS:
                 selected = [streams[take, c, profiles[c - 1], variant] for c in (1, 2)]
@@ -238,16 +300,27 @@ def main() -> None:
                 candidates = [(variant, predictions, audit)]
                 if variant == "peak_anchor":
                     views = [pose_cache[take, c, profiles[c - 1]][:2] for c in (1, 2)]
-                    evidence = [evidence_cache[take, c, profiles[c - 1], variant] for c in (1, 2)]
+                    evidence = [
+                        evidence_cache[take, c, profiles[c - 1], variant]
+                        for c in (1, 2)
+                    ]
                     shared, shared_audit = shared_latch(predictions, views, evidence)
                     candidates.append(
-                        ("peak_anchor_shared_latch", shared, dict(audit, shared_latch=shared_audit))
+                        (
+                            "peak_anchor_shared_latch",
+                            shared,
+                            dict(audit, shared_latch=shared_audit),
+                        )
                     )
                     fresh, fresh_audit = shared_latch(
                         predictions, views, evidence, require_new_setup=True
                     )
                     candidates.append(
-                        ("peak_anchor_fresh_setup", fresh, dict(audit, shared_latch=fresh_audit))
+                        (
+                            "peak_anchor_fresh_setup",
+                            fresh,
+                            dict(audit, shared_latch=fresh_audit),
+                        )
                     )
                     if any(
                         x["track"] == "action" and x["label"] in ("UCHIMIZU", "RAMUNE")
@@ -261,10 +334,15 @@ def main() -> None:
                             doubled_views.append((p, fps))
                             doubled_streams.append(replayed)
                             doubled_evidence.append(detail["event_evidence"])
-                        twice, _ = fuse(doubled_streams, 2 * session["duration_seconds"])
+                        twice, _ = fuse(
+                            doubled_streams, 2 * session["duration_seconds"]
+                        )
                         for fresh in (False, True):
                             gated, _ = shared_latch(
-                                twice, doubled_views, doubled_evidence, require_new_setup=fresh
+                                twice,
+                                doubled_views,
+                                doubled_evidence,
+                                require_new_setup=fresh,
                             )
                             for c in (1, 2):
                                 fps, intervals = metadata[take, c]
@@ -278,7 +356,9 @@ def main() -> None:
                                     for x in intervals
                                 ]
                                 metrics = apply_gesture_policy(
-                                    temporal_score(clock_intervals(doubled, fps), gated, GRID_FPS)
+                                    temporal_score(
+                                        clock_intervals(doubled, fps), gated, GRID_FPS
+                                    )
                                 )
                                 shared_controls.append(
                                     dict(
@@ -295,7 +375,9 @@ def main() -> None:
                     for camera in (1, 2):
                         fps, intervals = metadata[take, camera]
                         metrics = apply_gesture_policy(
-                            temporal_score(clock_intervals(intervals, fps), result, GRID_FPS)
+                            temporal_score(
+                                clock_intervals(intervals, fps), result, GRID_FPS
+                            )
                         )
                         fusion_rows.append(
                             dict(
@@ -328,7 +410,7 @@ def main() -> None:
             "Same-footage exploratory result; missing capture timestamps remain approximated.",
         ],
     )
-    (ROOT / "docs/0928-multicam-events-results.json").write_text(
+    (ROOT / "shared/results/0928-multicam-events-results.json").write_text(
         json.dumps(report, indent=2) + "\n"
     )
     for group in (report["summary"], report["fusion_summary"]):

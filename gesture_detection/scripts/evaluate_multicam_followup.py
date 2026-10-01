@@ -44,7 +44,9 @@ NAMES = {
 
 def objects(points: np.ndarray) -> list:
     return (
-        [SimpleNamespace(x=p[0], y=p[1], visibility=p[2]) for p in points] if points.any() else []
+        [SimpleNamespace(x=p[0], y=p[1], visibility=p[2]) for p in points]
+        if points.any()
+        else []
     )
 
 
@@ -64,8 +66,12 @@ def ramune_probe(detector: RamuneAnalyzer, points: np.ndarray, now: float) -> di
         return row
     lower = max((15, 16), key=lambda i: points[i, 1])
     gap = (points[lower, 1] - points[31 - lower, 1]) / scale
-    aligned = abs(points[15, 0] - points[16, 0]) / scale <= config.RAMUNE_ALIGN_TOLERANCE
-    in_torso = points[[11, 12], 1].mean() <= points[lower, 1] <= points[[23, 24], 1].mean()
+    aligned = (
+        abs(points[15, 0] - points[16, 0]) / scale <= config.RAMUNE_ALIGN_TOLERANCE
+    )
+    in_torso = (
+        points[[11, 12], 1].mean() <= points[lower, 1] <= points[[23, 24], 1].mean()
+    )
     row.update(gap=float(gap), aligned=bool(aligned), in_torso=bool(in_torso))
     if detector.state not in ("FORMING", "READY"):
         return row
@@ -109,7 +115,9 @@ def ramune_probe(detector: RamuneAnalyzer, points: np.ndarray, now: float) -> di
     return row
 
 
-def replay(points: np.ndarray, fps: float, aspect: float, mode: str) -> tuple[list, list]:
+def replay(
+    points: np.ndarray, fps: float, aspect: float, mode: str
+) -> tuple[list, list]:
     coordinator = RecognitionCoordinator(ramune_detector=mode, source_fps=fps)
     predictions, diagnostics = [], []
     for i, frame in enumerate(points):
@@ -147,7 +155,11 @@ def replay(points: np.ndarray, fps: float, aspect: float, mode: str) -> tuple[li
                 action=model.metadata["action_labels"][model.action],
                 phase=model.metadata["phase_labels"][model.phase],
             )
-        if relaxing.motion_speed is not None and previous is not None and previous_time is not None:
+        if (
+            relaxing.motion_speed is not None
+            and previous is not None
+            and previous_time is not None
+        ):
             indices = np.asarray(config.RELAXING_LANDMARKS)
             current = frame[indices, :2] * [aspect, 1]
             distances = np.linalg.norm(current - previous, axis=1)
@@ -170,7 +182,9 @@ def diagnostic_summary(intervals: list[dict], diagnostics: list[dict]) -> list[d
             continue
         selected = diagnostics[action["start_frame"] : action["end_frame"] + 1]
         row = dict(
-            label=action["label"], start_frame=action["start_frame"], end_frame=action["end_frame"]
+            label=action["label"],
+            start_frame=action["start_frame"],
+            end_frame=action["end_frame"],
         )
         if action["label"] == "RAMUNE":
             resets = [
@@ -189,20 +203,29 @@ def diagnostic_summary(intervals: list[dict], diagnostics: list[dict]) -> list[d
                 },
                 ready_press_max=max((r["press"] for r in ready), default=None),
                 learned_action=dict(
-                    Counter(d["ramune"]["action"] for d in selected if "action" in d["ramune"])
+                    Counter(
+                        d["ramune"]["action"]
+                        for d in selected
+                        if "action" in d["ramune"]
+                    )
                 ),
                 learned_phase=dict(
-                    Counter(d["ramune"]["phase"] for d in selected if "phase" in d["ramune"])
+                    Counter(
+                        d["ramune"]["phase"] for d in selected if "phase" in d["ramune"]
+                    )
                 ),
                 learned_gate=dict(
-                    Counter(d["ramune"]["gate"] for d in selected if "gate" in d["ramune"])
+                    Counter(
+                        d["ramune"]["gate"] for d in selected if "gate" in d["ramune"]
+                    )
                 ),
             )
         else:
             excess = [
                 d
                 for d in selected
-                if d["motion_speed"] is not None and d["motion_speed"] > config.RELAXING_MAX_SPEED
+                if d["motion_speed"] is not None
+                and d["motion_speed"] > config.RELAXING_MAX_SPEED
             ]
             row.update(
                 max_still_seconds=max(d["still_seconds"] for d in selected),
@@ -251,7 +274,9 @@ def make_sheet(
         return
     start, end = actions[0]["start_frame"], actions[0]["end_frame"]
     frames = [start, (start + end) // 2, end]
-    opened = [x for x in intervals if x["track"] == "ramune_phase" and x["label"] == "OPENED"]
+    opened = [
+        x for x in intervals if x["track"] == "ramune_phase" and x["label"] == "OPENED"
+    ]
     if opened:
         frames[1] = (opened[0]["start_frame"] + opened[0]["end_frame"]) // 2
     cap = cv2.VideoCapture(str(source))
@@ -275,7 +300,9 @@ def make_sheet(
                 if visibility > 0.5 and 0 <= x <= 1 and 0 <= y <= 1:
                     xy = (int(x * 640), int(y * 360))
                     cv2.circle(image, xy, 4, (0, 255, 255), -1)
-                    cv2.putText(image, str(j), xy, cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+                    cv2.putText(
+                        image, str(j), xy, cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1
+                    )
             x1, y1, x2, y2 = area
             cv2.rectangle(
                 image,
@@ -308,7 +335,7 @@ def make_sheet(
 
 
 def main() -> None:
-    baseline_path = ROOT / "docs/0928-multicam-results.json"
+    baseline_path = ROOT / "shared/results/0928-multicam-results.json"
     baseline = json.loads(baseline_path.read_text())
     for name, expected in baseline["runtime_sha256"].items():
         if digest(ROOT / "src/gesture_detection" / name) != expected:
@@ -325,7 +352,11 @@ def main() -> None:
         annotation_path = ROOT / "shared/annotations" / take / stem / "timeline.json"
         if digest(source) != base["video_sha256"]:
             raise ValueError("Source changed")
-        annotation = json.loads(annotation_path.read_text()) if annotation_path.exists() else None
+        annotation = (
+            json.loads(annotation_path.read_text())
+            if annotation_path.exists()
+            else None
+        )
         if annotation and digest(annotation_path) != base["annotation_sha256"]:
             raise ValueError("Annotations changed")
         intervals = annotation["intervals"] if annotation else []
@@ -340,7 +371,10 @@ def main() -> None:
             patch.object(subject_selection, "SUBJECT_AREA", AREAS[camera]),
         ):
             analyzer = pose_worker.PoseAnalyzer(
-                running_mode="VIDEO", select_subject=True, ramune_detector="rules", source_fps=fps
+                running_mode="VIDEO",
+                select_subject=True,
+                ramune_detector="rules",
+                source_fps=fps,
             )
             try:
                 for i in range(base["frames"]):
@@ -377,7 +411,10 @@ def main() -> None:
                 raise ValueError("ROI replay differs from video inference")
             path = output / f"{take}-{stem}-{profile}"
             path.with_suffix(".json").write_text(
-                json.dumps(dict(predictions=predictions, diagnostics=diagnostics), indent=2) + "\n"
+                json.dumps(
+                    dict(predictions=predictions, diagnostics=diagnostics), indent=2
+                )
+                + "\n"
             )
             np.savez_compressed(path.with_suffix(".npz"), points=points)
             rows.append(
@@ -411,7 +448,9 @@ def main() -> None:
                     path.with_suffix(".jpg"),
                 )
         print(take, stem, "baseline and ROI replay parity verified", flush=True)
-    summary = compare(baseline["rows"] + [r for r in rows if r["profile"] != "rules_full"])
+    summary = compare(
+        baseline["rows"] + [r for r in rows if r["profile"] != "rules_full"]
+    )
     report = dict(
         baseline_sha256=digest(baseline_path),
         script_sha256=digest(Path(__file__)),
@@ -427,7 +466,7 @@ def main() -> None:
             "Reset conditions are measured simultaneously, not unique causal attributions.",
         ],
     )
-    (ROOT / "docs/0928-multicam-followup-results.json").write_text(
+    (ROOT / "shared/results/0928-multicam-followup-results.json").write_text(
         json.dumps(report, indent=2) + "\n"
     )
     print(json.dumps(summary, indent=2))

@@ -80,7 +80,9 @@ def motion_features(values: np.ndarray, flags: np.ndarray, fps: float) -> np.nda
         valid = np.zeros_like(flags)
         velocity = np.zeros_like(values)
         valid[lag:] = flags[lag:] & flags[:-lag]
-        velocity[lag:] = np.where(valid[lag:], (values[lag:] - values[:-lag]) / (lag / fps), 0.0)
+        velocity[lag:] = np.where(
+            valid[lag:], (values[lag:] - values[:-lag]) / (lag / fps), 0.0
+        )
         blocks.extend([velocity, valid.astype(float)])
     return np.column_stack(blocks)
 
@@ -98,7 +100,9 @@ def feature_sets(clip: dict) -> dict[str, dict[float, np.ndarray]]:
     return result
 
 
-def phase_predictions(clips: list[dict], family: str) -> tuple[dict[str, np.ndarray], list[dict]]:
+def phase_predictions(
+    clips: list[dict], family: str
+) -> tuple[dict[str, np.ndarray], list[dict]]:
     prepared = [dict(c, features=c["feature_sets"][family]) for c in clips]
     result, selections = {}, []
     for group in (1, 2, 3, 0):
@@ -119,7 +123,9 @@ def phase_predictions(clips: list[dict], family: str) -> tuple[dict[str, np.ndar
                 inner_folds=[
                     dict(
                         train_videos=[c["name"] for c in train if c["group"] != inner],
-                        validation_videos=[c["name"] for c in train if c["group"] == inner],
+                        validation_videos=[
+                            c["name"] for c in train if c["group"] == inner
+                        ],
                     )
                     for inner in sorted({c["group"] for c in train})
                 ],
@@ -130,16 +136,22 @@ def phase_predictions(clips: list[dict], family: str) -> tuple[dict[str, np.ndar
     return result, selections
 
 
-def anchor_details(clip: dict, phase: np.ndarray, row: dict, trace: list[dict]) -> list[dict]:
+def anchor_details(
+    clip: dict, phase: np.ndarray, row: dict, trace: list[dict]
+) -> list[dict]:
     result = []
     _, valid = relative_geometry(clip)
     for (start, end), match in zip(
         clip["opening_intervals"], row["single"]["details"], strict=True
     ):
-        parent = next((a, b) for a, b in clip["ramune_intervals"] if a <= start <= end <= b)
+        parent = next(
+            (a, b) for a, b in clip["ramune_intervals"] if a <= start <= end <= b
+        )
         later = [
             a
-            for a, _ in positive_runs(np.array([r["state_after"] == "OPENED" for r in trace]))
+            for a, _ in positive_runs(
+                np.array([r["state_after"] == "OPENED" for r in trace])
+            )
             if end < a <= parent[1]
         ]
         result.append(
@@ -152,9 +164,11 @@ def anchor_details(clip: dict, phase: np.ndarray, row: dict, trace: list[dict]) 
                 state_at_anchor=trace[start]["state_before"],
                 first_output_after_anchor_gap_frames=later[0] - end if later else None,
                 geometry_valid_anchor_frames=int(valid[start : end + 1, 0].sum()),
-                geometry_valid_preparation_fraction=float(valid[parent[0] : start, 0].mean())
-                if start > parent[0]
-                else None,
+                geometry_valid_preparation_fraction=(
+                    float(valid[parent[0] : start, 0].mean())
+                    if start > parent[0]
+                    else None
+                ),
             )
         )
     return result
@@ -168,14 +182,20 @@ def plot_trial(clip: dict, arrays: dict, path: Path) -> None:
 
     t = np.arange(len(clip["phase"])) / clip["fps"]
     fig, axes = plt.subplots(6, 1, figsize=(14, 12), sharex=True, layout="constrained")
-    fig.suptitle(clip["name"] + " | phase feature comparison; fixed action and temporal gates")
+    fig.suptitle(
+        clip["name"] + " | phase feature comparison; fixed action and temporal gates"
+    )
     for ax in axes:
         for a, b in clip["opening_intervals"]:
             ax.axvspan(a / clip["fps"], (b + 1) / clip["fps"], color="gold", alpha=0.3)
         ax.grid(alpha=0.2)
     for index, family in enumerate(FAMILIES):
-        axes[index].step(t, clip["phase"], where="post", label="annotation", linewidth=2)
-        axes[index].step(t, arrays[family + "/phase/" + clip["name"]], where="post", label=family)
+        axes[index].step(
+            t, clip["phase"], where="post", label="annotation", linewidth=2
+        )
+        axes[index].step(
+            t, arrays[family + "/phase/" + clip["name"]], where="post", label=family
+        )
         axes[index].set(yticks=range(-1, len(PHASES)), yticklabels=["UNKNOWN", *PHASES])
         axes[index].legend(loc="upper right", ncol=2)
         for a, b in positive_runs(arrays[family + "/output/" + clip["name"]] == 3):
@@ -226,12 +246,14 @@ def plot_trial(clip: dict, arrays: dict, path: Path) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--output", type=Path, default=ROOT / "docs/0924-opening-features-results.json"
+        "--output",
+        type=Path,
+        default=ROOT / "shared/results/0924-opening-features-results.json",
     )
     parser.add_argument("--plot", action="store_true")
     args = parser.parse_args()
-    source_path = ROOT / "docs/0924-timeline-central-results.json"
-    setup_path = ROOT / "docs/0924-opening-setup-results.json"
+    source_path = ROOT / "shared/results/0924-timeline-central-results.json"
+    setup_path = ROOT / "shared/results/0924-opening-setup-results.json"
     source = json.loads(source_path.read_text())
     setup = json.loads(setup_path.read_text())
     sources = {row["name"]: row for row in source["sources"]}
@@ -269,7 +291,9 @@ def main() -> None:
                 row, out, trace = evaluate_sample(clip, phase, action, "baseline")
                 if family == "baseline":
                     previous = next(
-                        r for r in setup["families"]["baseline"]["clips"] if r["video"] == name
+                        r
+                        for r in setup["families"]["baseline"]["clips"]
+                        if r["video"] == name
                     )
                     if row != previous:
                         raise ValueError(f"Temporal baseline changed: {name}")
@@ -293,18 +317,29 @@ def main() -> None:
     # Parameter selection, not just final argmax predictions, must reproduce the baseline.
     for selected in selections["baseline"]:
         previous = next(
-            r for r in source["results"]["phase"]["clips"] if r["group"] == selected["group"]
+            r
+            for r in source["results"]["phase"]["clips"]
+            if r["group"] == selected["group"]
         )
-        if any(selected[k] != previous[k] for k in ("history", "regularization", "classifier")):
+        if any(
+            selected[k] != previous[k]
+            for k in ("history", "regularization", "classifier")
+        ):
             raise ValueError("Baseline parameter selection changed")
     plots = []
     if args.plot:
         for clip in clips:
             if clip["opening_intervals"]:
-                path = args.output.parent / "0924-opening-features" / (clip["name"] + ".png")
+                path = (
+                    args.output.parent
+                    / "0924-opening-features"
+                    / (clip["name"] + ".png")
+                )
                 plot_trial(clip, arrays, path)
                 plots.append(str(path.relative_to(ROOT)))
-    prediction_path = ROOT / "shared/results/0924-cache" / (args.output.stem + "-predictions.npz")
+    prediction_path = (
+        ROOT / "shared/results/0924-cache" / (args.output.stem + "-predictions.npz")
+    )
     np.savez_compressed(prediction_path, **arrays)
     report = dict(
         protocol=__doc__,
@@ -314,14 +349,17 @@ def main() -> None:
             geometry=list(GEOMETRY),
             lags_seconds=list(LAGS),
             units="shoulder widths; backward velocity per second",
-            dimensions={key: clips[0]["feature_sets"][key][0.25].shape[1] for key in FAMILIES},
+            dimensions={
+                key: clips[0]["feature_sets"][key][0.25].shape[1] for key in FAMILIES
+            },
             layout="96 baseline + 7 geometry + 7 valid; motion adds 7 velocities + 7 valid per lag",
         ),
         families=families,
         selections=selections,
         anchor_details=details,
         decisions={
-            key: candidate_decision(families["baseline"], families[key]) for key in FAMILIES[1:]
+            key: candidate_decision(families["baseline"], families[key])
+            for key in FAMILIES[1:]
         },
         source_report_sha256=digest(source_path),
         setup_report_sha256=digest(setup_path),

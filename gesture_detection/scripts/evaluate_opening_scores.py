@@ -27,7 +27,9 @@ from .evaluate_timeline import (
 OPENED = PHASES.index("OPENED")
 
 
-def score_diagnostics(scores: np.ndarray, observed: np.ndarray) -> dict[str, np.ndarray]:
+def score_diagnostics(
+    scores: np.ndarray, observed: np.ndarray
+) -> dict[str, np.ndarray]:
     """NaN denotes unavailable evidence; rank ties follow prediction argmax."""
     opened = scores[:, OPENED]
     result = {}
@@ -56,7 +58,13 @@ def distribution(values: np.ndarray) -> dict:
     quantiles = np.quantile(valid, [0, 0.25, 0.5, 0.75, 1])
     return dict(
         count=len(valid),
-        **dict(zip(("min", "q25", "median", "q75", "max"), map(float, quantiles), strict=True)),
+        **dict(
+            zip(
+                ("min", "q25", "median", "q75", "max"),
+                map(float, quantiles),
+                strict=True,
+            )
+        ),
     )
 
 
@@ -76,13 +84,18 @@ def summarize_window(
         frames=int(mask.sum()),
         observed_frames=int(eligible.sum()),
         missing_pose_frames=int((mask & ~observed).sum()),
-        distributions={key: distribution(value[eligible]) for key, value in scores.items()},
-        rank_counts={str(rank): int((ranks == rank).sum()) for rank in range(1, len(PHASES) + 1)},
+        distributions={
+            key: distribution(value[eligible]) for key, value in scores.items()
+        },
+        rank_counts={
+            str(rank): int((ranks == rank).sum()) for rank in range(1, len(PHASES) + 1)
+        },
         raw_opened_frames=int(raw_opened.sum()),
         blocked_opened_frames=int(blocked.sum()),
         blocked_by_state={
             state: sum(
-                bool(blocked[i]) and row["state_before"] == state for i, row in enumerate(trace)
+                bool(blocked[i]) and row["state_before"] == state
+                for i, row in enumerate(trace)
             )
             for state in STATES
         },
@@ -101,7 +114,9 @@ def phase_runs(phase: np.ndarray) -> list[dict]:
     )
 
 
-def audit_clip(clip: dict, raw_scores: np.ndarray, action: np.ndarray) -> tuple[dict, dict, dict]:
+def audit_clip(
+    clip: dict, raw_scores: np.ndarray, action: np.ndarray
+) -> tuple[dict, dict, dict]:
     phase = predict_from_scores(raw_scores, clip["points"])
     observed = (clip["points"][:, :, 2] > 0.5).any(axis=1)
     row, output, trace = evaluate_sample(clip, phase, action, "baseline")
@@ -124,7 +139,9 @@ def audit_clip(clip: dict, raw_scores: np.ndarray, action: np.ndarray) -> tuple[
     }
     intervals = []
     for index, (start, end) in enumerate(clip["opening_intervals"]):
-        parent = next((a, b) for a, b in clip["ramune_intervals"] if a <= start <= end <= b)
+        parent = next(
+            (a, b) for a, b in clip["ramune_intervals"] if a <= start <= end <= b
+        )
         padding = round(clip["fps"])
         windows = {
             "anchor": (start, end),
@@ -193,7 +210,9 @@ def audit_clip(clip: dict, raw_scores: np.ndarray, action: np.ndarray) -> tuple[
     return audit, row, arrays
 
 
-def plot_clip(clip: dict, arrays: dict, path: Path, window: tuple[int, int] | None = None) -> None:
+def plot_clip(
+    clip: dict, arrays: dict, path: Path, window: tuple[int, int] | None = None
+) -> None:
     import matplotlib
 
     matplotlib.use("Agg")
@@ -209,11 +228,17 @@ def plot_clip(clip: dict, arrays: dict, path: Path, window: tuple[int, int] | No
     for index, label in enumerate(PHASES):
         scores = arrays["scores"][:, index]
         axes[0].plot(
-            t, np.where(arrays["observed"] & np.isfinite(scores), scores, np.nan), label=label
+            t,
+            np.where(arrays["observed"] & np.isfinite(scores), scores, np.nan),
+            label=label,
         )
     axes[0].legend(loc="upper right", ncol=5)
     axes[0].set(ylabel="Ridge score")
-    for key in ("opened_minus_ready", "opened_minus_wait_release", "opened_minus_best_other"):
+    for key in (
+        "opened_minus_ready",
+        "opened_minus_wait_release",
+        "opened_minus_best_other",
+    ):
         axes[1].plot(t, arrays[key], label=key.replace("opened_minus_", "OPENED - "))
     axes[1].axhline(0, color="black", linewidth=0.8)
     axes[1].legend(loc="upper right", ncol=3)
@@ -241,11 +266,13 @@ def plot_clip(clip: dict, arrays: dict, path: Path, window: tuple[int, int] | No
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--output", type=Path, default=ROOT / "docs/0924-opening-scores-results.json"
+        "--output",
+        type=Path,
+        default=ROOT / "shared/results/0924-opening-scores-results.json",
     )
     parser.add_argument("--plot", action="store_true")
     args = parser.parse_args()
-    reference_path = ROOT / "docs/0924-opening-features-results.json"
+    reference_path = ROOT / "shared/results/0924-opening-features-results.json"
     reference = json.loads(reference_path.read_text())
     frozen_path = ROOT / reference["frame_predictions"]
     if digest(frozen_path) != reference["frame_predictions_sha256"]:
@@ -297,7 +324,11 @@ def main() -> None:
                     for r in reference["families"]["relative_position"]["clips"]
                     if r["video"] == name
                 )
-                if row != {key: value for key, value in previous.items() if key != "phase_metrics"}:
+                if row != {
+                    key: value
+                    for key, value in previous.items()
+                    if key != "phase_metrics"
+                }:
                     raise ValueError("Single or repeated temporal metrics changed")
                 audits.append(audit)
                 rows.append(row)
@@ -317,7 +348,9 @@ def main() -> None:
                         )
                         plots.append(str(zoom.relative_to(ROOT)))
                 print(name, "verified", flush=True)
-    predictions = ROOT / "shared/results/0924-cache" / (args.output.stem + "-predictions.npz")
+    predictions = (
+        ROOT / "shared/results/0924-cache" / (args.output.stem + "-predictions.npz")
+    )
     np.savez_compressed(predictions, **saved)
     report = dict(
         protocol=__doc__,

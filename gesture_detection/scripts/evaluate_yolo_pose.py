@@ -88,21 +88,31 @@ def evaluate_clip(
         "pose_frames": pose_frames,
         "pose_frame_ratio": pose_frames / frames if frames else 0.0,
         "important_keypoints_visible_frames": important_visible,
-        "important_keypoints_visible_ratio": important_visible / frames if frames else 0.0,
+        "important_keypoints_visible_ratio": (
+            important_visible / frames if frames else 0.0
+        ),
         "mean_important_keypoint_confidence": (
             confidence_sum / pose_frames if pose_frames else 0.0
         ),
         "mean_important_keypoint_jump": float(np.mean(jumps)) if jumps else None,
-        "p95_important_keypoint_jump": float(np.percentile(jumps, 95)) if jumps else None,
+        "p95_important_keypoint_jump": (
+            float(np.percentile(jumps, 95)) if jumps else None
+        ),
         "elapsed_seconds": time.perf_counter() - started,
     }
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--sample-dir", type=Path, default=PROJECT_ROOT / "sample_movies")
+    parser.add_argument(
+        "--sample-dir", type=Path, default=PROJECT_ROOT / "sample_movies"
+    )
     parser.add_argument("--model", type=Path, default=PROJECT_ROOT / "yolov8n-pose.pt")
-    parser.add_argument("--output", type=Path, default=PROJECT_ROOT / "docs/yolo-pose-curtain.json")
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=PROJECT_ROOT / "shared/results/yolo-pose-curtain.json",
+    )
     parser.add_argument("--confidence", type=float, default=0.25)
     parser.add_argument("--image-size", type=int, default=640)
     parser.add_argument("--device", default="cpu")
@@ -114,7 +124,9 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     clips = args.clip or list(DEFAULT_CLIPS)
-    missing = [filename for filename in clips if not (args.sample_dir / filename).is_file()]
+    missing = [
+        filename for filename in clips if not (args.sample_dir / filename).is_file()
+    ]
     if missing:
         raise FileNotFoundError(f"Missing clips: {', '.join(missing)}")
     if not args.model.is_file():

@@ -15,7 +15,12 @@ from pathlib import Path
 import numpy as np
 
 from .evaluate_opening_repetition import repeat_clip, summarize
-from .evaluate_opening_temporal import TemporalConfig, aggregate, apply_temporal, measure
+from .evaluate_opening_temporal import (
+    TemporalConfig,
+    aggregate,
+    apply_temporal,
+    measure,
+)
 from .evaluate_timeline import ACTIONS, PHASES, ROOT, digest, extract, positive_runs
 
 CONFIG = TemporalConfig(0.75, 0.6, 0.3, "context", True)
@@ -85,7 +90,9 @@ def diagnose(
     rows = []
     diagnostics = {key: measure(clip, out, []) for key, out in outputs.items()}
     for number, (start, end) in enumerate(clip["opening_intervals"]):
-        parent = next((a, b) for a, b in clip["ramune_intervals"] if a <= start <= end <= b)
+        parent = next(
+            (a, b) for a, b in clip["ramune_intervals"] if a <= start <= end <= b
+        )
         window = slice(parent[0], end + 1)
         preparation = slice(parent[0], start)
         joint = tracked & ready & (action == 1)
@@ -103,7 +110,11 @@ def diagnose(
         }
         opened = np.flatnonzero(phase[window] == 3) + parent[0]
         future = np.flatnonzero(phase[end + 1 : parent[1] + 1] == 3) + end + 1
-        starts = [a for a, _ in positive_runs(outputs["baseline"] == 3) if end < a <= parent[1]]
+        starts = [
+            a
+            for a, _ in positive_runs(outputs["baseline"] == 3)
+            if end < a <= parent[1]
+        ]
         blocks = {}
         for i in opened:
             if trace[i]["blocked_opened"]:
@@ -139,28 +150,42 @@ def diagnose(
                 missing_pose_frames=int((~tracked[preparation]).sum()),
                 low_wrist_visibility_frames=int((~wrists[preparation]).sum()),
                 phase_ready_action_disagreement_frames=int(
-                    (tracked[preparation] & ready[preparation] & (action[preparation] != 1)).sum()
+                    (
+                        tracked[preparation]
+                        & ready[preparation]
+                        & (action[preparation] != 1)
+                    ).sum()
                 ),
                 annotated_ready_frames=int(gt_ready.sum()),
                 annotated_ready_action_miss_frames=int(
                     (gt_ready & (action[preparation] != 1)).sum()
                 ),
-                annotated_ready_phase_miss_frames=int((gt_ready & ~ready[preparation]).sum()),
-                anchor_predicted_phases=[PHASES[int(value)] for value in phase[start : end + 1]],
+                annotated_ready_phase_miss_frames=int(
+                    (gt_ready & ~ready[preparation]).sum()
+                ),
+                anchor_predicted_phases=[
+                    PHASES[int(value)] for value in phase[start : end + 1]
+                ],
                 anchor_tracked_frames=int(tracked[start : end + 1].sum()),
                 anchor_both_wrists_visible_frames=int(wrists[start : end + 1].sum()),
                 raw_opened_frames_before_anchor_end=opened.tolist(),
-                first_raw_opened_after_anchor_gap_frames=int(future[0] - end)
-                if len(future)
-                else None,
-                first_output_after_anchor_gap_frames=starts[0] - end if starts else None,
+                first_raw_opened_after_anchor_gap_frames=(
+                    int(future[0] - end) if len(future) else None
+                ),
+                first_output_after_anchor_gap_frames=(
+                    starts[0] - end if starts else None
+                ),
                 blocked_opened_frames_by_state=blocks,
                 baseline_state_at_anchor=trace[start]["state_before"],
                 baseline_state_transitions=[
                     row for row in trace if row["state_before"] != row["state_after"]
                 ],
                 family_state_transitions={
-                    key: [row for row in audit if row["state_before"] != row["state_after"]]
+                    key: [
+                        row
+                        for row in audit
+                        if row["state_before"] != row["state_after"]
+                    ]
                     for key, audit in (family_traces or {"baseline": trace}).items()
                 },
                 hits=hits,
@@ -187,8 +212,12 @@ def evaluate_sample(
                     missing_seconds=missing,
                     join_frame=offset,
                     anchors_per_copy=count,
-                    first_hit=any(d["matched_run"] is not None for d in result["details"][:count]),
-                    second_hit=any(d["matched_run"] is not None for d in result["details"][count:]),
+                    first_hit=any(
+                        d["matched_run"] is not None for d in result["details"][:count]
+                    ),
+                    second_hit=any(
+                        d["matched_run"] is not None for d in result["details"][count:]
+                    ),
                     diagnostics=result,
                 )
             )
@@ -208,7 +237,10 @@ def summarize_family(rows: list[dict]) -> dict:
         repeats = {}
         for missing in (0.0, 0.5, 2.0):
             samples = [
-                s for r in relevant for s in r["repetitions"] if s["missing_seconds"] == missing
+                s
+                for r in relevant
+                for s in r["repetitions"]
+                if s["missing_seconds"] == missing
             ]
             if samples:
                 stats = summarize(samples)
@@ -219,7 +251,9 @@ def summarize_family(rows: list[dict]) -> dict:
                     stats["first_hits"] - stats["second_hits_given_first"]
                 )
                 repeats[str(missing)] = stats
-        result[env] = dict(single=aggregate([r["single"] for r in relevant]), repetition=repeats)
+        result[env] = dict(
+            single=aggregate([r["single"] for r in relevant]), repetition=repeats
+        )
     return result
 
 
@@ -237,7 +271,11 @@ def candidate_decision(baseline: dict, candidate: dict) -> dict:
                 reasons.append(f"{env}: increased {key}")
         for gap, b in baseline[env]["repetition"].items():
             c = candidate[env]["repetition"][gap]
-            for key in ("second_misses_given_first", "reappearance_runs", "unanchored_runs"):
+            for key in (
+                "second_misses_given_first",
+                "reappearance_runs",
+                "unanchored_runs",
+            ):
                 if c[key] > b[key]:
                     reasons.append(f"{env}, gap {gap}: increased {key}")
     if not improved:
@@ -246,7 +284,12 @@ def candidate_decision(baseline: dict, candidate: dict) -> dict:
 
 
 def plot_trial(
-    clip: dict, phase: np.ndarray, action: np.ndarray, outputs: dict, trace: list[dict], path: Path
+    clip: dict,
+    phase: np.ndarray,
+    action: np.ndarray,
+    outputs: dict,
+    trace: list[dict],
+    path: Path,
 ) -> None:
     import matplotlib
 
@@ -266,7 +309,9 @@ def plot_trial(
     axes[0].legend(loc="upper right", ncol=2)
     axes[1].step(t, clip["phase"], where="post", label="annotation", linewidth=2)
     axes[1].step(t, phase, where="post", label="prediction", alpha=0.8)
-    axes[1].set(yticks=range(-1, len(PHASES)), yticklabels=["UNKNOWN", *PHASES], ylabel="Phase")
+    axes[1].set(
+        yticks=range(-1, len(PHASES)), yticklabels=["UNKNOWN", *PHASES], ylabel="Phase"
+    )
     axes[2].plot(t, clip["points"][:, 15, 2], label="left wrist")
     axes[2].plot(t, clip["points"][:, 16, 2], label="right wrist")
     tracked = (clip["points"][:, :, 2] > 0.5).any(axis=1)
@@ -274,7 +319,10 @@ def plot_trial(
     axes[2].axhline(0.5, color="gray", linestyle="--")
     axes[2].set(ylabel="Visibility", ylim=(-0.05, 1.05))
     axes[2].legend(loc="upper right", ncol=3)
-    masks = [tracked & np.isin(phase, (1, 2)) & (action == 1), tracked & np.isin(phase, (1, 2))]
+    masks = [
+        tracked & np.isin(phase, (1, 2)) & (action == 1),
+        tracked & np.isin(phase, (1, 2)),
+    ]
     for lane, mask in enumerate(masks):
         for a, b in positive_runs(mask):
             axes[3].broken_barh(
@@ -282,7 +330,9 @@ def plot_trial(
                 (lane - 0.3, 0.6),
                 facecolors=f"C{lane}",
             )
-    axes[3].set(yticks=[0, 1], yticklabels=["joint setup", "phase-only setup"], ylim=(-0.5, 1.5))
+    axes[3].set(
+        yticks=[0, 1], yticklabels=["joint setup", "phase-only setup"], ylim=(-0.5, 1.5)
+    )
     axes[4].step(t, [STATES.index(r["state_after"]) for r in trace], where="post")
     axes[4].set(yticks=range(len(STATES)), yticklabels=STATES, ylabel="Baseline state")
     for lane, family in enumerate(POLICIES):
@@ -306,12 +356,14 @@ def plot_trial(
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--output", type=Path, default=ROOT / "docs/0924-opening-setup-results.json"
+        "--output",
+        type=Path,
+        default=ROOT / "shared/results/0924-opening-setup-results.json",
     )
     parser.add_argument("--plot", action="store_true")
     args = parser.parse_args()
-    classifier_path = ROOT / "docs/0924-timeline-central-results.json"
-    reference_path = ROOT / "docs/0924-opening-rearm-results.json"
+    classifier_path = ROOT / "shared/results/0924-timeline-central-results.json"
+    reference_path = ROOT / "shared/results/0924-opening-rearm-results.json"
     classifier = json.loads(classifier_path.read_text())
     reference = json.loads(reference_path.read_text())
     sources = {s["name"]: s for s in classifier["sources"]}
@@ -327,7 +379,10 @@ def main() -> None:
             if digest(path) != sources[name]["annotation_sha256"]:
                 raise ValueError("Annotations changed since frozen predictions")
             clip = extract(
-                path, ROOT / "shared/results/0924-cache", select_subject=False, central_mask=True
+                path,
+                ROOT / "shared/results/0924-cache",
+                select_subject=False,
+                central_mask=True,
             )
             phase, action = predictions["phase/" + name], predictions["action/" + name]
             if len(phase) != len(clip["phase"]) or len(action) != len(phase):
@@ -343,11 +398,15 @@ def main() -> None:
                 )
             # Ensure the added switches and trace did not alter existing behavior.
             old = next(
-                r for r in reference["families"]["context_fixed"]["clips"] if r["video"] == name
+                r
+                for r in reference["families"]["context_fixed"]["clips"]
+                if r["video"] == name
             )
             if rows["baseline"][-1] != {k: v for k, v in old.items() if k != "config"}:
                 raise ValueError(f"Fixed baseline changed: {name}")
-            diagnostics.extend(diagnose(clip, phase, action, outputs, traces["baseline"], traces))
+            diagnostics.extend(
+                diagnose(clip, phase, action, outputs, traces["baseline"], traces)
+            )
             if args.plot and clip["opening_intervals"]:
                 plot_path = args.output.parent / "0924-opening-setup" / (name + ".png")
                 plot_trial(clip, phase, action, outputs, traces["baseline"], plot_path)
@@ -393,7 +452,11 @@ def main() -> None:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + "\n")
     for key, family in families.items():
-        print(key, {env: family[env]["single"] for env in ("behind", "without")}, flush=True)
+        print(
+            key,
+            {env: family[env]["single"] for env in ("behind", "without")},
+            flush=True,
+        )
     print(json.dumps(report["decisions"], indent=2), flush=True)
 
 

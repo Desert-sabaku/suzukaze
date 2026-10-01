@@ -48,8 +48,10 @@ class FollowingRamune(RamuneAnalyzer):
             width = abs(landmarks[11].x - landmarks[12].x)
             gap = (base.y - upper.y) / self.scale
             stable = (
-                abs(base.x - self.base[0]) / self.scale <= config.RAMUNE_BASE_X_TOLERANCE
-                and abs(base.y - self.base[1]) / self.scale <= config.RAMUNE_BASE_TOLERANCE
+                abs(base.x - self.base[0]) / self.scale
+                <= config.RAMUNE_BASE_X_TOLERANCE
+                and abs(base.y - self.base[1]) / self.scale
+                <= config.RAMUNE_BASE_TOLERANCE
             )
             ready = (
                 width > 1e-6
@@ -69,7 +71,10 @@ class FollowingRamune(RamuneAnalyzer):
                 closing = self.ready_gap - gap
                 # The press timeout starts only after half the required press or
                 # closing evidence, rather than expiring during a held setup.
-                if self.wait_in_setup and max(press, closing) < config.RAMUNE_MIN_PRESS / 2:
+                if (
+                    self.wait_in_setup
+                    and max(press, closing) < config.RAMUNE_MIN_PRESS / 2
+                ):
                     self.since = now
         return super().update(landmarks, now)
 
@@ -77,7 +82,9 @@ class FollowingRamune(RamuneAnalyzer):
 class OutputEnvelope:
     """A causal short-loss hold ablation, not an action lock or ground-truth gate."""
 
-    def __init__(self, *, enter_seconds: float = 0.2, hold_seconds: float = 0.5) -> None:
+    def __init__(
+        self, *, enter_seconds: float = 0.2, hold_seconds: float = 0.5
+    ) -> None:
         self.enter_seconds = enter_seconds
         self.hold_seconds = hold_seconds
         self.current = self.pending = "NONE"
@@ -126,7 +133,8 @@ def infer(points: np.ndarray, fps: float, aspect: float, variant: str) -> list[d
 def envelope(predictions: list[dict]) -> list[dict]:
     gate = OutputEnvelope()
     return [
-        dict(p, gesture=gate.update(p["gesture"], p["seconds"], p["events"])) for p in predictions
+        dict(p, gesture=gate.update(p["gesture"], p["seconds"], p["events"]))
+        for p in predictions
     ]
 
 
@@ -160,14 +168,16 @@ def aggregate(rows: list[dict]) -> dict:
 
 
 def main() -> None:
-    baseline_path = ROOT / "docs/0928-multicam-results.json"
-    followup_path = ROOT / "docs/0928-multicam-followup-results.json"
+    baseline_path = ROOT / "shared/results/0928-multicam-results.json"
+    followup_path = ROOT / "shared/results/0928-multicam-followup-results.json"
     baseline = json.loads(baseline_path.read_text())
     followup = json.loads(followup_path.read_text())
     for name, expected in baseline["runtime_sha256"].items():
         if digest(ROOT / "src/gesture_detection" / name) != expected:
             raise ValueError("Baseline runtime changed")
-    inputs = [r for r in baseline["rows"] if r["profile"] in ("rules_full", "rules_subject")]
+    inputs = [
+        r for r in baseline["rows"] if r["profile"] in ("rules_full", "rules_subject")
+    ]
     inputs += [
         dict(
             r,
@@ -185,9 +195,13 @@ def main() -> None:
     rows = []
     for source in inputs:
         take, camera, profile = source["take"], source["camera"], source["profile"]
-        ann_path = ROOT / "shared/annotations" / take / f"camera_{camera:02}" / "timeline.json"
+        ann_path = (
+            ROOT / "shared/annotations" / take / f"camera_{camera:02}" / "timeline.json"
+        )
         ann = json.loads(ann_path.read_text()) if ann_path.exists() else None
-        reference = next(r for r in baseline["rows"] if r["take"] == take and r["camera"] == camera)
+        reference = next(
+            r for r in baseline["rows"] if r["take"] == take and r["camera"] == camera
+        )
         if ann and digest(ann_path) != reference["annotation_sha256"]:
             raise ValueError("Annotation changed since baseline")
         intervals = ann["intervals"] if ann else []
@@ -201,7 +215,9 @@ def main() -> None:
                 expected = (
                     json.loads((ROOT / source["predictions"]).read_text())
                     if "predictions" in source
-                    else json.loads((ROOT / source["diagnostics"]).read_text())["predictions"]
+                    else json.loads((ROOT / source["diagnostics"]).read_text())[
+                        "predictions"
+                    ]
                 )
                 if raw != expected:
                     raise ValueError("Baseline parity failure")
@@ -219,7 +235,13 @@ def main() -> None:
                         predictions=str(path.relative_to(ROOT)),
                     )
                 )
-        print(take, camera, profile, "verified baseline and evaluated candidates", flush=True)
+        print(
+            take,
+            camera,
+            profile,
+            "verified baseline and evaluated candidates",
+            flush=True,
+        )
     report = dict(
         baseline_sha256=digest(baseline_path),
         followup_sha256=digest(followup_path),
@@ -237,7 +259,7 @@ def main() -> None:
             "Output events are not suppressed by the envelope; duplicate events remain visible in metrics.",
         ],
     )
-    (ROOT / "docs/0928-multicam-temporal-results.json").write_text(
+    (ROOT / "shared/results/0928-multicam-temporal-results.json").write_text(
         json.dumps(report, indent=2) + "\n"
     )
     print(json.dumps(report["summary"], indent=2))
