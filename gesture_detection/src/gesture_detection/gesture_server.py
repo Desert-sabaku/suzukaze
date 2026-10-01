@@ -27,7 +27,7 @@ class GestureServer:
         host: str = "127.0.0.1",
         port: int = 5001,
         state_interval: float = 0.1,
-        message_format: str = "json",
+        message_format: str = "protobuf",
     ) -> None:
         if message_format not in {"json", "protobuf"}:
             raise ValueError("Expected json or protobuf gesture format")

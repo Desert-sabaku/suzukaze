@@ -140,7 +140,7 @@ def encode_ack(ack: dict[str, Any], message_format: str) -> str | bytes:
 
 
 async def run(
-    url: str, ignore_events: bool = False, message_format: str = "json"
+    url: str, ignore_events: bool = False, message_format: str = "protobuf"
 ) -> None:
     if message_format not in {"json", "protobuf"}:
         raise ValueError("Expected json or protobuf gesture format")
@@ -195,8 +195,8 @@ def main() -> None:
     parser.add_argument(
         "--format",
         choices=("json", "protobuf"),
-        default=os.getenv("GESTURE_DELIVERY_FORMAT", "json"),
-        help="Gesture wire format (default: GESTURE_DELIVERY_FORMAT or json).",
+        default=os.getenv("GESTURE_DELIVERY_FORMAT", "protobuf"),
+        help="Gesture wire format (default: GESTURE_DELIVERY_FORMAT or protobuf).",
     )
     args = parser.parse_args()
     if args.format not in {"json", "protobuf"}:

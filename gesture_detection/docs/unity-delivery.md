@@ -1,8 +1,11 @@
 # Unityへのジェスチャー通知
 
+Windows のセットアップと実機確認は [Windows protobuf 運用ガイド](windows-protobuf.md)を参照してください。
+
 ## 構成と起動
 
-同一PC内の1組の認識プロセスとUnityを対象にします。
+同一Windows PC内の1組の認識プロセス、ブリッジ、Unityを対象にします。
+Windows UnityとWSL/Linux Pythonの組み合わせや別PC間の配送には対応しません。
 
 `gesture_detection → TCP 127.0.0.1:5001 → unity_bridge → WebSocket 127.0.0.1:5000 → Unity`
 
@@ -17,7 +20,7 @@
    `uv run python -m unity_bridge.gesture_probe` を起動する。
 
 起動順は任意ですが、認識側が未起動の場合はブリッジがWebSocketを切断します。
-Unity側は100ms程度の間隔で再接続してください。接続はUnity 1台に限定します。
+同梱のUnity受信実装は500ms間隔で再接続します。接続はUnity 1台に限定します。
 プローブの `--ignore-events` は演出中の見送りを模擬します。実機は操作しません。
 接続を終了するには各プロセスでCtrl+C、認識画面ではEscを使います。
 
@@ -31,22 +34,24 @@ Unity側は100ms程度の間隔で再接続してください。接続はUnity 1
 
 ## 通信形式
 
-`GESTURE_DELIVERY_FORMAT=json|protobuf` で明示的に選択します。既定は `json` です。
-認識側（1・2カメラ共通）、ブリッジ、Unityまたはプローブで同じ形式を指定してください。
+既定はバイナリの `protobuf` です。認識側（1・2カメラ共通）、ブリッジ、
+プローブは形式指定を省略して接続できます。新しいUnity受信実装はProtobuf専用です。
+旧Python受信側との互換用に `GESTURE_DELIVERY_FORMAT=json|protobuf` で選択できます。
+認識側、ブリッジ、受信側で同じ形式を指定してください。
 自動判別・形式のネゴシエーションはありません。
 
-Protobufで起動する例（各プロジェクトで先に `uv sync`）:
+既定のProtobufで起動する例（各プロジェクトで先に `uv sync --locked`）:
 
 ```bash
-# gesture_detection/（または .env に設定）
-GESTURE_DELIVERY_ENABLED=true GESTURE_DELIVERY_FORMAT=protobuf uv run gesture-detection
+# gesture_detection/.env に GESTURE_DELIVERY_ENABLED=true を設定して起動
+uv run gesture-detection
 # unity_bridge/（別ターミナル）
-uv run unity-bridge --gesture-port 5001 --gesture-format protobuf
-uv run unity-gesture-probe --format protobuf
+uv run unity-bridge --gesture-port 5001
+uv run unity-gesture-probe
 ```
 
 ブリッジの `--gesture-format` とプローブの `--format` は環境変数
-`GESTURE_DELIVERY_FORMAT` より優先されます。未指定なら環境変数、次に `json` を使います。
+`GESTURE_DELIVERY_FORMAT` より優先されます。未指定なら環境変数、次に `protobuf` を使います。
 この指定はジェスチャー配送専用です。シリアル中継の形式は変わりません。
 
 Protobufは共有の [gesture protocol](../../gesture_protocol/README.md) を使用します。
@@ -58,10 +63,18 @@ TCPは4バイトの符号なしビッグエンディアン長 + ペイロード�
 不正な接続でも配送ワーカーは動作を継続し、再接続を受け付けます。
 期限・再送・ACK・重複判定の意味は両形式で同じです。
 
-以下のJSON例はProtobufでも同じ意味のフィールドを表します。
+### 旧Python受信側向けの明示的なJSON互換モード
 
-TCPではUTF-8のJSONを1行に1件、LFで区切ります。WebSocketではテキストフレーム
+認識側の `.env` に `GESTURE_DELIVERY_FORMAT=json` を設定し、ブリッジは
+`uv run unity-bridge --gesture-port 5001 --gesture-format json`、プローブは
+`uv run unity-gesture-probe --format json` で起動します。新しいUnityには使えません。
+この互換モードのみ、TCPではUTF-8のJSONを1行に1件、LFで区切ります。WebSocketではテキストフレーム
 1件にJSONを1個載せます。1件8 KiB以内で、画像・ランドマーク・診断文字列は送りません。
+
+### フィールドの診断用JSON表現
+
+以下のJSON例はフィールドの意味を説明する診断用表現です。既定の実通信は
+Protobufバイナリであり、JSONテキストではありません。
 `version=1`、認識ワーカー起動ごとのUUID `session_id` を共通で含めます。
 未知のバージョンは演出に使わず切断してください。追加フィールドは無視できます。
 
@@ -125,7 +138,7 @@ Unityは見送ったイベントも処理済みに記録し、後の再送で再
 元フレームの取得時刻を保持します。別カメラの新しい入力や統合処理によってイベントの期限を延ばしません。
 状態統合には直近0.2秒の視点を使うため、配送側の0.5秒の失効より先に`NONE`へ戻る場合があります。
 
-Unity側は実行OSに合わせて同じ時計を実装してください。
+同梱のUnity受信実装はWindows QPCを使用します。
 Windowsは `QueryPerformanceCounter / QueryPerformanceFrequency` の商、
 Linuxは `clock_gettime(CLOCK_MONOTONIC)` の秒です。別OSへ移植するときは
 Pythonの時計実装を確認します。取得方法は
@@ -149,5 +162,8 @@ Unity自身の再起動では処理済み履歴が失われるため、期限内
 
 認識側は `uv run python -m pytest`、ブリッジ側は `uv run python -m pytest`。
 実ソケットテストにはループバックのTCP・WebSocket接続権限が必要です。
-Unity受信方針の参照実装は `unity_bridge/src/unity_bridge/gesture_probe.py` にあります。
-UnityプロジェクトへのC#組み込みと実カメラによる演出確認は別途必要です。
+Python模擬受信側は `unity_bridge/src/unity_bridge/gesture_probe.py` にあります。
+実際のC#受信実装、診断Prefab、シーンへの組み込み方法は
+[Unity GestureDelivery](../../suzukaze/Assets/GestureDelivery/README.md)を参照してください。
+Unity Windows Editor/standalone（Mono/IL2CPP）の実機検証と実カメラによる演出確認は
+未完了です。Pythonテストの成功はWindows上での動作確認を代替しません。

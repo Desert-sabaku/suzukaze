@@ -109,9 +109,13 @@ selects Windows QPC and reports unsupported platforms rather than guessing.
 Remote hosts, WSL/Linux Python paired with Windows Unity, WebGL, and mobile
 are unsupported. Loopback endpoints are enforced. Windows Mono and IL2CPP,
 native QPC behavior, Unity import/linking, and domain/scene lifecycle still
-require testing in Unity on Windows. No global background setting is changed;
-the integration owner must arrange background execution if required. If Unity
-pauses, bounded queues can disconnect and queued events may expire.
+require testing in Unity on Windows. Player Settings enables Run In Background
+so switching focus to the detector or bridge console does not pause delivery.
+Editor pause, breakpoints, or OS suspension can still stop Update; bounded
+queues can disconnect and queued events may expire.
+
+See the [Windows operation guide](../../../gesture_detection/docs/windows-protobuf.md)
+for setup, cross-language tests, and the remaining Unity/player checks.
 
 ## Verification
 

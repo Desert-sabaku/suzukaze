@@ -33,7 +33,7 @@ def test_relay_preserves_event_and_forwards_only_unity_ack():
                 await writer.wait_closed()
 
         async with await asyncio.start_server(source, "127.0.0.1", 0) as tcp:
-            relay = GestureRelay(tcp.sockets[0].getsockname()[1])
+            relay = GestureRelay(tcp.sockets[0].getsockname()[1], "json")
             async with serve(relay.serve, "127.0.0.1", 0, close_timeout=0.1) as ws:
                 port = ws.sockets[0].getsockname()[1]
                 async with websockets.connect(f"ws://127.0.0.1:{port}") as client:

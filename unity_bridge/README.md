@@ -14,7 +14,9 @@ uv run unity-bridge --gesture-port 5001
 ```
 
 認識側のTCP `127.0.0.1:5001` とUnityのWebSocket `ws://127.0.0.1:5000`
-を接続します。このモードではシリアルポートを開きません。
+を接続します。認識側・ブリッジ・Unityは同一Windows PCで実行します。
+Windows UnityとWSL/Linux Pythonの組み合わせには対応しません。
+このモードではシリアルポートを開きません。
 Unityが未接続の間は認識側にも接続せず、UnityからのACKだけを認識側へ返します。
 どちらかの接続が切れたらUnityが再接続します。同時接続は1クライアントです。
 
@@ -25,15 +27,16 @@ uv run unity-gesture-probe
 uv run unity-gesture-probe --ignore-events
 ```
 
-既定の形式はJSONです。Protobufを使う場合は認識側に
-`GESTURE_DELIVERY_FORMAT=protobuf` を設定し、次のように起動します:
+既定の形式はバイナリのProtobufです。上のコマンドは形式指定なしでProtobufを使います。
+新しいUnity受信実装はProtobuf専用です。旧Python受信側とのJSON互換モードは、
+認識側に `GESTURE_DELIVERY_FORMAT=json` を設定し、明示的に選択してください:
 
 ```bash
-uv run unity-bridge --gesture-port 5001 --gesture-format protobuf
-uv run unity-gesture-probe --format protobuf
+uv run unity-bridge --gesture-port 5001 --gesture-format json
+uv run unity-gesture-probe --format json
 ```
 
-両CLIは `GESTURE_DELIVERY_FORMAT=json|protobuf` も読みます（CLI指定が優先）。
+両CLIは `GESTURE_DELIVERY_FORMAT=json|protobuf` も読みます（CLI指定が優先、未設定はProtobuf）。
 認識側・ブリッジ・受信側で同じ形式にしてください。自動判別はありません。
 ProtobufはTCPの4バイトBE長付きフレームと、WebSocketのバイナリメッセージ
 （1ペイロード、ヘッダーなし）を使い、最大8192バイトです。検証後も元ペイロードを
@@ -41,7 +44,11 @@ ProtobufはTCPの4バイトBE長付きフレームと、WebSocketのバイナリ
 
 認識側の有効化、メッセージ仕様、時計、期限と受信側責務は
 [Unityへのジェスチャー通知](../gesture_detection/docs/unity-delivery.md)を参照してください。
-UnityのC#コードはこのブランチに含まれていません。
+認識側の `GESTURE_DELIVERY_ENABLED` は引き続き既定で `false` です。
+仕様のJSON例やプローブのJSON出力は診断用表現で、既定の通信はProtobufバイナリです。
+同梱の[C#受信実装と診断Prefab](../suzukaze/Assets/GestureDelivery/README.md)を
+Unityへの組み込みに使用できます。Unity Windows Editor/standalone（Mono/IL2CPP）の
+実機検証は未完了で、Pythonテストはその代替にはなりません。
 
 ## 既存のシリアル中継
 
