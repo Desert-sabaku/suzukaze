@@ -1,8 +1,12 @@
 # Unityへのジェスチャー通知
 
+Windows のセットアップと実機確認は [Windows protobuf 運用ガイド](windows-protobuf.md)を参照してください。
+Fedora/Linux は [Fedora protobuf 運用ガイド](fedora-protobuf.md)を参照してください。
+
 ## 構成と起動
 
-同一PC内の1組の認識プロセスとUnityを対象にします。
+同一Windows PCまたは同一64-bit Linux PC内の1組の認識プロセス、ブリッジ、Unityを対象にします。
+Windows UnityとWSL/Linux Pythonの組み合わせや別PC間の配送には対応しません。
 
 `unity_bridge ─(子プロセス起動 + multiprocessing.Queue)─ gesture_detection`
 `unity_bridge → WebSocket 127.0.0.1:5000 → Unity`
@@ -109,7 +113,7 @@ Unityは見送ったイベントも処理済みに記録し、後の再送で再
 元フレームの取得時刻を保持します。別カメラの新しい入力や統合処理によってイベントの期限を延ばしません。
 状態統合には直近0.2秒の視点を使うため、配送側の0.5秒の失効より先に`NONE`へ戻る場合があります。
 
-Unity側は実行OSに合わせて同じ時計を実装してください。
+同梱のUnity受信実装はOSに合わせてWindows QPCまたはLinux CLOCK_MONOTONICを選択します。
 Windowsは `QueryPerformanceCounter / QueryPerformanceFrequency` の商、
 Linuxは `clock_gettime(CLOCK_MONOTONIC)` の秒です。別OSへ移植するときは
 Pythonの時計実装を確認します。取得方法は
@@ -135,5 +139,5 @@ WebSocketの送受信は別タスクで行います。接続待ち・遅い受�
 キュー・WebSocket・プローブ受信処理を通します（カメラは不要）。
 Unityの受信実装は `suzukaze/Assets/Bridge/Gesture/`（[README](../../suzukaze/Assets/Bridge/Gesture/README.md)）、
 Pythonの参照実装は `unity_bridge/src/unity_bridge/gesture_probe.py` にあります。
-Unityの受信実装はWindowsの時計（QPC）だけに対応しており、他のOSでは未対応として報告します。
+Unityの受信実装はWindows（QPC）と64-bit Linux（`CLOCK_MONOTONIC`）の時計に対応しています。
 実機Unityと実カメラによる演出確認は別途必要です。

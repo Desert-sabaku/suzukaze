@@ -45,8 +45,7 @@ namespace Suzukaze.Gesture.Receiver.Tests
         [UnityTest]
         public IEnumerator DestroyedOwnerReplacementDoesNotRepeatLostAckEffect()
         {
-            if (Application.platform != RuntimePlatform.WindowsEditor && Application.platform != RuntimePlatform.WindowsPlayer)
-                Assert.Ignore("Production receiver intentionally requires Windows QPC");
+            RequireSupportedPlatform();
             ResetPlaySession();
             var first = new GameObject("lost ACK owner");
             GameObject second = null;
@@ -99,8 +98,7 @@ namespace Suzukaze.Gesture.Receiver.Tests
         [UnityTest]
         public IEnumerator DuplicateOwnerIsDestroyedAndOwnerSurvivesDisable()
         {
-            if (Application.platform != RuntimePlatform.WindowsEditor && Application.platform != RuntimePlatform.WindowsPlayer)
-                Assert.Ignore("Production receiver intentionally requires Windows QPC");
+            RequireSupportedPlatform();
             var first = new GameObject("gesture test owner");
             var duplicate = new GameObject("gesture duplicate");
             try
@@ -123,6 +121,16 @@ namespace Suzukaze.Gesture.Receiver.Tests
                 if (duplicate != null) Object.Destroy(duplicate);
             }
             yield return null;
+        }
+
+        private static void RequireSupportedPlatform()
+        {
+            bool windows = Application.platform == RuntimePlatform.WindowsEditor
+                || Application.platform == RuntimePlatform.WindowsPlayer;
+            bool linux = Application.platform == RuntimePlatform.LinuxEditor
+                || Application.platform == RuntimePlatform.LinuxPlayer;
+            if (!windows && !(linux && System.IntPtr.Size == 8))
+                Assert.Ignore("Production receiver requires Windows or 64-bit Linux");
         }
 
         [UnityTest]

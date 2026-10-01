@@ -17,6 +17,8 @@ uv run unity-bridge --gesture
 で受け取って、UnityのWebSocket `ws://127.0.0.1:5000` へProtobufで送ります。
 このモードではシリアルポートを開きません。同時接続は1クライアントです。
 状態通知・イベントの再送・UnityからのACKはブリッジ内の `DeliveryOutbox` が扱います。
+認識側・ブリッジ・Unityは同一Windows PCまたは同一64-bit Linux PCで実行します。
+Windows UnityとWSL/Linux Pythonの組み合わせには対応しません。
 
 模擬Unity（実機出力なし）:
 
@@ -36,6 +38,8 @@ buf generate --template buf.gen.gesture.yaml
 送信間隔などの設定、メッセージ仕様、時計、期限と受信側責務は
 [Unityへのジェスチャー通知](../gesture_detection/docs/unity-delivery.md)を参照してください。
 Unity側の受信実装は [`suzukaze/Assets/Bridge/Gesture/`](../suzukaze/Assets/Bridge/Gesture/README.md) です。
+Fedora 44 / Unity 6000.5.8f1 Editor の実通信確認結果は
+[Fedora 運用ガイド](../gesture_detection/docs/fedora-protobuf.md)を参照してください。
 
 ## 既存のシリアル中継
 
