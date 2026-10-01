@@ -19,7 +19,7 @@ Raspberry Pi Pico向けファームウェア(TinyGo)。ファンコン(PWMフェ
 `gen/` はコミットしていません。clone後やスキーマ変更後に `../proto` で生成してください。
 
 ```bash
-buf generate  # proto/buf.gen.yaml(comms)。mcu/ のPythonも同時に生成される
+buf generate
 ```
 
 ## ビルド

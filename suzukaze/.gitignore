@@ -112,7 +112,7 @@ InitTestScene*.unity*
 /[Aa]ssets/Packages/
 /[Aa]ssets/Packages.meta
 
-# buf generate (../proto/buf.gen.gesture.yaml) output; keep the hand-written asmdef
+# buf generate (../proto/buf.gen.yaml) output; keep the hand-written asmdef
 /[Aa]ssets/Bridge/Generated/*
 !/[Aa]ssets/Bridge/Generated/*.asmdef
 !/[Aa]ssets/Bridge/Generated/*.asmdef.meta

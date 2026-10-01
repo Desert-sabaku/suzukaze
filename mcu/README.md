@@ -22,7 +22,7 @@ pyserialがポートをraw modeで開くため、`stty raw -echo`は不要です
 `mcu/gen/` はコミットしていません。clone後やスキーマ変更後に `../proto` で生成してください。
 
 ```bash
-buf generate  # proto/buf.gen.yaml(comms)。firmware/ のGoも同時に生成される
+buf generate
 ```
 
 ## CLI(デバッグ用)

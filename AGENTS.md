@@ -21,9 +21,9 @@ as a package.
   is a debugging CLI).
 - `firmware/`: Raspberry Pi Pico fan-control firmware (TinyGo). See
   `firmware/README.md`.
-- `proto/`: protobuf schemas and buf templates. `buf.gen.yaml` generates `comms`
-  (firmware Go, mcu Python); `buf.gen.gesture.yaml` generates `gesture`
-  (unity_bridge Python, Unity C#).
+- `proto/`: protobuf schemas and the buf template. `buf.gen.yaml` generates
+  `comms` (firmware Go, mcu Python) and `gesture` (unity_bridge Python, Unity
+  C#); each plugin selects its package with `types`.
 - `suzukaze/`: Unity project (6000.5.8f1). Code that talks to `unity_bridge`
   lives in `Assets/Bridge/` (`Generated/` for buf output, `Gesture/` for the
   gesture receiver).
@@ -49,8 +49,7 @@ Generated protobuf code is not committed. After cloning or changing a schema,
 run from `proto/` (requires the buf CLI):
 
 ```bash
-buf generate                                  # comms: firmware/gen, mcu/mcu/gen
-buf generate --template buf.gen.gesture.yaml  # gesture: unity_bridge gen, Unity C#
+buf generate
 ```
 
 From `gesture_detection/`:
