@@ -107,3 +107,7 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# NuGetForUnity: restored from Assets/packages.config
+/[Aa]ssets/Packages/
+/[Aa]ssets/Packages.meta
