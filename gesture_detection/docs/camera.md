@@ -1,7 +1,6 @@
-# カメラ録画の詳細
+# カメラ入力・録画・トラブルシュート
 
 [READMEに戻る](../README.md)
-
 
 `gesture_detection/` で以下を実行します。カメラIDを1個以上指定できます。省略時は従来どおり `0 1 2` です。
 
@@ -44,8 +43,10 @@ uv run record-cameras --no-preview --countdown 5 --duration 60
 USBカメラ間の厳密な同期は保証しません。USB帯域が足りない場合は解像度やFPSを下げ、
 可能ならUSBコントローラを分けてください。
 
-[WSL2での黒／緑の画像の調査結果](camera-capture-troubleshooting.md)には、
-カメラ本体とアプリを切り分けた実測結果を記録しています。
+WSL2のUSB/IP経路で黒／緑の画像が出る場合は、まずWindowsネイティブ環境で同じ録画を
+実行して比較します。WSL側で続ける場合は `v4l2-ctl` の直接取得、usbipd-win／WSLの
+バージョン、低FPSでの取得を順に切り分けます。Windowsでカメラを使う前はWSLから
+デタッチしてください。
 
 黒い領域や横方向の崩れが出る場合は、入力形式・解像度を切り替えて切り分けます。
 `--input-format MJPG`（既定）はカメラからの転送形式で、保存用の `--codec` とは別です。
@@ -68,4 +69,3 @@ uv run record-cameras --cameras 0 1 --width 640 --height 480 --input-format MJPG
 強制終了や電源断ではMP4が正常に確定しないことがあります。
 実機確認では、全台の映像、開始・停止と再テイク、PNG・目印の保存、
 時間指定終了、抜線時の終了を確認し、保存動画を再生して確認してください。
-

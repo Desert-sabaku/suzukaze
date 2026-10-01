@@ -1,4 +1,4 @@
-# 動画の時系列注釈
+# 動画・関節位置の注釈
 
 動画を再生しながら、任意のフレームへ動作区間、構えや節目、関節点を記録します。
 既存の代表フレーム用 `annotate-landmarks` とは独立したツールです。
@@ -121,3 +121,30 @@ event:                          PEAK  RELEASE
 細かいPhaseを判断できない映像では、まず`action`と重要イベントだけを記録しても構いません。
 特に打ち水の`UCHIMIZU_PEAK`・`UCHIMIZU_RELEASE`、ラムネの
 `RAMUNE_PRESS_START`・`RAMUNE_OPEN`を優先します。
+
+## 関節位置の手動ラベル付け
+
+`gesture_detection/` から実行します。先頭と末尾を含めて均等に8フレームを抽出し、
+既定では `output/annotations/<動画名>/` に保存します。
+
+```bash
+uv run annotate-landmarks sample_movies/打ち水btn.mp4
+uv run annotate-landmarks --resume output/annotations/打ち水btn/annotations.csv
+```
+
+`--count`、`--frames`、`--output` で抽出数・対象フレーム・保存先を変更できます。
+`--resume` には注釈CSV、注釈セッションディレクトリ、元動画のパスを指定できます。
+
+| 操作 | 内容 |
+| --- | --- |
+| 左クリック | 現在の点を指定して次へ進む |
+| U | 点を判別困難として記録 |
+| A / R | 被写体不在として記録／全点を未入力へ戻す |
+| 1〜6 | 同じフレーム内の点を選択 |
+| C / Z | 選択点を消す／ひとつ前へ戻る |
+| N / P | 次／前のフレームへ移動 |
+| Q / Esc | 終了 |
+
+各編集はCSVへ自動保存されます。被写体はいるが遮蔽で点が見えない場合は `U`、
+被写体自体がいない場合だけ `A` を使います。状態は `marked`、`uncertain`、
+`pending`、`absent` の4種類で、`marked` 以外の座標は空欄です。

@@ -129,3 +129,22 @@ VIDEO モードも非同期コールバックや動画フレームの欠落を�
 アプリケーションのジェスチャー履歴をリセットしますが、MediaPipe の時計は巻き戻しません。
 
 モードの比較結果と現在の採用理由は[過去の評価](evaluations.md)を参照してください。
+
+## 開発・品質確認
+
+アプリケーションは `src/gesture_detection/`、本体の注釈用CLIは `scripts/`、
+評価・研究用ツールはprivateな `shared/scripts/`、テストは `tests/` と
+`shared/tests/` にあります。`uv sync` でeditableインストールしてから実行してください。
+
+```bash
+uv sync --group dev
+uv run ruff format --check src tests scripts main.py
+uv run ruff check src tests scripts main.py
+uv run pyright
+uv run python -m pytest
+PYTHONPATH=. uv run pytest shared/tests --no-cov
+```
+
+構文だけを確認する場合は `uv run python -m compileall src scripts` を実行します。
+研究用スクリプトはプロジェクトルートから
+`uv run python -m shared.scripts.<module>` で実行します。

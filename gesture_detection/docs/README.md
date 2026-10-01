@@ -5,8 +5,7 @@
 ## まず動かす
 
 - [ジェスチャー仕様](gestures.md): 認識する4種類の所作と成立条件
-- [カメラ録画](camera-recording.md): 検証用のカメラ録画
-- [カメラ取得のトラブルシュート](camera-capture-troubleshooting.md): 映像が黒い・緑になる場合
+- [カメラ入力・録画・トラブルシュート](camera.md): 録画、入力形式、カメラ障害
 - [実演者の選択](subject-selection.md): 複数人が映る場合の対象選択
 - [実機での確認項目](manual-testing.md): 起動後の確認項目
 
@@ -16,11 +15,9 @@
 
 ## 開発者向け
 
-- [構成と設定](architecture.md): モジュールの責任範囲と時刻・入力の扱い
-- [開発ガイド](development.md): formatter、lint、型検査、テスト
+- [構成・設定・開発](architecture.md): 責任範囲、時刻・入力、品質確認
 - [学習済みラムネ判定](learned-ramune.md): 任意の学習済み判定器
-- [動画の注釈](video-annotation.md)
-- [関節位置の手動ラベル付け](landmark-annotation.md)
+- [動画・関節位置の注釈](annotation.md)
 
 ## 評価記録
 

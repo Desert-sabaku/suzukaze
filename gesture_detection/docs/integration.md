@@ -55,7 +55,20 @@ Python側は `proto/` で `buf generate` して生成した
 ### 継続状態
 
 ```json
-{"version":1,"type":"state","session_id":"uuid","sequence":42,"sent_at":100.2,"stale_timeout":0.5,"fresh":true,"gesture":"FANNING","tracking":true,"observed_at":100.1,"frame_id":300,"source_timestamp":100.1}
+{
+    "version": 1,
+    "type": "state",
+    "session_id": "uuid",
+    "sequence": 42,
+    "sent_at": 100.2,
+    "stale_timeout": 0.5,
+    "fresh": true,
+    "gesture": "FANNING",
+    "tracking": true,
+    "observed_at": 100.1,
+    "frame_id": 300,
+    "source_timestamp": 100.1
+}
 ```
 
 - 既定で100ms間隔。状態のACKは不要です。
@@ -74,7 +87,17 @@ Python側は `proto/` で `buf generate` して生成した
 ### 成立イベント
 
 ```json
-{"version":1,"type":"event","session_id":"uuid","event_id":7,"gesture":"RAMUNE","occurred_at":100.1,"expires_at":101.1,"frame_id":300,"source_timestamp":100.1}
+{
+    "version": 1,
+    "type": "event",
+    "session_id": "uuid",
+    "event_id": 7,
+    "gesture": "RAMUNE",
+    "occurred_at": 100.1,
+    "expires_at": 101.1,
+    "frame_id": 300,
+    "source_timestamp": 100.1
+}
 ```
 
 - `gesture` は `RAMUNE / UCHIMIZU`。成立した入力に対して1件発行します。
@@ -91,7 +114,13 @@ Python側は `proto/` で `buf generate` して生成した
 ### 受信確認
 
 ```json
-{"version":1,"type":"ack","session_id":"uuid","event_id":7,"status":"accepted"}
+{
+    "version": 1,
+    "type": "ack",
+    "session_id": "uuid",
+    "event_id": 7,
+    "status": "accepted"
+}
 ```
 
 `status` は `accepted / ignored / expired / duplicate`。
