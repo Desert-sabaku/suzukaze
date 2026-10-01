@@ -8,7 +8,7 @@ using Google.Protobuf;
 using NUnit.Framework;
 using Suzukaze.Gesture.Protocol;
 
-namespace Suzukaze.Gesture.Delivery.Tests
+namespace Suzukaze.Gesture.Receiver.Tests
 {
     public class WireTests
     {

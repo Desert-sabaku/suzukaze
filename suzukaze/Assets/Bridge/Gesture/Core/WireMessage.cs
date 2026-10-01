@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Suzukaze.Gesture.Protocol;
 
-namespace Suzukaze.Gesture.Delivery
+namespace Suzukaze.Gesture.Receiver
 {
     public static class WireMessage
     {

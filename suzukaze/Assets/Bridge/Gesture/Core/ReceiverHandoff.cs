@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Suzukaze.Gesture.Protocol;
 
-namespace Suzukaze.Gesture.Delivery
+namespace Suzukaze.Gesture.Receiver
 {
     // Network threads only publish and take ACKs. Tick is exclusively main-thread.
     // Generation guards also cover late disconnects from a superseded connection.

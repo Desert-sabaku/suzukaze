@@ -5,7 +5,7 @@ inputs:
       - gesture
 plugins:
   - remote: buf.build/protocolbuffers/csharp:v36.2
-    out: ../suzukaze/Assets/GestureDelivery/Generated
+    out: ../suzukaze/Assets/Bridge/Generated
 
   - remote: buf.build/protocolbuffers/python:v36.2
     out: ../unity_bridge/src/unity_bridge/gen

@@ -2,7 +2,7 @@ using System;
 using NUnit.Framework;
 using Suzukaze.Gesture.Protocol;
 
-namespace Suzukaze.Gesture.Delivery.Tests
+namespace Suzukaze.Gesture.Receiver.Tests
 {
     public sealed class TestClock : IMonotonicClock
     { public double Time = 10; public double Now => Time; }

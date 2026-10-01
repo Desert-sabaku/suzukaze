@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Suzukaze.Gesture.Delivery
+namespace Suzukaze.Gesture.Receiver
 {
     // CPython time.monotonic on Windows uses raw QPC / frequency as well.
     // Stopwatch elapsed time has a process-local origin and is not interchangeable.

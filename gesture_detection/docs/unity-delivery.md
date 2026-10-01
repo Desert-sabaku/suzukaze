@@ -41,7 +41,7 @@ WebSocketでは1つのバイナリメッセージに1つのProtobufペイロー�
 の `GestureEnvelope`、長さヘッダーなし）を載せます。ペイロードは1〜8192バイトです。
 Python側は `buf generate --template buf.gen.gesture.yaml`（`proto/`）で生成した
 `unity_bridge/src/unity_bridge/gen/` を使い、C#側は同じテンプレートで
-`suzukaze/Assets/GestureDelivery/Generated/Gesture.cs` を生成します。
+`suzukaze/Assets/Bridge/Generated/Gesture.cs` を生成します。
 不正なProtobuf、テキストフレーム、Unityからのstate/eventは切断します。
 画像・ランドマーク・診断文字列は送りません。
 `version=1`、認識セッションごとのUUID `session_id` を共通で含めます。

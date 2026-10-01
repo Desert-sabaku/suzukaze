@@ -1,4 +1,0 @@
-{
-  "name": "Suzukaze.Gesture.Unity",
-  "references": ["Suzukaze.Gesture.Delivery", "Suzukaze.Gesture.Protocol"]
-}

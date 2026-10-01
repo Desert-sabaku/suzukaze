@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Google.Protobuf;
 
-namespace Suzukaze.Gesture.Delivery
+namespace Suzukaze.Gesture.Receiver
 {
     public sealed class WebSocketReceiver
     {

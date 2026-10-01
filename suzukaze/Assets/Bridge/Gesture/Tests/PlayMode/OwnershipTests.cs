@@ -4,7 +4,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Suzukaze.Gesture.Delivery.Tests
+namespace Suzukaze.Gesture.Receiver.Tests
 {
     public class OwnershipTests
     {

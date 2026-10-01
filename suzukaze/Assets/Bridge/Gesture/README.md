@@ -1,25 +1,23 @@
-# Unity gesture receiver (PR3)
+# Unity gesture receiver
 
 Unity **6000.5.8f1**, Windows Editor/standalone, **.NET Standard 2.1** API
 compatibility. Connects to the same-PC bridge at `ws://127.0.0.1:5000` by default.
-The bridge must serve protocol v1 **binary protobuf**, one `GestureEnvelope`
-per WebSocket message, without the detector-to-bridge TCP length header.
-Generated schema/namespace: `Suzukaze.Gesture.Protocol` (schema commit `de38f1a`).
+The bridge (`uv run unity-bridge --gesture` in `unity_bridge/`) serves protocol
+v1 **binary protobuf**, one `GestureEnvelope` per WebSocket message.
+Generated schema/namespace: `Suzukaze.Gesture.Protocol` (`proto/gesture/v1/gesture.proto`).
 
 ## Setup
 
-The pinned runtime DLLs (Git LFS), licenses, and Unity metadata are included.
-Use a checkout with LFS objects downloaded, or restore the two plugin DLLs
-from NuGet. To verify and reproduce them, from the repository root:
+`Google.Protobuf` is installed by NuGetForUnity from `Assets/packages.config`
+and restored automatically when the Editor opens. Do not install another copy
+through a different package manager.
+
+The generated bindings in `../Generated/` are not committed. After cloning or
+changing the schema, run from the repository's `proto/` directory:
 
 ```sh
-python tools/restore_unity_protobuf.py
+buf generate --template buf.gen.gesture.yaml
 ```
-
-This stdlib-only script verifies SHA-256 of entire NuGet packages **before**
-extracting the chosen `netstandard2.0` DLLs. See `Plugins/DEPENDENCIES.md` for
-the framework-supplied transitive dependencies. Do not install another copy of
-Google.Protobuf through a different Unity package manager.
 
 In a **Windows** test scene, add `Prefabs/GestureReceiverDiagnostic.prefab` as
 a root object. It persists through scene loads; duplicate owners destroy their
@@ -115,26 +113,10 @@ pauses, bounded queues can disconnect and queued events may expire.
 
 ## Verification
 
-Portable Linux/macOS/Windows smoke tests with .NET SDK 8, from repository root:
-
-```sh
-dotnet restore tools/GestureDelivery.Smoke/GestureDelivery.Smoke.csproj --locked-mode
-dotnet test tools/GestureDelivery.Smoke/GestureDelivery.Smoke.csproj --no-restore
-dotnet build tools/GestureDelivery.Compatibility/GestureDelivery.Compatibility.csproj
-```
-
-The smoke runner links the actual Unity-independent core, generated schema,
-shipped Protobuf DLL, and NUnit EditMode tests. It checks every schema-owned
-Python golden fixture (including uint64 max and optional-present zero), exact
-C# ACK bytes, fragmentation/bounds, adoption/dedup/state policy, capacity
-fail-closed behavior, stale generations, and real loopback ClientWebSocket
-reconnection/cancellation. The compatibility build targets .NET Standard 2.1
-with C# 8 and warnings as errors; .NET 8 alone would not catch API drift.
-
 In Unity Test Runner run **EditMode** and **PlayMode** under `Tests/`. PlayMode
 tests cover persistent ownership, destruction/replacement with a lost ACK,
 new-play-session isolation, disable/re-enable, and diagnostic opt-in;
 ownership tests skip non-Windows platforms. In a Windows test scene manually
 exercise session restart, focus loss, scene changes, sink acceptance, and
-Windows standalone Mono/IL2CPP builds with a real protobuf bridge. Portable
-tests do not substitute for those Unity/Windows checks.
+Windows standalone Mono/IL2CPP builds with a real protobuf bridge
+(`unity_bridge/`'s `unity-gesture-probe` is the Python reference receiver).

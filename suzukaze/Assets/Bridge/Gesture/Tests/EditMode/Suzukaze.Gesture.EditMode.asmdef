@@ -1,6 +1,6 @@
 {
   "name": "Suzukaze.Gesture.EditMode",
-  "references": ["Suzukaze.Gesture.Delivery", "Suzukaze.Gesture.Protocol"],
+  "references": ["Suzukaze.Gesture.Receiver", "Suzukaze.Gesture.Protocol"],
   "optionalUnityReferences": ["TestAssemblies"],
   "includePlatforms": ["Editor"]
 }
