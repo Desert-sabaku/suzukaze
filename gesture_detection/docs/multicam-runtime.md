@@ -1,7 +1,7 @@
 # 2カメラで所作を認識する
 
 `gesture-detection`から、2カメラの認識結果を統合して利用できます。
-[0928の検証候補](0928-multicam-handoff.md)を、アプリ本体の選択式プロファイルへ移植しています。
+過去の検証結果は[評価記録](evaluations.md)に要約しています。
 
 ## 実カメラ
 
@@ -133,9 +133,11 @@ uv run python -m shared.scripts.validate_multicam_runtime --trace 20260928_00175
 786ネイティブフレームの処理、終端までの出力、融合時系列の一致を確認しました。
 全516テスト、Ruff、Pyright、構文確認が成功しています。
 実カメラ2台の同時取得と、実機Unityを通した通知は未確認です。
-研究キャッシュは、[引き継ぎ資料](0928-multicam-handoff.md)の研究リビジョンで再生成したものを使います。
+研究キャッシュは、[GitHub Wikiの引き継ぎ資料](https://github.com/Desert-sabaku/suzukaze/wiki/0928-multicam-handoff)
+に記録した研究リビジョンで再生成したものを使います。
 当時の評価スクリプトは実行コードのハッシュも照合するため、旧結果の厳密再現は当時のリビジョンで行います。
 
 ラムネ・夕涼みの追加の精度調整は保留したままです。
 元データがphase説明UIなしで実演された条件であること、および打ち水の未対応イベント等の
-残る課題は[最終評価](0928-multicam-events.md)を参照してください。
+残る課題は[GitHub Wikiの最終評価](https://github.com/Desert-sabaku/suzukaze/wiki/0928-multicam-events)
+を参照してください。

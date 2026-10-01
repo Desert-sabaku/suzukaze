@@ -27,9 +27,8 @@
 
 ## 評価記録
 
-- [過去の評価](evaluations.md): 現行実装に反映した結論の索引
-- [0928 2カメラ検証の引き継ぎ](0928-multicam-handoff.md): 採用事項と制約
-- [幕越し評価のプロトコル](curtain-validation-protocol.md)
+- [評価記録](evaluations.md): 現行実装へ反映した結論とprivate wikiへの案内
+- [詳細な評価記録](https://github.com/Desert-sabaku/suzukaze/wiki): GitHub Wikiで管理
 
 日付付きの評価レポート、結果JSON、比較画像、動画、注釈、ランドマーク、顔が写る
 可能性のある素材は、通常の利用者向け資料ではありません。検証データは
