@@ -7,21 +7,28 @@ from gesture_detection.app import GestureApplication, PoseResult
 from gesture_detection.config import CAMERA_BACKEND, CAMERA_FOURCC, WINDOW_TITLE
 
 
-def test_delivery_is_disabled_for_video_even_when_enabled():
+def test_samples_are_not_sent_for_video():
+    samples = MagicMock()
     with patch("gesture_detection.app.mp.Process") as process:
-        for source, enabled, expected in [
-            (None, True, True),
-            (None, False, False),
-            ("movie.mp4", True, False),
+        for source, given, expected in [
+            (None, samples, samples),
+            (None, None, None),
+            ("movie.mp4", samples, None),
         ]:
             with (
                 patch("gesture_detection.app.VIDEO_SOURCE", source),
-                patch("gesture_detection.app.GESTURE_DELIVERY_ENABLED", enabled),
                 patch("gesture_detection.app.mp.Queue"),
             ):
-                app = GestureApplication()
+                app = GestureApplication(samples=given)
                 app._start_workers()
                 assert process.call_args.kwargs["args"][2] is expected
+
+
+def test_stop_event_requests_exit():
+    stop = MagicMock()
+    stop.is_set.return_value = True
+    with patch("gesture_detection.app.mp.Queue"):
+        assert GestureApplication(stop=stop)._exit_requested()
 
 
 class OpenCaptureTest(unittest.TestCase):

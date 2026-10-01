@@ -2,6 +2,8 @@ import math
 import multiprocessing as mp
 import queue
 import time
+from multiprocessing.queues import Queue
+from multiprocessing.synchronize import Event
 from pathlib import Path
 from typing import Any
 
@@ -13,7 +15,6 @@ from .config import (
     CAMERA_FOURCC,
     CAMERA_INDEX,
     FPS,
-    GESTURE_DELIVERY_ENABLED,
     MULTICAM_ENABLED,
     POSE_CONNECTIONS,
     VIDEO_OUTPUT_BUFFER_FRAMES,
@@ -23,7 +24,7 @@ from .config import (
 )
 from .ipc import SharedLatestFrame, get_latest
 from .pose_worker import pose_worker
-from .recognition_types import PoseResult
+from .recognition_types import GestureSample, PoseResult
 from .rendering import (
     draw_landmarks,
     draw_messages,
@@ -61,8 +62,15 @@ class FrameClock:
 
 
 class GestureApplication:
-    def __init__(self, camera_index: int = CAMERA_INDEX) -> None:
+    def __init__(
+        self,
+        camera_index: int = CAMERA_INDEX,
+        samples: Queue[GestureSample] | None = None,
+        stop: Event | None = None,
+    ) -> None:
         self.camera_index = camera_index
+        self.samples = samples
+        self.stop = stop
         self.pose_frame_queue: SharedLatestFrame | None = None
         self.pose_result_queue = mp.Queue(maxsize=1)
         self.pose_process = None
@@ -173,7 +181,9 @@ class GestureApplication:
                 return None
 
     def _exit_requested(self) -> bool:
-        """Return true for Escape or after the user closes the HighGUI window."""
+        """Return true for Escape, a stop request, or a closed HighGUI window."""
+        if self.stop is not None and self.stop.is_set():
+            return True
         if cv2.waitKey(1) & 0xFF == 27:
             return True
         if not self._window_created:
@@ -236,7 +246,8 @@ class GestureApplication:
             args=(
                 self.pose_frame_queue,
                 self.pose_result_queue,
-                GESTURE_DELIVERY_ENABLED and VIDEO_SOURCE is None,
+                # Video timestamps are source time, not host monotonic time.
+                self.samples if VIDEO_SOURCE is None else None,
                 self.source_fps,
             ),
             name="pose-worker",
@@ -298,13 +309,14 @@ class GestureApplication:
         cv2.putText(image, text, (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1.2, color, 3)
 
 
-def main() -> None:
+def main(samples: Queue[GestureSample] | None = None, stop: Event | None = None) -> None:
+    """Run recognition; when samples is given, send each live result to it."""
     if MULTICAM_ENABLED:
         from .multicam_app import MultiCameraApplication
 
-        MultiCameraApplication().run()
+        MultiCameraApplication(samples, stop).run()
     else:
-        GestureApplication().run()
+        GestureApplication(samples=samples, stop=stop).run()
 
 
 if __name__ == "__main__":

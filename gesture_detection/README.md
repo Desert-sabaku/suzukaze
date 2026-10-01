@@ -23,6 +23,8 @@ uv run gesture-detection
 
 既定ではカメラ0を使用します。表示された枠に胴体の中心を合わせてください。
 終了は `Esc` です。姿勢推定モデルがない場合は初回起動時に自動取得します。
+単体で起動した場合はUnityへ送信しません。Unityへ送るときは `unity_bridge/` で
+`uv run unity-bridge --gesture` を実行すると、この認識アプリも起動します（[Unityとの接続](docs/unity-delivery.md)）。
 
 主な設定は `.env` で変更します。
 
@@ -31,7 +33,6 @@ uv run gesture-detection
 | `CAMERA_INDEX` | 使用するカメラのID（既定 `0`） |
 | `VIDEO_SOURCE` | 動画ファイルのパス。空欄ならカメラ入力 |
 | `OUTPUT_DIR` | 認識結果の動画保存先（既定 `output/`） |
-| `GESTURE_DELIVERY_ENABLED` | Unityへの通知を有効にする（既定 `false`） |
 
 その他の設定は [.env.example](.env.example) を参照してください。
 [学習済みラムネ判定](docs/learned-ramune.md)は設定で切り替えられます。

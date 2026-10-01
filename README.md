@@ -1,0 +1,57 @@
+# suzukaze
+
+カメラで所作（扇ぎ・打ち水・夕涼み・ラムネ開栓）を認識し、Unityの映像とファン・スピーカーで
+体験を演出するプロジェクトのモノレポです。
+
+## 構成
+
+```text
+Unity (suzukaze/) ──WebSocket(protobuf)── unity_bridge ─┬─ 子プロセス + multiprocessing.Queue ─ gesture_detection ─ カメラ
+                                                        └─ ライブラリ呼び出し（予定）─ mcu ──USBシリアル(protobuf)── firmware (Pico) ─ ファン
+```
+
+| ディレクトリ | 内容 | 言語 |
+| --- | --- | --- |
+| [`gesture_detection/`](gesture_detection/README.md) | カメラ映像から所作を認識する | Python 3.12+ |
+| [`unity_bridge/`](unity_bridge/README.md) | 認識アプリを起動し、Unityへジェスチャーを届けるWebSocketサーバー | Python 3.14+ |
+| [`mcu/`](mcu/README.md) | ファームウェアと通信するシリアルクライアント（ライブラリ） | Python 3.12+ |
+| [`firmware/`](firmware/README.md) | Raspberry Pi Pico のファンコン | TinyGo |
+| `proto/` | protobufスキーマと buf の生成テンプレート | protobuf |
+| `suzukaze/` | Unityプロジェクト（6000.5.8f1）。`Assets/Bridge/` が `unity_bridge` との通信部分 | C# |
+
+## セットアップ
+
+必要なもの：[uv](https://docs.astral.sh/uv/)、[buf](https://buf.build/docs/cli/installation/)、
+Unity 6000.5.8f1（Unityを使う場合）、TinyGo（ファームウェアを書き込む場合）。
+
+1. protobufのコードを生成する。生成物はコミットしていないため、clone後とスキーマ変更後に必要です。
+
+   ```bash
+   cd proto
+   buf generate                                  # comms: firmware/gen, mcu/mcu/gen
+   buf generate --template buf.gen.gesture.yaml  # gesture: unity_bridge の gen, Unity の Assets/Bridge/Generated
+   ```
+
+   Unityで生成物がない場合は、Consoleに同じコマンドを案内するエラーが出ます。
+
+2. Pythonの各プロジェクトで依存関係を入れる。
+
+   ```bash
+   (cd gesture_detection && uv sync --group dev)
+   (cd unity_bridge && uv sync --group dev)  # gesture_detection も editable で入る
+   ```
+
+3. Unityでは `suzukaze/` を開きます。`Google.Protobuf` はNuGetForUnityが
+   `Assets/packages.config` から自動で復元します。
+
+## 動かす
+
+```bash
+cd unity_bridge
+uv run unity-bridge --gesture   # 認識アプリも起動し、ws://127.0.0.1:5000 で待ち受ける
+uv run unity-gesture-probe      # Unityの代わりに受信を確認する（別ターミナル）
+```
+
+2カメラで認識する設定は [2カメラ認識ガイド](gesture_detection/docs/multicam-runtime.md)、
+メッセージ仕様は [Unityへのジェスチャー通知](gesture_detection/docs/unity-delivery.md) を参照してください。
+開発の約束事は [AGENTS.md](AGENTS.md) にまとめています。

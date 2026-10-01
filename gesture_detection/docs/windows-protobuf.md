@@ -3,68 +3,52 @@
 ## 対象と導入状況
 
 Windows ネイティブの Python、unity_bridge、Unity 6000.5.8f1 を同じ PC で
-起動します。Unity が演出の採用を判断し、マイコン制御アプリは別系統です。
+起動します。Unity が演出の採用を判断します。
 WSL 上の Python と Windows Unity は時計の原点が異なるため対象外です。
 
 ```text
-gesture_detection → TCP 127.0.0.1:5001 → unity_bridge
-                                           ↕ binary WebSocket
-                                    Unity 127.0.0.1:5000
+unity_bridge ─ 子プロセス + multiprocessing.Queue ─ gesture_detection
+     ↕ binary WebSocket
+Unity 127.0.0.1:5000
 ```
 
-この統合変更で既定形式を protobuf に切り替えます。通知機能自体は引き続き
-`GESTURE_DELIVERY_ENABLED=false` が既定です。旧 JSON 接続は各 Python プロセスで
-明示選択すれば使えますが、同梱 C# 受信器は protobuf 専用です。
-
-共有スキーマ、Python 配送、C# 受信器、結合・切替の順に導入します。
-Python/C# の自動検証と Unity Editor/Windows プレイヤー検証は別です。
-後者を実施するまでは、本番移行の確認は未完了です。
+`unity_bridge --gesture` が認識アプリを子プロセスとして起動します。
+認識アプリを単体で起動した場合は送信しません。
 
 ## 1. 準備
 
-- Windows 版 uv と Git LFS を用意し、リポジトリ全体を取得します。
+- Windows 版 uv と buf を用意し、リポジトリ全体を取得します。
 - 認識用モデルとカメラ設定は [認識アプリの README](../README.md) に従います。
-- Unity Hub から上記バージョンで `suzukaze/` を開きます。
-- 配送先はループバックのみです。5000/5001 番を他のプロセスが使用していないことを確認します。
+- 配送先はループバックのみです。5000 番を他のプロセスが使用していないことを確認します。
 
-リポジトリルートの PowerShell で依存を準備します。
+リポジトリルートの PowerShell で生成物と依存を準備します。
 
 ```powershell
-git lfs pull
-uv sync --locked --project gesture_detection
+Set-Location proto
+buf generate --template buf.gen.gesture.yaml
+Set-Location ..
 uv sync --locked --project unity_bridge
-uv run --project unity_bridge python tools/restore_unity_protobuf.py
 ```
 
-最後のコマンドは NuGet パッケージの SHA-256 を照合し、固定バージョンの
-Google.Protobuf/Unsafe DLL を復元します。Unity の通常の利用に .NET SDK や protoc
-は不要です。共有 Python パッケージは隣接パスからインストールされるため、
-`gesture_protocol/` も含めて配置してください。
+Unity Hub から 6000.5.8f1 で `suzukaze/` を開きます。`Google.Protobuf` は
+NuGetForUnity が `Assets/packages.config` から復元します。生成物がない場合は
+Console に `buf generate` を案内するエラーが出ます。
 
 ## 2. 起動
 
 **PowerShell A**（リポジトリルートから）：
 
 ```powershell
-Set-Location gesture_detection
-$env:GESTURE_DELIVERY_ENABLED = "true"
-$env:GESTURE_DELIVERY_FORMAT = "protobuf"
-uv run --locked gesture-detection
-```
-
-**PowerShell B**（別ウィンドウ、リポジトリルートから）：
-
-```powershell
 Set-Location unity_bridge
-uv run --locked unity-bridge --gesture-port 5001 --gesture-format protobuf
+uv run --locked unity-bridge --gesture
 ```
 
-明示的な形式指定により、以前の `.env` や環境変数に JSON が残っていても
-形式を揃えられます。`VIDEO_SOURCE` または `MULTICAM_VIDEO_SESSION` による
-動画再生時はサーバーが起動しないので、ライブ認識を使用します。
+認識画面が開き、`ws://127.0.0.1:5000` で Unity を待ち受けます。
+`VIDEO_SOURCE` または `MULTICAM_VIDEO_SESSION` による動画再生時は送信しないので、
+ライブ認識を使用します。
 
 Unity の確認用シーンのルートに
-`Assets/GestureDelivery/Prefabs/GestureReceiverDiagnostic.prefab` を配置し、再生します。
+`Assets/Bridge/Gesture/Prefabs/GestureReceiverDiagnostic.prefab` を配置し、再生します。
 
 - Endpoint は `ws://127.0.0.1:5000`。
 - 既定の診断 Sink はイベントを `ignored` として記録します。
@@ -81,35 +65,18 @@ Unity を起動する前の切り分けには、別の PowerShell で次を使�
 
 ```powershell
 Set-Location unity_bridge
-uv run --locked unity-gesture-probe --format protobuf
+uv run --locked unity-gesture-probe
 # 見送りの確認には --ignore-events を追加
 ```
 
-終了は認識画面の Esc、各 Python プロセスの Ctrl+C、Unity の再生停止です。
+終了は認識画面の Esc（ブリッジも終了します）、ブリッジの Ctrl+C、Unity の再生停止です。
 
-## 3. カメラなしの Python ↔ C# 結合検証
+## 3. 自動テスト
 
-.NET SDK 8 と uv が必要です。以下はリポジトリルートの **PowerShell** で実行します。
-専用の小さな環境へ実パッケージをインストールし、モデル関連依存は読み込みません。
-
-```powershell
-uv sync --locked --project tools/gesture-integration
-$python = (Resolve-Path tools/gesture-integration/.venv/Scripts/python.exe).Path
-uv pip install --python $python --no-deps -e gesture_protocol -e gesture_detection -e unity_bridge
-& $python tools/restore_unity_protobuf.py
-$env:GESTURE_E2E_PYTHON = $python
-$env:GESTURE_E2E_FIXTURE = (Resolve-Path tools/gesture-integration/fixture.py).Path
-dotnet restore tools/GestureDelivery.Integration --locked-mode
-dotnet test tools/GestureDelivery.Integration --no-restore
-```
-
-同じテストを CI の Ubuntu/Windows ジョブでも実行します。Windows ジョブは実際の
-`WindowsQpcClock` を使い、Python `time.monotonic()` のサンプルを C# 時計で挟んで
-同じ時刻系であることも検証します。Linux ジョブも本番の `LinuxMonotonicClock` を使用します。
-
-確認する経路は、実 `DeliveryOutbox` → 実 TCP サーバー → 実 WebSocket ブリッジ
-→ 実 C# 受信コア → ACK → Outbox です。採用、見送り、重複、メインスレッド待ち中の
-失効、ACK 後の再送停止を確認します。Unity の MonoBehaviour/シーンは実行しません。
+- Python：`unity_bridge/` で `uv run python -m pytest`。実際の子プロセス・キュー・
+  WebSocket・プローブ受信処理を通します（カメラ不要）。
+- Unity：Test Runner の EditMode/PlayMode（`Assets/Bridge/Gesture/Tests/`）。
+  `NativeClockTests` は実際の `WindowsQpcClock` を使います。
 
 ## 4. Unity/Windows で残る確認
 
@@ -135,15 +102,14 @@ exactly-once 実行は保証しません。
 ## 5. トラブルシュート
 
 - **接続できない**：Unity の `GestureReceiverBehaviour.LastError`、ブリッジの待受表示、
-  ライブ入力であること、通知有効化、ポート競合を確認します。
-- **接続してもすぐ切れる**：送信側とブリッジの形式を protobuf に揃え、WSL を使用していないか
-  確認します。別の受信器が接続していないかも確認します。
+  `--gesture` を付けて起動したこと、ライブ入力であること、ポート競合を確認します。
+- **接続してもすぐ切れる**：WSL を使用していないか確認します。
+  別の受信器（プローブなど）が接続していないかも確認します。
 - **演出が始まらない**：診断 Sink の既定は見送りです。実 Sink の設定と `TryAcceptEvent`
   の判断を確認します。通信の ACK は演出完了通知ではありません。
-- **DLL を解決できない**：LFS オブジェクトを取得するか復元スクリプトを実行し、
-  同名 DLL が他の Unity プラグインに重複していないことを確認します。
-- **旧 JSON 消費側を使う**：認識側の `GESTURE_DELIVERY_FORMAT=json`、ブリッジの
-  `--gesture-format json`、プローブの `--format json` を揃えます。C# 受信器は停止します。
+- **`Google.Protobuf` や生成コードを解決できない**：NuGetForUnity の復元（`Assets/Packages/`）と
+  `buf generate --template buf.gen.gesture.yaml` を確認し、同名 DLL が他の Unity プラグインに
+  重複していないことを確認します。
 
 フィールドの意味と期限は [配送仕様](unity-delivery.md)、C# API とライフサイクルは
-[Unity 受信器 README](../../suzukaze/Assets/GestureDelivery/README.md) を参照してください。
+[Unity 受信器 README](../../suzukaze/Assets/Bridge/Gesture/README.md) を参照してください。

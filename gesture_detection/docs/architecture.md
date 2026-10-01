@@ -10,7 +10,7 @@
 - `src/gesture_detection/multicam_fusion.py`: 共通時計による所作結果の統合・失効・重複除去
 - `src/gesture_detection/event_rearm.py`: 両視点の解除証拠と新しい準備による再許可
 - `src/gesture_detection/hand_gesture.py`: 片手ごとの履歴、扇ぎ判定と打ち水の誤認識抑制
-- `src/gesture_detection/recognition_types.py`: 現在の認識状態と内部診断用の結果型
+- `src/gesture_detection/recognition_types.py`: 現在の認識状態と内部診断用の結果型、`unity_bridge` へ送る `GestureSample`
 - `src/gesture_detection/relaxing.py`: 入力元時刻による静止判定
 - `src/gesture_detection/uchimizu.py`: すくい上げと振り下ろしの状態機械
 - `src/gesture_detection/ramune.py`: 両手の準備と押下の状態機械
@@ -39,9 +39,11 @@ MediaPipe を起動せずに認識処理を検証できます。各判定器の�
 表示文字列・座標・色は認識結果に含めず、描画側で生成します。
 
 表示用の結果キューは最新値優先です。外部通知では、このキューに入れる前に
-成立イベントを `gesture_delivery.py` の未確認一覧へ保存します。
-`gesture_server.py` が別スレッドで状態通知と期限内の再送を行います。
-演出制御はUnityに残します。通知は既定で無効で、動画評価時にも停止します。
+結果を `GestureSample` に変換して、`main(samples=...)` で渡された
+`multiprocessing.Queue` へ送ります。イベントを落とさないよう、このキューは最新値優先にしません。
+`unity_bridge` が認識アプリを子プロセスとして起動し、キューを渡します。
+状態通知・再送・ACKは `unity_bridge` 側が行い、演出制御はUnityに残します。
+単体起動時と動画評価時は送信しません。
 設定・通信契約は[Unityへの通知](unity-delivery.md)を参照してください。
 
 ## 2カメラの実行経路
@@ -52,7 +54,7 @@ MediaPipe を起動せずに認識処理を検証できます。各判定器の�
 結果には発火した手と準備開始時刻を付け、親側の`MultiCameraFusion`で統合します。
 
 イベントを含む結果キューは満杯時に待機し、表示用プレビューだけを最新値優先にします。
-共有の解除・再準備判定後に1つの`DeliveryOutbox`へ渡すため、通知サーバーも1つです。
+共有の解除・再準備判定後の統合結果を、1つの`samples`キューへ送ります。
 扇ぎ・夕涼みには一回限りのロックを適用しません。
 
 カメラ別の結果は元入力の`frame_id`・`timestamp`を保持します。

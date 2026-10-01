@@ -8,7 +8,8 @@ Fedora は `clock_gettime(CLOCK_MONOTONIC)`、Windows は QPC です。
 Unity の起動時刻を差し引かず、Python `time.monotonic()` と直接比較します。
 別PC、WindowsとWSLの混在、異なる時計名前空間のコンテナは対象外です。
 
-Fedora 44 x86_64 / Unity **6000.5.8f1** で確認済み:
+Fedora 44 x86_64 / Unity **6000.5.8f1** で確認済み（認識側から TCP で中継していた旧構成での結果。
+C# の portable / 結合テストは `tools/` の廃止に伴い削除済み）:
 
 | 検証 | 結果 |
 |---|---|
@@ -23,33 +24,24 @@ Editor テストは batchmode/nographics で実行しています。実カメラ
 
 ## 通常の起動
 
-Unity Hub、上記 Editor、Linuxネイティブ版 uv、Git LFS が必要です。
-リポジトリ全体を取得し、各プロジェクトの依存を用意します。
+Unity Hub、上記 Editor、Linuxネイティブ版 uv、buf が必要です。
+リポジトリ全体を取得し、生成物と依存を用意します。
 
 ```bash
-git lfs pull
-uv sync --locked --project gesture_detection
+(cd proto && buf generate --template buf.gen.gesture.yaml)
 uv sync --locked --project unity_bridge
-uv run --project unity_bridge python tools/restore_unity_protobuf.py
 ```
 
-リポジトリルートから別々のターミナルで起動します。
+リポジトリルートから起動します。認識画面も開きます（動画評価では送信しません）。
 
 ```bash
-# ターミナル1：ライブカメラの認識。動画評価では配送サーバーを起動しない
-GESTURE_DELIVERY_ENABLED=true GESTURE_DELIVERY_FORMAT=protobuf \
-  uv run --directory gesture_detection --locked gesture-detection
-```
-
-```bash
-# ターミナル2：ブリッジ
-uv run --directory unity_bridge --locked unity-bridge \
-  --gesture-port 5001 --gesture-format protobuf
+uv run --directory unity_bridge --locked unity-bridge --gesture
 ```
 
 Unity Hub から `suzukaze/` を開き、確認用シーンのルートへ
-`Assets/GestureDelivery/Prefabs/GestureReceiverDiagnostic.prefab` を配置して再生します。
+`Assets/Bridge/Gesture/Prefabs/GestureReceiverDiagnostic.prefab` を配置して再生します。
 Endpoint は `ws://127.0.0.1:5000`、時計の指定は不要です。
+`Google.Protobuf` は NuGetForUnity が復元します。
 
 診断 Sink は既定で `ignored` を返します。Inspector の `acceptEvents` を有効にすると
 診断目的の採用を記録します。実演出は `IGestureSink` を実装し、演出を採用した場合だけ
@@ -59,22 +51,18 @@ Player Settings の Run In Background は有効にします。Editor Pause は�
 ブリッジは1受信器限定です。Unity を停止して Python プローブで切り分ける場合:
 
 ```bash
-uv run --directory unity_bridge --locked unity-gesture-probe --format protobuf
+uv run --directory unity_bridge --locked unity-gesture-probe
 ```
 
-## Unity 上での実通信テストの再現
+2カメラで認識する場合は [2カメラ認識ガイド](multicam-runtime.md) の設定を
+`gesture_detection/.env` に書きます。Linux ではカメラ1台につき `/dev/video*` が2つ作られることが多く、
+`MULTICAM_CAMERA_INDICES=0,2` のようになる場合があります。
 
-認識モデルを使わず、実際の Outbox/TCP/ブリッジと Unity の受信コンポーネントを
-接続します。リポジトリルートで以下を実行してください。
+## Unity Editor テストの batchmode 実行
+
+リポジトリルートで以下を実行してください。
 
 ```bash
-uv sync --locked --project tools/gesture-integration
-export GESTURE_E2E_PYTHON="$PWD/tools/gesture-integration/.venv/bin/python"
-export GESTURE_E2E_FIXTURE="$PWD/tools/gesture-integration/fixture.py"
-uv pip install --python "$GESTURE_E2E_PYTHON" --no-deps \
-  -e gesture_protocol -e gesture_detection -e unity_bridge
-"$GESTURE_E2E_PYTHON" tools/restore_unity_protobuf.py
-
 export UNITY_EDITOR="$HOME/Unity/Hub/Editor/6000.5.8f1/Editor/Unity"
 "$UNITY_EDITOR" -batchmode -nographics -projectPath "$PWD/suzukaze" \
   -runTests -testPlatform EditMode -testFilter Suzukaze.Gesture \
@@ -87,12 +75,8 @@ export UNITY_EDITOR="$HOME/Unity/Hub/Editor/6000.5.8f1/Editor/Unity"
 テスト対象プロジェクトを別の Editor で開いている場合は閉じるか、別 worktree を使います。
 初回のアセットインポートには時間がかかります。成功判定は終了コードだけでなく、
 結果 XML の `result="Passed"`、`failed="0"` を確認してください。
-`GESTURE_E2E_*` 未指定の場合、Python を使う PlayMode テスト1件はスキップされます。
-GUI の Test Runner から実行する場合も、上記環境変数を設定したターミナルから
-Editor を起動すると実通信テストを有効にできます。
-
-CI は Ubuntu/Windows で受信コアと実通信を検証します。Fedora の Editor 検証は
-この手順で行い、Editor ライセンスを必要としない portable テストとは区別します。
+`NativeClockTests` は実際の `LinuxMonotonicClock` を使います。
+Python ↔ Unity の実通信は `unity-gesture-probe` の代わりに Unity を接続して手動で確認します。
 
 詳細なイベントの期限・重複排除・ACK仕様は [配送仕様](unity-delivery.md)、
-Sink API は [Unity 受信器 README](../../suzukaze/Assets/GestureDelivery/README.md) を参照してください。
+Sink API は [Unity 受信器 README](../../suzukaze/Assets/Bridge/Gesture/README.md) を参照してください。

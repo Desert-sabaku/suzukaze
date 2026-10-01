@@ -2,43 +2,76 @@
 
 ## Project Structure & Module Organization
 
-The runnable project lives in `gesture_detection/`. Application code is in the
-`src/gesture_detection/` package: `app.py` owns the camera loop and worker lifecycle,
-`pose_worker.py` and `yolo_worker.py` run inference, `rendering.py` draws OpenCV
-overlays, `ipc.py` handles latest-value queues, and `config.py` centralizes model
-paths and thresholds. `main.py` is a lightweight entry point. Model assets
-(`pose_landmarker_lite.task` and `yolov8n.pt`) sit beside `pyproject.toml`.
-Tests live under `gesture_detection/tests/`.
-and mirror package module names where practical.
-The bridge package uses `unity_bridge/src/unity_bridge/` with tests in
-`unity_bridge/test/`. Run `uv sync` in each project before importing its
-package; do not import `src` as a package.
+This is a monorepo. Each Python project is managed separately with uv; run
+`uv sync` in a project before importing its package, and do not import `src`
+as a package.
+
+- `gesture_detection/` (Python 3.12+): camera-based gesture recognition. The
+  package is `src/gesture_detection/`: `app.py` / `multicam_app.py` own the
+  camera loops and worker lifecycle, `pose_worker.py` runs MediaPipe inference,
+  `recognition.py` and the per-gesture modules hold recognition state,
+  `rendering.py` draws OpenCV overlays, `ipc.py` handles latest-value queues,
+  and `config.py` centralizes paths and thresholds. `recognition_types.py`
+  defines `GestureSample`, the value sent to `unity_bridge`. Tests live under
+  `tests/` and mirror module names where practical; evaluation tools are in
+  `scripts/`.
+- `unity_bridge/` (Python 3.14+): WebSocket server for Unity. The package is
+  `src/unity_bridge/` with tests in `test/`.
+- `mcu/` (Python 3.12+): serial client library for the firmware (`mcu/cli.py`
+  is a debugging CLI).
+- `firmware/`: Raspberry Pi Pico fan-control firmware (TinyGo). See
+  `firmware/README.md`.
+- `proto/`: protobuf schemas and buf templates. `buf.gen.yaml` generates `comms`
+  (firmware Go, mcu Python); `buf.gen.gesture.yaml` generates `gesture`
+  (unity_bridge Python, Unity C#).
+- `suzukaze/`: Unity project (6000.5.8f1). Code that talks to `unity_bridge`
+  lives in `Assets/Bridge/` (`Generated/` for buf output, `Gesture/` for the
+  gesture receiver).
 
 ## Project Architecture
 
-- Input: `gesture-detection` via the camera.
-- Output: Fan and speaker via the microcontroller. In addition, Unity footage is output directly via the projector.
-- Control: Unity is used for overall management. `unity_bridge` is used as a supplementary tool. Furthermore, a separate control app is used specifically for controlling the microcontroller.
-
-Firmware for the Raspberry Pi Pico (fan control, TinyGo) lives in
-`firmware/`. See `firmware/README.md` for structure, build, and flashing
-instructions.
+- Input: `gesture_detection` via the cameras (two with `MULTICAM_ENABLED=true`).
+  `unity_bridge --gesture` starts it
+  as a child process and receives `GestureSample` values over a
+  `multiprocessing.Queue`.
+- Control: Unity manages the whole experience. It connects to `unity_bridge`
+  over WebSocket (`ws://127.0.0.1:5000`), receives gesture state/events as
+  protobuf, and returns ACKs. Delivery state (retries, expiry, ACKs) is owned by
+  `unity_bridge`'s `DeliveryOutbox`.
+- Output: Unity footage is output directly via the projector. The fan and
+  speaker are driven by the microcontroller; `unity_bridge` is planned to call
+  the `mcu` library in-process, which talks to `firmware/` over USB serial
+  using framed `comms` protobuf.
 
 ## Build, Test, and Development Commands
 
-Run commands from `gesture_detection/`:
+Generated protobuf code is not committed. After cloning or changing a schema,
+run from `proto/` (requires the buf CLI):
 
 ```bash
-uv sync                         # Create/update the environment from uv.lock
-uv run gesture-detection        # Start the camera-based application
-uv run python -m gesture_detection  # Equivalent module entry point
-uv run python -m compileall src  # Basic syntax check
+buf generate                                  # comms: firmware/gen, mcu/mcu/gen
+buf generate --template buf.gen.gesture.yaml  # gesture: unity_bridge gen, Unity C#
 ```
 
-Python 3.12 or newer is required by `pyproject.toml`. The application needs a
-working camera and displays an OpenCV window; press `Esc` to exit. Keep
-`uv.lock` synchronized whenever dependencies change.
+From `gesture_detection/`:
 
+```bash
+uv sync --group dev
+uv run gesture-detection        # Recognition only (does not send to Unity)
+uv run python -m pytest
+```
+
+From `unity_bridge/`:
+
+```bash
+uv sync --group dev
+uv run unity-bridge --gesture   # Start recognition and serve Unity
+uv run unity-gesture-probe      # Mock Unity receiver
+uv run python -m pytest
+```
+
+The applications need working cameras and display an OpenCV window; press
+`Esc` to exit. Keep each `uv.lock` synchronized whenever dependencies change.
 See `firmware/README.md` for TinyGo build and flashing commands.
 
 ## Coding Style & Naming Conventions
@@ -47,17 +80,19 @@ Follow standard Python conventions: four-space indentation, `snake_case` for
 functions and modules, `PascalCase` for classes, and `UPPER_SNAKE_CASE` for
 configuration constants. Prefer small, responsibility-focused modules and keep
 tunable thresholds in `config.py`. Use relative imports within the package and
-type hints for new or substantially changed interfaces. No formatter or linter
-is configured, so keep edits PEP 8-compatible and consistent with nearby code.
+type hints for new or substantially changed interfaces. Each Python project
+configures Ruff and Pyright; run `uv run ruff format`, `uv run ruff check`, and
+`uv run pyright` before submitting. Generated code is excluded from both.
 
 ## Testing Guidelines
 
-No automated test framework or coverage threshold is configured yet. For logic
-changes, add focused `pytest` tests named `tests/test_<module>.py`; keep camera,
-model, and multiprocessing dependencies mocked so tests remain deterministic.
-Before submitting, run the syntax check above and manually exercise affected
-camera behavior. If adding pytest, declare it as a development dependency and
-document `uv run pytest` in the README.
+Each Python project uses pytest (`uv run python -m pytest`). On pull requests,
+CI runs Ruff, Pyright, and pytest for `gesture_detection` and `unity_bridge`. For logic changes, add focused tests named
+`test_<module>.py`; keep camera, model, and hardware dependencies mocked so
+tests remain deterministic. `unity_bridge`'s integration tests start a real
+child process with a fake recognition target. Unity tests run in the Unity Test
+Runner (`Assets/Bridge/Gesture/Tests/`). Manually exercise affected camera
+behavior before submitting.
 
 ## Commit & Pull Request Guidelines
 

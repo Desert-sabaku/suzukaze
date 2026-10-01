@@ -8,76 +8,50 @@ Fedora/Linux は [Fedora protobuf 運用ガイド](fedora-protobuf.md)を参照�
 同一Windows PCまたは同一64-bit Linux PC内の1組の認識プロセス、ブリッジ、Unityを対象にします。
 Windows UnityとWSL/Linux Pythonの組み合わせや別PC間の配送には対応しません。
 
-`gesture_detection → TCP 127.0.0.1:5001 → unity_bridge → WebSocket 127.0.0.1:5000 → Unity`
+`unity_bridge ─(子プロセス起動 + multiprocessing.Queue)─ gesture_detection`
+`unity_bridge → WebSocket 127.0.0.1:5000 → Unity`
 
-受信確認は逆方向に返ります。`feat/unitybridge` のWebSocket基盤を使用します。
-ブリッジはメッセージを中継するだけで、シーン判断やイベント受信確認の代理をしません。
+`unity_bridge` が認識アプリ（`gesture_detection.app.main`）を子プロセスとして起動し、
+`GestureSample`（`recognition_types.py`）をキューで受け取ります。キューはPython標準の
+`multiprocessing.Queue`（pickle）で、ソケットやポートは使いません。
+状態通知・成立イベントの保持と再送・ACKの処理は `unity_bridge` の `DeliveryOutbox` が行い、
+Unityの受信確認は認識側へは返しません。シーン判断はUnityが行います。
 従来のシリアル中継は別モードです。ジェスチャー通知をシリアルへ流しません。
 
-1. `gesture_detection/.env` に `GESTURE_DELIVERY_ENABLED=true` を設定する。
-2. `gesture_detection/` で `uv run gesture-detection` を起動する。
-3. `unity_bridge/` で `uv run python -m unity_bridge.core --gesture-port 5001` を起動する。
-4. Unityを `ws://127.0.0.1:5000` に接続する。模擬Unityなら同じディレクトリで
-   `uv run python -m unity_bridge.gesture_probe` を起動する。
+1. `unity_bridge/` で `uv run unity-bridge --gesture` を起動する（認識画面も開きます）。
+2. Unityを `ws://127.0.0.1:5000` に接続する。模擬Unityなら同じディレクトリで
+   `uv run unity-gesture-probe` を起動する。
 
-起動順は任意ですが、認識側が未起動の場合はブリッジがWebSocketを切断します。
-同梱のUnity受信実装は500ms間隔で再接続します。接続はUnity 1台に限定します。
+Unityが未接続の間も認識結果は受け取り、状態とイベントの期限を進めます。
+Unity側は切断時に再接続してください（Unityの受信実装は500ms間隔）。接続はUnity 1台に限定します。
 プローブの `--ignore-events` は演出中の見送りを模擬します。実機は操作しません。
-接続を終了するには各プロセスでCtrl+C、認識画面ではEscを使います。
+終了はブリッジでCtrl+C、または認識画面でEscです。認識側が終了するとブリッジも終了します。
 
-通知は既定で無効です。`VIDEO_SOURCE` が設定された動画評価では、有効設定でも
-サーバーを起動しません。ポート競合や未確認イベント容量超過は黙って無視せず、
-認識ワーカーのエラーとしてアプリを終了させます。
+`gesture-detection` を単体で起動した場合は送信しません。`VIDEO_SOURCE` を設定した
+動画評価や `MULTICAM_VIDEO_SESSION` による録画再生でも送信しません（時刻が入力元の時刻のため）。
+未確認イベントの容量超過は黙って無視せず、ブリッジのエラーとして終了させます。
 
 2カメラ認識は[2カメラ認識ガイド](multicam-runtime.md)の設定で起動します。
-両カメラの結果を統合し、共有の解除・新準備判定を通過したイベントを1つのサーバーから通知します。
-`MULTICAM_VIDEO_SESSION`による録画再生でも通知サーバーは起動しません。
+両カメラの結果を統合し、共有の解除・新準備判定を通過したイベントを1つのキューへ送ります。
+
+送信間隔などは `unity_bridge` の環境変数で変更します（既定値）:
+`GESTURE_STATE_INTERVAL=0.1`、`GESTURE_STALE_TIMEOUT=0.5`、`GESTURE_EVENT_TTL=1.0`、
+`GESTURE_RETRY_INTERVAL=0.1`、`GESTURE_MAX_PENDING=64`。
+`GESTURE_EVENT_TTL` は2カメラ統合でも使うため、`gesture_detection/.env` と同じ値にしてください。
 
 ## 通信形式
 
-既定はバイナリの `protobuf` です。認識側（1・2カメラ共通）、ブリッジ、
-プローブは形式指定を省略して接続できます。新しいUnity受信実装はProtobuf専用です。
-旧Python受信側との互換用に `GESTURE_DELIVERY_FORMAT=json|protobuf` で選択できます。
-認識側、ブリッジ、受信側で同じ形式を指定してください。
-自動判別・形式のネゴシエーションはありません。
+WebSocketでは1つのバイナリメッセージに1つのProtobufペイロード（`../../proto/gesture/v1/gesture.proto`
+の `GestureEnvelope`、長さヘッダーなし）を載せます。ペイロードは1〜8192バイトです。
+Python側は `buf generate --template buf.gen.gesture.yaml`（`proto/`）で生成した
+`unity_bridge/src/unity_bridge/gen/` を使い、C#側は同じテンプレートで
+`suzukaze/Assets/Bridge/Generated/Gesture.cs` を生成します。
+不正なProtobuf、テキストフレーム、Unityからのstate/eventは切断します。
+画像・ランドマーク・診断文字列は送りません。
+`version=1`、認識セッションごとのUUID `session_id` を共通で含めます。
+未知のバージョンは演出に使わず切断してください。未知フィールドは無視できます。
 
-既定のProtobufで起動する例（各プロジェクトで先に `uv sync --locked`）:
-
-```bash
-# gesture_detection/.env に GESTURE_DELIVERY_ENABLED=true を設定して起動
-uv run gesture-detection
-# unity_bridge/（別ターミナル）
-uv run unity-bridge --gesture-port 5001
-uv run unity-gesture-probe
-```
-
-ブリッジの `--gesture-format` とプローブの `--format` は環境変数
-`GESTURE_DELIVERY_FORMAT` より優先されます。未指定なら環境変数、次に `protobuf` を使います。
-この指定はジェスチャー配送専用です。シリアル中継の形式は変わりません。
-
-Protobufは共有の [gesture protocol](../../gesture_protocol/README.md) を使用します。
-TCPは4バイトの符号なしビッグエンディアン長 + ペイロード、WebSocketは1つの
-バイナリメッセージに1ペイロード（長さヘッダーなし）です。ペイロードは1〜8192バイト。
-分割・連結されたTCPフレームを復元し、不正な長さ・途中EOF・不正なProtobuf・
-逆方向の種類（認識側へのstate/event、Unity側へのACK）は切断します。
-ブリッジは検証後の元バイト列を転送するため、未知フィールドも保持します。
-不正な接続でも配送ワーカーは動作を継続し、再接続を受け付けます。
-期限・再送・ACK・重複判定の意味は両形式で同じです。
-
-### 旧Python受信側向けの明示的なJSON互換モード
-
-認識側の `.env` に `GESTURE_DELIVERY_FORMAT=json` を設定し、ブリッジは
-`uv run unity-bridge --gesture-port 5001 --gesture-format json`、プローブは
-`uv run unity-gesture-probe --format json` で起動します。新しいUnityには使えません。
-この互換モードのみ、TCPではUTF-8のJSONを1行に1件、LFで区切ります。WebSocketではテキストフレーム
-1件にJSONを1個載せます。1件8 KiB以内で、画像・ランドマーク・診断文字列は送りません。
-
-### フィールドの診断用JSON表現
-
-以下のJSON例はフィールドの意味を説明する診断用表現です。既定の実通信は
-Protobufバイナリであり、JSONテキストではありません。
-`version=1`、認識ワーカー起動ごとのUUID `session_id` を共通で含めます。
-未知のバージョンは演出に使わず切断してください。追加フィールドは無視できます。
+以下はフィールドの意味をJSON表記で示したものです。
 
 ### 継続状態
 
@@ -91,7 +65,7 @@ Protobufバイナリであり、JSONテキストではありません。
 - ラムネ・打ち水が代表動作の間、継続状態は `NONE` です。
 - `fresh=true, tracking=false` は、新しい入力で人物を検出できなかった状態です。
 - 認識入力が500ms古くなると `fresh=false, tracking=false, gesture=NONE`。
-  通信スレッドが生きていても古い認識を延命しません。
+  通信が続いていても古い認識を延命しません。
 - Unityでも状態受信から500msの途絶、または `observed_at + stale_timeout`
   到達の早い方で解除します。送信された `fresh` だけでなく、Unityで処理するときの
   時刻を確認します。Unityメインスレッドへの待ち行列でも古くなるためです。
@@ -148,23 +122,22 @@ Pythonの時計実装を確認します。取得方法は
 を参照してください。これは同一OS・同一PC用で、別PC間の時刻同期には対応しません。
 
 セッションが変わったら継続状態と重複履歴を解除します。送信側の未確認イベントは
-メモリだけで保持し、再起動で破棄します。ブリッジ再起動は認識セッションを変更しません。
+ブリッジのメモリだけで保持し、ブリッジ（と認識）の再起動で破棄して新しいセッションになります。
 Unity自身の再起動では処理済み履歴が失われるため、期限内の再送を再採用する可能性が
 あります。障害をまたぐ厳密な一度限りの実行は保証しません。
 
 ## 実装と検証
 
 `recognition.py` が成立した入力にだけ `occurrences` を付けます。
-`pose_worker.py` は表示用の最新値キューへ入れる前に `DeliveryOutbox` へ通知します。
-現在値は上書きできますが、イベントはACKまたは期限まで別途保持します。
-ソケット送受信は `GestureServer` の別スレッドで行います。
-接続待ち・遅い受信側・切断は推論を待たせません。
+`pose_worker.py`（2カメラでは `multicam_app.py`）は表示用の最新値キューへ入れる前に
+`GestureSample` をキューへ送ります。このキューは最新値優先ではないため、イベントは落ちません。
+`unity_bridge` の `GestureRelay.pump` が受け取って `DeliveryOutbox` へ渡し、
+WebSocketの送受信は別タスクで行います。接続待ち・遅い受信側・切断は推論を待たせません。
 未確認イベントは最大64件で、容量超過時は明示的にエラーにします。
 
-認識側は `uv run python -m pytest`、ブリッジ側は `uv run python -m pytest`。
-実ソケットテストにはループバックのTCP・WebSocket接続権限が必要です。
-Python模擬受信側は `unity_bridge/src/unity_bridge/gesture_probe.py` にあります。
-実際のC#受信実装、診断Prefab、シーンへの組み込み方法は
-[Unity GestureDelivery](../../suzukaze/Assets/GestureDelivery/README.md)を参照してください。
-Unity Windows Editor/standalone（Mono/IL2CPP）の実機検証と実カメラによる演出確認は
-未完了です。Pythonテストの成功はWindows上での動作確認を代替しません。
+認識側・ブリッジ側とも `uv run python -m pytest`。ブリッジ側の統合テストは実際の子プロセス・
+キュー・WebSocket・プローブ受信処理を通します（カメラは不要）。
+Unityの受信実装は `suzukaze/Assets/Bridge/Gesture/`（[README](../../suzukaze/Assets/Bridge/Gesture/README.md)）、
+Pythonの参照実装は `unity_bridge/src/unity_bridge/gesture_probe.py` にあります。
+Unityの受信実装はWindows（QPC）と64-bit Linux（`CLOCK_MONOTONIC`）の時計に対応しています。
+実機Unityと実カメラによる演出確認は別途必要です。
