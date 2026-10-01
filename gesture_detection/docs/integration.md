@@ -221,7 +221,9 @@ uv run --locked unity-gesture-probe
 ```
 
 接続できない場合は、`--gesture`、ライブ入力、ポート競合、受信器の二重起動を確認します。
-診断Sinkの既定値は `ignored` なので、演出を採用する場合は `IGestureSink` を実装します。
+診断コンポーネントの既定値は見送りです。演出側は受信器の `Events` を購読します。
+`CurrentState` / `StateChanged` で扇ぎ・夕涼み、`Occurred` でラムネ・打ち水を取得でき、
+成立イベントを採用した購読者だけ `true` を返します。複数の演出を同時に接続できます。
 
 ## 2カメラ認識
 
