@@ -7,7 +7,8 @@ from typing import Any
 import websockets
 from dotenv import load_dotenv
 
-from .gesture_relay import GestureRelay
+from .gesture_delivery import DeliveryOutbox
+from .gesture_relay import DetectionProcess, GestureRelay
 
 DEFAULT_HOST = "0.0.0.0"
 DEFAULT_WEBSOCKET_PORT = 5000
@@ -31,20 +32,15 @@ class UnityBridge:
         websocket_port: int = DEFAULT_WEBSOCKET_PORT,
         serial_port: str | None = DEFAULT_SERIAL_PORT,
         baudrate: int = DEFAULT_BAUDRATE,
-        gesture_port: int | None = None,
-        gesture_format: str = "json",
+        gesture_relay: GestureRelay | None = None,
     ) -> None:
         self.host = host
         self.websocket_port = websocket_port
         self.serial_port = serial_port
         self.baudrate = baudrate
-        if gesture_port is not None and serial_port is not None:
+        if gesture_relay is not None and serial_port is not None:
             raise ValueError("Gesture relay and serial relay are separate modes")
-        self.gesture_relay = (
-            GestureRelay(gesture_port, gesture_format)
-            if gesture_port is not None
-            else None
-        )
+        self.gesture_relay = gesture_relay
         self._stop = threading.Event()
         self._serial: Any | None = None
 
@@ -57,7 +53,10 @@ class UnityBridge:
             from serial import Serial
 
             self._serial = Serial(self.serial_port, self.baudrate, timeout=0.1)
+        detection = DetectionProcess() if self.gesture_relay is not None else None
         try:
+            if detection is not None:
+                detection.start()
             async with websockets.serve(
                 self.gesture_relay.serve if self.gesture_relay else self._serve_client,
                 self.host,
@@ -67,15 +66,20 @@ class UnityBridge:
             ):
                 print(f"Waiting for Unity on ws://{self.host}:{self.websocket_port}")
                 if self.gesture_relay is not None:
-                    print(f"Gesture source: 127.0.0.1:{self.gesture_relay.port}")
+                    print("Gesture source: gesture_detection child process")
                 elif self.serial_port is None:
                     print("Serial disabled")
                 else:
                     print(
                         f"Serial connected: {self.serial_port} ({self.baudrate} baud)"
                     )
-                await asyncio.Future()
+                if self.gesture_relay is not None and detection is not None:
+                    await self.gesture_relay.pump(detection)
+                else:
+                    await asyncio.Future()
         finally:
+            if detection is not None:
+                detection.close()
             self.stop()
 
     def stop(self) -> None:
@@ -145,6 +149,21 @@ def _environment_defaults() -> dict[str, str | int]:
     }
 
 
+def gesture_relay_from_env() -> GestureRelay:
+    """Delivery timing; times are seconds on the host monotonic clock."""
+    state_interval = float(os.getenv("GESTURE_STATE_INTERVAL", "0.1"))
+    stale_timeout = float(os.getenv("GESTURE_STALE_TIMEOUT", "0.5"))
+    if not 0 < state_interval < stale_timeout:
+        raise ValueError("Gesture state interval must be shorter than stale timeout")
+    outbox = DeliveryOutbox(
+        event_ttl=float(os.getenv("GESTURE_EVENT_TTL", "1.0")),
+        stale_timeout=stale_timeout,
+        retry_interval=float(os.getenv("GESTURE_RETRY_INTERVAL", "0.1")),
+        max_pending=int(os.getenv("GESTURE_MAX_PENDING", "64")),
+    )
+    return GestureRelay(outbox, state_interval)
+
+
 def test_websocket_connection() -> bool:
     host = os.getenv("UNITY_WEBSOCKET_TEST_HOST", "127.0.0.1")
     port = int(os.getenv("UNITY_WEBSOCKET_PORT", str(DEFAULT_WEBSOCKET_PORT)))
@@ -179,22 +198,12 @@ def _parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--baudrate", type=int, default=defaults["baudrate"])
     parser.add_argument(
-        "--gesture-port",
-        type=int,
-        help="Relay local gesture TCP to Unity instead of serial (typically 5001).",
-    )
-    parser.add_argument(
-        "--gesture-format",
-        choices=("json", "protobuf"),
-        default=os.getenv("GESTURE_DELIVERY_FORMAT", "json"),
-        help="Gesture wire format (default: GESTURE_DELIVERY_FORMAT or json).",
+        "--gesture",
+        action="store_true",
+        help="Run gesture_detection and deliver gestures to Unity instead of serial.",
     )
     args = parser.parse_args()
-    if args.gesture_format not in {"json", "protobuf"}:
-        parser.error("--gesture-format must be json or protobuf")
-    if args.gesture_port is not None:
-        if not 1 <= args.gesture_port <= 65535:
-            parser.error("--gesture-port must be between 1 and 65535")
+    if args.gesture:
         # Gesture delivery is local-only; serial mode retains its existing default.
         if args.host == DEFAULT_HOST:
             args.host = "127.0.0.1"
@@ -205,16 +214,13 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = _parse_args()
-    serial_port = (
-        None if args.no_serial or args.gesture_port is not None else args.serial_port
-    )
+    serial_port = None if args.no_serial or args.gesture else args.serial_port
     bridge = UnityBridge(
         args.host,
         args.websocket_port,
         serial_port,
         args.baudrate,
-        args.gesture_port,
-        args.gesture_format,
+        gesture_relay_from_env() if args.gesture else None,
     )
     try:
         bridge.run()

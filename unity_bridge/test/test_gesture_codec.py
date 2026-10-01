@@ -1,11 +1,10 @@
 import json
 from pathlib import Path
-import pickle
 
 import pytest
 
-from suzukaze_gesture_protocol import decode_message, encode_message
-from suzukaze_gesture_protocol.generated.gesture.v1 import gesture_pb2 as pb
+from unity_bridge.gen.gesture.v1 import gesture_pb2 as pb
+from unity_bridge.gesture_codec import decode_message, encode_message
 
 FIXTURES = json.loads((Path(__file__).parent / "fixtures/messages.json").read_text())
 
@@ -17,22 +16,38 @@ def test_cross_language_fixture(fixture):
     assert decode_message(wire) == fixture["message"]
 
 
-@pytest.mark.parametrize("field,value", [
-    ("version", True), ("version", 2), ("session_id", ""),
-    ("sequence", 0), ("sequence", -1), ("sequence", 2**64),
-    ("sequence", True), ("frame_id", -1), ("frame_id", 1.5),
-    ("sent_at", float("nan")), ("sent_at", float("inf")),
-    ("sent_at", 10**1000), ("stale_timeout", 0),
-    ("source_timestamp", float("-inf")), ("observed_at", True),
-    ("fresh", 1), ("tracking", None), ("gesture", "UNSPECIFIED"),
-    ("gesture", "RAMUNE"), ("extra", 1), ("type", []),
-])
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("version", True),
+        ("version", 2),
+        ("session_id", ""),
+        ("sequence", 0),
+        ("sequence", -1),
+        ("sequence", 2**64),
+        ("sequence", True),
+        ("frame_id", -1),
+        ("frame_id", 1.5),
+        ("sent_at", float("nan")),
+        ("sent_at", float("inf")),
+        ("sent_at", 10**1000),
+        ("stale_timeout", 0),
+        ("source_timestamp", float("-inf")),
+        ("observed_at", True),
+        ("fresh", 1),
+        ("tracking", None),
+        ("gesture", "UNSPECIFIED"),
+        ("gesture", "RAMUNE"),
+        ("extra", 1),
+        ("type", []),
+    ],
+)
 def test_invalid_state(field, value):
     with pytest.raises(ValueError):
         encode_message({**FIXTURES[0]["message"], field: value})
 
 
-def test_optional_presence_and_canonical_module():
+def test_optional_presence():
     message = dict(FIXTURES[0]["message"])
     for field in ("observed_at", "frame_id", "source_timestamp"):
         del message[field]
@@ -41,7 +56,6 @@ def test_optional_presence_and_canonical_module():
     assert envelope.state.HasField("frame_id")
     assert envelope.state.HasField("observed_at")
     assert envelope.state.HasField("source_timestamp")
-    assert pickle.loads(pickle.dumps(envelope)) == envelope
 
 
 @pytest.mark.parametrize("wire", [b"", b"\xff", b"x" * 8193, b"\x08\x01"])
@@ -50,13 +64,20 @@ def test_bad_wire(wire):
         decode_message(wire)
 
 
-@pytest.mark.parametrize("kind,field,value", [
-    ("state", "gesture", 0), ("state", "gesture", 99),
-    ("state", "sent_at", float("nan")), ("state", "sequence", 0),
-    ("event", "gesture", 0), ("event", "expires_at", 1.0),
-    ("ack", "status", 0), ("ack", "status", 99),
-    ("ack", "event_id", 0),
-])
+@pytest.mark.parametrize(
+    "kind,field,value",
+    [
+        ("state", "gesture", 0),
+        ("state", "gesture", 99),
+        ("state", "sent_at", float("nan")),
+        ("state", "sequence", 0),
+        ("event", "gesture", 0),
+        ("event", "expires_at", 1.0),
+        ("ack", "status", 0),
+        ("ack", "status", 99),
+        ("ack", "event_id", 0),
+    ],
+)
 def test_decode_semantics(kind, field, value):
     message = next(f["message"] for f in FIXTURES if f["message"]["type"] == kind)
     envelope = pb.GestureEnvelope.FromString(encode_message(message))

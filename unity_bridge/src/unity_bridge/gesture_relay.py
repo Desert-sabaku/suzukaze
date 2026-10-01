@@ -1,29 +1,80 @@
-"""Transparent local gesture TCP -> Unity WebSocket adapter.
+"""Run gesture_detection in a child process and deliver its samples to Unity.
 
-The bridge owns no experience state and never acknowledges events itself.
-If either leg fails, close the other; Unity reconnects to restore the session.
+The bridge owns delivery state (DeliveryOutbox): current state, expiring
+events, retries and Unity's ACKs. Recognition only sends GestureSample values
+over a multiprocessing queue and never sees the WebSocket.
 """
 
 import asyncio
-import json
+import multiprocessing as mp
+import queue
+import time
+from collections.abc import Callable
 from typing import Any
 
-from suzukaze_gesture_protocol import (
-    MAX_MESSAGE_BYTES,
-    FrameDecoder,
-    decode_message,
-    frame_message,
-)
+from gesture_detection.app import main as run_detection
+from gesture_detection.recognition_types import GestureSample
 from websockets.exceptions import ConnectionClosed
+
+from .gesture_codec import decode_message, encode_message
+from .gesture_delivery import DeliveryOutbox
+
+TICK_SECONDS = 0.01
+
+
+class DetectionProcess:
+    """gesture_detection running in a child process."""
+
+    def __init__(self, target: Callable[..., None] = run_detection) -> None:
+        self.samples: mp.Queue = mp.Queue()
+        self.stop = mp.Event()
+        self.process = mp.Process(
+            target=target,
+            kwargs={"samples": self.samples, "stop": self.stop},
+            name="gesture-detection",
+        )
+
+    def start(self) -> None:
+        self.process.start()
+
+    def get(self, timeout: float) -> GestureSample:
+        """Raise queue.Empty on timeout and RuntimeError once recognition exits."""
+        try:
+            sample = self.samples.get(timeout=timeout)
+        except queue.Empty:
+            if not self.process.is_alive():
+                raise RuntimeError("gesture_detection exited") from None
+            raise
+        if not isinstance(sample, GestureSample):
+            raise TypeError(f"Expected GestureSample, got {type(sample).__name__}")
+        return sample
+
+    def close(self) -> None:
+        # Let recognition clean up its own workers; terminate() would orphan them.
+        self.stop.set()
+        if self.process.pid is not None:
+            self.process.join(timeout=5)
+            if self.process.is_alive():
+                self.process.terminate()
+                self.process.join()
+        self.samples.close()
+        self.samples.cancel_join_thread()
 
 
 class GestureRelay:
-    def __init__(self, port: int = 5001, message_format: str = "json") -> None:
-        if message_format not in {"json", "protobuf"}:
-            raise ValueError("Expected json or protobuf gesture format")
-        self.message_format = message_format
-        self.port = port
+    def __init__(self, outbox: DeliveryOutbox, state_interval: float = 0.1) -> None:
+        self.outbox = outbox
+        self.state_interval = state_interval
         self._connected = False
+
+    async def pump(self, source: DetectionProcess) -> None:
+        """Feed samples into the outbox whether or not Unity is connected."""
+        while True:
+            try:
+                sample = await asyncio.to_thread(source.get, 0.5)
+            except queue.Empty:
+                continue
+            self.outbox.publish(sample, now=time.monotonic())
 
     async def serve(self, websocket: Any) -> None:
         if self._connected:
@@ -32,80 +83,43 @@ class GestureRelay:
             )
             return
         self._connected = True
-        writer: asyncio.StreamWriter | None = None
-        tasks: list[asyncio.Task] = []
+        tasks = [
+            asyncio.create_task(self._to_unity(websocket)),
+            asyncio.create_task(self._from_unity(websocket)),
+        ]
         try:
-            reader, writer = await asyncio.wait_for(
-                asyncio.open_connection(
-                    "127.0.0.1", self.port, limit=MAX_MESSAGE_BYTES
-                ),
-                timeout=0.5,
-            )
-            tasks = [
-                asyncio.create_task(self._to_unity(reader, websocket)),
-                asyncio.create_task(self._to_detection(websocket, writer)),
-            ]
             done, _ = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
             for task in done:
                 task.result()
-        except OSError, ValueError, TypeError, TimeoutError, ConnectionClosed:
+        except ValueError, TypeError, TimeoutError, ConnectionClosed:
             pass
         finally:
             for task in tasks:
                 task.cancel()
             await asyncio.gather(*tasks, return_exceptions=True)
-            try:
-                if writer is not None:
-                    writer.close()
-                    try:
-                        await asyncio.wait_for(writer.wait_closed(), 0.5)
-                    except OSError, TimeoutError:
-                        writer.transport.abort()
-                await websocket.close(
-                    code=1011, reason="Gesture connection closed; reconnect"
-                )
-            finally:
-                self._connected = False
+            await websocket.close(code=1011, reason="Gesture connection closed")
+            self._connected = False
 
-    async def _to_unity(self, reader: asyncio.StreamReader, websocket: Any) -> None:
-        if self.message_format == "protobuf":
-            decoder = FrameDecoder()
-            while chunk := await reader.read(4096):
-                for payload in decoder.feed(chunk):
-                    if decode_message(payload)["type"] not in {"state", "event"}:
-                        raise ValueError("Expected state or event payload")
-                    # Validate without re-encoding: retain unknown protobuf fields.
-                    await asyncio.wait_for(websocket.send(payload), 0.5)
-            decoder.eof()
-            return
+    async def _to_unity(self, websocket: Any) -> None:
+        next_state = 0.0
+        reconnect = True
         while True:
-            line = await reader.readline()
-            if not line:
-                return
-            if len(line) > MAX_MESSAGE_BYTES or not line.endswith(b"\n"):
-                raise ValueError("Invalid gesture message")
-            # Preserve timestamps and IDs, and use text WebSocket frames.
-            await asyncio.wait_for(
-                websocket.send(line.decode("utf-8").rstrip("\n")), 0.5
-            )
+            now = time.monotonic()
+            messages = []
+            if now >= next_state:
+                messages.append(self.outbox.state(now))
+                next_state = now + self.state_interval
+            messages.extend(self.outbox.events(now, reconnect=reconnect))
+            reconnect = False
+            for message in messages:
+                await asyncio.wait_for(websocket.send(encode_message(message)), 0.5)
+            await asyncio.sleep(TICK_SECONDS)
 
-    async def _to_detection(self, websocket: Any, writer: asyncio.StreamWriter) -> None:
-        async for message in websocket:
-            if self.message_format == "protobuf":
-                if not isinstance(message, bytes):
-                    raise ValueError("Expected a binary ACK")
-                if decode_message(message)["type"] != "ack":
-                    raise ValueError("Only ACKs are accepted in gesture mode")
-                writer.write(frame_message(message))
-                await asyncio.wait_for(writer.drain(), 0.5)
-                continue
-            if (
-                not isinstance(message, str)
-                or len(message.encode("utf-8")) > MAX_MESSAGE_BYTES
-            ):
-                raise ValueError("Expected a bounded text ACK")
-            ack = json.loads(message)
-            if not isinstance(ack, dict) or ack.get("type") != "ack":
+    async def _from_unity(self, websocket: Any) -> None:
+        async for data in websocket:
+            if not isinstance(data, bytes):
+                raise TypeError("Expected a binary ACK")
+            ack = decode_message(data)
+            if ack["type"] != "ack":
                 raise ValueError("Only ACKs are accepted in gesture mode")
-            writer.write((json.dumps(ack, allow_nan=False) + "\n").encode("utf-8"))
-            await asyncio.wait_for(writer.drain(), 0.5)
+            self.outbox.acknowledge(ack)

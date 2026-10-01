@@ -5,15 +5,14 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-    "suzukaze-gesture-protocol",
     "dotenv>=0.9.9",
+    "protobuf>=7.36.2",
     "pyserial>=3.5",
     "websockets>=17.1",
     "gesture_detection",
 ]
 
 [tool.uv.sources]
-suzukaze-gesture-protocol = { path = "../gesture_protocol", editable = true }
 gesture_detection = { path = "../gesture_detection", editable = true }
 
 [project.scripts]
@@ -39,7 +38,11 @@ dev = [
 testpaths = ["test"]
 pythonpath = ["../gesture_detection/src"]
 
+[tool.ruff]
+extend-exclude = ["src/unity_bridge/gen"]
+
 [tool.pyright]
 extraPaths = ["src", "../gesture_detection/src"]
+exclude = ["src/unity_bridge/gen"]
 venvPath = "."
 venv = ".venv"

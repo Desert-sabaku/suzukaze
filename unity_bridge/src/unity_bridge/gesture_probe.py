@@ -4,13 +4,13 @@ import argparse
 import asyncio
 import json
 import math
-import os
 import time
 from collections.abc import Callable
 from typing import Any
 
 import websockets
-from suzukaze_gesture_protocol import MAX_MESSAGE_BYTES, decode_message, encode_message
+
+from .gesture_codec import MAX_MESSAGE_BYTES, decode_message, encode_message
 
 
 def finite_number(value: object) -> float:
@@ -121,29 +121,13 @@ class GestureReceiver:
         }
 
 
-def decode_payload(raw: str | bytes, message_format: str) -> dict[str, Any]:
-    if message_format == "protobuf":
-        if not isinstance(raw, bytes):
-            raise ValueError("Expected binary gesture payload")
-        return decode_message(raw)
-    if message_format != "json" or not isinstance(raw, str):
-        raise ValueError("Expected text JSON gesture payload")
-    return json.loads(raw)
+def decode_payload(raw: str | bytes) -> dict[str, Any]:
+    if not isinstance(raw, bytes):
+        raise TypeError("Expected binary gesture payload")
+    return decode_message(raw)
 
 
-def encode_ack(ack: dict[str, Any], message_format: str) -> str | bytes:
-    if message_format == "protobuf":
-        return encode_message(ack)
-    if message_format != "json":
-        raise ValueError("Expected json or protobuf gesture format")
-    return json.dumps(ack, allow_nan=False)
-
-
-async def run(
-    url: str, ignore_events: bool = False, message_format: str = "json"
-) -> None:
-    if message_format not in {"json", "protobuf"}:
-        raise ValueError("Expected json or protobuf gesture format")
+async def run(url: str, ignore_events: bool = False) -> None:
     receiver = GestureReceiver()
     while True:
         try:
@@ -157,7 +141,7 @@ async def run(
                     except TimeoutError:
                         receiver.poll(time.monotonic())
                         continue
-                    message = decode_payload(raw, message_format)
+                    message = decode_payload(raw)
                     ack = receiver.receive(
                         message, time.monotonic(), lambda _: not ignore_events
                     )
@@ -173,7 +157,7 @@ async def run(
                         flush=True,
                     )
                     if ack is not None:
-                        await socket.send(encode_ack(ack, message_format))
+                        await socket.send(encode_message(ack))
         except (
             OSError,
             ValueError,
@@ -192,17 +176,9 @@ def main() -> None:
     parser.add_argument(
         "--ignore-events", action="store_true", help="Simulate a busy scene"
     )
-    parser.add_argument(
-        "--format",
-        choices=("json", "protobuf"),
-        default=os.getenv("GESTURE_DELIVERY_FORMAT", "json"),
-        help="Gesture wire format (default: GESTURE_DELIVERY_FORMAT or json).",
-    )
     args = parser.parse_args()
-    if args.format not in {"json", "protobuf"}:
-        parser.error("--format must be json or protobuf")
     try:
-        asyncio.run(run(args.url, args.ignore_events, args.format))
+        asyncio.run(run(args.url, args.ignore_events))
     except KeyboardInterrupt:
         pass
 

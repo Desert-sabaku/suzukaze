@@ -18,6 +18,13 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.14"
+      - uses: bufbuild/buf-action@v1
+        with:
+          version: 1.73.0
+          setup_only: true
+      - name: Generate protobuf bindings
+        working-directory: proto
+        run: buf generate --template buf.gen.gesture.yaml
       - name: Install dependencies
         run: uv sync --group dev
       - name: Format and lint
@@ -26,7 +33,7 @@ jobs:
           uv run ruff check src test
       - name: Type-check
         run: uv run pyright
-      - name: Test TCP and WebSocket delivery
+      - name: Test gesture delivery
         run: uv run python -m pytest
 
   ruff:

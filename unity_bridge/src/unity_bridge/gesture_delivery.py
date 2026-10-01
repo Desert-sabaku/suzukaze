@@ -5,7 +5,7 @@ import threading
 import uuid
 from typing import Any
 
-from .recognition_types import PoseResult
+from gesture_detection.recognition_types import GestureSample
 
 PROTOCOL_VERSION = 1
 ACK_STATUSES = {"accepted", "ignored", "expired", "duplicate"}
@@ -15,7 +15,7 @@ type Message = dict[str, Any]
 class DeliveryOutbox:
     """Own delivery state only. All times are host monotonic seconds.
 
-    Recognition publishes before lossy display IPC. No socket operation is
+    Samples arrive from the recognition process. No socket operation is
     performed under this lock. Pending storage is bounded and never silently
     drops an unexpired event: exhaustion is an explicit application failure.
     """
@@ -29,7 +29,10 @@ class DeliveryOutbox:
         max_pending: int = 64,
     ) -> None:
         if (
-            any(not math.isfinite(v) or v <= 0 for v in (event_ttl, stale_timeout, retry_interval))
+            any(
+                not math.isfinite(v) or v <= 0
+                for v in (event_ttl, stale_timeout, retry_interval)
+            )
             or max_pending <= 0
         ):
             raise ValueError("Delivery limits must be positive and finite")
@@ -51,26 +54,24 @@ class DeliveryOutbox:
                 del self._pending[event_id]
                 self._last_sent.pop(event_id, None)
 
-    def publish(self, result: PoseResult, *, observed_at: float, now: float) -> None:
-        """observed_at is capture time, not inference completion or video time."""
-        if not math.isfinite(observed_at) or not math.isfinite(now) or observed_at > now:
+    def publish(self, sample: GestureSample, *, now: float) -> None:
+        observed_at = sample.observed_at
+        if (
+            not math.isfinite(observed_at)
+            or not math.isfinite(now)
+            or observed_at > now
+        ):
             raise ValueError("Invalid monotonic observation time")
-        current = result.get("current", {"gesture": "NONE", "tracking": False})
         with self._lock:
             self._expire(now)
             self._latest = {
-                "gesture": current["gesture"]
-                if current["gesture"] in {"FANNING", "RELAXING"}
-                else "NONE",
-                "tracking": current["tracking"],
+                "gesture": sample.gesture,
+                "tracking": sample.tracking,
                 "observed_at": observed_at,
-                "frame_id": result.get("frame_id"),
-                "source_timestamp": result.get("timestamp"),
+                "frame_id": sample.frame_id,
+                "source_timestamp": sample.source_timestamp,
             }
-            for kind in result.get("occurrences", ()):
-                if kind not in {"RAMUNE", "UCHIMIZU"}:
-                    raise ValueError("Unknown occurrence")
-                occurred_at = result.get("occurrence_timestamps", {}).get(kind, observed_at)
+            for kind, occurred_at in sample.occurrences:
                 if not math.isfinite(occurred_at) or occurred_at > now:
                     raise ValueError("Invalid occurrence source time")
                 if now >= occurred_at + self.event_ttl:
@@ -86,15 +87,17 @@ class DeliveryOutbox:
                     "gesture": kind,
                     "occurred_at": occurred_at,
                     "expires_at": occurred_at + self.event_ttl,
-                    "frame_id": result.get("frame_id"),
-                    "source_timestamp": result.get("timestamp"),
+                    "frame_id": sample.frame_id,
+                    "source_timestamp": sample.source_timestamp,
                 }
 
     def state(self, now: float) -> Message:
         with self._lock:
             self._state_sequence += 1
             latest = self._latest
-            fresh = latest is not None and now < latest["observed_at"] + self.stale_timeout
+            fresh = (
+                latest is not None and now < latest["observed_at"] + self.stale_timeout
+            )
             return {
                 "version": PROTOCOL_VERSION,
                 "type": "state",
@@ -117,7 +120,8 @@ class DeliveryOutbox:
             for event_id, event in self._pending.items():
                 if (
                     reconnect
-                    or now - self._last_sent.get(event_id, -math.inf) >= self.retry_interval
+                    or now - self._last_sent.get(event_id, -math.inf)
+                    >= self.retry_interval
                 ):
                     events.append(dict(event))
                     self._last_sent[event_id] = now

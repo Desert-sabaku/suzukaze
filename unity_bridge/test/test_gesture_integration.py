@@ -3,46 +3,44 @@ import time
 
 import pytest
 import websockets
-from gesture_detection.gesture_delivery import DeliveryOutbox
-from gesture_detection.gesture_server import GestureServer
+from gesture_detection.recognition_types import GestureSample
 from websockets.asyncio.server import serve
 
-from unity_bridge.gesture_probe import GestureReceiver, decode_payload, encode_ack
-from unity_bridge.gesture_relay import GestureRelay
+from unity_bridge.gesture_codec import encode_message
+from unity_bridge.gesture_delivery import DeliveryOutbox
+from unity_bridge.gesture_probe import GestureReceiver, decode_payload
+from unity_bridge.gesture_relay import DetectionProcess, GestureRelay
 
 
-@pytest.mark.parametrize("message_format", ["json", "protobuf"])
-def test_recognition_outbox_through_bridge_to_receiver_and_back(message_format):
+def fake_detection(samples, stop) -> None:
+    """Stand-in for gesture_detection.app.main, run in a real child process."""
+    now = time.monotonic()
+    samples.put(GestureSample("FANNING", True, now, (("RAMUNE", now),), 1, now))
+    while not stop.wait(0.02):
+        samples.put(GestureSample("FANNING", True, time.monotonic(), ()))
+
+
+def wrong_type(samples, stop) -> None:
+    samples.put({"gesture": "FANNING"})
+    stop.wait(5)
+
+
+def test_child_process_through_bridge_to_receiver_and_back():
     async def scenario():
         outbox = DeliveryOutbox()
-        now = time.monotonic()
-        outbox.publish(
-            {
-                "landmarks": [],
-                "selected_action": "RAMUNE",
-                "relaxing_state": False,
-                "current": {"gesture": "RAMUNE", "tracking": True},
-                "occurrences": ("RAMUNE",),
-                "timestamp": now,
-                "frame_id": 1,
-            },
-            observed_at=now,
-            now=now,
-        )
-        server = GestureServer(
-            outbox, port=0, state_interval=0.02, message_format=message_format
-        )
-        server.start()
+        relay = GestureRelay(outbox, state_interval=0.02)
+        detection = DetectionProcess(fake_detection)
+        detection.start()
         adopted = []
         receiver = GestureReceiver()
+        pump = asyncio.create_task(relay.pump(detection))
         try:
-            relay = GestureRelay(server.port, message_format)
             async with serve(relay.serve, "127.0.0.1", 0, close_timeout=0.1) as ws:
                 port = ws.sockets[0].getsockname()[1]
                 async with websockets.connect(f"ws://127.0.0.1:{port}") as client:
                     while True:
                         message = decode_payload(
-                            await asyncio.wait_for(client.recv(), 1), message_format
+                            await asyncio.wait_for(client.recv(), 5)
                         )
                         ack = receiver.receive(
                             message,
@@ -51,20 +49,35 @@ def test_recognition_outbox_through_bridge_to_receiver_and_back(message_format):
                         )
                         if ack is not None:
                             assert ack["status"] == "accepted"
-                            await client.send(encode_ack(ack, message_format))
+                            await client.send(encode_message(ack))
                             break
                     for _ in range(30):
                         message = decode_payload(
-                            await asyncio.wait_for(client.recv(), 1), message_format
+                            await asyncio.wait_for(client.recv(), 1)
                         )
                         receiver.receive(message, time.monotonic(), lambda _: True)
-                        if message["type"] == "state" and not message["fresh"]:
+                        if (
+                            message["type"] == "state"
+                            and message["gesture"] == "FANNING"
+                        ):
                             break
                     assert outbox.events(time.monotonic(), reconnect=True) == []
                     assert adopted == ["RAMUNE"]
-                    assert not receiver.fresh
-                    assert receiver.gesture == "NONE"
+                    assert receiver.gesture == "FANNING"
         finally:
-            server.close()
+            pump.cancel()
+            await asyncio.gather(pump, return_exceptions=True)
+            detection.close()
+        assert detection.process.exitcode == 0
 
     asyncio.run(scenario())
+
+
+def test_non_sample_from_child_is_rejected():
+    detection = DetectionProcess(wrong_type)
+    detection.start()
+    try:
+        with pytest.raises(TypeError, match="GestureSample"):
+            detection.get(timeout=5)
+    finally:
+        detection.close()

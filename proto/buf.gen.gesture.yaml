@@ -6,3 +6,9 @@ inputs:
 plugins:
   - remote: buf.build/protocolbuffers/csharp:v36.2
     out: ../suzukaze/Assets/GestureDelivery/Generated
+
+  - remote: buf.build/protocolbuffers/python:v36.2
+    out: ../unity_bridge/src/unity_bridge/gen
+
+  - remote: buf.build/protocolbuffers/pyi:v36.2
+    out: ../unity_bridge/src/unity_bridge/gen
