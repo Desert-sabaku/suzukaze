@@ -46,7 +46,6 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier:
   endpoint: ws://127.0.0.1:5000
-  sink: {fileID: 1003}
 --- !u!114 &1003
 MonoBehaviour:
   m_ObjectHideFlags: 0

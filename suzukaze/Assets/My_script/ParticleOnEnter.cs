@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using GestureEvent = Suzukaze.Gesture.Protocol.Event;
 
-public class ParticleOnEnter : MonoBehaviour, IGestureSink
+public class ParticleOnEnter : MonoBehaviour
 {
     public ParticleSystem particlePrefab; // Prefab化したものをアサイン
     public Transform player;              // プレイヤーのTransform(位置基準にする)
@@ -21,16 +21,14 @@ public class ParticleOnEnter : MonoBehaviour, IGestureSink
     {
         if (!receiveGestures) return;
         receiver = GestureReceiverBehaviour.GetOrCreate();
-        receiver.SetSink(this);
+        receiver.Events.Occurred += TryAcceptEvent;
     }
 
     void OnDisable()
     {
-        if (receiver != null) receiver.ClearSink(this);
+        if (receiver != null) receiver.Events.Occurred -= TryAcceptEvent;
         receiver = null;
     }
-
-    public void DeliverState(StateView state) { }
 
     public bool TryAcceptEvent(string sessionId, GestureEvent occurrence)
     {

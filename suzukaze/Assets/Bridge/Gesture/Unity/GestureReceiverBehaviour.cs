@@ -12,8 +12,6 @@ namespace Suzukaze.Gesture.Receiver
         private static Task retiring = Task.CompletedTask;
         private static DeliveryPolicy history = new DeliveryPolicy();
         [SerializeField] private string endpoint = "ws://127.0.0.1:5000";
-        [Tooltip("Must implement IGestureSink. Missing/destroyed sink ignores events.")]
-        [SerializeField] private MonoBehaviour sink;
         private ReceiverHandoff handoff;
         private IMonotonicClock clock;
         private WebSocketReceiver receiver;
@@ -21,6 +19,7 @@ namespace Suzukaze.Gesture.Receiver
         private Task worker;
         public bool IsOwner => owner == this;
         public string LastError => receiver?.LastError;
+        public GestureEvents Events { get; } = new GestureEvents();
 
         // Scene-local effects bind to one persistent transport owner. Reuse a
         // configured scene receiver even if its Awake has not run yet.
@@ -40,19 +39,6 @@ namespace Suzukaze.Gesture.Receiver
             if (owner != null) owner.RetireWorker();
             owner = null;
             history = new DeliveryPolicy();
-        }
-
-        public void SetSink(MonoBehaviour value)
-        {
-            if (value != null && !(value is IGestureSink))
-                throw new ArgumentException("Sink must implement IGestureSink", nameof(value));
-            sink = value;
-        }
-
-        public void ClearSink(MonoBehaviour value)
-        {
-            // An old scene's OnDisable may follow the new scene's OnEnable.
-            if (sink == value) sink = null;
         }
 
         private void Awake()
@@ -116,7 +102,7 @@ namespace Suzukaze.Gesture.Receiver
             }
             if (worker == null) StartWorker();
             if (clock == null) return;
-            try { handoff.Tick(clock, sink != null ? sink as IGestureSink : null); }
+            try { handoff.Tick(clock, Events); }
             catch (Exception error) { Debug.LogException(error, this); }
         }
 
@@ -128,7 +114,7 @@ namespace Suzukaze.Gesture.Receiver
             handoff.Suspend();
             if (clock != null)
             {
-                try { handoff.Tick(clock, sink != null ? sink as IGestureSink : null); }
+                try { handoff.Tick(clock, Events); }
                 catch (Exception error) { Debug.LogException(error, this); }
             }
         }

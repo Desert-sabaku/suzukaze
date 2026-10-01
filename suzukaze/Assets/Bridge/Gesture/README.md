@@ -6,10 +6,85 @@ The bridge (`uv run unity-bridge --gesture` in `unity_bridge/`) serves protocol
 v1 **binary protobuf**, one `GestureEnvelope` per WebSocket message.
 Generated schema/namespace: `Suzukaze.Gesture.Protocol` (`proto/gesture/v1/gesture.proto`).
 
+## 演出から使う共通 API
+
+```text
+WebSocket → 配送ポリシー（失効・重複・ACK）→ GestureEvents → 各演出の購読
+```
+
+`GestureReceiverBehaviour.GetOrCreate().Events` から全所作を取得します。
+受信器は1つ、演出の購読は複数です。所作別の受信器や単一の Sink の設定は不要です。
+`IGestureSink` は配送ポリシーと `GestureEvents` の内部接続用です。
+
+| API | 内容 |
+|---|---|
+| `CurrentState` | 現在の状態。`Gesture` は `None / Fanning / Relaxing`、`Fresh` と `Tracking` も公開 |
+| `StateChanged` | 所作・鮮度・追跡・セッションが変わったときの通知。失効・切断でも解除状態を通知 |
+| `Occurred` | `Ramune / Uchimizu` の成立通知。コールバックは採用したときだけ `true` を返す |
+
+すべて Unity メインスレッドで呼ばれます。`CurrentState` は各 Update で更新し、
+連番・受信時刻だけの更新では `StateChanged` を再発行しません。購読開始時は
+`CurrentState` も読み、既に継続している扇ぎ・夕涼みを反映してください。
+現プロトコルの継続状態は代表動作1つで、扇ぎと夕涼みを同時に表しません。
+
+```csharp
+using Suzukaze.Gesture.Protocol;
+using Suzukaze.Gesture.Receiver;
+using UnityEngine;
+using GestureEvent = Suzukaze.Gesture.Protocol.Event;
+
+public sealed class GestureExample : MonoBehaviour
+{
+    private GestureEvents gestures;
+    public bool FanningActive { get; private set; }
+    public bool RelaxingActive { get; private set; }
+
+    void OnEnable()
+    {
+        gestures = GestureReceiverBehaviour.GetOrCreate().Events;
+        gestures.StateChanged += OnStateChanged;
+        gestures.Occurred += OnOccurred;
+        OnStateChanged(gestures.CurrentState);
+    }
+
+    void OnDisable()
+    {
+        if (gestures != null)
+        {
+            gestures.StateChanged -= OnStateChanged;
+            gestures.Occurred -= OnOccurred;
+            gestures = null;
+        }
+        OnStateChanged(new StateView());
+    }
+
+    void OnStateChanged(StateView state)
+    {
+        FanningActive = state.Fresh && state.Tracking && state.Gesture == ContinuousGesture.Fanning;
+        RelaxingActive = state.Fresh && state.Tracking && state.Gesture == ContinuousGesture.Relaxing;
+        // この状態を風・音・映像などに反映する。
+    }
+
+    bool OnOccurred(string sessionId, GestureEvent occurrence)
+    {
+        if (occurrence.Gesture == OccurrenceGesture.Ramune)
+            Debug.Log($"ラムネ成立: {sessionId}/{occurrence.EventId}");
+        // ログだけでは採用しない。実際に演出を開始できたら true を返す。
+        return false;
+    }
+}
+```
+
+`Occurred` は全購読者を呼び、戻り値の OR を ACK の採用結果にします。打ち水を採用する演出と、
+ラムネを採用する演出と、記録だけの購読者を併用できます。未購読・全員見送りなら `ignored`。
+再送の重複・期限切れは購読者に渡しません。後から購読しても過去の成立イベントは再生しません。
+複数の演出が同じイベントを採用した場合、それぞれ実行されます。排他的な演出判断は演出側で行います。
+購読者は `OnDisable` で解除し、自分の継続演出も停止してください。
+
 ## 打ち水演出への接続
 
-既存の `Assets/My_script/ParticleOnEnter.cs` が `IGestureSink` を実装しています。
-シーン内で有効になると、既存の `GestureReceiverBehaviour` に自動登録します。
+既存の `Assets/My_script/ParticleOnEnter.cs` が `Occurred` を購読します。
+シーン内で有効になると登録し、無効化時に自分の購読だけを解除します。
 受信器がない場合は専用ルート GameObject を作成し、シーンをまたいで再利用します。
 診断用 Prefab を追加する必要はありません。接続先は既定で `ws://127.0.0.1:5000`。
 変更する場合は、あらかじめ設定した受信器をシーンに配置してください。
@@ -17,12 +92,13 @@ Generated schema/namespace: `Suzukaze.Gesture.Protocol` (`proto/gesture/v1/gestu
 - `UCHIMIZU` の成立イベントで、Enter と同じ `TryPlay()` を呼びます。
 - シーンに設定済みの `particlePrefab` を `neck.position + Vector3.up * heightOffset`
   に、`neck.rotation` で生成します。生成できた場合だけ `accepted` になります。
-- ラムネ、無効な演出、Prefab/首位置の未設定は `ignored`。継続状態では水を出しません。
+- ラムネ、無効な演出、Prefab/首位置の未設定はこの購読者が `false` を返します。
+  他の購読者も採用しなければ `ignored`。継続状態では水を出しません。
 - 期限切れと重複は既存の受信ポリシーが演出前に除外します。
 - Enter / テンキー Enter は手動確認用として利用できます。
 - `receiveGestures` を無効にしてからコンポーネントを有効化すると、キー入力のみになります。
-- 新シーンの有効な `ParticleOnEnter` が受信先になります。旧シーンの終了で新しい受信先を
-  解除しません。複数を同時に有効化した場合は最後に登録したものが受信します。
+- 複数の有効な `ParticleOnEnter` はそれぞれ受信します。旧シーンを無効化しても
+  新シーンの購読や、別の所作を担当する演出の購読は解除しません。
 
 既存の `Forest`、`river`、`sea`、`Sea2`、`☆1湖`、`滝` は変更なしで接続されます。
 他のシーンでは `ParticleOnEnter` と `particlePrefab` / `neck` の設定が必要です。
@@ -52,12 +128,11 @@ occurrence decisions. Opt in to acceptance in its Inspector when testing.
 Continuous state is available through `GestureDiagnosticSink.LatestState`.
 The receiver exposes `LastError` for connection diagnostics.
 
-For application integration, use a dedicated root GameObject with
-`GestureReceiverBehaviour` and assign a `MonoBehaviour` implementing
-`IGestureSink` to its sink field (or call `SetSink`). The owner is persistent;
-scene code should replace the sink when a scene changes. Missing or destroyed
-sinks yield `ignored`. The existing `ParticleOnEnter` scenes automatically bind
-the Uchimizu effect as described above; other effects require their own sink.
+For application integration, subscribe to the receiver's `Events` as above.
+`SetSink` / `ClearSink` and the Inspector sink field have been removed.
+The diagnostic component is also an ordinary subscriber, so observing events
+does not replace a scene's effects. Its opt-in `acceptEvents` is for diagnostics
+only; keep it false alongside real effects.
 Only one receiver may own the connection, even during disable/re-enable or
 replacement: cancellation completes before its successor starts connecting.
 Disabling clears pending work and delivers neutral state; destruction cancels
@@ -68,26 +143,12 @@ ACK was lost. Pending queues and continuous state are cleared on replacement.
 Subsystem registration resets history for each new play session, including
 when domain reload is disabled, while retaining the old worker's cleanup barrier.
 
-```csharp
-public void DeliverState(StateView state)
-{
-    // Called on the main thread each Update, including neutral/stale state.
-    // Consume state.Gesture, state.Tracking, state.Fresh as appropriate.
-}
-
-public bool TryAcceptEvent(string sessionId, Suzukaze.Gesture.Protocol.Event occurrence)
-{
-    // Return true only after the scene has adopted this occurrence.
-    // Return false if the current scene cannot use it.
-    return false;
-}
-```
-
-Sink methods must be short, synchronous, and must not wait for networking or
+Subscribers must be short, synchronous, and must not wait for networking or
 re-enter the receiver. The receiver clones mutable protobuf objects at the
-handoff/sink boundaries. Sink exceptions disconnect without an ACK. An event
-whose sink threw is retained in dedup because the sink may have performed its
-effect before throwing; retry returns `duplicate` rather than repeating it.
+handoff and per-subscriber boundaries. Subscriber exceptions interrupt dispatch
+and disconnect without an ACK. An event whose callback threw is retained in
+dedup because an effect may have run before the exception; retry returns
+`duplicate` rather than repeating it. Already executed effects are not rolled back.
 
 ## Delivery and bounds
 
@@ -104,8 +165,8 @@ effect before throwing; retry returns `duplicate` rather than repeating it.
   observation, send, and receive times. Future observation/send times are not
   fresh. Tracking/gesture are neutral when freshness is lost, and disconnect
   delivers `NONE`, `tracking=false`, `fresh=false` on the next main-thread tick.
-* Event expiry is tested at **adoption time**, not receive time. Only a true
-  sink decision ACKs `accepted`; false/missing sink ACKs `ignored`. Expired
+* Event expiry is tested at **adoption time**, not receive time. Any true
+  subscriber decision ACKs `accepted`; all false/no subscribers ACKs `ignored`. Expired
   events are never delivered. Future occurrences disconnect (incompatible clock).
 * Accepted and ignored event IDs survive reconnects within a producer session;
   retries before expiry ACK `duplicate`. Dedup retains up to **1024 live IDs**.
@@ -143,9 +204,8 @@ so switching focus to the detector or bridge console does not pause delivery.
 Editor pause, breakpoints, or OS suspension can still stop Update; bounded
 queues can disconnect and queued events may expire.
 
-See the [Windows operation guide](../../../../gesture_detection/docs/windows-protobuf.md)
-for setup and the remaining Unity/player checks, and the
-[Fedora guide](../../../../gesture_detection/docs/fedora-protobuf.md) for Linux and batchmode tests.
+See the [integration guide](../../../../gesture_detection/docs/integration.md)
+for setup and the remaining Unity/player checks on Windows and Linux.
 
 ## Verification
 
@@ -158,7 +218,8 @@ exercise session restart, focus loss, scene changes, sink acceptance, and
 Windows standalone Mono/IL2CPP builds with a real protobuf bridge
 (`unity_bridge/`'s `unity-gesture-probe` is the Python reference receiver).
 
-Fedora 44 x86_64 / Unity 6000.5.8f1 was verified with 27 EditMode and 4 PlayMode
-tests (including live Python/Unity delivery through the former TCP bridge and the
-since-removed Python fixture test). Standalone Linux builds and live
-camera-driven visuals still need deployment-specific verification.
+Fedora 44 x86_64 / Unity 6000.5.8f1: 48 EditMode and 15 PlayMode tests passed.
+Tests cover all four gesture kinds, fanout/ACK decisions, stale-state reset,
+subscription removal, diagnostic coexistence, and real water-particle creation.
+These inject recognition results at the delivery-policy boundary; live-camera
+visuals and standalone player builds still need deployment-specific verification.
