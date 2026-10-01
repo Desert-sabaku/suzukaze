@@ -20,6 +20,29 @@ def fake_detection(samples, stop) -> None:
         samples.put(GestureSample("FANNING", True, time.monotonic(), ()))
 
 
+def quits(samples, stop) -> None:
+    """Like pressing Esc: recognition ends on its own with exit code 0."""
+
+
+def crashes(samples, stop) -> None:
+    raise SystemExit(3)
+
+
+@pytest.mark.parametrize("target, expected", [(quits, None), (crashes, "code 3")])
+def test_child_exit_is_reported(target, expected):
+    detection = DetectionProcess(target)
+    detection.start()
+    try:
+        detection.process.join(5)
+        if expected is None:
+            assert detection.get(timeout=0.1) is None
+        else:
+            with pytest.raises(RuntimeError, match=expected):
+                detection.get(timeout=0.1)
+    finally:
+        detection.close()
+
+
 def wrong_type(samples, stop) -> None:
     samples.put({"gesture": "FANNING"})
     stop.wait(5)

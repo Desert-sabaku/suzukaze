@@ -87,7 +87,7 @@ class FakeSource:
     def __init__(self, *items):
         self.items = list(items)
 
-    def get(self, timeout: float) -> GestureSample:
+    def get(self, timeout: float) -> GestureSample | None:
         item = self.items.pop(0)
         if isinstance(item, BaseException):
             raise item
@@ -101,3 +101,8 @@ def test_pump_publishes_samples_and_stops_when_recognition_exits():
     with pytest.raises(RuntimeError, match="exited"):
         asyncio.run(GestureRelay(outbox).pump(source))  # type: ignore[arg-type]
     assert [e["gesture"] for e in outbox.events(time.monotonic())] == ["RAMUNE"]
+
+
+def test_pump_returns_when_recognition_exits_normally():
+    source = FakeSource(queue.Empty(), None)
+    asyncio.run(GestureRelay(DeliveryOutbox()).pump(source))  # type: ignore[arg-type]

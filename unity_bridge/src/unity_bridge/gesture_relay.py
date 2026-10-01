@@ -37,14 +37,21 @@ class DetectionProcess:
     def start(self) -> None:
         self.process.start()
 
-    def get(self, timeout: float) -> GestureSample:
-        """Raise queue.Empty on timeout and RuntimeError once recognition exits."""
+    def get(self, timeout: float) -> GestureSample | None:
+        """Return None once recognition has exited normally (e.g. Esc).
+
+        Raise queue.Empty on timeout and RuntimeError if recognition crashed.
+        """
         try:
             sample = self.samples.get(timeout=timeout)
         except queue.Empty:
-            if not self.process.is_alive():
-                raise RuntimeError("gesture_detection exited") from None
-            raise
+            if self.process.is_alive():
+                raise
+            if self.process.exitcode == 0:
+                return None
+            raise RuntimeError(
+                f"gesture_detection exited with code {self.process.exitcode}"
+            ) from None
         if not isinstance(sample, GestureSample):
             raise TypeError(f"Expected GestureSample, got {type(sample).__name__}")
         return sample
@@ -68,12 +75,14 @@ class GestureRelay:
         self._connected = False
 
     async def pump(self, source: DetectionProcess) -> None:
-        """Feed samples into the outbox whether or not Unity is connected."""
+        """Feed samples into the outbox until recognition exits."""
         while True:
             try:
                 sample = await asyncio.to_thread(source.get, 0.5)
             except queue.Empty:
                 continue
+            if sample is None:
+                return
             self.outbox.publish(sample, now=time.monotonic())
 
     async def serve(self, websocket: Any) -> None:
