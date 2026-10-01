@@ -31,7 +31,6 @@ uv run gesture-detection
 | `CAMERA_INDEX` | 使用するカメラのID（既定 `0`） |
 | `VIDEO_SOURCE` | 動画ファイルのパス。空欄ならカメラ入力 |
 | `OUTPUT_DIR` | 認識結果の動画保存先（既定 `output/`） |
-| `GESTURE_DELIVERY_ENABLED` | Unityへの通知を有効にする（既定 `false`） |
 
 その他の設定は [.env.example](.env.example) を参照してください。
 [学習済みラムネ判定](docs/learned-ramune.md)は設定で切り替えられます。

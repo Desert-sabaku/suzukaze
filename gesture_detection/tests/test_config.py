@@ -101,28 +101,10 @@ def test_invalid_pose_mode():
         read_config({"POSE_RUNNING_MODE": "LIVE_STREAM"})
 
 
-@pytest.mark.parametrize(
-    "values",
-    [
-        {"GESTURE_DELIVERY_PORT": "0"},
-        {"GESTURE_DELIVERY_FORMAT": "auto"},
-        {"GESTURE_MAX_PENDING": "0"},
-        {"GESTURE_EVENT_TTL": "nan"},
-        {"GESTURE_RETRY_INTERVAL": "-1"},
-        {"GESTURE_STATE_INTERVAL": "0.5"},
-    ],
-)
-def test_invalid_delivery_settings(values):
-    with pytest.raises(ValueError):
-        read_config(values)
-
-
-def test_delivery_format_default_and_override():
-    assert read_config({})["GESTURE_DELIVERY_FORMAT"] == "json"
-    assert (
-        read_config({"GESTURE_DELIVERY_FORMAT": "protobuf"})["GESTURE_DELIVERY_FORMAT"]
-        == "protobuf"
-    )
+@pytest.mark.parametrize("ttl", ["nan", "0", "-1"])
+def test_invalid_event_ttl(ttl):
+    with pytest.raises(ValueError, match="GESTURE_EVENT_TTL"):
+        read_config({"GESTURE_EVENT_TTL": ttl})
 
 
 @pytest.mark.parametrize("area", ["0,0,1", "0.8,0,0.2,1", "0,0,1,2", "nan,0,1,1"])

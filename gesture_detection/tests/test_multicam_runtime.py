@@ -3,11 +3,10 @@ from dataclasses import dataclass
 import pytest
 
 from gesture_detection.event_rearm import EventRearmGate
-from gesture_detection.gesture_delivery import DeliveryOutbox
 from gesture_detection.multicam_fusion import MultiCameraFusion
 from gesture_detection.ramune import FollowingRamuneAnalyzer
 from gesture_detection.recognition import RecognitionCoordinator
-from gesture_detection.recognition_types import Landmark, PoseResult
+from gesture_detection.recognition_types import GestureSample, Landmark, PoseResult
 from gesture_detection.uchimizu import AnchoredUchimizuAnalyzer
 
 
@@ -96,10 +95,7 @@ def test_two_camera_pulses_are_merged_and_keep_capture_time():
     result = fusion.advance(0.3)
     assert result.get("occurrences") == ("UCHIMIZU",)
     assert result.get("occurrence_timestamps") == {"UCHIMIZU": 0.2}
-    outbox = DeliveryOutbox()
-    outbox.publish(result, observed_at=0.3, now=0.4)
-    assert outbox.events(0.4)[0]["occurred_at"] == 0.2
-    assert outbox.events(0.4, reconnect=True)[0]["expires_at"] == 1.2
+    assert GestureSample.from_result(result, 0.3).occurrences == (("UCHIMIZU", 0.2),)
 
 
 def test_late_event_is_not_renewed_by_a_newer_other_camera_frame():
@@ -109,11 +105,10 @@ def test_late_event_is_not_renewed_by_a_newer_other_camera_frame():
     result = fusion.advance(1.4)
     assert result.get("occurrences") == ()
     assert current_gesture(result) == "FANNING"
-    outbox = DeliveryOutbox()
     result["occurrences"] = ("RAMUNE",)
     result["occurrence_timestamps"] = {"RAMUNE": 0.2}
-    outbox.publish(result, observed_at=1.4, now=1.4)
-    assert outbox.events(1.4) == []
+    # The original occurrence time is kept, so unity_bridge treats it as expired.
+    assert GestureSample.from_result(result, 1.4).occurrences == (("RAMUNE", 0.2),)
 
 
 def test_release_from_other_view_requires_a_fresh_setup():

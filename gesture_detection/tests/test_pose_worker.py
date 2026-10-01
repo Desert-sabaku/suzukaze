@@ -261,31 +261,35 @@ def test_worker_forwards_frame_timestamp():
     factory.return_value.close.assert_called_once()
 
 
-def test_worker_publishes_occurrence_before_lossy_display_queue():
+def test_worker_sends_sample_before_lossy_display_queue():
     from unittest.mock import MagicMock
 
     from gesture_detection.pose_worker import pose_worker
+    from gesture_detection.recognition_types import GestureSample
 
     channel = MagicMock()
     channel.get.side_effect = [(MagicMock(), 10.0, 1), None]
     results = MagicMock()
     results.empty.return_value = True
-    with (
-        patch("gesture_detection.pose_worker.PoseAnalyzer") as analyzer,
-        patch("gesture_detection.pose_worker.DeliveryOutbox") as outbox,
-        patch("gesture_detection.pose_worker.GestureServer") as server,
-        patch("gesture_detection.pose_worker.time.monotonic", return_value=10.1),
-    ):
+    samples = MagicMock()
+    with patch("gesture_detection.pose_worker.PoseAnalyzer") as analyzer:
+        analyzer.return_value.process.return_value = {
+            "landmarks": [],
+            "selected_action": "RAMUNE",
+            "relaxing_state": False,
+            "current": {"gesture": "RAMUNE", "tracking": True},
+            "occurrences": ("RAMUNE",),
+            "frame_id": 1,
+            "timestamp": 10.0,
+        }
         order = Mock()
-        order.attach_mock(outbox.return_value.publish, "notify")
+        order.attach_mock(samples.put, "notify")
         order.attach_mock(results.put, "display")
-        pose_worker(channel, results, True)
+        pose_worker(channel, results, samples)
     assert [entry[0] for entry in order.mock_calls] == ["notify", "display"]
-    outbox.return_value.publish.assert_called_once_with(
-        analyzer.return_value.process.return_value, observed_at=10.0, now=10.1
+    samples.put.assert_called_once_with(
+        GestureSample("NONE", True, 10.0, (("RAMUNE", 10.0),), 1, 10.0)
     )
-    server.return_value.start.assert_called_once()
-    server.return_value.close.assert_called_once()
     analyzer.return_value.close.assert_called_once()
 
 

@@ -255,34 +255,7 @@ if MULTICAM_ENABLED and (POSE_RUNNING_MODE != "VIDEO" or RAMUNE_DETECTOR != "rul
 if MULTICAM_ENABLED and VIDEO_SOURCE is not None:
     raise ValueError("Use MULTICAM_VIDEO_SESSION instead of VIDEO_SOURCE in multicamera mode")
 
-# Local gesture notifications, separate from unity_bridge's WebSocket port.
-GESTURE_DELIVERY_ENABLED = getenv("GESTURE_DELIVERY_ENABLED", "false").lower() in {
-    "1",
-    "true",
-    "yes",
-    "on",
-}
-GESTURE_DELIVERY_HOST = "127.0.0.1"
-GESTURE_DELIVERY_PORT = int(getenv("GESTURE_DELIVERY_PORT", "5001"))
-GESTURE_DELIVERY_FORMAT = getenv("GESTURE_DELIVERY_FORMAT", "json")
-if GESTURE_DELIVERY_FORMAT not in {"json", "protobuf"}:
-    raise ValueError("GESTURE_DELIVERY_FORMAT must be json or protobuf")
-GESTURE_STATE_INTERVAL = float(getenv("GESTURE_STATE_INTERVAL", "0.1"))
-GESTURE_STALE_TIMEOUT = float(getenv("GESTURE_STALE_TIMEOUT", "0.5"))
+# Occurrence lifetime, used by multicamera fusion to drop late events.
 GESTURE_EVENT_TTL = float(getenv("GESTURE_EVENT_TTL", "1.0"))
-GESTURE_RETRY_INTERVAL = float(getenv("GESTURE_RETRY_INTERVAL", "0.1"))
-GESTURE_MAX_PENDING = int(getenv("GESTURE_MAX_PENDING", "64"))
-if not 1 <= GESTURE_DELIVERY_PORT <= 65535 or GESTURE_MAX_PENDING <= 0:
-    raise ValueError("Gesture delivery port or capacity is invalid")
-if any(
-    not math.isfinite(value) or value <= 0
-    for value in (
-        GESTURE_STATE_INTERVAL,
-        GESTURE_STALE_TIMEOUT,
-        GESTURE_EVENT_TTL,
-        GESTURE_RETRY_INTERVAL,
-    )
-):
-    raise ValueError("Gesture delivery durations must be finite and positive")
-if GESTURE_STATE_INTERVAL >= GESTURE_STALE_TIMEOUT:
-    raise ValueError("Gesture state interval must be shorter than stale timeout")
+if not math.isfinite(GESTURE_EVENT_TTL) or GESTURE_EVENT_TTL <= 0:
+    raise ValueError("GESTURE_EVENT_TTL must be finite and positive")

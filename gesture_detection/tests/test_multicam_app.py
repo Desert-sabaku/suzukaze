@@ -28,7 +28,6 @@ def test_replay_drains_both_inputs_and_never_delivers_to_unity(tmp_path, monkeyp
     monkeypatch.setattr(config, "MULTICAM_HEADLESS", True)
     monkeypatch.setattr(config, "MULTICAM_TRACE_PATH", tmp_path / "trace.jsonl")
     monkeypatch.setattr(config, "VIDEO_OUTPUT_PATH", tmp_path / "out.mp4")
-    monkeypatch.setattr(config, "GESTURE_DELIVERY_ENABLED", True)
     # Native 60fps and 10fps; the final 60fps frame is after the last regular
     # 30Hz output tick, so the EOF tick is necessary to process it.
     views = (
@@ -49,11 +48,11 @@ def test_replay_drains_both_inputs_and_never_delivers_to_unity(tmp_path, monkeyp
         patch("gesture_detection.multicam_app.PoseAnalyzer", side_effect=analyzers),
         patch("gesture_detection.multicam_app.cv2.VideoWriter", return_value=writer),
         patch("gesture_detection.multicam_app.AsyncVideoWriter", return_value=asynchronous),
-        patch("gesture_detection.multicam_app.GestureServer") as server,
         patch("gesture_detection.multicam_app.cv2.imshow") as show,
     ):
-        MultiCameraApplication().run()
-    server.assert_not_called()
+        samples = Mock()
+        MultiCameraApplication(samples).run()
+    samples.put.assert_not_called()
     show.assert_not_called()
     assert analyzers[0].process.call_count == 6
     assert analyzers[1].process.call_count == 1
@@ -96,21 +95,23 @@ def test_main_routes_opt_in_to_multicam(monkeypatch):
     factory.return_value.run.assert_called_once()
 
 
-def test_live_failure_closes_workers_and_notification_server(monkeypatch):
+def test_live_failure_closes_workers(monkeypatch):
     monkeypatch.setattr(config, "MULTICAM_VIDEO_SESSION", None)
     monkeypatch.setattr(config, "MULTICAM_TRACE_PATH", None)
     monkeypatch.setattr(config, "MULTICAM_HEADLESS", True)
-    monkeypatch.setattr(config, "GESTURE_DELIVERY_ENABLED", True)
     inputs = Mock()
     inputs.poll.side_effect = RuntimeError("camera disconnected")
-    with (
-        patch("gesture_detection.multicam_app.LiveInputs", return_value=inputs),
-        patch("gesture_detection.multicam_app.GestureServer") as server,
-    ):
+    with patch("gesture_detection.multicam_app.LiveInputs", return_value=inputs):
         with pytest.raises(RuntimeError, match="camera disconnected"):
-            MultiCameraApplication().run()
+            MultiCameraApplication(Mock()).run()
     inputs.close.assert_called_once()
-    server.return_value.close.assert_called_once()
+
+
+def test_stop_event_requests_exit_even_when_headless(monkeypatch):
+    monkeypatch.setattr(config, "MULTICAM_HEADLESS", True)
+    stop = Mock()
+    stop.is_set.return_value = True
+    assert MultiCameraApplication(stop=stop)._exit_requested()
 
 
 @pytest.mark.parametrize("collision", ["video", "session", "trace"])
@@ -144,11 +145,10 @@ def test_replay_cannot_overwrite_inputs_or_mix_outputs(tmp_path, monkeypatch, co
     capture.assert_not_called()
 
 
-def test_live_publishes_each_occurrence_once_before_display(monkeypatch):
+def test_live_sends_each_occurrence_once(monkeypatch):
     monkeypatch.setattr(config, "MULTICAM_VIDEO_SESSION", None)
     monkeypatch.setattr(config, "MULTICAM_TRACE_PATH", None)
     monkeypatch.setattr(config, "MULTICAM_HEADLESS", True)
-    monkeypatch.setattr(config, "GESTURE_DELIVERY_ENABLED", True)
     result = empty_result(None, 9.9, 0)
     result["current"] = {"gesture": "UCHIMIZU", "tracking": True}
     result["occurrences"] = ("UCHIMIZU",)
@@ -158,17 +158,16 @@ def test_live_publishes_each_occurrence_once_before_display(monkeypatch):
     inputs.latest_previews.return_value = {}
     with (
         patch("gesture_detection.multicam_app.LiveInputs", return_value=inputs),
-        patch("gesture_detection.multicam_app.GestureServer"),
-        patch("gesture_detection.multicam_app.DeliveryOutbox") as outbox,
         patch("gesture_detection.multicam_app.time.monotonic", side_effect=[10.0, 10.0, 10.1]),
         patch.object(MultiCameraApplication, "_exit_requested", side_effect=[False, True]),
     ):
-        MultiCameraApplication().run()
-    published = outbox.return_value.publish.call_args_list
-    assert len(published) == 2
-    assert published[0].args[0]["occurrences"] == ("UCHIMIZU",)
-    assert published[1].args[0]["occurrences"] == ()
-    assert published[0].kwargs["observed_at"] == 9.9
+        samples = Mock()
+        MultiCameraApplication(samples).run()
+    sent = [entry.args[0] for entry in samples.put.call_args_list]
+    assert len(sent) == 2
+    assert sent[0].occurrences == (("UCHIMIZU", 9.9),)
+    assert sent[1].occurrences == ()
+    assert sent[0].observed_at == 9.9
     inputs.close.assert_called_once()
 
 

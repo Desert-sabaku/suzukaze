@@ -4,6 +4,8 @@ import json
 import math
 import time
 from contextlib import ExitStack
+from multiprocessing.queues import Queue
+from multiprocessing.synchronize import Event
 from typing import TextIO
 
 import cv2
@@ -11,12 +13,10 @@ import numpy as np
 
 from . import config
 from .app import GestureApplication
-from .gesture_delivery import DeliveryOutbox
-from .gesture_server import GestureServer
 from .multicam_fusion import MultiCameraFusion
 from .multicam_input import Frame, LiveInputs, Preview, RecordedInput, load_session
 from .pose_worker import PoseAnalyzer
-from .recognition_types import PoseResult
+from .recognition_types import GestureSample, PoseResult
 from .rendering import draw_ramune_guide
 from .video_output import AsyncVideoWriter
 
@@ -81,10 +81,16 @@ def compose_preview(previews: dict[int, Preview], fused: PoseResult) -> Frame:
 
 
 class MultiCameraApplication:
-    def __init__(self) -> None:
+    def __init__(
+        self, samples: Queue[GestureSample] | None = None, stop: Event | None = None
+    ) -> None:
+        self.samples = samples
+        self.stop = stop
         self._window_created = False
 
     def _exit_requested(self) -> bool:
+        if self.stop is not None and self.stop.is_set():
+            return True
         if config.MULTICAM_HEADLESS:
             return False
         if cv2.waitKey(1) & 0xFF == 27:
@@ -203,24 +209,6 @@ class MultiCameraApplication:
             inputs.start()
             stack.callback(inputs.close)
             trace = self._trace(stack)
-            outbox = None
-            server = None
-            if config.GESTURE_DELIVERY_ENABLED:
-                outbox = DeliveryOutbox(
-                    event_ttl=config.GESTURE_EVENT_TTL,
-                    stale_timeout=config.GESTURE_STALE_TIMEOUT,
-                    retry_interval=config.GESTURE_RETRY_INTERVAL,
-                    max_pending=config.GESTURE_MAX_PENDING,
-                )
-                server = GestureServer(
-                    outbox,
-                    host=config.GESTURE_DELIVERY_HOST,
-                    port=config.GESTURE_DELIVERY_PORT,
-                    message_format=config.GESTURE_DELIVERY_FORMAT,
-                    state_interval=config.GESTURE_STATE_INTERVAL,
-                )
-                stack.callback(server.close)
-                server.start()
             next_tick = time.monotonic()
             while True:
                 now = time.monotonic()
@@ -228,13 +216,10 @@ class MultiCameraApplication:
                     for slot, result in inputs.poll():
                         fusion.submit(slot, result)
                     fused = fusion.advance(now)
-                    if outbox is not None:
-                        assert server is not None
-                        server.check()
-                        if fusion.latest:
-                            outbox.publish(
-                                fused, observed_at=fused.get("observed_at", now), now=now
-                            )
+                    if self.samples is not None and fusion.latest:
+                        self.samples.put(
+                            GestureSample.from_result(fused, fused.get("observed_at", now))
+                        )
                     self._write_trace(trace, fused, fusion.latest)
                     previews = inputs.latest_previews(previews)
                     if not config.MULTICAM_HEADLESS:

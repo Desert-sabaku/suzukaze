@@ -1,8 +1,8 @@
 import math
 import multiprocessing as mp
 import queue
-import time
 import urllib.request
+from multiprocessing.queues import Queue
 
 import cv2
 import mediapipe as mp_core
@@ -12,14 +12,6 @@ from mediapipe.tasks.python import vision
 
 from .config import (
     FPS,
-    GESTURE_DELIVERY_FORMAT,
-    GESTURE_DELIVERY_HOST,
-    GESTURE_DELIVERY_PORT,
-    GESTURE_EVENT_TTL,
-    GESTURE_MAX_PENDING,
-    GESTURE_RETRY_INTERVAL,
-    GESTURE_STALE_TIMEOUT,
-    GESTURE_STATE_INTERVAL,
     POSE_DISPLAY_SMOOTHING,
     POSE_MODEL_PATH,
     POSE_MODEL_URL,
@@ -29,13 +21,11 @@ from .config import (
     SUBJECT_AREA,
     SUPPRESS_MEDIAPIPE_STARTUP_LOGS,
 )
-from .gesture_delivery import DeliveryOutbox
-from .gesture_server import GestureServer
 from .ipc import SharedLatestFrame
 from .landmark_smoothing import LandmarkSmoother
 from .native_logging import suppress_native_stderr
 from .recognition import RecognitionCoordinator
-from .recognition_types import PoseResult
+from .recognition_types import GestureSample, PoseResult
 from .subject_selection import SubjectSelector
 
 
@@ -185,44 +175,20 @@ class PoseAnalyzer:
 def pose_worker(
     frame_queue: SharedLatestFrame,
     result_queue: mp.Queue,
-    delivery_enabled: bool = False,
+    samples: Queue[GestureSample] | None = None,
     source_fps: float = FPS,
 ) -> None:
     analyzer = PoseAnalyzer(source_fps=source_fps)
-    outbox = (
-        DeliveryOutbox(
-            event_ttl=GESTURE_EVENT_TTL,
-            stale_timeout=GESTURE_STALE_TIMEOUT,
-            retry_interval=GESTURE_RETRY_INTERVAL,
-            max_pending=GESTURE_MAX_PENDING,
-        )
-        if delivery_enabled
-        else None
-    )
-    server = (
-        GestureServer(
-            outbox,
-            host=GESTURE_DELIVERY_HOST,
-            port=GESTURE_DELIVERY_PORT,
-            message_format=GESTURE_DELIVERY_FORMAT,
-            state_interval=GESTURE_STATE_INTERVAL,
-        )
-        if outbox is not None
-        else None
-    )
     try:
-        if server is not None:
-            server.start()
         while True:
             sample = frame_queue.get()
             if sample is None:
                 break
             frame, timestamp, frame_id = sample
             result = analyzer.process(frame, timestamp, frame_id)
-            if outbox is not None:
-                assert server is not None
-                server.check()
-                outbox.publish(result, observed_at=timestamp, now=time.monotonic())
+            # Occurrences must not be dropped, so send before the lossy display queue.
+            if samples is not None:
+                samples.put(GestureSample.from_result(result, timestamp))
             while not result_queue.empty():
                 try:
                     result_queue.get_nowait()
@@ -230,8 +196,4 @@ def pose_worker(
                     break
             result_queue.put(result)
     finally:
-        try:
-            if server is not None:
-                server.close()
-        finally:
-            analyzer.close()
+        analyzer.close()
