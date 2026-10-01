@@ -60,28 +60,20 @@ From `gesture_protocol/`:
 
 ```sh
 uv sync --locked
-uv run --locked python scripts/generate.py
 uv run --locked pytest
 uv run --locked python -m compileall src
 uv build --wheel
 ```
 
-Generation uses `protoc-wheel-0==30.2` (real protoc 30.2), generating Python,
-pyi and C# together from only `gesture/v1/gesture.proto`. The generated Python
-module identity is qualified by the script to match its sole installed path:
-`suzukaze_gesture_protocol.generated.gesture.v1.gesture_pb2`. Do not add the
+The Python bindings under `generated/` are checked in and no longer
+regenerated here; this package is scheduled for removal. Do not add the
 `generated/` directory to sys.path or copy/register a second generated module.
-The MCU Buf template explicitly selects only `comms`; gesture generation
-never invokes it. No MCU schemas or generated outputs are modified.
 
-C# output: `../suzukaze/Assets/GestureDelivery/Generated/Gesture.cs`, namespace
+C# bindings are generated with buf from `../proto`
+(`buf generate --template buf.gen.gesture.yaml`) into
+`../suzukaze/Assets/GestureDelivery/Generated/Gesture.cs`, namespace
 `Suzukaze.Gesture.Protocol`, assembly `Suzukaze.Gesture.Protocol`.
-The Unity integration includes compatible `Google.Protobuf` **3.33.5**
-(C# and Python runtimes have different major-version numbering), its required
-plugin dependency, and checksum-verified restore tooling. Unity's normal
-auto-reference setup makes the DLL available to this assembly; no scripting
-define is required. See `../suzukaze/Assets/GestureDelivery/README.md` for
-dependency setup, receiver behavior, and Windows limitations.
+`Google.Protobuf` **3.36.2** is installed in Unity via NuGetForUnity.
 
 `tests/fixtures/messages.json` contains flat dictionaries and deterministic
 protobuf hex (without frame headers), usable by Python and C# tests. Hex

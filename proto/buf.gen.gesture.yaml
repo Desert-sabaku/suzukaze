@@ -1,0 +1,8 @@
+version: v2
+inputs:
+  - directory: .
+    paths:
+      - gesture
+plugins:
+  - remote: buf.build/protocolbuffers/csharp:v36.2
+    out: ../suzukaze/Assets/GestureDelivery/Generated

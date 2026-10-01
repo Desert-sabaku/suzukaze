@@ -1,1 +1,1 @@
-"""Canonical generated protobuf modules. Regenerate with scripts/generate.py."""
+"""Canonical generated protobuf modules (checked in; no longer regenerated)."""

@@ -18,9 +18,5 @@ jobs:
         with:
           python-version: "3.12"
       - run: uv sync --locked
-      - name: Verify generated bindings
-        run: |
-          uv run --locked python scripts/generate.py
-          git diff --exit-code -- src/suzukaze_gesture_protocol/generated ../suzukaze/Assets/GestureDelivery/Generated/Gesture.cs
       - run: uv run --locked pytest
       - run: uv build --wheel
