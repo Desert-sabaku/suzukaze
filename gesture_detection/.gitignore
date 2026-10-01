@@ -11,7 +11,7 @@ wheels/
 recordings/
 
 *.task
-yolov8n-pose.pt
+yolov8n.pt
 
 # Local datasets; retain the directory layout and its documentation.
 shared/*/
