@@ -1,0 +1,5 @@
+{
+  "name": "Suzukaze.Gesture.Delivery",
+  "references": ["Suzukaze.Gesture.Protocol"],
+  "noEngineReferences": true
+}
