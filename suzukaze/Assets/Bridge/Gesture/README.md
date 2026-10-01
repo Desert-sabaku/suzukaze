@@ -6,6 +6,32 @@ The bridge (`uv run unity-bridge --gesture` in `unity_bridge/`) serves protocol
 v1 **binary protobuf**, one `GestureEnvelope` per WebSocket message.
 Generated schema/namespace: `Suzukaze.Gesture.Protocol` (`proto/gesture/v1/gesture.proto`).
 
+## 打ち水演出への接続
+
+既存の `Assets/My_script/ParticleOnEnter.cs` が `IGestureSink` を実装しています。
+シーン内で有効になると、既存の `GestureReceiverBehaviour` に自動登録します。
+受信器がない場合は専用ルート GameObject を作成し、シーンをまたいで再利用します。
+診断用 Prefab を追加する必要はありません。接続先は既定で `ws://127.0.0.1:5000`。
+変更する場合は、あらかじめ設定した受信器をシーンに配置してください。
+
+- `UCHIMIZU` の成立イベントで、Enter と同じ `TryPlay()` を呼びます。
+- シーンに設定済みの `particlePrefab` を `neck.position + Vector3.up * heightOffset`
+  に、`neck.rotation` で生成します。生成できた場合だけ `accepted` になります。
+- ラムネ、無効な演出、Prefab/首位置の未設定は `ignored`。継続状態では水を出しません。
+- 期限切れと重複は既存の受信ポリシーが演出前に除外します。
+- Enter / テンキー Enter は手動確認用として利用できます。
+- `receiveGestures` を無効にしてからコンポーネントを有効化すると、キー入力のみになります。
+- 新シーンの有効な `ParticleOnEnter` が受信先になります。旧シーンの終了で新しい受信先を
+  解除しません。複数を同時に有効化した場合は最後に登録したものが受信します。
+
+既存の `Forest`、`river`、`sea`、`Sea2`、`☆1湖`、`滝` は変更なしで接続されます。
+他のシーンでは `ParticleOnEnter` と `particlePrefab` / `neck` の設定が必要です。
+`Scene_ch` や `river(中流)` には、現時点でこの打ち水コンポーネントはありません。
+
+起動は `unity_bridge/` で `uv run unity-bridge --gesture`、Unity で上記シーンを再生します。
+認識のみの `gesture-detection` 起動では Unity へ配送しません。確認手順は
+[打ち水接続ガイド](../../../../gesture_detection/docs/uchimizu-unity.md)を参照してください。
+
 ## Setup
 
 `Google.Protobuf` is installed by NuGetForUnity from `Assets/packages.config`
@@ -30,7 +56,8 @@ For application integration, use a dedicated root GameObject with
 `GestureReceiverBehaviour` and assign a `MonoBehaviour` implementing
 `IGestureSink` to its sink field (or call `SetSink`). The owner is persistent;
 scene code should replace the sink when a scene changes. Missing or destroyed
-sinks yield `ignored`; there are no inferred scene, fan, or speaker mappings.
+sinks yield `ignored`. The existing `ParticleOnEnter` scenes automatically bind
+the Uchimizu effect as described above; other effects require their own sink.
 Only one receiver may own the connection, even during disable/re-enable or
 replacement: cancellation completes before its successor starts connecting.
 Disabling clears pending work and delivers neutral state; destruction cancels

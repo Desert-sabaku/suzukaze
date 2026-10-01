@@ -22,6 +22,16 @@ namespace Suzukaze.Gesture.Receiver
         public bool IsOwner => owner == this;
         public string LastError => receiver?.LastError;
 
+        // Scene-local effects bind to one persistent transport owner. Reuse a
+        // configured scene receiver even if its Awake has not run yet.
+        public static GestureReceiverBehaviour GetOrCreate()
+        {
+            if (owner != null) return owner;
+            var configured = FindFirstObjectByType<GestureReceiverBehaviour>();
+            if (configured != null) return configured;
+            return new GameObject("GestureReceiver").AddComponent<GestureReceiverBehaviour>();
+        }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetPlaySession()
         {
@@ -37,6 +47,12 @@ namespace Suzukaze.Gesture.Receiver
             if (value != null && !(value is IGestureSink))
                 throw new ArgumentException("Sink must implement IGestureSink", nameof(value));
             sink = value;
+        }
+
+        public void ClearSink(MonoBehaviour value)
+        {
+            // An old scene's OnDisable may follow the new scene's OnEnable.
+            if (sink == value) sink = null;
         }
 
         private void Awake()
