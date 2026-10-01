@@ -24,7 +24,7 @@ jobs:
           setup_only: true
       - name: Generate protobuf bindings
         working-directory: proto
-        run: buf generate --template buf.gen.gesture.yaml
+        run: buf generate
       - name: Install dependencies
         run: uv sync --group dev
       - name: Format and lint

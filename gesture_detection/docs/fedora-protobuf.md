@@ -28,7 +28,7 @@ Unity Hub、上記 Editor、Linuxネイティブ版 uv、buf が必要です。
 リポジトリ全体を取得し、生成物と依存を用意します。
 
 ```bash
-(cd proto && buf generate --template buf.gen.gesture.yaml)
+(cd proto && buf generate)
 uv sync --locked --project unity_bridge
 ```
 

@@ -29,10 +29,10 @@ uv run unity-gesture-probe --ignore-events
 
 WebSocketは1メッセージに1つのProtobufペイロード（バイナリ、最大8192バイト）です。
 Pythonのバインディング `src/unity_bridge/gen/` はコミットしていません。
-clone後やスキーマ変更後に `../proto` で次を実行して生成してください（C#も同時に生成されます）。
+clone後やスキーマ変更後に `../proto` で次を実行して生成してください。
 
 ```bash
-buf generate --template buf.gen.gesture.yaml
+buf generate
 ```
 
 送信間隔などの設定、メッセージ仕様、時計、期限と受信側責務は
