@@ -4,18 +4,18 @@ inputs:
     paths:
       - comms
 plugins:
-  - remote: buf.build/protocolbuffers/go
+  - remote: buf.build/protocolbuffers/go:v1.36.12
     out: ../firmware/gen
     opt:
       - paths=source_relative
 
-  - remote: buf.build/community/planetscale-vtprotobuf
+  - remote: buf.build/community/planetscale-vtprotobuf:v0.6.0
     out: ../firmware/gen
     opt:
       - paths=source_relative
 
-  - remote: buf.build/protocolbuffers/python
+  - remote: buf.build/protocolbuffers/python:v36.2
     out: ../mcu/mcu/gen
 
-  - remote: buf.build/protocolbuffers/pyi
+  - remote: buf.build/protocolbuffers/pyi:v36.2
     out: ../mcu/mcu/gen
