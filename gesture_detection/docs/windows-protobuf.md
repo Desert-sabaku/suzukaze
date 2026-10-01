@@ -25,7 +25,7 @@ Unity 127.0.0.1:5000
 
 ```powershell
 Set-Location proto
-buf generate --template buf.gen.gesture.yaml
+buf generate
 Set-Location ..
 uv sync --locked --project unity_bridge
 ```
@@ -108,7 +108,7 @@ exactly-once 実行は保証しません。
 - **演出が始まらない**：診断 Sink の既定は見送りです。実 Sink の設定と `TryAcceptEvent`
   の判断を確認します。通信の ACK は演出完了通知ではありません。
 - **`Google.Protobuf` や生成コードを解決できない**：NuGetForUnity の復元（`Assets/Packages/`）と
-  `buf generate --template buf.gen.gesture.yaml` を確認し、同名 DLL が他の Unity プラグインに
+  `buf generate` を確認し、同名 DLL が他の Unity プラグインに
   重複していないことを確認します。
 
 フィールドの意味と期限は [配送仕様](unity-delivery.md)、C# API とライフサイクルは

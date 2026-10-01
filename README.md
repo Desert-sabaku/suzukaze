@@ -16,7 +16,7 @@ Unity (suzukaze/) ──WebSocket(protobuf)── unity_bridge ─┬─ 子プ�
 | [`unity_bridge/`](unity_bridge/README.md) | 認識アプリを起動し、Unityへジェスチャーを届けるWebSocketサーバー | Python 3.14+ |
 | [`mcu/`](mcu/README.md) | ファームウェアと通信するシリアルクライアント（ライブラリ） | Python 3.12+ |
 | [`firmware/`](firmware/README.md) | Raspberry Pi Pico のファンコン | TinyGo |
-| `proto/` | protobufスキーマと buf の生成テンプレート | protobuf |
+| `proto/` | protobufスキーマと buf の生成テンプレート（`buf.gen.yaml`） | protobuf |
 | `suzukaze/` | Unityプロジェクト（6000.5.8f1）。`Assets/Bridge/` が `unity_bridge` との通信部分 | C# |
 
 ## セットアップ
@@ -28,8 +28,7 @@ Unity 6000.5.8f1（Unityを使う場合）、TinyGo（ファームウェアを�
 
    ```bash
    cd proto
-   buf generate                                  # comms: firmware/gen, mcu/mcu/gen
-   buf generate --template buf.gen.gesture.yaml  # gesture: unity_bridge の gen, Unity の Assets/Bridge/Generated
+   buf generate
    ```
 
    Unityで生成物がない場合は、Consoleに同じコマンドを案内するエラーが出ます。

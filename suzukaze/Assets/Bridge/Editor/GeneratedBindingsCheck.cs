@@ -18,7 +18,7 @@ namespace Suzukaze.Bridge.Editor
 
             Debug.LogError(
                 "Gesture protobuf bindings are missing in Assets/Bridge/Generated. " +
-                "Run `buf generate --template buf.gen.gesture.yaml` in the repository's proto/ directory.");
+                "Run `buf generate` in the repository's proto/ directory.");
         }
     }
 }

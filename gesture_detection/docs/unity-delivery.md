@@ -43,8 +43,8 @@ Unity側は切断時に再接続してください（Unityの受信実装は500m
 
 WebSocketでは1つのバイナリメッセージに1つのProtobufペイロード（`../../proto/gesture/v1/gesture.proto`
 の `GestureEnvelope`、長さヘッダーなし）を載せます。ペイロードは1〜8192バイトです。
-Python側は `buf generate --template buf.gen.gesture.yaml`（`proto/`）で生成した
-`unity_bridge/src/unity_bridge/gen/` を使い、C#側は同じテンプレートで
+Python側は `proto/` で `buf generate` して生成した
+`unity_bridge/src/unity_bridge/gen/` を使い、C#側も同じコマンドで
 `suzukaze/Assets/Bridge/Generated/Gesture.cs` を生成します。
 不正なProtobuf、テキストフレーム、Unityからのstate/eventは切断します。
 画像・ランドマーク・診断文字列は送りません。

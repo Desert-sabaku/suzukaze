@@ -42,7 +42,7 @@ The generated bindings in `../Generated/` are not committed. After cloning or
 changing the schema, run from the repository's `proto/` directory:
 
 ```sh
-buf generate --template buf.gen.gesture.yaml
+buf generate
 ```
 
 In a **Windows or Linux** test scene, add `Prefabs/GestureReceiverDiagnostic.prefab` as
