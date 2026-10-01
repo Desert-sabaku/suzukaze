@@ -64,10 +64,10 @@ actionは既存96次元、phaseは相対位置込み110次元を使い、各設�
 さらに元動画をMediaPipeから処理し、骨格とアプリの `current`・通知・ラムネ状態を
 保存骨格からのアプリ再生と照合した。
 
-| 元動画 | フレーム数 | ラムネ通知 |
-| --- | ---: | --- |
-| both_without_the_screen | 389 | 277フレームで1回 |
-| contrast_without_the_screen | 458 | 0回 |
+| 元動画                      | フレーム数 | ラムネ通知       |
+| --------------------------- | ---------: | ---------------- |
+| both_without_the_screen     |        389 | 277フレームで1回 |
+| contrast_without_the_screen |        458 | 0回              |
 
 アプリが実際に使う動画PTS（`FrameClock`）でも同じ2本を再生し、通知は同じ277フレームで1回／0回だった。
 研究の等間隔時刻による骨格一致検証と、実動画の時刻による実行確認を別々に記録した。
@@ -80,8 +80,8 @@ ruff、変更した実行時モジュールのpyright、構文検査が通過。
 これは既存動画での実装一致の検証で、追加の独立データによる精度評価ではない。
 カメラ実機・新しい連続試行・人物交代、学習に正例がない扇ぎと打ち水の実動画評価は未実施。
 
-数値記録：[等間隔時刻での実装一致JSON](0924-runtime-validation.json)、
-[アプリの動画時刻での検証JSON](0924-runtime-source-clock.json)。
+数値記録：[等間隔時刻での実装一致JSON](../shared/results/0924-runtime-validation.json)、
+[アプリの動画時刻での検証JSON](../shared/results/0924-runtime-source-clock.json)。
 
 ## 再現
 
@@ -97,7 +97,7 @@ MPLCONFIGDIR=/tmp/suzukaze-mpl OPENBLAS_NUM_THREADS=1 \
 MPLCONFIGDIR=/tmp/suzukaze-mpl OPENBLAS_NUM_THREADS=1 \
   uv run python -m scripts.validate_learned_ramune --app-clock \
   --videos both_without_the_screen contrast_without_the_screen \
-  --output docs/0924-runtime-source-clock.json
+  --output shared/results/0924-runtime-source-clock.json
 uv run pytest --no-cov -q
 uv run python -m compileall -q src scripts tests
 ```
@@ -117,13 +117,13 @@ RAMUNE_DETECTOR=rules MPLCONFIGDIR=/tmp/suzukaze-mpl OPENBLAS_NUM_THREADS=1 \
 
 ## 成果別コミット
 
-| コミット | 内容 |
-| --- | --- |
-| `3406e8c` | 注釈評価・因果的な学習基準 |
-| `159b48d` | 開栓表示保持・再出現抑制 |
+| コミット  | 内容                          |
+| --------- | ----------------------------- |
+| `3406e8c` | 注釈評価・因果的な学習基準    |
+| `159b48d` | 開栓表示保持・再出現抑制      |
 | `ea3956c` | 再許可・2回目・連続動画の追試 |
-| `ccb7f41` | 準備待ちの原因切り分け |
-| `57099a0` | 相対位置・速度特徴の比較 |
-| `2d3f2b1` | 分類スコア診断と研究索引 |
+| `ccb7f41` | 準備待ちの原因切り分け        |
+| `57099a0` | 相対位置・速度特徴の比較      |
+| `2d3f2b1` | 分類スコア診断と研究索引      |
 
 上記6件を現ブランチに確定した後、アプリ組み込みを別コミットにまとめる。

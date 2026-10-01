@@ -23,6 +23,12 @@ shared/annotations/*
 shared/results/*
 !shared/**/.gitkeep
 
+# Evaluation reports belong in the shared dataset, not public documentation.
+docs/*-results.json
+docs/*-diagnostics.json
+docs/*-persistence.json
+docs/*-runtime-*.json
+
 # Local environment settings
 .env
 .env.*

@@ -36,18 +36,18 @@
 
 macro-F1は正例のあるNONE / RAMUNE / RELAXINGの平均。正例のないFANNING / UCHIMIZUは平均から外すが、現行器がこれらを出した場合は誤分類として混同行列に残す。学習器はこの2クラスを出せないため、今回の比較は2動作＋NONEの予備実験である。
 
-| 入力 | 幕越し 現行出力 | 幕越し 状態展開 | 幕越し 学習器 | 幕なし 学習器 |
-| --- | ---: | ---: | ---: | ---: |
-| 現行の人物選択 | 0.254 | 0.337 | 0.618 | 0.491 |
-| 人物選択なし | 0.278 | 0.379 | 0.665 | 0.509 |
-| 中央マスク継続・人物選択なし | 0.307 | 0.437 | 0.856 | 0.857 |
+| 入力                         | 幕越し 現行出力 | 幕越し 状態展開 | 幕越し 学習器 | 幕なし 学習器 |
+| ---------------------------- | --------------: | --------------: | ------------: | ------------: |
+| 現行の人物選択               |           0.254 |           0.337 |         0.618 |         0.491 |
+| 人物選択なし                 |           0.278 |           0.379 |         0.665 |         0.509 |
+| 中央マスク継続・人物選択なし |           0.307 |           0.437 |         0.856 |         0.857 |
 
 中央マスク＋学習器のクラス別成績：
 
-| 条件 | RAMUNE F1 | RELAXING F1 | NONE F1 | action未指定区間の誤出力率 |
-| --- | ---: | ---: | ---: | ---: |
-| 幕越し | 0.908 | 0.784 | 0.875 | 19.8% |
-| 幕なし | 0.837 | 0.846 | 0.890 | 14.2% |
+| 条件   | RAMUNE F1 | RELAXING F1 | NONE F1 | action未指定区間の誤出力率 |
+| ------ | --------: | ----------: | ------: | -------------------------: |
+| 幕越し |     0.908 |       0.784 |   0.875 |                      19.8% |
+| 幕なし |     0.837 |       0.846 |   0.890 |                      14.2% |
 
 ## 開栓表示の仕様と再評価
 
@@ -65,20 +65,20 @@ macro-F1は正例のあるNONE / RAMUNE / RELAXINGの平均。正例のないFAN
 
 ### 中央マスク条件の結果
 
-| 条件・判定器 | 注釈と重なった開栓区間 | その後の再出現がある開栓区間 | その後の再出現数 | 複数の出力区間があるRAMUNE試行 |
-| --- | ---: | ---: | ---: | ---: |
-| 幕越し・現行ルール | 1/7 | 0 | 0 | 0 |
-| 幕越し・学習器 | 3/7 | 1 | 5 | 4 |
-| 幕なし・現行ルール | 1/2 | 0 | 0 | 0 |
-| 幕なし・学習器 | 0/2 | 0 | 0 | 0 |
+| 条件・判定器       | 注釈と重なった開栓区間 | その後の再出現がある開栓区間 | その後の再出現数 | 複数の出力区間があるRAMUNE試行 |
+| ------------------ | ---------------------: | ---------------------------: | ---------------: | -----------------------------: |
+| 幕越し・現行ルール |                    1/7 |                            0 |                0 |                              0 |
+| 幕越し・学習器     |                    3/7 |                            1 |                5 |                              4 |
+| 幕なし・現行ルール |                    1/2 |                            0 |                0 |                              0 |
+| 幕なし・学習器     |                    0/2 |                            0 |                0 |                              0 |
 
 具体例（中央マスク＋学習器、フレームは0始まり・終端を含む）：
 
-| 動画 | 注釈OPENED | 予測OPENED | 判断 |
-| --- | --- | --- | --- |
-| ramune1_behind_the_screen | 161–162 | 113–175 | 約1.68秒前〜0.45秒後まで連続。正しい伸長 |
-| both3_behind_the_screen | 181–182 | 151–190 | 約1.03秒前〜0.27秒後まで連続。正しい伸長 |
-| both1_behind_the_screen | 307–311 | 305–307、その後309–310、318、321、326、342–343 | 5回再出現。中断は順に約0.035、0.246、0.070、0.141、0.527秒 |
+| 動画                      | 注釈OPENED | 予測OPENED                                     | 判断                                                       |
+| ------------------------- | ---------- | ---------------------------------------------- | ---------------------------------------------------------- |
+| ramune1_behind_the_screen | 161–162    | 113–175                                        | 約1.68秒前〜0.45秒後まで連続。正しい伸長                   |
+| both3_behind_the_screen   | 181–182    | 151–190                                        | 約1.03秒前〜0.27秒後まで連続。正しい伸長                   |
+| both1_behind_the_screen   | 307–311    | 305–307、その後309–310、318、321、326、342–343 | 5回再出現。中断は順に約0.035、0.246、0.070、0.141、0.527秒 |
 
 幕越しの学習器では、注釈と重ならない試行も含めるとboth1・contrast1・ramune2・ramune3で複数区間が出ている。こちらも分断候補として確認する。現行ルールの表は中央マスク入力時のオフライン結果であり、通常カメラ動作の保証ではない。学習器のphase出力は本番未統合なので、実際のUnityへの重複通知を観測した結果でもない。
 
@@ -93,14 +93,14 @@ macro-F1は正例のあるNONE / RAMUNE / RELAXINGの平均。正例のないFAN
 
 ```bash
 uv run python -m scripts.evaluate_timeline --rescore-openings \
-  --output docs/0924-timeline-central-results.json
+  --output shared/results/0924-timeline-central-results.json
 ```
 
 再評価ロジックのテスト10件、ruff・構文検査で検証。
 
 ## 骨格取得の確認
 
-人物選択なしでは取得率が上がっても背景人物を追う例がある。[比較画像](0924-pose-comparison.jpg)はboth4動画のframe 180、左が現行人物選択、右が選択なし。特にboth3と幕なしで背景人物への切り替わりが見える。骨格取得率は点の正確さや体験者の追跡率ではない。
+人物選択なしでは取得率が上がっても背景人物を追う例がある。[比較画像](../shared/results/docs-assets/0924-pose-comparison.jpg)はboth4動画のframe 180、左が現行人物選択、右が選択なし。特にboth3と幕なしで背景人物への切り替わりが見える。骨格取得率は点の正確さや体験者の追跡率ではない。
 
 ## 再現
 
@@ -110,12 +110,12 @@ gesture_detectionディレクトリで実行する。sharedの0924動画・timel
 uv sync
 OPENBLAS_NUM_THREADS=1 uv run python -m scripts.evaluate_timeline
 OPENBLAS_NUM_THREADS=1 uv run python -m scripts.evaluate_timeline \
-  --no-subject-selection --output docs/0924-timeline-raw-results.json
+  --no-subject-selection --output shared/results/0924-timeline-raw-results.json
 OPENBLAS_NUM_THREADS=1 uv run python -m scripts.evaluate_timeline \
-  --no-subject-selection --central-mask --output docs/0924-timeline-central-results.json
+  --no-subject-selection --central-mask --output shared/results/0924-timeline-central-results.json
 OPENBLAS_NUM_THREADS=1 uv run python -m scripts.evaluate_timeline \
   --no-subject-selection --central-mask --linear-only \
-  --output docs/0924-timeline-central-linear-results.json
+  --output shared/results/0924-timeline-central-linear-results.json
 uv run pytest --no-cov
 uv run python -m compileall src
 ```
@@ -130,4 +130,4 @@ uv run python -m compileall src
 2. ラムネは注釈を含む連続OPENEDを許容し、いったん消えた後の再出現と未検出を改善する。表示の継続時間と成功通知の重複は分けて評価する。
 3. 扇ぎ・打ち水、対象動作に似た通常動作、別人物・別撮影日のデータを追加し、固定した方式で新しい評価セットを測る。
 
-生データ：[現行人物選択](0924-timeline-results.json)、[選択なし](0924-timeline-raw-results.json)、[中央マスク](0924-timeline-central-results.json)。
+生データ：[現行人物選択](../shared/results/0924-timeline-results.json)、[選択なし](../shared/results/0924-timeline-raw-results.json)、[中央マスク](../shared/results/0924-timeline-central-results.json)。

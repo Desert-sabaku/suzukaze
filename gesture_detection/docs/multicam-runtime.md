@@ -43,7 +43,7 @@ Linuxでは1台のカメラにつき`/dev/video*`が2つ（映像とメタデー
 `MULTICAM_HEADLESS=true`では画面を出さず、`Ctrl+C`で終了します。
 カメラの切断や推論プロセスの異常はエラーとして通知し、両方の入力を終了します。
 
-![録画再生での2カメラ比較と統合結果](multicam-runtime-preview.jpg)
+![録画再生での2カメラ比較と統合結果](../shared/results/docs-assets/multicam-runtime-preview.jpg)
 
 ラムネの成功・解除待ちガイドは共有状態を反映します。
 解除が必要な間は、上の手を下げるか両手を離すよう案内します。

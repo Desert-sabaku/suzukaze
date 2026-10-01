@@ -57,7 +57,7 @@
 - **ramune（幕なし）**：元の出力が注釈の開栓付近を捉えておらず、準備必須条件ではOPENEDなし。未検出が残る。
 - **contrast・yusuzumi（幕なし）**：冒頭などの短いOPENEDを、初回の準備確認で抑制。
 
-![OPENED比較](0924-opening-temporal-results.png)
+![OPENED比較](../shared/results/docs-assets/0924-opening-temporal-results.png)
 
 赤は元の短いOPENED注釈、灰は加工なし、黄は保持のみ、緑は準備確認と手の離れによる再発火抑制を含む条件。横軸は動画の0始まりフレーム番号。
 
@@ -90,4 +90,4 @@ uv run python -m compileall src scripts/evaluate_opening_temporal.py
 
 後処理の11テストと既存のtimeline評価10テスト、計21テストで、因果性、長い連続表示、再発火抑制、正当な2回目の開栓、骨格欠落時の再許可防止、学習・評価の分離を確認。ruff・構文検査も実施。
 
-生データ：[条件選択・動画別成績](0924-opening-temporal-results.json)。フレーム予測はshared/results/0924-cache/0924-opening-temporal-results-predictions.npz。
+生データ：[条件選択・動画別成績](../shared/results/0924-opening-temporal-results.json)。フレーム予測はshared/results/0924-cache/0924-opening-temporal-results-predictions.npz。

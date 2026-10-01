@@ -56,15 +56,15 @@
 
 | 動画・時系列図 | 注釈 | 既存特徴量 | 相対位置を追加 | 相対位置＋速度 |
 | --- | ---: | --- | --- | --- |
-| [both1 幕越し](0924-opening-features/both1_behind_the_screen.png) | 307–311 | 検出 253–364 | 検出 283–339 | 検出 244–376 |
-| [both2 幕越し](0924-opening-features/both2_behind_the_screen.png) | 138–141 | 見逃し | 見逃し | 見逃し。別区間165–191に出力 |
-| [both3 幕越し](0924-opening-features/both3_behind_the_screen.png) | 181–182 | 検出 151–211 | 検出 169–214 | 検出 158–213 |
-| [both 幕なし](0924-opening-features/both_without_the_screen.png) | 284–285 | 検出 273–305 | 検出 277–304 | 見逃し。2フレーム遅い287–311 |
-| [contrast1 幕越し](0924-opening-features/contrast1_behind_the_screen.png) | 349–350 | 検出 332–387 | 検出 317–394 | 検出 288–396 |
-| [ramune1 幕越し](0924-opening-features/ramune1_behind_the_screen.png) | 161–162 | 検出 113–196 | 検出 151–194 | 検出 145–196 |
-| [ramune2 幕越し](0924-opening-features/ramune2_behind_the_screen.png) | 145–148 | 見逃し。1フレーム遅い149–177 | **検出 147–177** | 検出 146–171 |
-| [ramune3 幕越し](0924-opening-features/ramune3_behind_the_screen.png) | 180–185 | 検出 168–224 | 検出 184–223 | 検出 164–186 |
-| [ramune 幕なし](0924-opening-features/ramune_without_the_screen.png) | 142–143 | 見逃し | 見逃し | 見逃し |
+| [both1 幕越し](../shared/results/docs-assets/0924-opening-features/both1_behind_the_screen.png) | 307–311 | 検出 253–364 | 検出 283–339 | 検出 244–376 |
+| [both2 幕越し](../shared/results/docs-assets/0924-opening-features/both2_behind_the_screen.png) | 138–141 | 見逃し | 見逃し | 見逃し。別区間165–191に出力 |
+| [both3 幕越し](../shared/results/docs-assets/0924-opening-features/both3_behind_the_screen.png) | 181–182 | 検出 151–211 | 検出 169–214 | 検出 158–213 |
+| [both 幕なし](../shared/results/docs-assets/0924-opening-features/both_without_the_screen.png) | 284–285 | 検出 273–305 | 検出 277–304 | 見逃し。2フレーム遅い287–311 |
+| [contrast1 幕越し](../shared/results/docs-assets/0924-opening-features/contrast1_behind_the_screen.png) | 349–350 | 検出 332–387 | 検出 317–394 | 検出 288–396 |
+| [ramune1 幕越し](../shared/results/docs-assets/0924-opening-features/ramune1_behind_the_screen.png) | 161–162 | 検出 113–196 | 検出 151–194 | 検出 145–196 |
+| [ramune2 幕越し](../shared/results/docs-assets/0924-opening-features/ramune2_behind_the_screen.png) | 145–148 | 見逃し。1フレーム遅い149–177 | **検出 147–177** | 検出 146–171 |
+| [ramune3 幕越し](../shared/results/docs-assets/0924-opening-features/ramune3_behind_the_screen.png) | 180–185 | 検出 168–224 | 検出 184–223 | 検出 164–186 |
+| [ramune 幕なし](../shared/results/docs-assets/0924-opening-features/ramune_without_the_screen.png) | 142–143 | 見逃し | 見逃し | 見逃し |
 
 相対位置の追加では、基準で成功していた6件をすべて維持してramune2を回復した。ramune3は開栓開始が注釈内の184フレームとなり、前回の保持依存から変わったが、成功数としては同じ1件である。
 
@@ -109,4 +109,4 @@ uv run python -m compileall -q src scripts tests
 
 対象53テスト、変更したスクリプト・テストのruff、src・scripts・testsの構文検査が通過。平行移動・拡大縮小への不変性、縦横比補正、関節ごとの有効性、欠落や動画冒頭での偽速度防止、未来フレーム非依存、学習と評価の分離、未知phaseの除外、キャッシュ限定の動作を確認した。実カメラの挙動は変更しておらず、今回は撮影による検証を行っていない。
 
-生データ：[比較結果・選択設定・原因一覧JSON](0924-opening-features-results.json)。各分割の12候補の内側スコアと学習・検証動画一覧を含む。全フレームの固定action、3条件のphase・OPENED出力・状態列は `shared/results/0924-cache/0924-opening-features-results-predictions.npz` に保存。入力・実装・出力のハッシュをJSONから確認できる。
+生データ：[比較結果・選択設定・原因一覧JSON](../shared/results/0924-opening-features-results.json)。各分割の12候補の内側スコアと学習・検証動画一覧を含む。全フレームの固定action、3条件のphase・OPENED出力・状態列は `shared/results/0924-cache/0924-opening-features-results-predictions.npz` に保存。入力・実装・出力のハッシュをJSONから確認できる。

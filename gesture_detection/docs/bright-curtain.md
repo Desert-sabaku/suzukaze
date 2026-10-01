@@ -13,12 +13,12 @@
 
 ## 静止画と時系列を分けた位置評価
 
-| 条件 | 人物ありで姿勢取得 | 人物なしで姿勢検出 | PCK@0.2 |
-| --- | ---: | ---: | ---: |
-| 前回・暗い環境 IMAGE（既存報告） | 11.3% | 5.9% | 0.0% |
-| 今回 IMAGE | 34/67 = 50.7% | 0/29 = 0.0% | 68/385 = 17.7% |
-| 今回 VIDEO・全フレーム追跡 | 57/67 = 85.1% | 1/29 = 3.4% | 283/385 = 73.5% |
-| 今回 VIDEO・表示平滑化後 | 同上 | 同上 | 278/385 = 72.2% |
+| 条件                             | 人物ありで姿勢取得 | 人物なしで姿勢検出 |         PCK@0.2 |
+| -------------------------------- | -----------------: | -----------------: | --------------: |
+| 前回・暗い環境 IMAGE（既存報告） |              11.3% |               5.9% |            0.0% |
+| 今回 IMAGE                       |      34/67 = 50.7% |        0/29 = 0.0% |  68/385 = 17.7% |
+| 今回 VIDEO・全フレーム追跡       |      57/67 = 85.1% |        1/29 = 3.4% | 283/385 = 73.5% |
+| 今回 VIDEO・表示平滑化後         |               同上 |               同上 | 278/385 = 72.2% |
 
 PCKは手動肩幅（使用不可なら腰幅）の20%以内を正解とし、姿勢未取得も失敗に含める。
 VIDEOは各動画の先頭から全4,002フレームを処理し、注釈フレーム番号で照合した。
@@ -32,12 +32,12 @@ VIDEOは各動画の先頭から全4,002フレームを処理し、注釈フレ�
 30 FPS付近の動画で余計な間引きが発生したため修正した。
 過去の動作区間集計とは処理頻度が異なることに注意する。
 
-| 動作 | 区間内で検出した動画 | 区間内の姿勢取得率 | 区間内の当該動作フレーム率 | 区間外の何らかの動作出力率 |
-| --- | ---: | ---: | ---: | ---: |
-| 扇ぎ | 3/3 | 100% | 67.3% | 24.8% |
-| ラムネ | 0/3 | 60.0% | 0% | 6.4% |
-| 夕涼み | 0/3 | 100% | 0% | 13.1% |
-| 打ち水 | 3/3 | 100% | 26.7% | 16.1% |
+| 動作   | 区間内で検出した動画 | 区間内の姿勢取得率 | 区間内の当該動作フレーム率 | 区間外の何らかの動作出力率 |
+| ------ | -------------------: | -----------------: | -------------------------: | -------------------------: |
+| 扇ぎ   |                  3/3 |               100% |                      67.3% |                      24.8% |
+| ラムネ |                  0/3 |              60.0% |                         0% |                       6.4% |
+| 夕涼み |                  0/3 |               100% |                         0% |                      13.1% |
+| 打ち水 |                  3/3 |               100% |                      26.7% |                      16.1% |
 
 区間外出力には準備・終了動作や判定保持も含む。動画単位の3/3だけでは誤発火の少なさを保証しない。
 
@@ -78,17 +78,17 @@ PCKは全体で1.3ポイント低下した。これは表示の安定性と追�
 uv sync
 uv run python -m scripts.evaluate_landmark_annotations \
   --annotations shared/annotations/bright-behind-the-screen \
-  --output docs/bright-landmarks.json
+  --output shared/results/bright-landmarks.json
 POSE_SELECT_SUBJECT=false uv run python -m scripts.evaluate_action_intervals \
-  --environment bright --sample-fps 30 --output docs/bright-actions.json
+  --environment bright --sample-fps 30 --output shared/results/bright-actions.json
 POSE_SELECT_SUBJECT=false uv run python -m scripts.evaluate_bright_tracking \
   --annotations shared/annotations/bright-behind-the-screen \
   --videos shared/videos/bright-behind-the-screen \
-  --output docs/bright-tracking.json \
+  --output shared/results/bright-tracking.json \
   --preview shared/results/bright-ramune-smoothing.mp4
 ```
 
-生データ: [静止画](bright-landmarks.json)、[動作区間](bright-actions.json)、[時系列](bright-tracking.json)。
+生データ: [静止画](../shared/results/bright-landmarks.json)、[動作区間](../shared/results/bright-actions.json)、[時系列](../shared/results/bright-tracking.json)。
 
 ## 幕なし追加撮影の結果
 

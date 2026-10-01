@@ -7,7 +7,7 @@
 判断です。また、正解区間がないため、下表は分類器の出力数であり認識精度ではありません。
 ラムネ動画は旧仕様の動作なので、現在のラムネ認識評価にも使えません。
 
-生データは [pose-mode-comparison.json](pose-mode-comparison.json) です。
+生データは [pose-mode-comparison.json](../shared/results/pose-mode-comparison.json) です。
 
 ## 方法
 

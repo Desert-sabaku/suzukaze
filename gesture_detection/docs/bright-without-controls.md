@@ -13,12 +13,12 @@ MediaPipe Pose Lite、VIDEO、confidence 0.5、30 FPSの固定時間格子で、
 
 ## 無加工での結果
 
-| 動作 | 全編で当該動作を検出 | 最初の出力時刻 | 出力フレーム数 |
-| --- | --- | ---: | ---: |
-| 扇ぎ | あり | 4.31秒 | 32 |
-| ラムネ | なし | — | 0 |
-| 打ち水 | あり | 3.21秒 | 11 |
-| 夕涼み | なし | — | 0 |
+| 動作   | 全編で当該動作を検出 | 最初の出力時刻 | 出力フレーム数 |
+| ------ | -------------------- | -------------: | -------------: |
+| 扇ぎ   | あり                 |         4.31秒 |             32 |
+| ラムネ | なし                 |              — |              0 |
+| 打ち水 | あり                 |         3.21秒 |             11 |
+| 夕涼み | なし                 |              — |              0 |
 
 打ち水動画では扇ぎも11フレーム出力した。正解区間未確定のため、ここでは誤発火率には換算しない。
 今回もラムネ・夕涼みが成立しなかったが、幕なしであることだけで姿勢入力が正しいとは言えなかった。
@@ -29,7 +29,7 @@ MediaPipe Pose Lite、VIDEO、confidence 0.5、30 FPSの固定時間格子で、
 左奥の着席人物を追跡し続けていた（3〜8秒の確認画像）。
 ラムネも3〜4秒では背景人物に骨格が付き、5秒以降に実演者へ切り替わった。
 
-![夕涼みで背景人物を追跡](bright-without-wrong-person.jpg)
+![夕涼みで背景人物を追跡](../shared/results/docs-assets/bright-without-wrong-person.jpg)
 
 単一人物のVIDEO追跡が先に見つけた背景人物を保持していることが、今回の主要な入力問題。
 全編の姿勢取得率99〜100%を「実演者の検出成功」と解釈してはいけない。
@@ -41,16 +41,16 @@ MediaPipe Pose Lite、VIDEO、confidence 0.5、30 FPSの固定時間格子で、
 これは背景人物を除いた場合の比較であり、本番カメラへの固定設定ではない。
 画面端の腕も切れるため、全動作に適した領域とは限らない。
 
-| 動作 | 領域限定後の当該出力フレーム数 | 初回時刻 |
-| --- | ---: | ---: |
-| 扇ぎ | 4 | 6.38秒 |
-| ラムネ | 0 | — |
-| 打ち水 | 14 | 3.21秒 |
-| 夕涼み | 0 | — |
+| 動作   | 領域限定後の当該出力フレーム数 | 初回時刻 |
+| ------ | -----------------------------: | -------: |
+| 扇ぎ   |                              4 |   6.38秒 |
+| ラムネ |                              0 |        — |
+| 打ち水 |                             14 |   3.21秒 |
+| 夕涼み |                              0 |        — |
 
 4秒・6秒の画像では、ラムネ・夕涼みとも実演者に骨格が付くことを確認した。
 
-![領域限定後の実演者の骨格](bright-without-roi.jpg)
+![領域限定後の実演者の骨格](../shared/results/docs-assets/bright-without-roi.jpg)
 
 ラムネはREADYが72フレーム。READY状態で観測した押下量最大は0.470肩幅だが、
 手首間隔の縮小量最大は0.215で条件0.25に届かない。
@@ -79,11 +79,11 @@ MediaPipe Pose Lite、VIDEO、confidence 0.5、30 FPSの固定時間格子で、
 uv sync
 POSE_SELECT_SUBJECT=false uv run python -m scripts.evaluate_unlabelled_controls \
   --videos shared/videos/bright-without-the-screen \
-  --output docs/bright-without-controls.json
+  --output shared/results/bright-without-controls.json
 POSE_SELECT_SUBJECT=false uv run python -m scripts.evaluate_unlabelled_controls \
   --videos shared/videos/bright-without-the-screen \
-  --preprocess control_roi --output docs/bright-without-roi.json
+  --preprocess control_roi --output shared/results/bright-without-roi.json
 ```
 
-[無加工の数値](bright-without-controls.json)・[領域限定の数値](bright-without-roi.json)。
+[無加工の数値](../shared/results/bright-without-controls.json)・[領域限定の数値](../shared/results/bright-without-roi.json)。
 各動画のSHA-256も記録した。評価処理の既存テスト13件、Ruff、構文チェックを実施。

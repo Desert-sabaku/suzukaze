@@ -28,15 +28,15 @@
 
 | 動画・開栓前後の拡大図 | 検出 | OPENED順位の内訳 | 差：最小／中央値／最大 |
 | --- | --- | --- | --- |
-| [both1 幕越し](0924-opening-scores/both1_behind_the_screen-anchor1.png) | 成功 | 1位×2、2位×1、5位×2 | −0.7800 / −0.0133 / +0.0374 |
-| [contrast1 幕越し](0924-opening-scores/contrast1_behind_the_screen-anchor1.png) | 成功 | 1位×1、2位×1 | −0.1389 / −0.0416 / +0.0557 |
-| [ramune1 幕越し](0924-opening-scores/ramune1_behind_the_screen-anchor1.png) | 成功 | 1位×2 | +0.0170 / +0.0285 / +0.0400 |
-| [both2 幕越し](0924-opening-scores/both2_behind_the_screen-anchor1.png) | **見逃し** | **3位×2、4位×2** | **−0.2932 / −0.2454 / −0.2233** |
-| [ramune2 幕越し](0924-opening-scores/ramune2_behind_the_screen-anchor1.png) | 成功 | 1位×1、2位×1、3位×2 | −0.0465 / −0.0241 / +0.0012 |
-| [both3 幕越し](0924-opening-scores/both3_behind_the_screen-anchor1.png) | 成功 | 1位×2 | +0.0147 / +0.0193 / +0.0239 |
-| [ramune3 幕越し](0924-opening-scores/ramune3_behind_the_screen-anchor1.png) | 成功 | 1位×2、2位×2、3位×2 | −0.0345 / −0.0162 / +0.0480 |
-| [both 幕なし](0924-opening-scores/both_without_the_screen-anchor1.png) | 成功 | 2位×2 | −0.1164 / −0.0976 / −0.0788 |
-| [ramune 幕なし](0924-opening-scores/ramune_without_the_screen-anchor1.png) | **見逃し** | **4位×2** | **−0.5404 / −0.5388 / −0.5371** |
+| [both1 幕越し](../shared/results/docs-assets/0924-opening-scores/both1_behind_the_screen-anchor1.png) | 成功 | 1位×2、2位×1、5位×2 | −0.7800 / −0.0133 / +0.0374 |
+| [contrast1 幕越し](../shared/results/docs-assets/0924-opening-scores/contrast1_behind_the_screen-anchor1.png) | 成功 | 1位×1、2位×1 | −0.1389 / −0.0416 / +0.0557 |
+| [ramune1 幕越し](../shared/results/docs-assets/0924-opening-scores/ramune1_behind_the_screen-anchor1.png) | 成功 | 1位×2 | +0.0170 / +0.0285 / +0.0400 |
+| [both2 幕越し](../shared/results/docs-assets/0924-opening-scores/both2_behind_the_screen-anchor1.png) | **見逃し** | **3位×2、4位×2** | **−0.2932 / −0.2454 / −0.2233** |
+| [ramune2 幕越し](../shared/results/docs-assets/0924-opening-scores/ramune2_behind_the_screen-anchor1.png) | 成功 | 1位×1、2位×1、3位×2 | −0.0465 / −0.0241 / +0.0012 |
+| [both3 幕越し](../shared/results/docs-assets/0924-opening-scores/both3_behind_the_screen-anchor1.png) | 成功 | 1位×2 | +0.0147 / +0.0193 / +0.0239 |
+| [ramune3 幕越し](../shared/results/docs-assets/0924-opening-scores/ramune3_behind_the_screen-anchor1.png) | 成功 | 1位×2、2位×2、3位×2 | −0.0345 / −0.0162 / +0.0480 |
+| [both 幕なし](../shared/results/docs-assets/0924-opening-scores/both_without_the_screen-anchor1.png) | 成功 | 2位×2 | −0.1164 / −0.0976 / −0.0788 |
+| [ramune 幕なし](../shared/results/docs-assets/0924-opening-scores/ramune_without_the_screen-anchor1.png) | **見逃し** | **4位×2** | **−0.5404 / −0.5388 / −0.5371** |
 
 ### both2幕越し
 
@@ -76,10 +76,10 @@ both幕なしは注釈284–285の両フレームでWAIT_RELEASEが勝つが、�
 
 | 条件 | both | contrast | ramune | yusuzumi |
 | --- | --- | --- | --- | --- |
-| 幕越し take1 | [図](0924-opening-scores/both1_behind_the_screen.png) | [図](0924-opening-scores/contrast1_behind_the_screen.png) | [図](0924-opening-scores/ramune1_behind_the_screen.png) | [図](0924-opening-scores/yusuzumi1_behind_the_screen.png) |
-| 幕越し take2 | [図](0924-opening-scores/both2_behind_the_screen.png) | [図](0924-opening-scores/contrast2_behind_the_screen.png) | [図](0924-opening-scores/ramune2_behind_the_screen.png) | [図](0924-opening-scores/yusuzumi2_behind_the_screen.png) |
-| 幕越し take3 | [図](0924-opening-scores/both3_behind_the_screen.png) | [図](0924-opening-scores/contrast3_behind_the_screen.png) | [図](0924-opening-scores/ramune3_behind_the_screen.png) | [図](0924-opening-scores/yusuzumi3_behind_the_screen.png) |
-| 幕なし | [図](0924-opening-scores/both_without_the_screen.png) | [図](0924-opening-scores/contrast_without_the_screen.png) | [図](0924-opening-scores/ramune_without_the_screen.png) | [図](0924-opening-scores/yusuzumi_without_the_screen.png) |
+| 幕越し take1 | [図](../shared/results/docs-assets/0924-opening-scores/both1_behind_the_screen.png) | [図](../shared/results/docs-assets/0924-opening-scores/contrast1_behind_the_screen.png) | [図](../shared/results/docs-assets/0924-opening-scores/ramune1_behind_the_screen.png) | [図](../shared/results/docs-assets/0924-opening-scores/yusuzumi1_behind_the_screen.png) |
+| 幕越し take2 | [図](../shared/results/docs-assets/0924-opening-scores/both2_behind_the_screen.png) | [図](../shared/results/docs-assets/0924-opening-scores/contrast2_behind_the_screen.png) | [図](../shared/results/docs-assets/0924-opening-scores/ramune2_behind_the_screen.png) | [図](../shared/results/docs-assets/0924-opening-scores/yusuzumi2_behind_the_screen.png) |
+| 幕越し take3 | [図](../shared/results/docs-assets/0924-opening-scores/both3_behind_the_screen.png) | [図](../shared/results/docs-assets/0924-opening-scores/contrast3_behind_the_screen.png) | [図](../shared/results/docs-assets/0924-opening-scores/ramune3_behind_the_screen.png) | [図](../shared/results/docs-assets/0924-opening-scores/yusuzumi3_behind_the_screen.png) |
+| 幕なし | [図](../shared/results/docs-assets/0924-opening-scores/both_without_the_screen.png) | [図](../shared/results/docs-assets/0924-opening-scores/contrast_without_the_screen.png) | [図](../shared/results/docs-assets/0924-opening-scores/ramune_without_the_screen.png) | [図](../shared/results/docs-assets/0924-opening-scores/yusuzumi_without_the_screen.png) |
 
 ## 次に検証する分類方法
 
@@ -105,4 +105,4 @@ uv run python -m compileall -q src scripts tests
 
 対象62テスト、変更したスクリプト・テストのruff、src・scripts・testsの構文検査が通過。スコア取得前後の判定一致、未知phaseの学習除外、評価ラベル・未来フレームへの非依存、未学習クラス、骨格未観測、同点順位、前後区間が空の場合を確認した。全16動画の保存済み予測との一致は診断スクリプトでも検証し、成果物・入力のハッシュと25図へのリンクも確認した。実カメラの検証は今回の対象外。
 
-生データ：[スコア集計・遷移JSON](0924-opening-scores-results.json)。全phaseのスコア、観測有効性、順位・差、固定action、phase予測、OPENED出力、後処理状態は `shared/results/0924-cache/0924-opening-scores-results-predictions.npz` に保存。入力・実装・出力のハッシュをJSONに記録した。
+生データ：[スコア集計・遷移JSON](../shared/results/0924-opening-scores-results.json)。全phaseのスコア、観測有効性、順位・差、固定action、phase予測、OPENED出力、後処理状態は `shared/results/0924-cache/0924-opening-scores-results-predictions.npz` に保存。入力・実装・出力のハッシュをJSONに記録した。

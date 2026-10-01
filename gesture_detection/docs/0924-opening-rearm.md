@@ -82,4 +82,4 @@ uv run pytest tests/test_evaluate_opening_repetition.py \
 
 27テスト、変更したスクリプト・テストのruff、構文検査を実施。連結時の注釈位置の移動、欠落を解除証拠にしないこと、2回目を抑制する候補への減点、未来フレーム非依存を確認した。
 
-生データ：[前回方式の連結追試](0924-opening-repetition-results.json)、[解除条件の比較](0924-opening-rearm-results.json)、[未注釈の連続動画](0924-opening-continuous-results.json)。
+生データ：[前回方式の連結追試](../shared/results/0924-opening-repetition-results.json)、[解除条件の比較](../shared/results/0924-opening-rearm-results.json)、[未注釈の連続動画](../shared/results/0924-opening-continuous-results.json)。

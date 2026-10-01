@@ -7,8 +7,8 @@ confidence低下、縮小、CLAHE、中央マスク、YOLOによる切り抜き�
 します。YOLO Poseの時系列処理も後続評価で品質不足と判明したため、製品へ統合しません。
 次は手動注釈した関節位置または動作区間で、撮影条件とモデルを評価する必要があります。
 
-MediaPipe条件の詳細は [curtain-comparison.json](curtain-comparison.json)、YOLOの生データは
-[幕越し](yolo-pose-curtain.json)と[通常撮影の対照](yolo-pose-control.json)です。
+MediaPipe条件の詳細は [curtain-comparison.json](../shared/results/curtain-comparison.json)、YOLOの生データは
+[幕越し](../shared/results/yolo-pose-curtain.json)と[通常撮影の対照](../shared/results/yolo-pose-control.json)です。
 
 ## MediaPipe 条件比較
 

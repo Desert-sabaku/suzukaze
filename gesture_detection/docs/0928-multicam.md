@@ -20,7 +20,7 @@
 - 全画面解析には打ち水の注釈区間に対応しないイベントがcamera1で23件、camera2で9件ある。
   単純なOR統合を採用できる結果ではない。
 
-生データ：[推論・試行評価](0928-multicam-results.json)、[集計・原因診断](0928-multicam-diagnostics.json)。
+生データ：[推論・試行評価](../shared/results/0928-multicam-results.json)、[集計・原因診断](../shared/results/0928-multicam-diagnostics.json)。
 
 ## 対象と方法
 

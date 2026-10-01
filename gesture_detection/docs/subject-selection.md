@@ -43,7 +43,7 @@ SUBJECT_MIN_SHOULDER_WIDTH=0.10
 
 幕なしの比較画像（左: 従来、右: 今回）：
 
-![夕涼みの背景人物から実演者への追跡改善](subject-selection-comparison.jpg)
+![夕涼みの背景人物から実演者への追跡改善](../shared/results/docs-assets/subject-selection-comparison.jpg)
 
 従来の夕涼みは背景の着席人物を追跡し続けたが、今回の処理では入場後に実演者へ骨格が付く。
 比較動画は `shared/results/subject-selection/` の各MP4。
@@ -53,13 +53,13 @@ SUBJECT_MIN_SHOULDER_WIDTH=0.10
 同じエリア・同じ大きさの別人を区別できることを示す指標ではない。
 処理時間中央値は今回の環境で約28〜34 ms/フレーム（比較評価と他の評価を並行実行した参考値）。
 
-| 幕越しの指標 | 従来 | 今回 |
-| --- | ---: | ---: |
-| 人物あり注釈で姿勢取得 | 57/67 (85.1%) | 46/67 (68.7%) |
-| 人物なし注釈で姿勢出力 | 1/29 (3.4%) | 0/29 (0%) |
-| PCK@0.2、未検出を含む | 283/385 (73.5%) | 241/385 (62.6%) |
-| 扇ぎの正解区間で検出した動画 | 3/3 | 3/3 |
-| 打ち水の正解区間で検出した動画 | 3/3 | 3/3 |
+| 幕越しの指標                   |            従来 |            今回 |
+| ------------------------------ | --------------: | --------------: |
+| 人物あり注釈で姿勢取得         |   57/67 (85.1%) |   46/67 (68.7%) |
+| 人物なし注釈で姿勢出力         |     1/29 (3.4%) |       0/29 (0%) |
+| PCK@0.2、未検出を含む          | 283/385 (73.5%) | 241/385 (62.6%) |
+| 扇ぎの正解区間で検出した動画   |             3/3 |             3/3 |
+| 打ち水の正解区間で検出した動画 |             3/3 |             3/3 |
 
 背景出力を抑える代わりに、取得確認や身体の位置・大きさの条件による取りこぼしが増えた。
 関節精度全体が改善したとは言えない。扇ぎの動作区間の姿勢取得率は100%→96.3%、
@@ -84,14 +84,14 @@ SUBJECT_MIN_SHOULDER_WIDTH=0.10
 uv sync
 uv run python -m scripts.evaluate_subject_selection \
   --videos shared/videos/bright-without-the-screen \
-  --output docs/subject-selection-controls.json \
+  --output shared/results/subject-selection-controls.json \
   --previews shared/results/subject-selection
 uv run python -m scripts.evaluate_action_intervals \
-  --environment bright --sample-fps 30 --output docs/subject-bright-actions.json
+  --environment bright --sample-fps 30 --output shared/results/subject-bright-actions.json
 uv run python -m scripts.evaluate_bright_tracking \
   --annotations shared/annotations/bright-behind-the-screen \
   --videos shared/videos/bright-behind-the-screen \
-  --output docs/subject-bright-tracking.json \
+  --output shared/results/subject-bright-tracking.json \
   --preview shared/results/subject-bright-ramune.mp4
 ```
 
@@ -99,5 +99,5 @@ uv run python -m scripts.evaluate_bright_tracking \
 背景のみ・候補順序変更・枠外の手・追跡喪失・再取得・時刻不連続・低visibility・
 取得フレームの非出力と次フレームの全画面復帰をテストした。
 
-生データ: [幕なし比較](subject-selection-controls.json)、[幕越し動作](subject-bright-actions.json)、
-[幕越し注釈](subject-bright-tracking.json)、[幕なし所作](subject-without-actions.json)。
+生データ: [幕なし比較](../shared/results/subject-selection-controls.json)、[幕越し動作](../shared/results/subject-bright-actions.json)、
+[幕越し注釈](../shared/results/subject-bright-tracking.json)、[幕なし所作](../shared/results/subject-without-actions.json)。

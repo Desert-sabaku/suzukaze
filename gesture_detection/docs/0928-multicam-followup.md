@@ -28,8 +28,8 @@
   マスクの修正だけでは、今回の画角に対するphase判定の不一致を解消できない。
 
 前段：[一次検証](0928-multicam.md)。
-生データ：[領域比較と判定診断](0928-multicam-followup-results.json)、
-[表示持続時間と平滑化](0928-multicam-persistence.json)。
+生データ：[領域比較と判定診断](../shared/results/0928-multicam-followup-results.json)、
+[表示持続時間と平滑化](../shared/results/0928-multicam-persistence.json)。
 
 ## 実験条件
 

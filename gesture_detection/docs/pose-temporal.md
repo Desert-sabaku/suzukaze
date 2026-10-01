@@ -30,7 +30,7 @@
 元検出と追跡後で採用フレームが異なるため、座標差の低下には選別の影響もある。
 追跡は対応しない矩形を棄却する分、利用可能率を下げる。補間はその一部を埋めるが、
 扇ぎ・打ち水では元検出の率さえ超えなかった。
-集計の全データは [pose-temporal.json](pose-temporal.json) に保存した。
+集計の全データは [pose-temporal.json](../shared/results/pose-temporal.json) に保存した。
 打ち水は最初の実行が終了コード143で中断したため単独再実行し、
 軌跡と代表画像は `output/pose-temporal-uchimizu/` に保存している。
 

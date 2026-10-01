@@ -65,10 +65,10 @@ camera2の人物領域変更で骨格受け渡し率が5.0%から63.6%に改善�
 
 | 評価 | 明示された結論 | 生データ |
 | --- | --- | --- |
-| [IMAGE / VIDEO 比較](pose-mode-comparison.md) | 追加の手動確認後に VIDEO を採用。初回の IMAGE 推奨は過去判断 | [JSON](pose-mode-comparison.json) |
-| [幕越し姿勢比較](curtain-comparison.md) | Full は打ち水で相対的に良いが、全体の解決策なし。弱いぼかしは不採用 | [JSON](curtain-comparison.json) |
-| [幕越し追試](curtain-followup.md) | confidence 0.50を維持し、前処理とYOLO切り抜きを不採用 | [MediaPipe JSON](curtain-comparison.json)、[幕越しYOLO JSON](yolo-pose-curtain.json)、[対照YOLO JSON](yolo-pose-control.json) |
-| [YOLO Pose時系列処理](pose-temporal.md) | 追跡・補間・平滑化を製品へ統合しない | [JSON](pose-temporal.json) |
+| [IMAGE / VIDEO 比較](pose-mode-comparison.md) | 追加の手動確認後に VIDEO を採用。初回の IMAGE 推奨は過去判断 | [JSON](../shared/results/pose-mode-comparison.json) |
+| [幕越し姿勢比較](curtain-comparison.md) | Full は打ち水で相対的に良いが、全体の解決策なし。弱いぼかしは不採用 | [JSON](../shared/results/curtain-comparison.json) |
+| [幕越し追試](curtain-followup.md) | confidence 0.50を維持し、前処理とYOLO切り抜きを不採用 | [MediaPipe JSON](../shared/results/curtain-comparison.json)、[幕越しYOLO JSON](../shared/results/yolo-pose-curtain.json)、[対照YOLO JSON](../shared/results/yolo-pose-control.json) |
+| [YOLO Pose時系列処理](pose-temporal.md) | 追跡・補間・平滑化を製品へ統合しない | [JSON](../shared/results/pose-temporal.json) |
 
 過去評価の再現には、リポジトリに含まれない撮影動画や追加モデルが必要な場合があります。
 各文書の「方法」と「再現」を確認してください。
@@ -86,7 +86,7 @@ camera2の人物領域変更で骨格受け渡し率が5.0%から63.6%に改善�
 速度・固定位置からの変位の許容値を手動フィードバック後に `0.20 / 0.035` から
 `0.30 / 0.05` へ緩めると、静止動画は132から201フレームへ増え、非対象動画は0のまま
 でした。1秒の静止条件と、しきい値超過時の即時解除は維持しています。
-[5.024秒の比較画像](relaxing-motion-release.jpg)では、動いている非対象動画から夕涼み表示が
+[5.024秒の比較画像](../shared/results/docs-assets/relaxing-motion-release.jpg)では、動いている非対象動画から夕涼み表示が
 消えています。オフライン再生のみの結果で、ライブカメラは未確認です。
 
 ## 打ち水と扇ぎの優先順位変更
@@ -100,5 +100,5 @@ camera2の人物領域変更で骨格受け渡し率が5.0%から63.6%に改善�
 
 打ち水動画の一時的な扇ぎ出力を除去し、打ち水出力数は維持しました。一方、曖昧な準備・
 復帰付近では本来の扇ぎ表示も一部抑制します。他動画で干渉がゼロになる保証はありません。
-[3.563秒の比較画像](uchimizu-fanning-priority.jpg)では、打ち水の準備状態を維持して扇ぎ表示を
+[3.563秒の比較画像](../shared/results/docs-assets/uchimizu-fanning-priority.jpg)では、打ち水の準備状態を維持して扇ぎ表示を
 除去しています。この変更もライブカメラでは未確認です。

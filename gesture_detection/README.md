@@ -28,11 +28,11 @@ uv run gesture-detection
 
 主な設定は `.env` で変更します。
 
-| 設定 | 用途 |
-| --- | --- |
-| `CAMERA_INDEX` | 使用するカメラのID（既定 `0`） |
+| 設定           | 用途                                   |
+| -------------- | -------------------------------------- |
+| `CAMERA_INDEX` | 使用するカメラのID（既定 `0`）         |
 | `VIDEO_SOURCE` | 動画ファイルのパス。空欄ならカメラ入力 |
-| `OUTPUT_DIR` | 認識結果の動画保存先（既定 `output/`） |
+| `OUTPUT_DIR`   | 認識結果の動画保存先（既定 `output/`） |
 
 その他の設定は [.env.example](.env.example) を参照してください。
 [学習済みラムネ判定](docs/learned-ramune.md)は設定で切り替えられます。
@@ -55,12 +55,12 @@ uv run record-cameras --cameras 0 2
 
 **起動直後はプレビューのみです。`R` または `Space` を押すと、3秒後に録画が始まります。**
 
-| キー | 操作 |
-| --- | --- |
-| `R` / `Space` | 全台の録画開始・停止。停止後に再開すると別テイク |
-| `S`（Ctrlなし） | 全台の静止画をPNGで保存 |
-| `M` | 録画中の目印を記録 |
-| `Q` / `Esc` | 保存して終了 |
+| キー            | 操作                                             |
+| --------------- | ------------------------------------------------ |
+| `R` / `Space`   | 全台の録画開始・停止。停止後に再開すると別テイク |
+| `S`（Ctrlなし） | 全台の静止画をPNGで保存                          |
+| `M`             | 録画中の目印を記録                               |
+| `Q` / `Esc`     | 保存して終了                                     |
 
 保存先はプロジェクト内の **`shared/videos/日時_識別子/take_001/`** です。
 カメラごとの `camera_0.mp4` などと、時刻・撮影情報を保存します。
@@ -74,9 +74,10 @@ uv run record-cameras --cameras 0 2
 
 ## 詳しい情報
 
-- [ジェスチャーの仕様](docs/gestures.md)・[実演者の選択](docs/subject-selection.md)
-- [Unityとの接続](docs/unity-delivery.md)
-- [動画の注釈](docs/video-annotation.md)・[関節位置のラベル付け](docs/landmark-annotation.md)
+- ドキュメントの入口は [docs/README.md](docs/README.md) です。
+- [ジェスチャーの仕様](docs/gestures.md)・[Unityとの接続](docs/unity-delivery.md)
 - [開発・テスト手順](docs/development.md)・[構成と設定](docs/architecture.md)
-- [実機での確認項目](docs/manual-testing.md)・[過去の評価](docs/evaluations.md)
-- [0928 2カメラ検証の成果と再現手順](docs/0928-multicam-handoff.md)
+
+検証動画、注釈、ランドマーク、結果ファイル、顔が写る可能性のある画像は
+`gesture_detection/shared` サブモジュールで管理します。本体リポジトリには、通常利用に
+必要な手順と、検証結果の要約だけを置きます。

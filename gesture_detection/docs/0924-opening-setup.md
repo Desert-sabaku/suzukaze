@@ -41,15 +41,15 @@
 
 | 動画・時系列図 | 注釈フレーム | 最長準備成立 秒 | 注釈開始時の状態 | 結果・観測 |
 | --- | ---: | ---: | --- | --- |
-| [both1 幕越し](0924-opening-setup/both1_behind_the_screen.png) | 307–311 | 0.492 | OPENED | 検出 |
-| [both2 幕越し](0924-opening-setup/both2_behind_the_screen.png) | 138–141 | 0.741 | ARMED | 見逃し。注釈4フレームともREADY |
-| [both3 幕越し](0924-opening-setup/both3_behind_the_screen.png) | 181–182 | 0.308 | OPENED | 検出。準備時間は閾値付近 |
-| [both 幕なし](0924-opening-setup/both_without_the_screen.png) | 284–285 | 0.701 | OPENED | 検出 |
-| [contrast1 幕越し](0924-opening-setup/contrast1_behind_the_screen.png) | 349–350 | 0.868 | OPENED | 検出 |
-| [ramune1 幕越し](0924-opening-setup/ramune1_behind_the_screen.png) | 161–162 | 0.558 | OPENED | 検出。連続出力113–196は仕様上許容 |
-| [ramune2 幕越し](0924-opening-setup/ramune2_behind_the_screen.png) | 145–148 | 1.027 | ARMED | READY→WAIT_RELEASE。OPENEDは149から、1フレーム遅れ |
-| [ramune3 幕越し](0924-opening-setup/ramune3_behind_the_screen.png) | 180–185 | 1.280 | OPENED | 保持で検出。注釈内の生phaseはREADY |
-| [ramune 幕なし](0924-opening-setup/ramune_without_the_screen.png) | 142–143 | 1.808 | ARMED | 見逃し。注釈2フレームともREADY |
+| [both1 幕越し](../shared/results/docs-assets/0924-opening-setup/both1_behind_the_screen.png) | 307–311 | 0.492 | OPENED | 検出 |
+| [both2 幕越し](../shared/results/docs-assets/0924-opening-setup/both2_behind_the_screen.png) | 138–141 | 0.741 | ARMED | 見逃し。注釈4フレームともREADY |
+| [both3 幕越し](../shared/results/docs-assets/0924-opening-setup/both3_behind_the_screen.png) | 181–182 | 0.308 | OPENED | 検出。準備時間は閾値付近 |
+| [both 幕なし](../shared/results/docs-assets/0924-opening-setup/both_without_the_screen.png) | 284–285 | 0.701 | OPENED | 検出 |
+| [contrast1 幕越し](../shared/results/docs-assets/0924-opening-setup/contrast1_behind_the_screen.png) | 349–350 | 0.868 | OPENED | 検出 |
+| [ramune1 幕越し](../shared/results/docs-assets/0924-opening-setup/ramune1_behind_the_screen.png) | 161–162 | 0.558 | OPENED | 検出。連続出力113–196は仕様上許容 |
+| [ramune2 幕越し](../shared/results/docs-assets/0924-opening-setup/ramune2_behind_the_screen.png) | 145–148 | 1.027 | ARMED | READY→WAIT_RELEASE。OPENEDは149から、1フレーム遅れ |
+| [ramune3 幕越し](../shared/results/docs-assets/0924-opening-setup/ramune3_behind_the_screen.png) | 180–185 | 1.280 | OPENED | 保持で検出。注釈内の生phaseはREADY |
+| [ramune 幕なし](../shared/results/docs-assets/0924-opening-setup/ramune_without_the_screen.png) | 142–143 | 1.808 | ARMED | 見逃し。注釈2フレームともREADY |
 
 各図にはaction・phaseの正解と予測、両手首のvisibility、準備条件の成立区間、基準の状態遷移、4条件のOPENED出力を同じ時間軸で描いた。黄色はOPENED注釈。UNKNOWNはphase未注釈を表す。
 
@@ -94,4 +94,4 @@ uv run python -m compileall -q src scripts tests
 
 対象44テスト、変更したスクリプト・テストのruff、src・scripts・testsの構文検査が通過。未知phaseの維持、初回と再準備の分離、未来・注釈への非依存、骨格欠落を解除とみなさないこと、1フレーム遅れ、正解部分置換によるロックの副作用を確認した。基準結果の回帰確認は16動画の実験にも組み込み、保存済み結果と一致した。アプリのカメラ動作は変更しておらず、実カメラ検証は今回の対象外。
 
-生データ：[比較結果・原因一覧JSON](0924-opening-setup-results.json)。全条件のフレーム出力と状態列は `shared/results/0924-cache/0924-opening-setup-results-predictions.npz` に保存する。JSONにはその相対パス、状態IDの対応、入力・実装のハッシュを含む。
+生データ：[比較結果・原因一覧JSON](../shared/results/0924-opening-setup-results.json)。全条件のフレーム出力と状態列は `shared/results/0924-cache/0924-opening-setup-results-predictions.npz` に保存する。JSONにはその相対パス、状態IDの対応、入力・実装のハッシュを含む。

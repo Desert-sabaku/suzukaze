@@ -7,7 +7,7 @@ Fullモデルは打ち水動画で3条件中もっとも良好でしたが、Lit
 重要点や最終判定を安定して改善せず、扇ぎの誤出力も増やしたため、全体適用しません。
 正解区間がないので、期待動作のフレーム比率は正解率・再現率・F1値ではありません。
 
-詳細な生データは [curtain-comparison.json](curtain-comparison.json) です。
+詳細な生データは [curtain-comparison.json](../shared/results/curtain-comparison.json) です。
 
 ## 結果
 

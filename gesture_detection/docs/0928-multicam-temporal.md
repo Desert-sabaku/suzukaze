@@ -26,8 +26,8 @@
   単純な保持延長を全体へ適用する案は採用しない。
 
 前段：[配置・素材を変えない追加検証](0928-multicam-followup.md)。
-生データ：[単独カメラ・時間判定の比較](0928-multicam-temporal-results.json)、
-[時刻順の2カメラ統合](0928-multicam-fusion-results.json)。
+生データ：[単独カメラ・時間判定の比較](../shared/results/0928-multicam-temporal-results.json)、
+[時刻順の2カメラ統合](../shared/results/0928-multicam-fusion-results.json)。
 
 ## 評価基準の修正
 
