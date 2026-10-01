@@ -4,7 +4,6 @@
 
 ## パッケージ構成
 
-
 アプリケーションは `src/gesture_detection/`、テストは `tests/`、
 注釈用ツールは `scripts/`、評価・研究用ツールは private な `shared/scripts/` にあります。
 `uv sync` でパッケージを
@@ -18,7 +17,6 @@ editableインストールしてから実行してください。旧 `modules.*`
 
 ## 品質確認
 
-
 ```bash
 uv sync --group dev
 uv run ruff format --check src tests scripts main.py
@@ -29,4 +27,3 @@ uv run python -m pytest
 
 構文だけを確認する場合は `uv run python -m compileall src` を実行します。
 Pull Request では Ruff、Pyright、Pytest とカバレッジ計測を実行します。
-

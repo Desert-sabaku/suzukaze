@@ -104,13 +104,13 @@ source_timestamp = frame_id / effective_fps
 
 ## 構成
 
-| モジュール | 役割 |
-| --- | --- |
-| `multicam_input.py` | カメラ別の取得・推論プロセス、録画セッションの読み込み |
-| `multicam_fusion.py` | ソース時刻による統合、古い視点・イベントの失効、重複除去 |
-| `event_rearm.py` | 解除・新しい準備による共有再許可 |
-| `multicam_app.py` | 実カメラ／録画の実行ループ、比較表示、出力、統合通知 |
-| `recognition.py` | `profile="multicam"`で検証候補の判定器とイベント証拠を選択 |
+| モジュール           | 役割                                                       |
+| -------------------- | ---------------------------------------------------------- |
+| `multicam_input.py`  | カメラ別の取得・推論プロセス、録画セッションの読み込み     |
+| `multicam_fusion.py` | ソース時刻による統合、古い視点・イベントの失効、重複除去   |
+| `event_rearm.py`     | 解除・新しい準備による共有再許可                           |
+| `multicam_app.py`    | 実カメラ／録画の実行ループ、比較表示、出力、統合通知       |
+| `recognition.py`     | `profile="multicam"`で検証候補の判定器とイベント証拠を選択 |
 
 アプリ本体は評価スクリプトをimportせず、プロファイルと統合処理をパッケージ内に持ちます。
 単一入力は`MULTICAM_ENABLED=false`で使用します。
