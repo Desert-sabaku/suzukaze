@@ -1,9 +1,4 @@
-# 評価記録
-
-詳細な評価記録と研究用の再現資料は、[GitHub Wiki](https://github.com/Desert-sabaku/suzukaze/wiki)
-へ移しました。
-
-## 現行実装への反映
+# 現行実装への反映
 
 - MediaPipeは `VIDEO` モードを既定とし、通常実行はLiteモデルを使用します。
 - 検出・存在・追跡confidenceは `0.50` を維持しています。

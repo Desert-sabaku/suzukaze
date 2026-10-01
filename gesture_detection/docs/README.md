@@ -27,7 +27,7 @@
 
 ## 評価記録
 
-- [評価記録](evaluations.md): 現行実装へ反映した結論とprivate wikiへの案内
+- [評価記録](evaluations.md): 現行実装へ反映した結論
 - [詳細な評価記録](https://github.com/Desert-sabaku/suzukaze/wiki): GitHub Wikiで管理
 
 日付付きの評価レポート、結果JSON、比較画像、動画、注釈、ランドマーク、顔が写る
