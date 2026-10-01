@@ -1,0 +1,9 @@
+{
+    "name": "Suzukaze.Bridge.Editor",
+    "rootNamespace": "Suzukaze.Bridge.Editor",
+    "references": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "autoReferenced": false
+}
