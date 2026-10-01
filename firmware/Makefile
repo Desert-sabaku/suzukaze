@@ -1,22 +1,22 @@
 TARGET ?= pico
 
 # 現在のコミットハッシュ(未コミット変更があれば -dirty を付与)
-GIT_COMMIT := $(shell git describe --always --dirty)
+COMMIT_HASH := $(shell git describe --always --dirty)
 
 # proto/以下の全.protoファイルからハッシュを計算(先頭8文字)
 SCHEMA_HASH := $(shell cat ../proto/comms/v1/*.proto | sha256sum | cut -c1-8)
 
 # TinyGoに埋め込むフラグ
-LDFLAGS := -X main.GitCommit=$(GIT_COMMIT) -X main.SchemaHash=$(SCHEMA_HASH)
+LDFLAGS := -X main.CommitHash=$(COMMIT_HASH) -X main.SchemaHash=$(SCHEMA_HASH)
 
 all: flash
 
 build:
-	@echo "=== Building firmware (Commit: $(GIT_COMMIT), Schema: $(SCHEMA_HASH)) ==="
+	@echo "=== Building firmware (Commit: $(COMMIT_HASH), Schema: $(SCHEMA_HASH)) ==="
 	tinygo build -target=$(TARGET) -ldflags="$(LDFLAGS)" -o firmware.uf2 ./cmd
 
 flash:
-	@echo "=== Flashing to $(TARGET) (Commit: $(GIT_COMMIT), Schema: $(SCHEMA_HASH)) ==="
+	@echo "=== Flashing to $(TARGET) (Commit: $(COMMIT_HASH), Schema: $(SCHEMA_HASH)) ==="
 	tinygo flash -target=$(TARGET) -ldflags="$(LDFLAGS)" ./cmd
 
 clean:

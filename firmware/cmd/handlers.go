@@ -5,7 +5,7 @@ import (
 )
 
 var (
-  GitCommit = "dev" // makeで挿入
+  CommitHash = "dev" // makeで挿入
   SchemaHash = "dev"
 )
 
@@ -18,7 +18,7 @@ func handleHandshake(pt *PacketTransceiver, req *comms_v1.HandshakeReq) {
 			HandshakeResp: &comms_v1.HandshakeResp{
 				ControllerVersion: &comms_v1.VersionInfo{
 					SchemaHash: SchemaHash,
-					CommitHash: GitCommit,
+					CommitHash: CommitHash,
 				},
 				UptimeMs: UptimeMs(),
 				Matched:  req.GetClientVersion().GetSchemaHash() == SchemaHash,
