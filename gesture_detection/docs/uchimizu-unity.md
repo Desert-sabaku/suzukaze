@@ -8,7 +8,7 @@
 clone 後は `proto/` で生成し、Unity Editor の NuGetForUnity による依存復元を完了させます。
 
 ```bash
-buf generate --template buf.gen.gesture.yaml
+buf generate
 ```
 
 ## ライブ認識から演出する
