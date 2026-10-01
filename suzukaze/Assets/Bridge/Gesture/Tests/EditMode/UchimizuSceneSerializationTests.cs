@@ -30,7 +30,11 @@ namespace Suzukaze.Gesture.Receiver.Tests
             var script = AssetDatabase.LoadAssetAtPath<MonoScript>(AssetDatabase.GUIDToAssetPath(ScriptGuid));
             Assert.That(script, Is.Not.Null);
             Assert.That(script.GetClass(), Is.EqualTo(type));
-            Assert.That(typeof(IGestureSink).IsAssignableFrom(type), Is.True);
+            var tryPlay = type.GetMethod("TryPlay", Type.EmptyTypes);
+            Assert.That(tryPlay, Is.Not.Null, "The real effect must expose manual playback");
+            Assert.That(tryPlay.IsPublic, Is.True);
+            Assert.That(tryPlay.IsStatic, Is.False);
+            Assert.That(tryPlay.ReturnType, Is.EqualTo(typeof(bool)));
 
             string path = "Assets/MyScenes/" + name + ".unity";
             var scene = SceneManager.GetSceneByPath(path);

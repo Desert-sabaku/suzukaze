@@ -9,7 +9,7 @@ namespace Suzukaze.Gesture.Receiver.Tests
     public class OwnershipTests
     {
         private sealed class Clock : IMonotonicClock { public double Now => 10; }
-        private sealed class AcceptingSink : IGestureSink
+        private sealed class AcceptingSubscriber
         {
             public int Calls;
             public StateView State;
@@ -49,13 +49,18 @@ namespace Suzukaze.Gesture.Receiver.Tests
             ResetPlaySession();
             var first = new GameObject("lost ACK owner");
             GameObject second = null;
-            var clock = new Clock(); var sink = new AcceptingSink();
+            var clock = new Clock(); var sink = new AcceptingSubscriber();
             try
             {
-                var old = Handoff(CreateOwner(first));
+                var firstReceiver = CreateOwner(first);
+                var firstEvents = firstReceiver.Events;
+                firstReceiver.Events.Occurred += sink.TryAcceptEvent;
+                firstReceiver.Events.StateChanged += sink.DeliverState;
+                var old = Handoff(firstReceiver);
                 old.Resume(); long token = old.BeginConnection();
-                old.Publish(token, Occurrence()); old.Tick(clock, sink);
+                old.Publish(token, Occurrence()); old.Tick(clock, firstReceiver.Events);
                 Assert.That(sink.Calls, Is.EqualTo(1));
+                Assert.That(sink.State, Is.SameAs(firstReceiver.Events.CurrentState));
                 // Do not dequeue/send the accepted ACK. Destroy the actual owner.
                 Object.Destroy(first);
                 yield return null;
@@ -64,12 +69,15 @@ namespace Suzukaze.Gesture.Receiver.Tests
 
                 second = new GameObject("replacement owner");
                 var receiver = CreateOwner(second);
+                Assert.That(receiver.Events, Is.Not.SameAs(firstEvents));
+                receiver.Events.Occurred += sink.TryAcceptEvent;
+                receiver.Events.StateChanged += sink.DeliverState;
                 var replacement = Handoff(receiver);
                 Assert.That(replacement, Is.Not.SameAs(old), "Pending work belongs to each owner");
-                replacement.Tick(clock, sink);
-                Assert.That(sink.State.Fresh, Is.False);
+                replacement.Tick(clock, receiver.Events);
+                Assert.That(receiver.Events.CurrentState.Fresh, Is.False);
                 replacement.Resume(); token = replacement.BeginConnection();
-                replacement.Publish(token, Occurrence()); replacement.Tick(clock, sink);
+                replacement.Publish(token, Occurrence()); replacement.Tick(clock, receiver.Events);
                 Assert.That(replacement.TakeAck(token).Ack.Status, Is.EqualTo(Protocol.AckStatus.Duplicate));
                 Assert.That(sink.Calls, Is.EqualTo(1), "Replacement must not repeat the effect");
 
@@ -82,7 +90,7 @@ namespace Suzukaze.Gesture.Receiver.Tests
                 var newPlay = Handoff(receiver);
                 Assert.That(newPlay, Is.Not.SameAs(replacement));
                 newPlay.Resume(); token = newPlay.BeginConnection();
-                newPlay.Publish(token, Occurrence()); newPlay.Tick(clock, sink);
+                newPlay.Publish(token, Occurrence()); newPlay.Tick(clock, receiver.Events);
                 Assert.That(newPlay.TakeAck(token).Ack.Status, Is.EqualTo(Protocol.AckStatus.Accepted));
                 Assert.That(sink.Calls, Is.EqualTo(2));
             }
@@ -136,15 +144,100 @@ namespace Suzukaze.Gesture.Receiver.Tests
         [UnityTest]
         public IEnumerator DiagnosticSinkDoesNotAcceptByDefault()
         {
+            RequireSupportedPlatform();
+            RequireIsolatedReceiverScene();
             var go = new GameObject("gesture diagnostic test");
+            GestureReceiverBehaviour receiver = null;
             try
             {
                 var sink = go.AddComponent<GestureDiagnosticSink>();
-                Assert.That(sink.TryAcceptEvent("test", new Protocol.Event { EventId = 1 }), Is.False);
+                receiver = GestureReceiverBehaviour.GetOrCreate();
+                receiver.enabled = false;
+                var handoff = Handoff(receiver);
+                handoff.Resume();
+                long token = handoff.BeginConnection();
+                Assert.That(handoff.Publish(token, Occurrence()), Is.True);
+                handoff.Tick(new Clock(), receiver.Events);
+                Assert.That(handoff.TakeAck(token).Ack.Status, Is.EqualTo(Protocol.AckStatus.Ignored));
                 Assert.That(sink.EventCount, Is.EqualTo(1));
             }
-            finally { Object.Destroy(go); }
+            finally
+            {
+                go.SetActive(false);
+                Object.Destroy(go);
+                if (receiver != null) Object.Destroy(receiver.gameObject);
+            }
             yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator DiagnosticObserverReadsCurrentStateAndDoesNotStealAcceptedEvents()
+        {
+            RequireSupportedPlatform();
+            RequireIsolatedReceiverScene();
+            var owner = new GameObject("diagnostic observer owner");
+            var go = new GameObject("gesture diagnostic observer");
+            try
+            {
+                var receiver = CreateOwner(owner);
+                var handoff = Handoff(receiver);
+                handoff.Resume();
+                long token = handoff.BeginConnection();
+                // Establish a non-default session state before the observer subscribes.
+                Assert.That(handoff.Publish(token, Occurrence()), Is.True);
+                handoff.Tick(new Clock(), receiver.Events);
+                Assert.That(handoff.TakeAck(token).Ack.Status, Is.EqualTo(Protocol.AckStatus.Ignored));
+                var current = receiver.Events.CurrentState;
+                Assert.That(current.SessionId, Is.EqualTo("owner-replacement"));
+
+                var accepting = new AcceptingSubscriber();
+                receiver.Events.Occurred += accepting.TryAcceptEvent;
+                var observer = go.AddComponent<GestureDiagnosticSink>();
+                Assert.That(observer.LatestState, Is.SameAs(current));
+                Assert.That(observer.EventCount, Is.Zero);
+
+                var message = Occurrence();
+                message.Envelope.Event.EventId = 2;
+                Assert.That(handoff.Publish(token, message), Is.True);
+                handoff.Tick(new Clock(), receiver.Events);
+                Assert.That(handoff.TakeAck(token).Ack.Status, Is.EqualTo(Protocol.AckStatus.Accepted));
+                Assert.That(accepting.Calls, Is.EqualTo(1));
+                Assert.That(observer.EventCount, Is.EqualTo(1));
+
+                var updated = new StateView();
+                receiver.Events.DeliverState(updated);
+                Assert.That(observer.LatestState, Is.SameAs(updated));
+
+                observer.enabled = false;
+                var disabledState = observer.LatestState;
+                message = Occurrence();
+                message.Envelope.Event.EventId = 3;
+                Assert.That(handoff.Publish(token, message), Is.True);
+                handoff.Tick(new Clock(), receiver.Events);
+                Assert.That(handoff.TakeAck(token).Ack.Status, Is.EqualTo(Protocol.AckStatus.Accepted));
+                Assert.That(accepting.Calls, Is.EqualTo(2));
+                Assert.That(observer.EventCount, Is.EqualTo(1));
+                receiver.Events.DeliverState(new StateView());
+                Assert.That(observer.LatestState, Is.SameAs(disabledState));
+
+                observer.enabled = true;
+                Assert.That(observer.LatestState, Is.SameAs(receiver.Events.CurrentState));
+            }
+            finally
+            {
+                go.SetActive(false);
+                Object.Destroy(go);
+                Object.Destroy(owner);
+            }
+            yield return null;
+        }
+
+        private static void RequireIsolatedReceiverScene()
+        {
+            if (Object.FindObjectsByType<GestureReceiverBehaviour>(
+                FindObjectsInactive.Include, FindObjectsSortMode.None).Length != 0)
+                Assert.Ignore("Run in an isolated PlayMode test scene without an existing receiver");
+            ResetPlaySession();
         }
     }
 }

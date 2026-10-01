@@ -33,7 +33,6 @@ namespace Suzukaze.Gesture.Receiver.Tests
 
             effectType = Type.GetType("ParticleOnEnter, Assembly-CSharp");
             Assert.That(effectType, Is.Not.Null, "The real runtime effect must be available");
-            Assert.That(typeof(IGestureSink).IsAssignableFrom(effectType), Is.True);
             ResetPlaySession();
             ownsSession = true;
 
@@ -104,7 +103,7 @@ namespace Suzukaze.Gesture.Receiver.Tests
             AssertAck(handoff, token, Occurrence(3, Protocol.OccurrenceGesture.Ramune),
                 Protocol.AckStatus.Ignored);
             Assert.That(Copies(), Is.EquivalentTo(new[] { first }));
-            Assert.That(((IGestureSink)effect).TryAcceptEvent("test", null), Is.False);
+            Assert.That(TryAcceptEvent(effect, null), Is.False);
             Assert.That(Copies(), Has.Length.EqualTo(1));
         }
 
@@ -119,8 +118,8 @@ namespace Suzukaze.Gesture.Receiver.Tests
             else if (unavailable == "inactive") effect.gameObject.SetActive(false);
             else Set(effect, unavailable, null);
 
-            // Call the real sink directly as well: a stale reference must not accept.
-            Assert.That(((IGestureSink)effect).TryAcceptEvent("test", Occurrence(1)), Is.False);
+            // Call the public handler directly as well: a stale reference must not accept.
+            Assert.That(TryAcceptEvent(effect, Occurrence(1)), Is.False);
             Assert.That(TryPlay(effect), Is.False);
             var handoff = Handoff();
             long token = handoff.BeginConnection();
@@ -154,49 +153,95 @@ namespace Suzukaze.Gesture.Receiver.Tests
         }
 
         [Test]
-        public void OptedOutOnEnableDoesNotReplaceTheCurrentSink()
+        public void OptedOutOnEnableLeavesActiveEffectReceivingEvents()
         {
-            var current = CreateEffect();
+            CreateEffect();
             var optedOut = CreateEffect(false);
-            Assert.That(BoundSink(), Is.SameAs(current));
-            Assert.That(((IGestureSink)optedOut).TryAcceptEvent("test", Occurrence(1)), Is.False);
+            var handoff = Handoff();
+            long token = handoff.BeginConnection();
+            AssertAck(handoff, token, Occurrence(1), Protocol.AckStatus.Accepted);
+            Assert.That(Copies(), Has.Length.EqualTo(1));
             optedOut.enabled = false;
-            Assert.That(BoundSink(), Is.SameAs(current));
-            Assert.That(Copies(), Is.Empty);
+            AssertAck(handoff, token, Occurrence(2), Protocol.AckStatus.Accepted);
+            Assert.That(Copies(), Has.Length.EqualTo(2));
         }
 
         [Test]
-        public void SceneSinkHandoffReusesOwnerAndOldDisableCannotClearNewSink()
+        public void ActiveEffectsBothReceiveAndDisablingOldOnlyRemovesOld()
         {
             var old = CreateEffect();
-            Assert.That(BoundSink(), Is.SameAs(old));
             var next = CreateEffect();
             var nextNeck = NewObject("next scene neck").transform;
             nextNeck.SetPositionAndRotation(new Vector3(20, 30, 40), Quaternion.Euler(7, 83, 21));
             Set(next, "neck", nextNeck);
             Assert.That(GestureReceiverBehaviour.GetOrCreate(), Is.SameAs(receiver));
-            Assert.That(BoundSink(), Is.SameAs(next));
-
-            old.enabled = false; // Old scene can leave after the new scene has bound.
-            Assert.That(BoundSink(), Is.SameAs(next));
             Assert.That(Object.FindObjectsByType<GestureReceiverBehaviour>(
                 FindObjectsSortMode.None), Has.Length.EqualTo(1));
             var handoff = Handoff();
             long token = handoff.BeginConnection();
             AssertAck(handoff, token, Occurrence(1), Protocol.AckStatus.Accepted);
-            Assert.That(Copies(), Has.Length.EqualTo(1));
-            AssertPlacement(Copies()[0], nextNeck, 0.375f);
+            Assert.That(Copies(), Has.Length.EqualTo(2));
+            var firstCopies = Copies();
+            AssertPlacement(firstCopies.Single(copy =>
+                Vector3.Distance(copy.transform.position, neck.position + Vector3.up * 0.375f) < 0.0001f),
+                neck, 0.375f);
+            AssertPlacement(firstCopies.Single(copy =>
+                Vector3.Distance(copy.transform.position, nextNeck.position + Vector3.up * 0.375f) < 0.0001f),
+                nextNeck, 0.375f);
+
+            old.enabled = false;
+            AssertAck(handoff, token, Occurrence(2), Protocol.AckStatus.Accepted);
+            Assert.That(Copies(), Has.Length.EqualTo(3));
+            AssertPlacement(Copies().Single(copy => !firstCopies.Contains(copy)), nextNeck, 0.375f);
 
             next.enabled = false;
-            Assert.That(BoundSink() == null, Is.True);
             Assert.That(GestureReceiverBehaviour.GetOrCreate(), Is.SameAs(receiver));
-            AssertAck(handoff, token, Occurrence(2), Protocol.AckStatus.Ignored);
-            Assert.That(Copies(), Has.Length.EqualTo(1));
+            AssertAck(handoff, token, Occurrence(3), Protocol.AckStatus.Ignored);
+            Assert.That(Copies(), Has.Length.EqualTo(3));
 
             old.enabled = true;
-            Assert.That(BoundSink(), Is.SameAs(old));
-            AssertAck(handoff, token, Occurrence(3), Protocol.AckStatus.Accepted);
-            Assert.That(Copies(), Has.Length.EqualTo(2));
+            var beforeReenable = Copies();
+            AssertAck(handoff, token, Occurrence(4), Protocol.AckStatus.Accepted);
+            Assert.That(Copies(), Has.Length.EqualTo(4));
+            AssertPlacement(Copies().Single(copy => !beforeReenable.Contains(copy)), neck, 0.375f);
+        }
+
+        [Test]
+        public void NoSubscribersIgnoresEvent()
+        {
+            var handoff = Handoff();
+            long token = handoff.BeginConnection();
+            AssertAck(handoff, token, Occurrence(1), Protocol.AckStatus.Ignored);
+            Assert.That(Copies(), Is.Empty);
+        }
+
+        [Test]
+        public void RamuneSubscriberAndWaterEffectWorkIndependently()
+        {
+            CreateEffect();
+            int ramuneCount = 0;
+            Func<string, Protocol.Event, bool> ramune = (session, occurrence) => {
+                if (occurrence.Gesture != Protocol.OccurrenceGesture.Ramune) return false;
+                ramuneCount++;
+                return true;
+            };
+            receiver.Events.Occurred += ramune;
+            try
+            {
+                var handoff = Handoff();
+                long token = handoff.BeginConnection();
+                AssertAck(handoff, token, Occurrence(1), Protocol.AckStatus.Accepted);
+                Assert.That(Copies(), Has.Length.EqualTo(1));
+                Assert.That(ramuneCount, Is.Zero);
+                AssertAck(handoff, token, Occurrence(2, Protocol.OccurrenceGesture.Ramune),
+                    Protocol.AckStatus.Accepted);
+                Assert.That(Copies(), Has.Length.EqualTo(1));
+                Assert.That(ramuneCount, Is.EqualTo(1));
+                AssertAck(handoff, token, Occurrence(3), Protocol.AckStatus.Accepted);
+                Assert.That(Copies(), Has.Length.EqualTo(2));
+                Assert.That(ramuneCount, Is.EqualTo(1));
+            }
+            finally { receiver.Events.Occurred -= ramune; }
         }
 
         [Test]
@@ -207,10 +252,14 @@ namespace Suzukaze.Gesture.Receiver.Tests
             ResetPlaySession();
             Assert.That(receiver.IsOwner, Is.False);
             Assert.That(GestureReceiverBehaviour.GetOrCreate(), Is.SameAs(receiver));
-            var effect = CreateEffect();
-            Assert.That(BoundSink(), Is.SameAs(effect));
+            CreateEffect();
             Assert.That(Object.FindObjectsByType<GestureReceiverBehaviour>(
                 FindObjectsSortMode.None), Has.Length.EqualTo(1));
+            var handoff = Handoff();
+            handoff.Resume();
+            long token = handoff.BeginConnection();
+            AssertAck(handoff, token, Occurrence(1), Protocol.AckStatus.Accepted);
+            Assert.That(Copies(), Has.Length.EqualTo(1));
         }
 
         private GameObject NewObject(string name)
@@ -242,6 +291,9 @@ namespace Suzukaze.Gesture.Receiver.Tests
         private bool TryPlay(MonoBehaviour effect) =>
             (bool)effectType.GetMethod("TryPlay", Type.EmptyTypes).Invoke(effect, null);
 
+        private bool TryAcceptEvent(MonoBehaviour effect, Protocol.Event occurrence) =>
+            (bool)effectType.GetMethod("TryAcceptEvent").Invoke(effect, new object[] { "test", occurrence });
+
         private ParticleSystem[] Copies() => particleName == null ? new ParticleSystem[0] :
             Object.FindObjectsByType<ParticleSystem>(FindObjectsInactive.Include, FindObjectsSortMode.None)
                 .Where(particle => particle.name == particleName + "(Clone)").ToArray();
@@ -253,9 +305,6 @@ namespace Suzukaze.Gesture.Receiver.Tests
             Assert.That(Quaternion.Angle(copy.transform.rotation, origin.rotation), Is.LessThan(0.01f));
             Assert.That(copy.transform.parent, Is.Null);
         }
-
-        private MonoBehaviour BoundSink() => (MonoBehaviour)typeof(GestureReceiverBehaviour)
-            .GetField("sink", PrivateInstance).GetValue(receiver);
 
         private ReceiverHandoff Handoff() => (ReceiverHandoff)typeof(GestureReceiverBehaviour)
             .GetField("handoff", PrivateInstance).GetValue(receiver);
@@ -273,7 +322,7 @@ namespace Suzukaze.Gesture.Receiver.Tests
             Assert.That(handoff.Publish(token, new ReceivedMessage(new Protocol.GestureEnvelope {
                 Version = 1, SessionId = "uchimizu-test", Event = occurrence
             }, 10)), Is.True);
-            handoff.Tick(new Clock(), BoundSink() as IGestureSink);
+            handoff.Tick(new Clock(), receiver.Events);
             var ack = handoff.TakeAck(token);
             Assert.That(ack, Is.Not.Null);
             Assert.That(ack.SessionId, Is.EqualTo("uchimizu-test"));
