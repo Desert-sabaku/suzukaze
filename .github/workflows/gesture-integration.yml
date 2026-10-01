@@ -50,7 +50,7 @@ jobs:
         run: uv run --project tools/gesture-integration --no-sync python tools/restore_unity_protobuf.py
       - name: Restore locked portable test dependencies
         run: dotnet restore tools/GestureDelivery.Integration --locked-mode
-      - name: Real Python to C# delivery and ACK (native QPC on Windows)
+      - name: Real Python to C# delivery and ACK (native host clock)
         run: dotnet test tools/GestureDelivery.Integration --no-restore --logger "trx;LogFileName=gesture-integration.trx" --results-directory tools/GestureDelivery.Integration/TestResults
       - uses: actions/upload-artifact@v4
         if: always()

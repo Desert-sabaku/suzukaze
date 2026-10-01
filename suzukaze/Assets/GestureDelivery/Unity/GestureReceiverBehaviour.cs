@@ -64,7 +64,7 @@ namespace Suzukaze.Gesture.Delivery
             if (worker != null) return;
             try
             {
-                clock = new WindowsQpcClock();
+                clock = HostMonotonicClock.Create();
                 var uri = new Uri(endpoint);
                 if (!uri.IsLoopback || (uri.Scheme != "ws" && uri.Scheme != "wss"))
                     throw new ArgumentException("Endpoint must be a loopback WebSocket URI");

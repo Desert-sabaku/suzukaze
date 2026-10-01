@@ -14,7 +14,7 @@ uv run unity-bridge --gesture-port 5001
 ```
 
 認識側のTCP `127.0.0.1:5001` とUnityのWebSocket `ws://127.0.0.1:5000`
-を接続します。認識側・ブリッジ・Unityは同一Windows PCで実行します。
+を接続します。認識側・ブリッジ・Unityは同一Windows PCまたは同一64-bit Linux PCで実行します。
 Windows UnityとWSL/Linux Pythonの組み合わせには対応しません。
 このモードではシリアルポートを開きません。
 Unityが未接続の間は認識側にも接続せず、UnityからのACKだけを認識側へ返します。
@@ -49,6 +49,8 @@ ProtobufはTCPの4バイトBE長付きフレームと、WebSocketのバイナリ
 同梱の[C#受信実装と診断Prefab](../suzukaze/Assets/GestureDelivery/README.md)を
 Unityへの組み込みに使用できます。Unity Windows Editor/standalone（Mono/IL2CPP）の
 実機検証は未完了で、Pythonテストはその代替にはなりません。
+Fedora 44 / Unity 6000.5.8f1 Editor の実通信確認結果と起動方法は
+[Fedora 運用ガイド](../gesture_detection/docs/fedora-protobuf.md)を参照してください。
 
 ## 既存のシリアル中継
 

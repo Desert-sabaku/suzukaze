@@ -15,7 +15,7 @@ namespace Suzukaze.Gesture.Delivery
 
         public WindowsQpcClock()
         {
-            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 throw new PlatformNotSupportedException("Gesture delivery requires Windows same-PC QPC");
             if (!QueryPerformanceFrequency(out frequency) || frequency <= 0)
                 throw new InvalidOperationException("QPC frequency unavailable");

@@ -9,7 +9,11 @@ permissions:
 
 jobs:
   portable-receiver:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,7 +28,7 @@ jobs:
         run: python tools/restore_unity_protobuf.py
       - name: Restore locked portable test dependencies
         run: dotnet restore tools/GestureDelivery.Smoke/GestureDelivery.Smoke.csproj --locked-mode
-      - name: Test policy, sockets, and schema-owned golden fixtures
+      - name: Test native host clocks, policy, sockets, and schema-owned golden fixtures
         run: dotnet test tools/GestureDelivery.Smoke/GestureDelivery.Smoke.csproj --no-restore --verbosity minimal
       - name: Build C# 8 and .NET Standard 2.1 compatibility target
         run: dotnet build tools/GestureDelivery.Compatibility/GestureDelivery.Compatibility.csproj --verbosity minimal

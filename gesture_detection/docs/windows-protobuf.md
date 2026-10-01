@@ -105,7 +105,7 @@ dotnet test tools/GestureDelivery.Integration --no-restore
 
 同じテストを CI の Ubuntu/Windows ジョブでも実行します。Windows ジョブは実際の
 `WindowsQpcClock` を使い、Python `time.monotonic()` のサンプルを C# 時計で挟んで
-同じ時刻系であることも検証します。Linux ジョブの時計はテスト専用です。
+同じ時刻系であることも検証します。Linux ジョブも本番の `LinuxMonotonicClock` を使用します。
 
 確認する経路は、実 `DeliveryOutbox` → 実 TCP サーバー → 実 WebSocket ブリッジ
 → 実 C# 受信コア → ACK → Outbox です。採用、見送り、重複、メインスレッド待ち中の

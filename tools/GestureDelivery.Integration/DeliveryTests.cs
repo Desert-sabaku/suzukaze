@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,7 +25,7 @@ public sealed class DeliveryTests
     [SetUp]
     public void Start()
     {
-        clock = OperatingSystem.IsWindows() ? new WindowsQpcClock() : new LinuxClock();
+        clock = HostMonotonicClock.Create();
         fixture = new Fixture();
         handoff = new ReceiverHandoff();
         sink = new Sink();
@@ -57,7 +56,7 @@ public sealed class DeliveryTests
     {
         sink.Accept = accept;
         // This brackets the Python monotonic sample with the actual platform clock.
-        // On Windows this explicitly exercises production QPC, with no offset shim.
+        // Exercises production QPC or CLOCK_MONOTONIC, with no offset shim.
         double before = clock.Now;
         var published = fixture.Command("publish");
         double after = clock.Now;
@@ -196,23 +195,6 @@ public sealed class DeliveryTests
     }
 
     private sealed class FixedClock(double now) : IMonotonicClock { public double Now => now; }
-
-    private sealed class LinuxClock : IMonotonicClock
-    {
-        [StructLayout(LayoutKind.Sequential)]
-        private struct Timespec { public long Seconds; public long Nanoseconds; }
-        [DllImport("libc", SetLastError = true)]
-        private static extern int clock_gettime(int id, out Timespec time);
-        public double Now
-        {
-            get
-            {
-                if (!OperatingSystem.IsLinux() || clock_gettime(1, out var time) != 0)
-                    throw new InvalidOperationException("Linux CLOCK_MONOTONIC unavailable");
-                return time.Seconds + time.Nanoseconds / 1e9;
-            }
-        }
-    }
 
     private sealed class Fixture : IDisposable
     {

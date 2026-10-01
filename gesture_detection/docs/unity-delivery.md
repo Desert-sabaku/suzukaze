@@ -1,10 +1,11 @@
 # Unityへのジェスチャー通知
 
 Windows のセットアップと実機確認は [Windows protobuf 運用ガイド](windows-protobuf.md)を参照してください。
+Fedora/Linux は [Fedora protobuf 運用ガイド](fedora-protobuf.md)を参照してください。
 
 ## 構成と起動
 
-同一Windows PC内の1組の認識プロセス、ブリッジ、Unityを対象にします。
+同一Windows PCまたは同一64-bit Linux PC内の1組の認識プロセス、ブリッジ、Unityを対象にします。
 Windows UnityとWSL/Linux Pythonの組み合わせや別PC間の配送には対応しません。
 
 `gesture_detection → TCP 127.0.0.1:5001 → unity_bridge → WebSocket 127.0.0.1:5000 → Unity`
@@ -138,7 +139,7 @@ Unityは見送ったイベントも処理済みに記録し、後の再送で再
 元フレームの取得時刻を保持します。別カメラの新しい入力や統合処理によってイベントの期限を延ばしません。
 状態統合には直近0.2秒の視点を使うため、配送側の0.5秒の失効より先に`NONE`へ戻る場合があります。
 
-同梱のUnity受信実装はWindows QPCを使用します。
+同梱のUnity受信実装はOSに合わせてWindows QPCまたはLinux CLOCK_MONOTONICを選択します。
 Windowsは `QueryPerformanceCounter / QueryPerformanceFrequency` の商、
 Linuxは `clock_gettime(CLOCK_MONOTONIC)` の秒です。別OSへ移植するときは
 Pythonの時計実装を確認します。取得方法は
