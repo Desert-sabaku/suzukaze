@@ -35,6 +35,7 @@ buf generate --template buf.gen.gesture.yaml
 
 送信間隔などの設定、メッセージ仕様、時計、期限と受信側責務は
 [Unityへのジェスチャー通知](../gesture_detection/docs/unity-delivery.md)を参照してください。
+Unity側の受信実装は [`suzukaze/Assets/Bridge/Gesture/`](../suzukaze/Assets/Bridge/Gesture/README.md) です。
 
 ## 既存のシリアル中継
 

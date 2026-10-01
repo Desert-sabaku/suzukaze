@@ -19,7 +19,7 @@ Unityの受信確認は認識側へは返しません。シーン判断はUnity�
    `uv run unity-gesture-probe` を起動する。
 
 Unityが未接続の間も認識結果は受け取り、状態とイベントの期限を進めます。
-Unity側は切断時に100ms程度の間隔で再接続してください。接続はUnity 1台に限定します。
+Unity側は切断時に再接続してください（Unityの受信実装は500ms間隔）。接続はUnity 1台に限定します。
 プローブの `--ignore-events` は演出中の見送りを模擬します。実機は操作しません。
 終了はブリッジでCtrl+C、または認識画面でEscです。認識側が終了するとブリッジも終了します。
 
@@ -133,5 +133,7 @@ WebSocketの送受信は別タスクで行います。接続待ち・遅い受�
 
 認識側・ブリッジ側とも `uv run python -m pytest`。ブリッジ側の統合テストは実際の子プロセス・
 キュー・WebSocket・プローブ受信処理を通します（カメラは不要）。
-Unity受信方針の参照実装は `unity_bridge/src/unity_bridge/gesture_probe.py` にあります。
-UnityプロジェクトへのC#組み込みと実カメラによる演出確認は別途必要です。
+Unityの受信実装は `suzukaze/Assets/Bridge/Gesture/`（[README](../../suzukaze/Assets/Bridge/Gesture/README.md)）、
+Pythonの参照実装は `unity_bridge/src/unity_bridge/gesture_probe.py` にあります。
+Unityの受信実装はWindowsの時計（QPC）だけに対応しており、他のOSでは未対応として報告します。
+実機Unityと実カメラによる演出確認は別途必要です。

@@ -23,6 +23,8 @@ uv run gesture-detection
 
 既定ではカメラ0を使用します。表示された枠に胴体の中心を合わせてください。
 終了は `Esc` です。姿勢推定モデルがない場合は初回起動時に自動取得します。
+単体で起動した場合はUnityへ送信しません。Unityへ送るときは `unity_bridge/` で
+`uv run unity-bridge --gesture` を実行すると、この認識アプリも起動します（[Unityとの接続](docs/unity-delivery.md)）。
 
 主な設定は `.env` で変更します。
 

@@ -1,8 +1,9 @@
 # ジェスチャー仕様
 
 この文書を、アプリケーションが現在判定するジェスチャー仕様の正本とします。
-しきい値の実値は `src/gesture_detection/config.py`、判定処理は `src/gesture_detection/pose_worker.py`、
-`src/gesture_detection/relaxing.py`、`src/gesture_detection/uchimizu.py`、`src/gesture_detection/ramune.py` にあります。
+しきい値の実値は `src/gesture_detection/config.py`、判定処理は `src/gesture_detection/recognition.py`
+（優先順位の調停）、`src/gesture_detection/hand_gesture.py`（扇ぎ）、`src/gesture_detection/relaxing.py`、
+`src/gesture_detection/uchimizu.py`、`src/gesture_detection/ramune.py` にあります。
 ここに記載する値は認識精度の保証ではなく、現在のヒューリスティックです。
 
 ## 共通条件と優先順位

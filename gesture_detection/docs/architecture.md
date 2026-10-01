@@ -10,7 +10,7 @@
 - `src/gesture_detection/multicam_fusion.py`: 共通時計による所作結果の統合・失効・重複除去
 - `src/gesture_detection/event_rearm.py`: 両視点の解除証拠と新しい準備による再許可
 - `src/gesture_detection/hand_gesture.py`: 片手ごとの履歴、扇ぎ判定と打ち水の誤認識抑制
-- `src/gesture_detection/recognition_types.py`: 現在の認識状態と内部診断用の結果型
+- `src/gesture_detection/recognition_types.py`: 現在の認識状態と内部診断用の結果型、`unity_bridge` へ送る `GestureSample`
 - `src/gesture_detection/relaxing.py`: 入力元時刻による静止判定
 - `src/gesture_detection/uchimizu.py`: すくい上げと振り下ろしの状態機械
 - `src/gesture_detection/ramune.py`: 両手の準備と押下の状態機械
