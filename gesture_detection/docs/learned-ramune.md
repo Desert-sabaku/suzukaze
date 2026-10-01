@@ -90,12 +90,12 @@ gesture_detectionディレクトリで、モデルを使うだけなら通常の
 
 ```bash
 MPLCONFIGDIR=/tmp/suzukaze-mpl OPENBLAS_NUM_THREADS=1 \
-  uv run python -m scripts.export_ramune_model
+  uv run python -m shared.scripts.export_ramune_model
 MPLCONFIGDIR=/tmp/suzukaze-mpl OPENBLAS_NUM_THREADS=1 \
-  uv run python -m scripts.validate_learned_ramune \
+  uv run python -m shared.scripts.validate_learned_ramune \
   --videos both_without_the_screen contrast_without_the_screen
 MPLCONFIGDIR=/tmp/suzukaze-mpl OPENBLAS_NUM_THREADS=1 \
-  uv run python -m scripts.validate_learned_ramune --app-clock \
+  uv run python -m shared.scripts.validate_learned_ramune --app-clock \
   --videos both_without_the_screen contrast_without_the_screen \
   --output shared/results/0924-runtime-source-clock.json
 uv run pytest --no-cov -q
@@ -107,7 +107,7 @@ uv run python -m compileall -q src scripts tests
 
 ```bash
 RAMUNE_DETECTOR=rules MPLCONFIGDIR=/tmp/suzukaze-mpl OPENBLAS_NUM_THREADS=1 \
-  uv run python -m scripts.export_ramune_model --prepare-snapshot \
+  uv run python -m shared.scripts.export_ramune_model --prepare-snapshot \
   --snapshot shared/results/0924-cache/runtime-source-new.npz \
   --output /tmp/ramune-rebuilt.npz
 ```

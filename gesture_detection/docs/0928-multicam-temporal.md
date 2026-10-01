@@ -183,11 +183,11 @@ phaseの許容を広げても、フレーム取得時刻の不明さそのもの
 ## 再現とチェック
 
 ```bash
-uv run python -m scripts.evaluate_multicam_temporal
-uv run python -m scripts.evaluate_multicam_fusion
-uv run pytest tests/test_multicam_temporal.py --no-cov
-uv run ruff check scripts/multicam_temporal_metrics.py scripts/evaluate_multicam_temporal.py scripts/evaluate_multicam_fusion.py tests/test_multicam_temporal.py
-uv run python -m compileall src scripts/multicam_temporal_metrics.py scripts/evaluate_multicam_temporal.py scripts/evaluate_multicam_fusion.py
+uv run python -m shared.scripts.evaluate_multicam_temporal
+uv run python -m shared.scripts.evaluate_multicam_fusion
+PYTHONPATH=. uv run pytest shared/tests/test_multicam_temporal.py --no-cov
+uv run ruff check shared/scripts/multicam_temporal_metrics.py shared/scripts/evaluate_multicam_temporal.py shared/scripts/evaluate_multicam_fusion.py shared/tests/test_multicam_temporal.py
+uv run python -m compileall src shared/scripts/multicam_temporal_metrics.py shared/scripts/evaluate_multicam_temporal.py shared/scripts/evaluate_multicam_fusion.py
 ```
 
 26動画×3入力条件の保存骨格で、baselineのフレーム別出力が既存結果と完全一致することを確認。

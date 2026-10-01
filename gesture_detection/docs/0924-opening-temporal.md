@@ -83,9 +83,9 @@ gesture_detectionディレクトリで：
 ```bash
 uv sync
 OPENBLAS_NUM_THREADS=1 MPLCONFIGDIR=/tmp/suzukaze-matplotlib \
-  uv run python -m scripts.evaluate_opening_temporal --plot
-uv run pytest tests/test_evaluate_opening_temporal.py tests/test_evaluate_timeline.py --no-cov -q
-uv run python -m compileall src scripts/evaluate_opening_temporal.py
+  uv run python -m shared.scripts.evaluate_opening_temporal --plot
+PYTHONPATH=. uv run pytest shared/tests/test_evaluate_opening_temporal.py shared/tests/test_evaluate_timeline.py --no-cov -q
+uv run python -m compileall src shared/scripts/evaluate_opening_temporal.py
 ```
 
 後処理の11テストと既存のtimeline評価10テスト、計21テストで、因果性、長い連続表示、再発火抑制、正当な2回目の開栓、骨格欠落時の再許可防止、学習・評価の分離を確認。ruff・構文検査も実施。

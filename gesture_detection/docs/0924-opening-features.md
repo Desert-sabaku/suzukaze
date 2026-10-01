@@ -98,12 +98,12 @@ gesture_detectionディレクトリで：
 
 ```bash
 MPLCONFIGDIR=/tmp/suzukaze-mpl OPENBLAS_NUM_THREADS=1 \
-  uv run python -m scripts.evaluate_opening_features --plot
-uv run pytest tests/test_evaluate_opening_features.py tests/test_evaluate_opening_setup.py \
-  tests/test_evaluate_opening_temporal.py tests/test_evaluate_opening_repetition.py \
-  tests/test_evaluate_opening_rearm.py tests/test_evaluate_timeline.py --no-cov -q
-uv run ruff check scripts/evaluate_opening_features.py scripts/evaluate_timeline.py \
-  tests/test_evaluate_opening_features.py
+  uv run python -m shared.scripts.evaluate_opening_features --plot
+PYTHONPATH=. uv run pytest shared/tests/test_evaluate_opening_features.py shared/tests/test_evaluate_opening_setup.py \
+  shared/tests/test_evaluate_opening_temporal.py shared/tests/test_evaluate_opening_repetition.py \
+  shared/tests/test_evaluate_opening_rearm.py shared/tests/test_evaluate_timeline.py --no-cov -q
+uv run ruff check shared/scripts/evaluate_opening_features.py shared/scripts/evaluate_timeline.py \
+  shared/tests/test_evaluate_opening_features.py
 uv run python -m compileall -q src scripts tests
 ```
 

@@ -46,7 +46,7 @@ Fullで重要点も99.0%見えていますが成立しないため、人物検�
 モデルと対象動画を既定位置へ置き、次を実行します。
 
 ```bash
-uv run python -m scripts.evaluate_curtain
+uv run python -m shared.scripts.evaluate_curtain
 ```
 
 計時値は再現記録であり、反復したベンチマークではありません。次の追試は

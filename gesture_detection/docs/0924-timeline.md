@@ -92,7 +92,7 @@ macro-F1は正例のあるNONE / RAMUNE / RELAXINGの平均。正例のないFAN
 再集計コマンド（他条件も--outputを差し替えて実行）：
 
 ```bash
-uv run python -m scripts.evaluate_timeline --rescore-openings \
+uv run python -m shared.scripts.evaluate_timeline --rescore-openings \
   --output shared/results/0924-timeline-central-results.json
 ```
 
@@ -108,12 +108,12 @@ gesture_detectionディレクトリで実行する。sharedの0924動画・timel
 
 ```bash
 uv sync
-OPENBLAS_NUM_THREADS=1 uv run python -m scripts.evaluate_timeline
-OPENBLAS_NUM_THREADS=1 uv run python -m scripts.evaluate_timeline \
+OPENBLAS_NUM_THREADS=1 uv run python -m shared.scripts.evaluate_timeline
+OPENBLAS_NUM_THREADS=1 uv run python -m shared.scripts.evaluate_timeline \
   --no-subject-selection --output shared/results/0924-timeline-raw-results.json
-OPENBLAS_NUM_THREADS=1 uv run python -m scripts.evaluate_timeline \
+OPENBLAS_NUM_THREADS=1 uv run python -m shared.scripts.evaluate_timeline \
   --no-subject-selection --central-mask --output shared/results/0924-timeline-central-results.json
-OPENBLAS_NUM_THREADS=1 uv run python -m scripts.evaluate_timeline \
+OPENBLAS_NUM_THREADS=1 uv run python -m shared.scripts.evaluate_timeline \
   --no-subject-selection --central-mask --linear-only \
   --output shared/results/0924-timeline-central-linear-results.json
 uv run pytest --no-cov

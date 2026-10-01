@@ -70,15 +70,15 @@
 
 | ファイル | 役割 |
 | --- | --- |
-| `scripts/evaluate_multicam.py` | 26動画の監査・実時間近似補正・3条件の骨格推定と一次評価 |
-| `scripts/analyze_multicam.py` | 姿勢取得率、判定状態、注釈時計差の集計 |
-| `scripts/evaluate_multicam_followup.py` | カメラ別領域、保存骨格の再生整合性、判定診断 |
-| `scripts/analyze_multicam_followup.py` | 表示持続時間と静止判定の平滑化比較 |
-| `scripts/multicam_temporal_metrics.py` | phase許容幅、イベント対応、表示区間の計測 |
-| `scripts/evaluate_multicam_temporal.py` | ラムネ準備追従と短期保持の比較 |
-| `scripts/evaluate_multicam_fusion.py` | 時刻順の2カメラ統合・固定優先順位と短期重複除去 |
-| `scripts/multicam_event_policy.py` | 所作別採点、打ち水の追加証拠、解除・新準備による再許可 |
-| `scripts/evaluate_multicam_events.py` | 最終候補を含む比較、2回連結したクリップの回帰確認 |
+| `shared/scripts/evaluate_multicam.py` | 26動画の監査・実時間近似補正・3条件の骨格推定と一次評価 |
+| `shared/scripts/analyze_multicam.py` | 姿勢取得率、判定状態、注釈時計差の集計 |
+| `shared/scripts/evaluate_multicam_followup.py` | カメラ別領域、保存骨格の再生整合性、判定診断 |
+| `shared/scripts/analyze_multicam_followup.py` | 表示持続時間と静止判定の平滑化比較 |
+| `shared/scripts/multicam_temporal_metrics.py` | phase許容幅、イベント対応、表示区間の計測 |
+| `shared/scripts/evaluate_multicam_temporal.py` | ラムネ準備追従と短期保持の比較 |
+| `shared/scripts/evaluate_multicam_fusion.py` | 時刻順の2カメラ統合・固定優先順位と短期重複除去 |
+| `shared/scripts/multicam_event_policy.py` | 所作別採点、打ち水の追加証拠、解除・新準備による再許可 |
+| `shared/scripts/evaluate_multicam_events.py` | 最終候補を含む比較、2回連結したクリップの回帰確認 |
 
 レポートのJSONは集計・追跡用。`shared/results/0928-multicam*/` のフレーム別出力、
 骨格キャッシュ、比較画像は下記コマンドで再生成する。
@@ -100,13 +100,13 @@ annotations/<take>/camera_01/timeline.json, camera_02/timeline.json
 
 ```bash
 uv sync --group dev
-uv run python -m scripts.evaluate_multicam
-uv run python -m scripts.analyze_multicam
-uv run python -m scripts.evaluate_multicam_followup
-uv run python -m scripts.analyze_multicam_followup
-uv run python -m scripts.evaluate_multicam_temporal
-uv run python -m scripts.evaluate_multicam_fusion
-uv run python -m scripts.evaluate_multicam_events
+uv run python -m shared.scripts.evaluate_multicam
+uv run python -m shared.scripts.analyze_multicam
+uv run python -m shared.scripts.evaluate_multicam_followup
+uv run python -m shared.scripts.analyze_multicam_followup
+uv run python -m shared.scripts.evaluate_multicam_temporal
+uv run python -m shared.scripts.evaluate_multicam_fusion
+uv run python -m shared.scripts.evaluate_multicam_events
 ```
 
 前段で作った動画・注釈・実行コードのハッシュと再生結果を照合する。

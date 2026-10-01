@@ -77,10 +77,10 @@ MediaPipe Pose Lite、VIDEO、confidence 0.5、30 FPSの固定時間格子で、
 
 ```bash
 uv sync
-POSE_SELECT_SUBJECT=false uv run python -m scripts.evaluate_unlabelled_controls \
+POSE_SELECT_SUBJECT=false uv run python -m shared.scripts.evaluate_unlabelled_controls \
   --videos shared/videos/bright-without-the-screen \
   --output shared/results/bright-without-controls.json
-POSE_SELECT_SUBJECT=false uv run python -m scripts.evaluate_unlabelled_controls \
+POSE_SELECT_SUBJECT=false uv run python -m shared.scripts.evaluate_unlabelled_controls \
   --videos shared/videos/bright-without-the-screen \
   --preprocess control_roi --output shared/results/bright-without-roi.json
 ```

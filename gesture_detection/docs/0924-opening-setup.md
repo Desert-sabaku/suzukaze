@@ -83,12 +83,12 @@ gesture_detectionディレクトリで、既存の依存環境を使用する。
 
 ```bash
 MPLCONFIGDIR=/tmp/suzukaze-mpl OPENBLAS_NUM_THREADS=1 \
-  uv run python -m scripts.evaluate_opening_setup --plot
-uv run pytest tests/test_evaluate_opening_setup.py \
-  tests/test_evaluate_opening_temporal.py tests/test_evaluate_opening_repetition.py \
-  tests/test_evaluate_opening_rearm.py tests/test_evaluate_timeline.py --no-cov -q
-uv run ruff check scripts/evaluate_opening_setup.py \
-  scripts/evaluate_opening_temporal.py tests/test_evaluate_opening_setup.py
+  uv run python -m shared.scripts.evaluate_opening_setup --plot
+PYTHONPATH=. uv run pytest shared/tests/test_evaluate_opening_setup.py \
+  shared/tests/test_evaluate_opening_temporal.py shared/tests/test_evaluate_opening_repetition.py \
+  shared/tests/test_evaluate_opening_rearm.py shared/tests/test_evaluate_timeline.py --no-cov -q
+uv run ruff check shared/scripts/evaluate_opening_setup.py \
+  shared/scripts/evaluate_opening_temporal.py shared/tests/test_evaluate_opening_setup.py
 uv run python -m compileall -q src scripts tests
 ```
 

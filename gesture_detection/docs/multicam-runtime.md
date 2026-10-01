@@ -120,11 +120,11 @@ source_timestamp = frame_id / effective_fps
 保存済みの研究キャッシュがある環境では、次を実行できます。
 
 ```bash
-uv run python -m scripts.validate_multicam_runtime
+uv run python -m shared.scripts.validate_multicam_runtime
 # 一部のテイクだけを照合
-uv run python -m scripts.validate_multicam_runtime --takes 20260928_001754 20260928_001839
+uv run python -m shared.scripts.validate_multicam_runtime --takes 20260928_001754 20260928_001839
 # 実際にアプリで出力したJSONLも、凍結した統合結果と比較
-uv run python -m scripts.validate_multicam_runtime --trace 20260928_001754 output/001754-multicam.jsonl
+uv run python -m shared.scripts.validate_multicam_runtime --trace 20260928_001754 output/001754-multicam.jsonl
 ```
 
 これはカメラ別の判定と統合出力を、mainへ引き継いだ最終候補のフレーム別結果と照合します。

@@ -67,7 +67,7 @@ Lite・閾値0.5に既存の前処理を適用した結果は以下のとおり�
 ## 再実行
 
 ```bash
-uv run python -m scripts.evaluate_landmark_annotations \
+uv run python -m shared.scripts.evaluate_landmark_annotations \
   --model pose_landmarker_lite.task \
   --preprocess identity \
   --preprocess weak_blur \
@@ -122,10 +122,10 @@ uv run python -m scripts.evaluate_landmark_annotations \
 再実行例：
 
 ```bash
-uv run python -m scripts.evaluate_action_intervals \
+uv run python -m shared.scripts.evaluate_action_intervals \
   --output shared/results/action-intervals-lite.json
 
-uv run python -m scripts.evaluate_action_intervals \
+uv run python -m shared.scripts.evaluate_action_intervals \
   --action RAMUNE \
   --sample-fps 30 \
   --output shared/results/action-intervals-ramune-30fps.json
@@ -160,7 +160,7 @@ YOLOv8nはMediaPipeより人物と関節を多く返すものの、ジェスチ�
 再実行例：
 
 ```bash
-uv run python -m scripts.evaluate_yolo_annotations \
+uv run python -m shared.scripts.evaluate_yolo_annotations \
   --model /path/to/yolov8n-pose.pt \
   --output shared/results/yolo-landmark-annotations.json
 ```
@@ -209,13 +209,13 @@ uv run python -m scripts.evaluate_yolo_annotations \
 再実行例：
 
 ```bash
-uv run python -m scripts.evaluate_landmark_annotations \
+uv run python -m shared.scripts.evaluate_landmark_annotations \
   --preprocess background_mask \
   --detection-confidence 0.35 \
   --presence-confidence 0.35 \
   --output shared/results/landmark-background-mask-conf035.json
 
-uv run python -m scripts.evaluate_action_intervals \
+uv run python -m shared.scripts.evaluate_action_intervals \
   --environment behind \
   --preprocess background_mask \
   --detection-confidence 0.35 \
@@ -261,7 +261,7 @@ Landmarkerへの単純な置換も不採用とする。現在の映像だけか�
 再実行例：
 
 ```bash
-uv run python -m scripts.evaluate_hand_landmarker \
+uv run python -m shared.scripts.evaluate_hand_landmarker \
   --model /path/to/hand_landmarker.task \
   --detection-confidence 0.2 \
   --presence-confidence 0.2 \

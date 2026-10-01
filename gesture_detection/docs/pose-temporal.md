@@ -47,7 +47,7 @@
 ## 再現
 
 ```bash
-PYTHONPATH=. uv run python -m scripts.evaluate_pose_temporal --model /tmp/yolov8n-pose.pt
+PYTHONPATH=. uv run python -m shared.scripts.evaluate_pose_temporal --model /tmp/yolov8n-pose.pt
 ```
 
 モデルファイルのパスは取得先に合わせる。出力は `output/pose-temporal/` の

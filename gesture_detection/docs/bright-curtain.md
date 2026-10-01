@@ -76,12 +76,12 @@ PCKは全体で1.3ポイント低下した。これは表示の安定性と追�
 
 ```bash
 uv sync
-uv run python -m scripts.evaluate_landmark_annotations \
+uv run python -m shared.scripts.evaluate_landmark_annotations \
   --annotations shared/annotations/bright-behind-the-screen \
   --output shared/results/bright-landmarks.json
-POSE_SELECT_SUBJECT=false uv run python -m scripts.evaluate_action_intervals \
+POSE_SELECT_SUBJECT=false uv run python -m shared.scripts.evaluate_action_intervals \
   --environment bright --sample-fps 30 --output shared/results/bright-actions.json
-POSE_SELECT_SUBJECT=false uv run python -m scripts.evaluate_bright_tracking \
+POSE_SELECT_SUBJECT=false uv run python -m shared.scripts.evaluate_bright_tracking \
   --annotations shared/annotations/bright-behind-the-screen \
   --videos shared/videos/bright-behind-the-screen \
   --output shared/results/bright-tracking.json \

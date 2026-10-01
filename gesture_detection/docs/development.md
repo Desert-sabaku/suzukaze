@@ -6,7 +6,8 @@
 
 
 アプリケーションは `src/gesture_detection/`、テストは `tests/`、
-注釈・評価用ツールは `scripts/` にあります。`uv sync` でパッケージを
+注釈用ツールは `scripts/`、評価・研究用ツールは private な `shared/scripts/` にあります。
+`uv sync` でパッケージを
 editableインストールしてから実行してください。旧 `modules.*` のimportは
 `gesture_detection.*` に変更しています。
 

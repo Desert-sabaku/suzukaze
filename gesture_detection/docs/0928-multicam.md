@@ -185,11 +185,11 @@ camera2の`001913`だけ約0.20秒のRELAXING出力があるが、
 
 ```bash
 uv sync
-uv run python -m scripts.evaluate_multicam
-uv run python -m scripts.analyze_multicam
-uv run pytest tests/test_evaluate_multicam.py --no-cov
-uv run ruff check scripts/evaluate_multicam.py scripts/analyze_multicam.py tests/test_evaluate_multicam.py
-uv run python -m compileall src scripts/evaluate_multicam.py scripts/analyze_multicam.py
+uv run python -m shared.scripts.evaluate_multicam
+uv run python -m shared.scripts.analyze_multicam
+PYTHONPATH=. uv run pytest shared/tests/test_evaluate_multicam.py --no-cov
+uv run ruff check shared/scripts/evaluate_multicam.py shared/scripts/analyze_multicam.py shared/tests/test_evaluate_multicam.py
+uv run python -m compileall src shared/scripts/evaluate_multicam.py shared/scripts/analyze_multicam.py
 ```
 
 フレーム別骨格・コンテナ時刻・補正時刻・判定出力・各テイクの代表画像は

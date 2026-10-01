@@ -80,11 +80,11 @@ Poseの手首点では、掌が接触しても手首間隔が約0.6肩幅残る�
 動画名を`[動作名][通し番号]_[開始秒]-[終了秒].mp4`にそろえ、既存の区間評価器を使う。
 
 ```bash
-uv run python -m scripts.evaluate_action_intervals \
+uv run python -m shared.scripts.evaluate_action_intervals \
   --video-root shared/videos \
   --output shared/results/action-intervals-final.json
 
-uv run python -m scripts.evaluate_landmark_annotations \
+uv run python -m shared.scripts.evaluate_landmark_annotations \
   --annotations shared/annotations \
   --output shared/results/landmarks-final.json
 ```

@@ -82,13 +82,13 @@ SUBJECT_MIN_SHOULDER_WIDTH=0.10
 
 ```bash
 uv sync
-uv run python -m scripts.evaluate_subject_selection \
+uv run python -m shared.scripts.evaluate_subject_selection \
   --videos shared/videos/bright-without-the-screen \
   --output shared/results/subject-selection-controls.json \
   --previews shared/results/subject-selection
-uv run python -m scripts.evaluate_action_intervals \
+uv run python -m shared.scripts.evaluate_action_intervals \
   --environment bright --sample-fps 30 --output shared/results/subject-bright-actions.json
-uv run python -m scripts.evaluate_bright_tracking \
+uv run python -m shared.scripts.evaluate_bright_tracking \
   --annotations shared/annotations/bright-behind-the-screen \
   --videos shared/videos/bright-behind-the-screen \
   --output shared/results/subject-bright-tracking.json \

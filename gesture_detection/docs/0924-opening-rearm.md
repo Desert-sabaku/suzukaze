@@ -72,12 +72,12 @@
 gesture_detectionディレクトリで：
 
 ```bash
-OPENBLAS_NUM_THREADS=1 uv run python -m scripts.evaluate_opening_repetition
-OPENBLAS_NUM_THREADS=1 uv run python -m scripts.evaluate_opening_rearm
-OPENBLAS_NUM_THREADS=1 uv run python -m scripts.evaluate_opening_continuous
-uv run pytest tests/test_evaluate_opening_repetition.py \
-  tests/test_evaluate_opening_rearm.py tests/test_evaluate_opening_temporal.py \
-  tests/test_evaluate_timeline.py --no-cov -q
+OPENBLAS_NUM_THREADS=1 uv run python -m shared.scripts.evaluate_opening_repetition
+OPENBLAS_NUM_THREADS=1 uv run python -m shared.scripts.evaluate_opening_rearm
+OPENBLAS_NUM_THREADS=1 uv run python -m shared.scripts.evaluate_opening_continuous
+PYTHONPATH=. uv run pytest shared/tests/test_evaluate_opening_repetition.py \
+  shared/tests/test_evaluate_opening_rearm.py shared/tests/test_evaluate_opening_temporal.py \
+  shared/tests/test_evaluate_timeline.py --no-cov -q
 ```
 
 27テスト、変更したスクリプト・テストのruff、構文検査を実施。連結時の注釈位置の移動、欠落を解除証拠にしないこと、2回目を抑制する候補への減点、未来フレーム非依存を確認した。

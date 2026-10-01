@@ -57,8 +57,8 @@ MediaPipe Fullは必要な両肩・両手首・両腰を306/309フレームで�
 ## 再現
 
 ```bash
-uv run python -m scripts.evaluate_curtain --condition full_conf035
-uv run python -m scripts.evaluate_yolo_pose --confidence 0.05
+uv run python -m shared.scripts.evaluate_curtain --condition full_conf035
+uv run python -m shared.scripts.evaluate_yolo_pose --confidence 0.05
 ```
 
 YOLOの時系列追試と最終判断は[追跡・短時間補間の評価](pose-temporal.md)を参照してください。

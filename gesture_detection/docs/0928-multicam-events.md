@@ -197,16 +197,16 @@ camera1注釈時計で、準備も含むaction内の表示率の試行平均は�
 
 ## 成果物・再現
 
-- `scripts/multicam_event_policy.py`：所作別採点、画像上の上昇・下降証拠、解除・新準備の制御。
-- `scripts/evaluate_multicam_events.py`：3入力条件、単独カメラ・統合・連続再生の比較。
+- `shared/scripts/multicam_event_policy.py`：所作別採点、画像上の上昇・下降証拠、解除・新準備の制御。
+- `shared/scripts/evaluate_multicam_events.py`：3入力条件、単独カメラ・統合・連続再生の比較。
 - `shared/results/0928-multicam-events/`：フレーム別の判定出力。
 - `shared/results/0928-multicam-events-results.json`：単独・統合集計、発火した手と準備時刻、連続再生結果。
 
 ```bash
-uv run python -m scripts.evaluate_multicam_events
-uv run pytest tests/test_multicam_event_policy.py --no-cov
-uv run ruff check scripts/multicam_event_policy.py scripts/evaluate_multicam_events.py tests/test_multicam_event_policy.py
-uv run python -m compileall src scripts/multicam_event_policy.py scripts/evaluate_multicam_events.py
+uv run python -m shared.scripts.evaluate_multicam_events
+PYTHONPATH=. uv run pytest shared/tests/test_multicam_event_policy.py --no-cov
+uv run ruff check shared/scripts/multicam_event_policy.py shared/scripts/evaluate_multicam_events.py shared/tests/test_multicam_event_policy.py
+uv run python -m compileall src shared/scripts/multicam_event_policy.py shared/scripts/evaluate_multicam_events.py
 ```
 
 26動画×3入力で、変更前の準備追従出力が前回結果と完全一致することを確認。

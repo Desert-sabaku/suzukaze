@@ -189,8 +189,8 @@ camera1で約0.067秒、camera2で約0.399秒、新たに生じた。
 
 ## 成果物と検証
 
-- `scripts/evaluate_multicam_followup.py`：カメラ別人物領域・全画面学習済み判定・状態診断。
-- `scripts/analyze_multicam_followup.py`：持続時間と固定平滑化の比較。
+- `shared/scripts/evaluate_multicam_followup.py`：カメラ別人物領域・全画面学習済み判定・状態診断。
+- `shared/scripts/analyze_multicam_followup.py`：持続時間と固定平滑化の比較。
 - `shared/results/0928-multicam-followup/`：フレーム別骨格・判定・診断、48枚の骨格オーバーレイ画像。
   画像の中央列はラムネではOPENED注釈の中点、他の所作ではactionの中点。
   青枠は候補領域、緑線と番号付き黄点は可視性0.5超の推定骨格。
@@ -202,9 +202,9 @@ camera1で約0.067秒、camera2で約0.399秒、新たに生じた。
 集計・診断のテスト4件、Ruff、構文確認に成功。
 
 ```bash
-uv run python -m scripts.evaluate_multicam_followup
-uv run python -m scripts.analyze_multicam_followup
-uv run pytest tests/test_evaluate_multicam_followup.py --no-cov
-uv run ruff check scripts/evaluate_multicam_followup.py scripts/analyze_multicam_followup.py tests/test_evaluate_multicam_followup.py
-uv run python -m compileall src scripts/evaluate_multicam_followup.py scripts/analyze_multicam_followup.py
+uv run python -m shared.scripts.evaluate_multicam_followup
+uv run python -m shared.scripts.analyze_multicam_followup
+PYTHONPATH=. uv run pytest shared/tests/test_evaluate_multicam_followup.py --no-cov
+uv run ruff check shared/scripts/evaluate_multicam_followup.py shared/scripts/analyze_multicam_followup.py shared/tests/test_evaluate_multicam_followup.py
+uv run python -m compileall src shared/scripts/evaluate_multicam_followup.py shared/scripts/analyze_multicam_followup.py
 ```
