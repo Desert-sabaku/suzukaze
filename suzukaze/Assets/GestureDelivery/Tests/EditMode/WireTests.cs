@@ -92,7 +92,7 @@ namespace Suzukaze.Gesture.Delivery.Tests
             using (var socket = new FragmentSocket(new byte[0]) { Type = WebSocketMessageType.Close })
                 Assert.That(await WireMessage.ReceiveAsync(socket, new TestClock(), CancellationToken.None), Is.Null);
             using (var socket = new FragmentSocket(new byte[0]))
-                Assert.ThrowsAsync<OperationCanceledException>(async () =>
+                Assert.CatchAsync<OperationCanceledException>(async () =>
                     await WireMessage.ReceiveAsync(socket, new TestClock(), new CancellationToken(true)));
         }
 

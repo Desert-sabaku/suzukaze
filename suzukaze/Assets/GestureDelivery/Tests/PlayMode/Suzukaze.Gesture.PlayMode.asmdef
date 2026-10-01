@@ -1,5 +1,7 @@
 {
   "name": "Suzukaze.Gesture.PlayMode",
   "references": ["Suzukaze.Gesture.Delivery", "Suzukaze.Gesture.Protocol", "Suzukaze.Gesture.Unity"],
-  "optionalUnityReferences": ["TestAssemblies"]
+  "optionalUnityReferences": ["TestAssemblies"],
+  "overrideReferences": true,
+  "precompiledReferences": ["nunit.framework.dll", "Google.Protobuf.dll"]
 }

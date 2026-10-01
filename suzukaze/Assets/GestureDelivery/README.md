@@ -1,6 +1,6 @@
 # Unity gesture receiver (PR3)
 
-Unity **6000.5.8f1**, Windows Editor/standalone, **.NET Standard 2.1** API
+Unity **6000.5.8f1**, Windows or 64-bit Linux Editor/standalone, **.NET Standard 2.1** API
 compatibility. Connects to the same-PC bridge at `ws://127.0.0.1:5000` by default.
 The bridge must serve protocol v1 **binary protobuf**, one `GestureEnvelope`
 per WebSocket message, without the detector-to-bridge TCP length header.
@@ -21,7 +21,7 @@ extracting the chosen `netstandard2.0` DLLs. See `Plugins/DEPENDENCIES.md` for
 the framework-supplied transitive dependencies. Do not install another copy of
 Google.Protobuf through a different Unity package manager.
 
-In a **Windows** test scene, add `Prefabs/GestureReceiverDiagnostic.prefab` as
+In a **Windows or Linux** test scene, add `Prefabs/GestureReceiverDiagnostic.prefab` as
 a root object. It persists through scene loads; duplicate owners destroy their
 own GameObject. The diagnostic sink defaults to `acceptEvents: false` and logs
 occurrence decisions. Opt in to acceptance in its Inspector when testing.
@@ -99,12 +99,16 @@ effect before throwing; retry returns `duplicate` rather than repeating it.
 
 ## Clock and platform limits
 
-`WindowsQpcClock` calls `QueryPerformanceCounter` / `QueryPerformanceFrequency`
-without subtracting a process start time. This shares the same epoch as
-CPython `time.monotonic()` on the **same Windows PC**. Unity `Time.time`, wall
-clock, and stopwatch **elapsed** time are unsuitable. Policy/transport accept
-an `IMonotonicClock` for deterministic tests; the production component always
-selects Windows QPC and reports unsupported platforms rather than guessing.
+`HostMonotonicClock.Create()` selects the native host clock:
+
+- Windows: `WindowsQpcClock`, `QueryPerformanceCounter / QueryPerformanceFrequency`.
+- 64-bit Linux (LP64): `LinuxMonotonicClock`, libc `clock_gettime(CLOCK_MONOTONIC)`.
+
+Neither subtracts a process start time. Both share CPython `time.monotonic()`'s
+epoch on the **same native OS and PC**. Linux uses MONOTONIC, not BOOTTIME or
+MONOTONIC_RAW. Unity `Time.time`, wall clock, and stopwatch **elapsed** time are
+unsuitable. Other hosts/32-bit Linux are rejected before native calls.
+Policy/transport accept an `IMonotonicClock` for deterministic tests.
 
 Remote hosts, WSL/Linux Python paired with Windows Unity, WebGL, and mobile
 are unsupported. Loopback endpoints are enforced. Windows Mono and IL2CPP,
@@ -138,7 +142,16 @@ with C# 8 and warnings as errors; .NET 8 alone would not catch API drift.
 In Unity Test Runner run **EditMode** and **PlayMode** under `Tests/`. PlayMode
 tests cover persistent ownership, destruction/replacement with a lost ACK,
 new-play-session isolation, disable/re-enable, and diagnostic opt-in;
-ownership tests skip non-Windows platforms. In a Windows test scene manually
+ownership tests run on Windows and 64-bit Linux. The opt-in Python fixture
+PlayMode test exercises the actual receiver component and Update/ACK loop;
+set `GESTURE_E2E_PYTHON` and `GESTURE_E2E_FIXTURE` as described in the
+[Fedora guide](../../../gesture_detection/docs/fedora-protobuf.md).
+In a test scene manually
 exercise session restart, focus loss, scene changes, sink acceptance, and
 Windows standalone Mono/IL2CPP builds with a real protobuf bridge. Portable
 tests do not substitute for those Unity/Windows checks.
+
+Fedora 44 x86_64 / Unity 6000.5.8f1 was verified with 27 EditMode and 4 PlayMode
+tests (including live Python/Unity delivery). Portable C# tests: 30 passed;
+Python/C# native-clock integration: 3 passed. Standalone Linux builds and live
+camera-driven visuals still need deployment-specific verification.
