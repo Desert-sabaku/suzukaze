@@ -11,7 +11,7 @@ wheels/
 recordings/
 
 *.task
-yolov8n-pose.pt
+yolov8n.pt
 
 # Local datasets; retain the directory layout and its documentation.
 shared/*/
@@ -22,6 +22,12 @@ shared/videos/*
 shared/annotations/*
 shared/results/*
 !shared/**/.gitkeep
+
+# Evaluation reports belong in the shared dataset, not public documentation.
+docs/*-results.json
+docs/*-diagnostics.json
+docs/*-persistence.json
+docs/*-runtime-*.json
 
 # Local environment settings
 .env
