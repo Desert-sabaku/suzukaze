@@ -1,7 +1,6 @@
-# Unityへのジェスチャー通知
+# Unity連携・OS別セットアップ・2カメラ
 
-Windows のセットアップと実機確認は [Windows protobuf 運用ガイド](windows-protobuf.md)を参照してください。
-Fedora/Linux は [Fedora protobuf 運用ガイド](fedora-protobuf.md)を参照してください。
+このページに、Unityへの通知、Windows/Linuxのセットアップ、2カメラ認識をまとめます。
 
 ## 構成と起動
 
@@ -31,7 +30,7 @@ Unity側は切断時に再接続してください（Unityの受信実装は500m
 動画評価や `MULTICAM_VIDEO_SESSION` による録画再生でも送信しません（時刻が入力元の時刻のため）。
 未確認イベントの容量超過は黙って無視せず、ブリッジのエラーとして終了させます。
 
-2カメラ認識は[2カメラ認識ガイド](multicam-runtime.md)の設定で起動します。
+2カメラ認識は、このページの[2カメラ認識](#2カメラ認識)の設定で起動します。
 両カメラの結果を統合し、共有の解除・新準備判定を通過したイベントを1つのキューへ送ります。
 
 送信間隔などは `unity_bridge` の環境変数で変更します（既定値）:
@@ -141,3 +140,88 @@ Unityの受信実装は `suzukaze/Assets/Bridge/Gesture/`（[README](../../suzuk
 Pythonの参照実装は `unity_bridge/src/unity_bridge/gesture_probe.py` にあります。
 Unityの受信実装はWindows（QPC）と64-bit Linux（`CLOCK_MONOTONIC`）の時計に対応しています。
 実機Unityと実カメラによる演出確認は別途必要です。
+
+## OS別セットアップ
+
+### 共通条件
+
+Python、uv、buf、Unity 6000.5.8f1を同一PCに用意します。Windows UnityとWSL/Linux
+Pythonの混在、別PC間の配送、時計名前空間が異なるコンテナは対象外です。
+
+リポジトリルートでprotobuf生成と依存関係の同期を行います。
+
+```bash
+(cd proto && buf generate)
+uv sync --locked --project unity_bridge
+```
+
+Unityは `suzukaze/` を開き、`GestureReceiverDiagnostic.prefab` を確認用シーンへ配置します。
+接続先は常に `ws://127.0.0.1:5000` です。`Google.Protobuf` はNuGetForUnityで復元します。
+
+### Windows
+
+PowerShellから起動します。
+
+```powershell
+Set-Location unity_bridge
+uv run --locked unity-bridge --gesture
+```
+
+WindowsではUnityとPythonをネイティブ環境で動かします。QPCを使うため、WSL側のPythonから
+Windows Unityへ接続しません。Unity EditorのRun In Backgroundを有効にし、Editor Pauseを
+解除します。
+
+### Fedora/Linux
+
+Linuxネイティブ環境から起動します。
+
+```bash
+uv run --directory unity_bridge --locked unity-bridge --gesture
+```
+
+Linuxでは `CLOCK_MONOTONIC` を使います。カメラのデバイス番号は環境により異なるため、
+`v4l2-ctl --list-devices` で確認します。Unity Editorのbatchmodeテストは、必要な場合に
+`suzukaze/` を対象として実行します。
+
+### OS共通の切り分け
+
+Unityを使わずに受信を確認する場合は、`unity_bridge/` で次を実行します。
+
+```bash
+uv run --locked unity-gesture-probe
+```
+
+接続できない場合は、`--gesture`、ライブ入力、ポート競合、受信器の二重起動を確認します。
+診断Sinkの既定値は `ignored` なので、演出を採用する場合は `IGestureSink` を実装します。
+
+## 2カメラ認識
+
+`.env` に次を設定して実行します。
+
+```dotenv
+MULTICAM_ENABLED=true
+MULTICAM_CAMERA_INDICES=1,2
+MULTICAM_FIRST_SELECT_SUBJECT=true
+MULTICAM_SECOND_SELECT_SUBJECT=false
+MULTICAM_VIDEO_SESSION=
+VIDEO_SOURCE=
+POSE_RUNNING_MODE=VIDEO
+RAMUNE_DETECTOR=rules
+MULTICAM_HEADLESS=false
+```
+
+```bash
+uv run gesture-detection
+```
+
+最初のカメラは人物選択、2台目は全画面解析です。Linuxでは1台のカメラが複数の
+`/dev/video*` として見えることがあるため、実際のデバイス番号を指定してください。
+2台の入力は同じ実演者を撮影する構成で使います。
+
+録画セッションを再生する場合は `MULTICAM_VIDEO_SESSION` に `session.json` を指定します。
+録画再生ではUnityへ通知しません。`MULTICAM_TRACE_PATH` を指定すると統合結果をJSONLへ
+保存できます。統合は直近の入力時刻を使い、古いイベントの期限を新しい入力で延長しません。
+
+2カメラの責任分界は、各カメラの取得・推論を子プロセスで行い、親側で結果を統合してから
+`GestureSample` としてブリッジへ渡す構成です。詳細な通信形式、イベント期限、ACK、時計の
+扱いはこのページ上部の[通信形式](#通信形式)と[時刻と再起動](#時刻と再起動)を正本とします。

@@ -12,10 +12,7 @@
 
 ## 連携・複数カメラ
 
-- [Unityへのジェスチャー通知](unity-delivery.md): `unity_bridge` と Unity の接続仕様
-- [Windows protobuf 運用ガイド](windows-protobuf.md)
-- [Fedora/Linux protobuf 運用ガイド](fedora-protobuf.md)
-- [2カメラ認識ガイド](multicam-runtime.md)
+- [Unity連携・OS別セットアップ・2カメラ](integration.md): 通信仕様、Windows/Linux、2カメラ
 
 ## 開発者向け
 

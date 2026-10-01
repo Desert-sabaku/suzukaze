@@ -6,7 +6,7 @@
 - YOLO Poseの追跡・補間・平滑化は製品判定へ統合していません。
 
 詳細な閾値と成立条件は [ジェスチャー仕様](gestures.md)、実行経路は
-[構成と設定](architecture.md) と [2カメラ認識ガイド](multicam-runtime.md) を参照してください。
+[構成と設定](architecture.md) と [Unity連携・OS別セットアップ・2カメラ](integration.md) を参照してください。
 
 ## 注意
 
