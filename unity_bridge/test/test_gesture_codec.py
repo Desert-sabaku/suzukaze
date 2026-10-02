@@ -58,6 +58,13 @@ def test_optional_presence():
     assert envelope.state.HasField("source_timestamp")
 
 
+def test_bow_state_round_trips():
+    message = {**FIXTURES[0]["message"], "gesture": "BOW"}
+    wire = encode_message(message)
+    assert pb.GestureEnvelope.FromString(wire).state.gesture == pb.CONTINUOUS_GESTURE_BOW
+    assert decode_message(wire) == message
+
+
 @pytest.mark.parametrize("wire", [b"", b"\xff", b"x" * 8193, b"\x08\x01"])
 def test_bad_wire(wire):
     with pytest.raises(ValueError):

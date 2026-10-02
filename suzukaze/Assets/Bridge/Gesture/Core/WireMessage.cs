@@ -21,7 +21,7 @@ namespace Suzukaze.Gesture.Receiver
             if (s != null)
             {
                 if (s.Sequence == 0 || !Finite(s.SentAt) || !Finite(s.StaleTimeout)
-                    || s.StaleTimeout <= 0 || (int)s.Gesture < 1 || (int)s.Gesture > 3
+                    || s.StaleTimeout <= 0 || (int)s.Gesture < 1 || (int)s.Gesture > 4
                     || (s.HasObservedAt && !Finite(s.ObservedAt))
                     || (s.HasSourceTimestamp && !Finite(s.SourceTimestamp)))
                     throw new InvalidDataException("Invalid state");

@@ -45,6 +45,7 @@ enum ContinuousGesture {
   CONTINUOUS_GESTURE_NONE = 1;
   CONTINUOUS_GESTURE_FANNING = 2;
   CONTINUOUS_GESTURE_RELAXING = 3;
+  CONTINUOUS_GESTURE_BOW = 4;
 }
 
 enum OccurrenceGesture {
