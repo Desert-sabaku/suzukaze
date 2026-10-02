@@ -2,7 +2,15 @@ import cv2
 import numpy as np
 import numpy.typing as npt
 
-from .config import RELAXING_DWELL_SECONDS, RIGHT_WRIST_INDEX, SUBJECT_AREA
+from .config import (
+    BOW_DWELL_SECONDS,
+    BOW_MAX_ANGLE_DEGREES,
+    BOW_MAX_HEAD_DEVIATION_DEGREES,
+    BOW_MIN_ANGLE_DEGREES,
+    RELAXING_DWELL_SECONDS,
+    RIGHT_WRIST_INDEX,
+    SUBJECT_AREA,
+)
 from .recognition_types import PoseResult
 
 type Landmark = tuple[float, float, float]
@@ -64,6 +72,62 @@ def draw_messages(
             scale,
             color,
             max(1, int(scale * 2)),
+        )
+
+
+def draw_bow_meter(image: npt.NDArray[np.uint8], result: PoseResult) -> None:
+    """Show the measured torso angle, target band and continuous hold progress."""
+    height, width = image.shape[:2]
+    if height < 270 or width < 220:
+        return
+    angle = result.get("bow_angle")
+    held = result.get("bow_hold_seconds", 0.0)
+    valid = (
+        angle is not None
+        and BOW_MIN_ANGLE_DEGREES <= angle <= BOW_MAX_ANGLE_DEGREES
+        and result.get("bow_head_aligned", False)
+    )
+    color = (0, 220, 0) if valid else (0, 180, 255)
+    if angle is None:
+        text = "Bow: -- (face, shoulders and hips needed)"
+    elif BOW_MIN_ANGLE_DEGREES <= angle <= BOW_MAX_ANGLE_DEGREES and not result.get(
+        "bow_head_aligned", False
+    ):
+        deviation = result.get("bow_head_deviation")
+        text = (
+            f"Bow: {angle:.0f} deg | neck {deviation:.0f} deg (max {BOW_MAX_HEAD_DEVIATION_DEGREES:.0f})"
+            if deviation is not None
+            else f"Bow: {angle:.0f} deg | straighten neck"
+        )
+    else:
+        text = f"Bow: {angle:.0f} deg (target 20-45) | hold {held:.2f}/{BOW_DWELL_SECONDS:.2f}s"
+    cv2.putText(image, text, (10, 225), cv2.FONT_HERSHEY_SIMPLEX, 0.55, color, 2)
+    left, right = 10, min(width - 10, 310)
+    span = right - left
+
+    def position(degrees: float) -> int:
+        return left + round(span * min(max(degrees, 0), 60) / 60)
+
+    cv2.rectangle(image, (left, 237), (right, 252), (80, 80, 80), 1)
+    cv2.rectangle(
+        image,
+        (position(BOW_MIN_ANGLE_DEGREES), 238),
+        (position(BOW_MAX_ANGLE_DEGREES), 251),
+        (60, 110, 60),
+        -1,
+    )
+    if angle is not None:
+        x = position(angle)
+        cv2.line(image, (x, 234), (x, 255), color, 3)
+    # The second bar fills only while the bow angle and neck alignment are held.
+    cv2.rectangle(image, (left, 259), (right, 266), (80, 80, 80), 1)
+    if valid and held > 0:
+        cv2.rectangle(
+            image,
+            (left, 260),
+            (left + round(span * min(held / BOW_DWELL_SECONDS, 1)), 265),
+            (0, 220, 0),
+            -1,
         )
 
 

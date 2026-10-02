@@ -134,7 +134,7 @@ def test_missing_input_cannot_rearm_and_stale_poses_do_not_track():
     assert fusion.advance(1.6).get("occurrences") == ()
 
 
-@pytest.mark.parametrize("gesture", ["FANNING", "RELAXING"])
+@pytest.mark.parametrize("gesture", ["FANNING", "RELAXING", "BOW"])
 def test_state_gestures_can_reappear(gesture):
     fusion = MultiCameraFusion()
     for t, label in ((0.0, gesture), (0.1, "NONE"), (0.2, gesture)):
