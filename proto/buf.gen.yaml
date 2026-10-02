@@ -29,7 +29,7 @@ plugins:
 
   # gesture: unity_bridge (Python) <-> Unity (C#)
   - remote: buf.build/protocolbuffers/csharp:v36.2
-    out: ../suzukaze/Assets/Bridge/Generated
+    out: ../Assets/Bridge/Generated
     types:
       - gesture.v1
 
