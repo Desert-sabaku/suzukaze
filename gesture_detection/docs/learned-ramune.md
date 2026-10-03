@@ -15,15 +15,16 @@ RELAXINGをアプリの表示に直接使わず、扇ぎ・打ち水・涼む動
 
 ## 利用方法と互換性
 
-`.env` に `RAMUNE_DETECTOR=learned` と `POSE_RUNNING_MODE=VIDEO` を設定して通常通り起動する。
+`config.toml` の `[ramune]` に `detector = "learned"`、`[pose]` に
+`running_mode = "VIDEO"` を設定して通常通り起動する。
 既定は `rules` のままで、切り戻しも設定変更と再起動で行う。カメラ入力・動画入力の両方で使用できる。
 
 学習済みモードでは人物選択を無効にし、モデル内の中央マスク範囲を使用する。
-`POSE_SELECT_SUBJECT` と `SUBJECT_AREA` による追跡条件はこのモードに適用しない。
+`pose.select_subject` と `pose.subject.area` による追跡条件はこのモードに適用しない。
 IMAGEモードとの併用、モデルの欠落・非対応形式・不正な重みは明示的なエラーにする。
 読み込みに失敗したときに従来判定へ黙って切り替えることはしない。
 
-`RAMUNE_LEARNED_MODEL_PATH` を空にすると同梱モデルを使う。独自モデルの相対パスは従来通り
+`ramune.learned_model` を空にすると同梱モデルを使う。独自モデルの相対パスは従来通り
 プロジェクトルート基準。NPZはpickleを許可せず読み込む。学習データ、研究スクリプト、追加依存は
 アプリの実行に不要で、wheelにもモデルと来歴JSONを含める。
 
@@ -106,7 +107,7 @@ uv run python -m compileall -q src scripts tests
 新しいチェックアウトで必要な場合は、動画・注釈を用意して別パスへ作成する。
 
 ```bash
-RAMUNE_DETECTOR=rules MPLCONFIGDIR=/tmp/suzukaze-mpl OPENBLAS_NUM_THREADS=1 \
+MPLCONFIGDIR=/tmp/suzukaze-mpl OPENBLAS_NUM_THREADS=1 \
   uv run python -m shared.scripts.export_ramune_model --prepare-snapshot \
   --snapshot shared/results/0924-cache/runtime-source-new.npz \
   --output /tmp/ramune-rebuilt.npz

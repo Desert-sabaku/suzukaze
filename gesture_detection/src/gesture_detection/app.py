@@ -13,10 +13,10 @@ import numpy.typing as npt
 from .config import (
     CAMERA_BACKEND,
     CAMERA_FOURCC,
-    CAMERA_INDEX,
     FPS,
     MULTICAM_ENABLED,
     POSE_CONNECTIONS,
+    RECORD_LIVE_VIDEO,
     VIDEO_OUTPUT_BUFFER_FRAMES,
     VIDEO_OUTPUT_PATH,
     VIDEO_SOURCE,
@@ -64,11 +64,11 @@ class FrameClock:
 class GestureApplication:
     def __init__(
         self,
-        camera_index: int = CAMERA_INDEX,
+        camera_index: int | None = None,
         samples: Queue[GestureSample] | None = None,
         stop: Event | None = None,
     ) -> None:
-        self.camera_index = camera_index
+        self.camera_index = 0 if camera_index is None else camera_index
         self.samples = samples
         self.stop = stop
         self.pose_frame_queue: SharedLatestFrame | None = None
@@ -104,7 +104,7 @@ class GestureApplication:
                 self.source_fps = float(source_fps)
             self._start_workers()
             assert self.pose_process is not None
-            writer = self._open_output(capture)
+            writer = self._open_output(capture, frame if VIDEO_SOURCE is None else None)
             if writer is not None:
                 try:
                     output = AsyncVideoWriter(writer, VIDEO_OUTPUT_BUFFER_FRAMES)
@@ -219,14 +219,18 @@ class GestureApplication:
         )
 
     @staticmethod
-    def _open_output(capture: cv2.VideoCapture) -> cv2.VideoWriter | None:
-        if VIDEO_SOURCE is None:
+    def _open_output(
+        capture: cv2.VideoCapture, frame: Frame | None = None
+    ) -> cv2.VideoWriter | None:
+        if VIDEO_SOURCE is None and not RECORD_LIVE_VIDEO:
             return None
 
-        width = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        width = frame.shape[1] if frame is not None else int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = (
+            frame.shape[0] if frame is not None else int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        )
         fps = capture.get(cv2.CAP_PROP_FPS)
-        if fps <= 0:
+        if not math.isfinite(fps) or fps <= 0:
             fps = FPS
         Path(VIDEO_OUTPUT_PATH).parent.mkdir(parents=True, exist_ok=True)
         output = cv2.VideoWriter(
@@ -311,12 +315,26 @@ class GestureApplication:
 
 def main(samples: Queue[GestureSample] | None = None, stop: Event | None = None) -> None:
     """Run recognition; when samples is given, send each live result to it."""
+    from . import config
+
+    indices = config.CAMERA_INDICES
+    live = config.MULTICAM_VIDEO_SESSION is None if MULTICAM_ENABLED else VIDEO_SOURCE is None
+    if live and indices is None:
+        if MULTICAM_ENABLED and config.MULTICAM_HEADLESS:
+            raise ValueError("Set camera.indices for headless live recognition")
+        from .camera_selection import select_camera_indices
+
+        indices = select_camera_indices(2 if MULTICAM_ENABLED else 1, stop)
+        if indices is None:
+            return
     if MULTICAM_ENABLED:
         from .multicam_app import MultiCameraApplication
 
-        MultiCameraApplication(samples, stop).run()
+        MultiCameraApplication(samples, stop, indices).run()
     else:
-        GestureApplication(samples=samples, stop=stop).run()
+        GestureApplication(
+            camera_index=indices[0] if indices else None, samples=samples, stop=stop
+        ).run()
 
 
 if __name__ == "__main__":

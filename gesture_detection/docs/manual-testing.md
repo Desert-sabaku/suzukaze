@@ -9,7 +9,7 @@
 - カメラ入力で起動し、表示、骨格、状態表示を確認する。
 - `Esc` とウィンドウの閉じる操作で正常終了する。
 - 動画入力で終端まで処理し、最終フレームを含む無音の注釈付き動画が保存される。
-- 相対・絶対の入出力パスと、明示した `VIDEO_OUTPUT_PATH` を確認する。
+- 相対・絶対の入出力パスと、明示した `output.path` を確認する。
 
 ## 夕涼み
 
@@ -46,11 +46,21 @@
 
 ## IMAGE / VIDEO 比較
 
-同じ動画を別プロセスで実行し、出力先を分けます。
+同じ動画を別プロセスで実行し、出力先を分けます。各TOMLを作成してから実行します。
+
+```toml
+# image.toml（video.tomlでは running_mode = "VIDEO", path = "output/video.mp4"）
+[video]
+source = "sample_movies/sample.mp4"
+[pose]
+running_mode = "IMAGE"
+[output]
+path = "output/image.mp4"
+```
 
 ```bash
-POSE_RUNNING_MODE=IMAGE VIDEO_SOURCE=sample_movies/sample.mp4 VIDEO_OUTPUT_PATH=output/image.mp4 uv run gesture-detection
-POSE_RUNNING_MODE=VIDEO VIDEO_SOURCE=sample_movies/sample.mp4 VIDEO_OUTPUT_PATH=output/video.mp4 uv run gesture-detection
+GESTURE_CONFIG_PATH=image.toml uv run gesture-detection
+GESTURE_CONFIG_PATH=video.toml uv run gesture-detection
 ```
 
 モデル、しきい値、FPS、入力、実行機を揃え、処理時間と入力動画時間を分けて記録します。

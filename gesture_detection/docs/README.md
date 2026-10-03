@@ -6,6 +6,7 @@
 
 - [ジェスチャー仕様](gestures.md): 認識する4種類の所作と成立条件
 - [カメラ入力・録画・トラブルシュート](camera.md): 録画、入力形式、カメラ障害
+- [設定ファイル](configuration.md): TOML設定と旧 `.env` からの移行
 - [実演者の選択](subject-selection.md): 複数人が映る場合の対象選択
 - [実機での確認項目](manual-testing.md): 起動後の確認項目
 

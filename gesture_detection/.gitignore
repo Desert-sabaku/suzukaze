@@ -5,6 +5,7 @@ build/
 dist/
 wheels/
 *.egg-info
+.coverage
 
 # Virtual environments
 .venv
@@ -32,4 +33,4 @@ docs/*-runtime-*.json
 # Local environment settings
 .env
 .env.*
-!.env.example
+config.toml

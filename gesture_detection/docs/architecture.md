@@ -48,7 +48,7 @@ MediaPipe を起動せずに認識処理を検証できます。各判定器の�
 
 ## 2カメラの実行経路
 
-`MULTICAM_ENABLED=true`では`MultiCameraApplication`を使用します。
+`multicam.enabled = true`では`MultiCameraApplication`を使用します。
 各カメラが専用のspawnプロセスで取得・推論し、`RecognitionCoordinator(profile="multicam")`が
 ラムネの準備追従と打ち水の画像上の移動証拠を使用します。
 結果には発火した手と準備開始時刻を付け、親側の`MultiCameraFusion`で統合します。
@@ -65,27 +65,34 @@ MediaPipe を起動せずに認識処理を検証できます。各判定器の�
 
 ## 設定と入力
 
-`.env.example` を `.env` にコピーして設定します。既存の環境変数を優先し、`.env` は
-作業ディレクトリにかかわらずプロジェクトルートから読みます。相対パスもプロジェクト
-ルートを基準に解決し、絶対パスと `~` も使用できます。
+`config.example.toml` を `config.toml` にコピーして設定します。省略したキーには既定値を使います。
+TOMLは用途別のテーブルに分かれており、キーの型と名前を起動時に検査します。
+`config.toml` は作業ディレクトリにかかわらずプロジェクトルートから読みます。
+設定内の相対パスも同ルートを基準に解決し、絶対パスと `~` も使用できます。
+`GESTURE_CONFIG_PATH` で別の設定ファイルを指定できます（相対パスは同ルート基準）。
+従来の `.env` は読み込まないため、値を `config.toml` へ移してください。
 
 src layoutでも、開発時のプロジェクトルートは `pyproject.toml` のある
 `gesture_detection/` です。wheelのインストール時は環境変数
 `GESTURE_PROJECT_ROOT`（未指定なら作業ディレクトリ）を基準にします。
 
-`VIDEO_SOURCE` が空なら `CAMERA_INDEX` のカメラを使用します。動画を使う例は次のとおりです。
+`video.source` が空なら起動時に映像からカメラを選びます。`camera.indices`を
+指定した場合はその番号を使います。ヘッドレスの2カメラ実行では指定が必要です。
+動画を使う例は次のとおりです。
 
-```dotenv
-VIDEO_SOURCE="sample_movies/sample.mp4"
+```toml
+[video]
+source = "sample_movies/sample.mp4"
 ```
 
-`CAMERA_BACKEND=0` は OpenCV の自動選択、Linux の V4L2 は `200` です。モデル、FPS、
-FourCC、出力バッファなどの全設定は `.env.example` を参照してください。
+`camera.backend = 0` は OpenCV の自動選択、Linux の V4L2 は `200` です。モデル、FPS、
+FourCC、出力バッファなどの全設定は `config.example.toml` を参照してください。
 
 ## 出力
 
-動画入力は終端で終了します。注釈付き映像を `VIDEO_OUTPUT_PATH` に保存し、未指定なら
-`OUTPUT_DIR` 以下に入力名と実行時刻を含む `.output.mp4` を作ります。音声は保存しません。
+動画入力は終端で終了します。ライブ入力も`output.record_live = true`で表示映像を
+保存します（2カメラでは合成プレビュー）。注釈付き映像を `output.path` に保存し、未指定なら
+`output.directory` 以下に入力名と実行時刻を含む `.output.mp4` を作ります。音声は保存しません。
 
 書き出しは別スレッドで行い、既定で8フレームの有界バッファを使います。満杯の場合は
 フレームを捨てずに待機します。`Esc` 終了時も受理済みフレームを順番に保存するため、
@@ -123,7 +130,7 @@ MediaPipe の VIDEO モードには秒を整数ミリ秒へ変換して渡しま
 
 ## MediaPipe の実行モード
 
-既定は `POSE_RUNNING_MODE=VIDEO` で、同期的な `detect_for_video` と時間追跡を使います。
+既定は `pose.running_mode = "VIDEO"` で、同期的な `detect_for_video` と時間追跡を使います。
 `IMAGE` は各画像を独立に `detect` します。どちらもアプリケーション側の状態機械を保持し、
 VIDEO モードも非同期コールバックや動画フレームの欠落を導入しません。姿勢欠落時は
 アプリケーションのジェスチャー履歴をリセットしますが、MediaPipe の時計は巻き戻しません。

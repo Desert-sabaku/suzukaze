@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, call, patch
 
 import cv2
 
+from gesture_detection import config
 from gesture_detection.app import GestureApplication, PoseResult
 from gesture_detection.config import CAMERA_BACKEND, CAMERA_FOURCC, WINDOW_TITLE
 
@@ -134,8 +135,40 @@ class OpenCaptureTest(unittest.TestCase):
     @patch("gesture_detection.app.VIDEO_SOURCE", None)
     @patch("gesture_detection.app.cv2.VideoWriter")
     def test_does_not_open_output_for_camera_source(self, video_writer):
-        self.assertIsNone(GestureApplication._open_output(MagicMock()))
+        with patch("gesture_detection.app.RECORD_LIVE_VIDEO", False):
+            self.assertIsNone(GestureApplication._open_output(MagicMock()))
         video_writer.assert_not_called()
+
+    @patch("gesture_detection.app.VIDEO_SOURCE", None)
+    @patch("gesture_detection.app.RECORD_LIVE_VIDEO", True)
+    @patch("gesture_detection.app.cv2.VideoWriter")
+    def test_records_live_camera_at_actual_frame_dimensions(self, video_writer):
+        import numpy as np
+
+        capture = MagicMock()
+        capture.get.return_value = 25.0
+        video_writer.return_value.isOpened.return_value = True
+        frame = np.zeros((48, 64, 3), dtype=np.uint8)
+        assert GestureApplication._open_output(capture, frame) is video_writer.return_value
+        assert video_writer.call_args.args[2:] == (25.0, (64, 48))
+
+
+def test_main_selects_camera_before_starting(monkeypatch):
+    monkeypatch.setattr(config, "CAMERA_INDICES", None)
+    with (
+        patch("gesture_detection.app.MULTICAM_ENABLED", False),
+        patch("gesture_detection.app.VIDEO_SOURCE", None),
+        patch(
+            "gesture_detection.camera_selection.select_camera_indices", return_value=(3,)
+        ) as select,
+        patch("gesture_detection.app.GestureApplication") as application,
+    ):
+        from gesture_detection.app import main
+
+        main()
+    select.assert_called_once_with(1, None)
+    assert application.call_args.kwargs["camera_index"] == 3
+    application.return_value.run.assert_called_once()
 
 
 class RamuneActionTests(unittest.TestCase):
