@@ -24,9 +24,11 @@ WINDOW = "Gesture Recognition - two cameras"
 PANEL_WIDTH, PANEL_HEIGHT, HEADER_HEIGHT = 640, 360, 72
 
 
-def compose_preview(previews: dict[int, Preview], fused: PoseResult) -> Frame:
+def compose_preview(
+    previews: dict[int, Preview], fused: PoseResult, indices: tuple[int, ...] = (0, 1)
+) -> Frame:
     canvas = np.zeros((PANEL_HEIGHT + HEADER_HEIGHT, PANEL_WIDTH * 2, 3), dtype=np.uint8)
-    for slot, camera in enumerate(config.MULTICAM_CAMERA_INDICES):
+    for slot, camera in enumerate(indices):
         value = previews.get(slot)
         if value is not None:
             frame, result = value
@@ -82,10 +84,14 @@ def compose_preview(previews: dict[int, Preview], fused: PoseResult) -> Frame:
 
 class MultiCameraApplication:
     def __init__(
-        self, samples: Queue[GestureSample] | None = None, stop: Event | None = None
+        self,
+        samples: Queue[GestureSample] | None = None,
+        stop: Event | None = None,
+        camera_indices: tuple[int, ...] | None = None,
     ) -> None:
         self.samples = samples
         self.stop = stop
+        self.camera_indices = camera_indices
         self._window_created = False
 
     def _exit_requested(self) -> bool:
@@ -134,7 +140,11 @@ class MultiCameraApplication:
 
     def _replay(self) -> None:
         assert config.MULTICAM_VIDEO_SESSION is not None
-        views = load_session(config.MULTICAM_VIDEO_SESSION, config.MULTICAM_CAMERA_INDICES)
+        indices = self.camera_indices or config.CAMERA_INDICES
+        if indices is None:
+            data = json.loads(config.MULTICAM_VIDEO_SESSION.read_text(encoding="utf-8"))
+            indices = tuple(camera["camera_index"] for camera in data["cameras"][:2])
+        views = load_session(config.MULTICAM_VIDEO_SESSION, indices)
         protected = {
             config.MULTICAM_VIDEO_SESSION.resolve(),
             *(view.path.resolve() for view in views),
@@ -195,7 +205,7 @@ class MultiCameraApplication:
                         pending[slot] = sample
                 fused = fusion.advance(now)
                 self._write_trace(trace, fused, fusion.latest)
-                image = compose_preview(previews, fused)
+                image = compose_preview(previews, fused, indices)
                 output.write(image)
                 self._show(image)
                 if self._exit_requested():
@@ -205,10 +215,31 @@ class MultiCameraApplication:
         fusion = MultiCameraFusion()
         previews: dict[int, Preview] = {}
         with ExitStack() as stack:
-            inputs = LiveInputs(config.MULTICAM_CAMERA_INDICES, config.MULTICAM_SELECT_SUBJECT)
+            indices = self.camera_indices or config.CAMERA_INDICES
+            if indices is None:
+                raise ValueError("Select cameras or set CAMERA_INDICES before live recognition")
+            inputs = LiveInputs(indices, config.MULTICAM_SELECT_SUBJECT)
             inputs.start()
             stack.callback(inputs.close)
             trace = self._trace(stack)
+            output: AsyncVideoWriter | None = None
+            if config.RECORD_LIVE_VIDEO:
+                config.VIDEO_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+                writer = cv2.VideoWriter(
+                    str(config.VIDEO_OUTPUT_PATH),
+                    cv2.VideoWriter.fourcc(*"mp4v"),
+                    config.MULTICAM_FUSION_FPS,
+                    (PANEL_WIDTH * 2, PANEL_HEIGHT + HEADER_HEIGHT),
+                )
+                if not writer.isOpened():
+                    writer.release()
+                    raise RuntimeError(f"Unable to open output {config.VIDEO_OUTPUT_PATH}")
+                try:
+                    output = AsyncVideoWriter(writer, config.VIDEO_OUTPUT_BUFFER_FRAMES)
+                except BaseException:
+                    writer.release()
+                    raise
+                stack.callback(output.release)
             next_tick = time.monotonic()
             while True:
                 now = time.monotonic()
@@ -222,8 +253,11 @@ class MultiCameraApplication:
                         )
                     self._write_trace(trace, fused, fusion.latest)
                     previews = inputs.latest_previews(previews)
-                    if not config.MULTICAM_HEADLESS:
-                        self._show(compose_preview(previews, fused))
+                    if output is not None or not config.MULTICAM_HEADLESS:
+                        image = compose_preview(previews, fused, indices)
+                        if output is not None:
+                            output.write(image)
+                        self._show(image)
                     next_tick = now + 1 / config.MULTICAM_FUSION_FPS
                 if self._exit_requested():
                     break

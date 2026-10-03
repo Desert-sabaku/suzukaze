@@ -24,6 +24,7 @@ def empty_result(_frame, timestamp: float, frame_id: int) -> PoseResult:
 
 
 def test_replay_drains_both_inputs_and_never_delivers_to_unity(tmp_path, monkeypatch):
+    monkeypatch.setattr(config, "CAMERA_INDICES", (1, 2))
     monkeypatch.setattr(config, "MULTICAM_VIDEO_SESSION", tmp_path / "session.json")
     monkeypatch.setattr(config, "MULTICAM_HEADLESS", True)
     monkeypatch.setattr(config, "MULTICAM_TRACE_PATH", tmp_path / "trace.jsonl")
@@ -66,6 +67,7 @@ def test_replay_drains_both_inputs_and_never_delivers_to_unity(tmp_path, monkeyp
 
 
 def test_second_analyzer_failure_closes_first_and_both_captures(tmp_path, monkeypatch):
+    monkeypatch.setattr(config, "CAMERA_INDICES", (1, 2))
     monkeypatch.setattr(config, "MULTICAM_VIDEO_SESSION", tmp_path / "session.json")
     monkeypatch.setattr(config, "MULTICAM_HEADLESS", True)
     views = (
@@ -88,22 +90,85 @@ def test_second_analyzer_failure_closes_first_and_both_captures(tmp_path, monkey
         source.close.assert_called_once()
 
 
+def test_replay_uses_session_camera_order_when_indices_unspecified(tmp_path, monkeypatch):
+    session = tmp_path / "session.json"
+    session.write_text(json.dumps({"cameras": [{"camera_index": 4}, {"camera_index": 2}]}))
+    monkeypatch.setattr(config, "MULTICAM_VIDEO_SESSION", session)
+    monkeypatch.setattr(config, "CAMERA_INDICES", None)
+    with patch(
+        "gesture_detection.multicam_app.load_session", side_effect=ValueError("checked")
+    ) as load:
+        with pytest.raises(ValueError, match="checked"):
+            MultiCameraApplication().run()
+    load.assert_called_once_with(session, (4, 2))
+
+
 def test_main_routes_opt_in_to_multicam(monkeypatch):
     monkeypatch.setattr(app, "MULTICAM_ENABLED", True)
+    monkeypatch.setattr(config, "CAMERA_INDICES", (1, 2))
     with patch("gesture_detection.multicam_app.MultiCameraApplication") as factory:
         app.main()
     factory.return_value.run.assert_called_once()
+
+
+def test_main_selects_multicam_roles_in_order(monkeypatch):
+    monkeypatch.setattr(app, "MULTICAM_ENABLED", True)
+    monkeypatch.setattr(config, "MULTICAM_VIDEO_SESSION", None)
+    monkeypatch.setattr(config, "MULTICAM_HEADLESS", False)
+    monkeypatch.setattr(config, "CAMERA_INDICES", None)
+    with (
+        patch(
+            "gesture_detection.camera_selection.select_camera_indices", return_value=(4, 1)
+        ) as select,
+        patch("gesture_detection.multicam_app.MultiCameraApplication") as factory,
+    ):
+        app.main()
+    select.assert_called_once_with(2, None)
+    assert factory.call_args.args == (None, None, (4, 1))
+
+
+def test_headless_live_requires_explicit_camera_indices(monkeypatch):
+    monkeypatch.setattr(app, "MULTICAM_ENABLED", True)
+    monkeypatch.setattr(config, "MULTICAM_VIDEO_SESSION", None)
+    monkeypatch.setattr(config, "MULTICAM_HEADLESS", True)
+    monkeypatch.setattr(config, "CAMERA_INDICES", None)
+    with pytest.raises(ValueError, match="CAMERA_INDICES"):
+        app.main()
 
 
 def test_live_failure_closes_workers(monkeypatch):
     monkeypatch.setattr(config, "MULTICAM_VIDEO_SESSION", None)
     monkeypatch.setattr(config, "MULTICAM_TRACE_PATH", None)
     monkeypatch.setattr(config, "MULTICAM_HEADLESS", True)
+    monkeypatch.setattr(config, "CAMERA_INDICES", (1, 2))
     inputs = Mock()
     inputs.poll.side_effect = RuntimeError("camera disconnected")
     with patch("gesture_detection.multicam_app.LiveInputs", return_value=inputs):
         with pytest.raises(RuntimeError, match="camera disconnected"):
             MultiCameraApplication(Mock()).run()
+    inputs.close.assert_called_once()
+
+
+def test_live_recording_writes_composed_frame_and_releases_on_stop(tmp_path, monkeypatch):
+    monkeypatch.setattr(config, "MULTICAM_VIDEO_SESSION", None)
+    monkeypatch.setattr(config, "MULTICAM_TRACE_PATH", None)
+    monkeypatch.setattr(config, "MULTICAM_HEADLESS", True)
+    monkeypatch.setattr(config, "RECORD_LIVE_VIDEO", True)
+    monkeypatch.setattr(config, "VIDEO_OUTPUT_PATH", tmp_path / "live.mp4")
+    inputs = Mock()
+    inputs.poll.return_value = []
+    inputs.latest_previews.return_value = {}
+    writer, asynchronous = Mock(), Mock()
+    with (
+        patch("gesture_detection.multicam_app.LiveInputs", return_value=inputs),
+        patch("gesture_detection.multicam_app.cv2.VideoWriter", return_value=writer),
+        patch("gesture_detection.multicam_app.AsyncVideoWriter", return_value=asynchronous),
+        patch.object(MultiCameraApplication, "_exit_requested", return_value=True),
+    ):
+        MultiCameraApplication(camera_indices=(3, 1)).run()
+    assert asynchronous.write.call_count == 1
+    assert asynchronous.write.call_args.args[0].shape == (432, 1280, 3)
+    asynchronous.release.assert_called_once()
     inputs.close.assert_called_once()
 
 
@@ -116,6 +181,7 @@ def test_stop_event_requests_exit_even_when_headless(monkeypatch):
 
 @pytest.mark.parametrize("collision", ["video", "session", "trace"])
 def test_replay_cannot_overwrite_inputs_or_mix_outputs(tmp_path, monkeypatch, collision):
+    monkeypatch.setattr(config, "CAMERA_INDICES", (1, 2))
     session_path = tmp_path / "session.json"
     first_path = tmp_path / "a.mp4"
     monkeypatch.setattr(config, "MULTICAM_VIDEO_SESSION", session_path)
@@ -149,6 +215,7 @@ def test_live_sends_each_occurrence_once(monkeypatch):
     monkeypatch.setattr(config, "MULTICAM_VIDEO_SESSION", None)
     monkeypatch.setattr(config, "MULTICAM_TRACE_PATH", None)
     monkeypatch.setattr(config, "MULTICAM_HEADLESS", True)
+    monkeypatch.setattr(config, "CAMERA_INDICES", (1, 2))
     result = empty_result(None, 9.9, 0)
     result["current"] = {"gesture": "UCHIMIZU", "tracking": True}
     result["occurrences"] = ("UCHIMIZU",)
