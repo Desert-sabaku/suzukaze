@@ -108,11 +108,4 @@ InitTestScene*.unity*
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
 
-# NuGetForUnity: restored from Assets/packages.config
-/[Aa]ssets/Packages/
-/[Aa]ssets/Packages.meta
-
-# buf generate (../proto/buf.gen.yaml) output; keep the hand-written asmdef
-/[Aa]ssets/Bridge/Generated/*
-!/[Aa]ssets/Bridge/Generated/*.asmdef
-!/[Aa]ssets/Bridge/Generated/*.asmdef.meta
+.idea/
