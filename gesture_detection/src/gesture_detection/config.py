@@ -5,54 +5,46 @@ from os import getenv
 from pathlib import Path
 
 import cv2
-from dotenv import load_dotenv
 
 from gesture_detection.qt_setup import configure_qt_fonts
+from gesture_detection.settings import Settings
 
 # The OpenCV wheel overwrites QT_QPA_FONTDIR during ``import cv2`` with a
 # directory which is no longer shipped. Restore the system font path after the
 # import and before the first HighGUI window is created.
 configure_qt_fonts()
 
-# Editable src layout keeps models and .env at the project root. A wheel
+# Editable src layout keeps models and config.toml at the project root. A wheel
 # installation uses an explicit data root, or the working directory.
 _source_root = Path(__file__).resolve().parents[2]
 _default_root = _source_root if (_source_root / "pyproject.toml").is_file() else Path.cwd()
 PROJECT_ROOT = Path(getenv("GESTURE_PROJECT_ROOT") or _default_root).expanduser().resolve()
-load_dotenv(PROJECT_ROOT / ".env", override=False)
+_config_override = getenv("GESTURE_CONFIG_PATH")
+_config_file = Path(_config_override or "config.toml").expanduser()
+CONFIG_PATH = _config_file if _config_file.is_absolute() else PROJECT_ROOT / _config_file
+_settings = Settings(PROJECT_ROOT, CONFIG_PATH, required=_config_override is not None)
 
 
-def _env_path(name: str, default: str) -> Path:
-    """Resolve relative paths from the project root, regardless of working directory."""
-    value = Path(getenv(name) or default).expanduser()
-    return value if value.is_absolute() else PROJECT_ROOT / value
-
-
-POSE_MODEL_PATH = _env_path("POSE_MODEL_PATH", "pose_landmarker_lite.task")
+POSE_MODEL_PATH = _settings.path("models", "pose", "pose_landmarker_lite.task")
 POSE_MODEL_URL = (
     "https://storage.googleapis.com/mediapipe-models/pose_landmarker/"
     "pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
 )
 # Use temporal tracking by default; retain IMAGE for baseline comparisons.
-POSE_RUNNING_MODE = getenv("POSE_RUNNING_MODE", "VIDEO").strip().upper()
-POSE_DISPLAY_SMOOTHING = getenv("POSE_DISPLAY_SMOOTHING", "true").strip().lower() not in {
-    "0",
-    "false",
-    "no",
-    "off",
-}
+POSE_RUNNING_MODE = _settings.text("pose", "running_mode", "VIDEO").strip().upper()
+POSE_DISPLAY_SMOOTHING = _settings.boolean("pose", "display_smoothing", True)
 POSE_DISPLAY_TIME_CONSTANT = 0.06
 POSE_DISPLAY_MAX_GAP = 0.25
 if POSE_RUNNING_MODE not in {"IMAGE", "VIDEO"}:
     raise ValueError("POSE_RUNNING_MODE must be IMAGE or VIDEO")
 # Selection uses the torso center in normalized full-frame coordinates.
-POSE_SELECT_SUBJECT = getenv("POSE_SELECT_SUBJECT", "true").strip().lower() not in {
-    "0",
-    "false",
-    "no",
-    "off",
-}
-SUBJECT_AREA = tuple(float(v) for v in getenv("SUBJECT_AREA", "0.35,0.15,0.75,0.90").split(","))
+POSE_SELECT_SUBJECT = _settings.boolean("pose", "select_subject", True)
+_subject_area = _settings.get("pose.subject", "area", [0.35, 0.15, 0.75, 0.90])
+if not isinstance(_subject_area, list) or any(
+    type(value) not in (int, float) for value in _subject_area
+):
+    raise ValueError("pose.subject.area must be an array of numbers")
+SUBJECT_AREA = tuple(float(value) for value in _subject_area)
 if (
     len(SUBJECT_AREA) != 4
     or any(not math.isfinite(v) or not 0 <= v <= 1 for v in SUBJECT_AREA)
@@ -60,8 +52,8 @@ if (
     or SUBJECT_AREA[1] >= SUBJECT_AREA[3]
 ):
     raise ValueError("SUBJECT_AREA must be left,top,right,bottom within 0..1")
-SUBJECT_MIN_TORSO_HEIGHT = float(getenv("SUBJECT_MIN_TORSO_HEIGHT", "0.18"))
-SUBJECT_MIN_SHOULDER_WIDTH = float(getenv("SUBJECT_MIN_SHOULDER_WIDTH", "0.10"))
+SUBJECT_MIN_TORSO_HEIGHT = _settings.number("pose.subject", "min_torso_height", 0.18)
+SUBJECT_MIN_SHOULDER_WIDTH = _settings.number("pose.subject", "min_shoulder_width", 0.10)
 if any(
     not math.isfinite(v) or not 0 < v < 1
     for v in (SUBJECT_MIN_TORSO_HEIGHT, SUBJECT_MIN_SHOULDER_WIDTH)
@@ -75,39 +67,37 @@ SUBJECT_MIN_SCALE_RATIO = 0.65
 SUBJECT_MAX_SCALE_RATIO = 1.55
 SUBJECT_MAX_CENTER_DISTANCE = 0.6
 
-SUPPRESS_MEDIAPIPE_STARTUP_LOGS = getenv(
-    "SUPPRESS_MEDIAPIPE_STARTUP_LOGS", "true"
-).strip().lower() not in {"0", "false", "no", "off"}
+SUPPRESS_MEDIAPIPE_STARTUP_LOGS = _settings.boolean(
+    "diagnostics", "suppress_mediapipe_startup_logs", True
+)
 
-YOLO_MODEL_PATH = _env_path("YOLO_MODEL_PATH", "yolov8n.pt")
+YOLO_MODEL_PATH = _settings.path("models", "yolo", "yolov8n.pt")
 
-CAMERA_INDEX = int(getenv("CAMERA_INDEX", "0"))
-CAMERA_BACKEND = int(getenv("CAMERA_BACKEND", str(cv2.CAP_ANY)))
-CAMERA_FOURCC = getenv("CAMERA_FOURCC", "MJPG")
+CAMERA_BACKEND = _settings.integer("camera", "backend", cv2.CAP_ANY)
+CAMERA_FOURCC = _settings.text("camera", "fourcc", "MJPG")
 if len(CAMERA_FOURCC) != 4:
     raise ValueError("CAMERA_FOURCC must contain exactly four characters")
 
 # An empty source selects camera input.
-VIDEO_SOURCE: Path | None = _env_path("VIDEO_SOURCE", "") if getenv("VIDEO_SOURCE") else None
-OUTPUT_DIR = _env_path("OUTPUT_DIR", "output")
+VIDEO_SOURCE = _settings.optional_path("video", "source")
+OUTPUT_DIR = _settings.path("output", "directory", "output")
 _output_name = os.path.splitext(VIDEO_SOURCE.name)[0] if VIDEO_SOURCE is not None else "camera"
-VIDEO_OUTPUT_PATH = _env_path(
-    "VIDEO_OUTPUT_PATH",
-    str(OUTPUT_DIR / f"{_output_name}{int(datetime.now().timestamp())}.output.mp4"),
+VIDEO_OUTPUT_PATH = _settings.optional_path("output", "path") or (
+    OUTPUT_DIR / f"{_output_name}{int(datetime.now().timestamp())}.output.mp4"
 )
 
 # Maximum queued output frames; full buffers apply backpressure without dropping.
-VIDEO_OUTPUT_BUFFER_FRAMES = int(getenv("VIDEO_OUTPUT_BUFFER_FRAMES", "8"))
-FPS = int(getenv("FPS", "30"))
+VIDEO_OUTPUT_BUFFER_FRAMES = _settings.integer("output", "buffer_frames", 8)
+FPS = _settings.integer("camera", "fps", 30)
 if FPS <= 0 or VIDEO_OUTPUT_BUFFER_FRAMES <= 0:
     raise ValueError("FPS and VIDEO_OUTPUT_BUFFER_FRAMES must be positive integers")
 
 # The learned profile is opt-in and supplies its own continuously masked input.
-RAMUNE_DETECTOR = getenv("RAMUNE_DETECTOR", "rules").strip().lower()
+RAMUNE_DETECTOR = _settings.text("ramune", "detector", "rules").strip().lower()
 if RAMUNE_DETECTOR not in {"rules", "learned"}:
     raise ValueError("RAMUNE_DETECTOR must be rules or learned")
-RAMUNE_LEARNED_MODEL_PATH = _env_path(
-    "RAMUNE_LEARNED_MODEL_PATH", str(Path(__file__).with_name("models") / "ramune_0924.npz")
+RAMUNE_LEARNED_MODEL_PATH = _settings.optional_path("ramune", "learned_model") or (
+    Path(__file__).with_name("models") / "ramune_0924.npz"
 )
 
 WINDOW_SECONDS = 1
@@ -216,46 +206,44 @@ MULTICAM_MAX_AGE_SECONDS = 0.2
 MULTICAM_EVENT_DEDUP_SECONDS = 0.6
 
 
-def _boolean(name: str, default: str) -> bool:
-    value = getenv(name, default).strip().lower()
-    if value not in {"true", "false", "1", "0", "yes", "no", "on", "off"}:
-        raise ValueError(f"{name} must be a boolean")
-    return value in {"true", "1", "yes", "on"}
-
-
-MULTICAM_ENABLED = _boolean("MULTICAM_ENABLED", "false")
-MULTICAM_CAMERA_INDICES = tuple(
-    int(v.strip()) for v in getenv("MULTICAM_CAMERA_INDICES", "1,2").split(",")
-)
-if (
-    len(MULTICAM_CAMERA_INDICES) != 2
-    or len(set(MULTICAM_CAMERA_INDICES)) != 2
-    or min(MULTICAM_CAMERA_INDICES) < 0
+MULTICAM_ENABLED = _settings.boolean("multicam", "enabled", False)
+_camera_indices = _settings.get("camera", "indices", [])
+if not isinstance(_camera_indices, list) or any(
+    type(value) is not int for value in _camera_indices
 ):
-    raise ValueError("MULTICAM_CAMERA_INDICES must contain two distinct non-negative camera IDs")
+    raise ValueError("camera.indices must be an array of camera IDs")
+CAMERA_INDICES: tuple[int, ...] | None = tuple(_camera_indices) if _camera_indices else None
+if CAMERA_INDICES is not None and (
+    len(CAMERA_INDICES) != (2 if MULTICAM_ENABLED else 1)
+    or len(set(CAMERA_INDICES)) != len(CAMERA_INDICES)
+    or min(CAMERA_INDICES) < 0
+):
+    raise ValueError("camera.indices must contain one ID (or two distinct IDs in multicamera mode)")
+CAMERA_SCAN_MAX_INDEX = _settings.integer("camera", "scan_max_index", 9)
+if not 0 <= CAMERA_SCAN_MAX_INDEX <= 9:
+    raise ValueError("CAMERA_SCAN_MAX_INDEX must be between 0 and 9")
+RECORD_LIVE_VIDEO = _settings.boolean("output", "record_live", False)
 MULTICAM_SELECT_SUBJECT = (
-    _boolean("MULTICAM_FIRST_SELECT_SUBJECT", "true"),
-    _boolean("MULTICAM_SECOND_SELECT_SUBJECT", "false"),
+    _settings.boolean("multicam.first", "select_subject", True),
+    _settings.boolean("multicam.second", "select_subject", False),
 )
-MULTICAM_VIDEO_SESSION = (
-    _env_path("MULTICAM_VIDEO_SESSION", "") if getenv("MULTICAM_VIDEO_SESSION") else None
-)
-MULTICAM_TRACE_PATH = (
-    _env_path("MULTICAM_TRACE_PATH", "") if getenv("MULTICAM_TRACE_PATH") else None
-)
-MULTICAM_HEADLESS = _boolean("MULTICAM_HEADLESS", "false")
-MULTICAM_WIDTH = int(getenv("MULTICAM_WIDTH", "1280"))
-MULTICAM_HEIGHT = int(getenv("MULTICAM_HEIGHT", "720"))
+MULTICAM_VIDEO_SESSION = _settings.optional_path("multicam.replay", "session")
+MULTICAM_TRACE_PATH = _settings.optional_path("diagnostics", "multicam_trace")
+MULTICAM_HEADLESS = _settings.boolean("multicam", "headless", False)
+MULTICAM_WIDTH = _settings.integer("multicam", "width", 1280)
+MULTICAM_HEIGHT = _settings.integer("multicam", "height", 720)
 if min(MULTICAM_WIDTH, MULTICAM_HEIGHT) <= 0:
     raise ValueError("MULTICAM_WIDTH and MULTICAM_HEIGHT must be positive")
 if MULTICAM_ENABLED and (POSE_RUNNING_MODE != "VIDEO" or RAMUNE_DETECTOR != "rules"):
     raise ValueError(
-        "Multicamera recognition requires POSE_RUNNING_MODE=VIDEO and RAMUNE_DETECTOR=rules"
+        'Multicamera recognition requires pose.running_mode="VIDEO" and ramune.detector="rules"'
     )
 if MULTICAM_ENABLED and VIDEO_SOURCE is not None:
-    raise ValueError("Use MULTICAM_VIDEO_SESSION instead of VIDEO_SOURCE in multicamera mode")
+    raise ValueError("Use multicam.replay.session instead of video.source in multicamera mode")
 
 # Occurrence lifetime, used by multicamera fusion to drop late events.
-GESTURE_EVENT_TTL = float(getenv("GESTURE_EVENT_TTL", "1.0"))
+GESTURE_EVENT_TTL = _settings.number("events", "ttl_seconds", 1.0)
 if not math.isfinite(GESTURE_EVENT_TTL) or GESTURE_EVENT_TTL <= 0:
     raise ValueError("GESTURE_EVENT_TTL must be finite and positive")
+
+_settings.finish()

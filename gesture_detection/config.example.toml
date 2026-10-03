@@ -1,0 +1,62 @@
+# このファイルを config.toml にコピーして変更します。
+# 省略したキーにはプログラムの既定値が使われます。相対パスはプロジェクトルート基準。
+
+[camera]
+# 空配列ならライブ起動時に映像から選択します。ヘッドレスでは番号を指定してください。
+# 単眼: [0] / 2カメラ: [0, 2]（人物選択用、全画面用の順）。
+indices = []
+scan_max_index = 9 # 選択画面で調べるカメラIDの最大値（0～9）
+backend = 0 # OpenCV: 0 = 自動、200 = Linux V4L2
+fourcc = "MJPG"
+fps = 30 # ジェスチャー処理窓の標本数にも使用
+
+[video]
+# 空欄ならカメラ入力。
+source = "" # 例: "sample_movies/sample.mp4"
+
+[output]
+directory = "output"
+path = "" # 空欄なら directory 配下に実行時刻付きのMP4
+record_live = false # trueならライブ認識中の表示映像も録画
+buffer_frames = 8
+
+[models]
+pose = "pose_landmarker_lite.task"
+yolo = "yolov8n.pt"
+
+[pose]
+running_mode = "VIDEO" # IMAGE または VIDEO
+display_smoothing = true # VIDEOモードの骨格表示のみ平滑化
+select_subject = true # 取得時は背景を隠し、取得後は全画面で追跡
+
+[pose.subject]
+area = [0.35, 0.15, 0.75, 0.90] # 胴体中心の範囲 [左, 上, 右, 下]
+min_torso_height = 0.18
+min_shoulder_width = 0.10
+
+[ramune]
+detector = "rules" # rules / learned（learnedはVIDEOモードが必要）
+learned_model = "" # 空欄なら同梱モデル
+
+[multicam]
+enabled = false # 2カメラ認識。pose.running_mode=VIDEO / ramune.detector=rules が必要
+headless = false # 画面なしの場合、camera.indices で2台指定する
+width = 1280
+height = 720
+
+[multicam.first]
+select_subject = true
+
+[multicam.second]
+select_subject = false
+
+[multicam.replay]
+# 録画セッション再生。空欄なら実カメラ。再生時に camera.indices が空ならセッションの先頭2台。
+session = ""
+
+[events]
+ttl_seconds = 1.0
+
+[diagnostics]
+suppress_mediapipe_startup_logs = true
+multicam_trace = "" # 任意のJSONL診断出力

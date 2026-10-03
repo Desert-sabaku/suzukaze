@@ -46,11 +46,21 @@
 
 ## IMAGE / VIDEO 比較
 
-同じ動画を別プロセスで実行し、出力先を分けます。
+同じ動画を別プロセスで実行し、出力先を分けます。各TOMLを作成してから実行します。
+
+```toml
+# image.toml（video.tomlでは running_mode = "VIDEO", path = "output/video.mp4"）
+[video]
+source = "sample_movies/sample.mp4"
+[pose]
+running_mode = "IMAGE"
+[output]
+path = "output/image.mp4"
+```
 
 ```bash
-POSE_RUNNING_MODE=IMAGE VIDEO_SOURCE=sample_movies/sample.mp4 VIDEO_OUTPUT_PATH=output/image.mp4 uv run gesture-detection
-POSE_RUNNING_MODE=VIDEO VIDEO_SOURCE=sample_movies/sample.mp4 VIDEO_OUTPUT_PATH=output/video.mp4 uv run gesture-detection
+GESTURE_CONFIG_PATH=image.toml uv run gesture-detection
+GESTURE_CONFIG_PATH=video.toml uv run gesture-detection
 ```
 
 モデル、しきい値、FPS、入力、実行機を揃え、処理時間と入力動画時間を分けて記録します。
