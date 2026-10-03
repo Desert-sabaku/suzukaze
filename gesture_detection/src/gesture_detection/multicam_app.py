@@ -209,7 +209,7 @@ class MultiCameraApplication:
         with ExitStack() as stack:
             indices = self.camera_indices or config.CAMERA_INDICES
             if indices is None:
-                raise ValueError("Select cameras or set CAMERA_INDICES before live recognition")
+                raise ValueError("Select cameras or set camera.indices before live recognition")
             inputs = LiveInputs(indices, config.MULTICAM_SELECT_SUBJECT)
             inputs.start()
             stack.callback(inputs.close)
