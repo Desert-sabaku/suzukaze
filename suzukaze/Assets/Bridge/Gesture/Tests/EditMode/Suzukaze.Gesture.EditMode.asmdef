@@ -1,0 +1,14 @@
+{
+  "name": "Suzukaze.Gesture.EditMode",
+  "references": [
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner",
+    "Suzukaze.Gesture.Receiver",
+    "Suzukaze.Gesture.Protocol"
+  ],
+  "includePlatforms": ["Editor"],
+  "overrideReferences": true,
+  "precompiledReferences": ["nunit.framework.dll", "Google.Protobuf.dll"],
+  "autoReferenced": false,
+  "defineConstraints": ["UNITY_INCLUDE_TESTS"]
+}

@@ -1,0 +1,4 @@
+{
+  "name": "Suzukaze.Gesture.Unity",
+  "references": ["Suzukaze.Gesture.Receiver", "Suzukaze.Gesture.Protocol"]
+}
