@@ -1,0 +1,16 @@
+[project]
+name = "suzukaze-workspace"
+version = "0.1.0"
+description = "Suzukaze monorepo workspace"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.uv.workspace]
+members = [
+    "gesture_detection",
+    "mcu",
+]
+
+[tool.uv]
+package = false
