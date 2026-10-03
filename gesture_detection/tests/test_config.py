@@ -97,10 +97,10 @@ def test_explicit_missing_config_fails(tmp_path: Path) -> None:
             runpy.run_path(str(CONFIG_PATH))
 
 
-def test_example_is_valid() -> None:
+def test_example_is_valid_and_matches_defaults() -> None:
     config = read_config(EXAMPLE_PATH.read_text(encoding="utf-8"))
     assert config["CAMERA_INDICES"] is None
-    assert config["VIDEO_OUTPUT_PATH"].parent == PROJECT_ROOT / "shared/videos"
+    assert config["VIDEO_OUTPUT_PATH"].parent == PROJECT_ROOT / "output"
     assert config["RAMUNE_LEARNED_MODEL_PATH"].name == "ramune_0924.npz"
     assert config["MULTICAM_SELECT_SUBJECT"] == (True, False)
 

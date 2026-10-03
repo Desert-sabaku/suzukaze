@@ -15,7 +15,7 @@ fps = 30 # ジェスチャー処理窓の標本数にも使用
 source = "" # 例: "sample_movies/sample.mp4"
 
 [output]
-directory = "shared/videos"
+directory = "output"
 path = "" # 空欄なら directory 配下に実行時刻付きのMP4
 record_live = false # trueならライブ認識中の表示映像も録画
 buffer_frames = 8
