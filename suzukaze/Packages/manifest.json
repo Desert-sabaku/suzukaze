@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "com.annulusgames.lit-motion": "https://github.com/annulusgames/LitMotion.git?path=src/LitMotion/Assets/LitMotion",
+    "com.annulusgames.lit-motion.animation": "https://github.com/annulusgames/LitMotion.git?path=src/LitMotion/Assets/LitMotion.Animation",
     "com.unity.ide.rider": "3.0.40",
     "com.unity.ide.visualstudio": "2.0.28",
     "com.unity.inputsystem": "1.20.0",
