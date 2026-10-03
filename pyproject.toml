@@ -8,6 +8,7 @@ dependencies = []
 
 [tool.uv.workspace]
 members = [
+    "unity_bridge",
     "gesture_detection",
     "mcu",
 ]
