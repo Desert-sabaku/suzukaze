@@ -4,7 +4,9 @@ version = "0.1.0"
 description = "Suzukaze monorepo workspace"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "invoke>=3.0.3",
+]
 
 [tool.uv.workspace]
 members = [

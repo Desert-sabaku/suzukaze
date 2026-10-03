@@ -54,11 +54,14 @@ uv run unity-gesture-probe      # Unityの代わりに受信を確認する（�
 ```
 
 > [!note]
-> もしくは，プロジェクトルートで以下
+> もしくは，`invoke`を使うことができます。仮想環境を活性化（zshなら `source .venv/bin/activate`など）をすれば，以下のように非常に短く実行できます。
+
+プロジェクトルートで `invoke --list` を実行すると利用可能なタスクを確認できます。protobuf の生成が必要な場合は、先に
+`invoke proto` を実行してください。例えば、Unity Bridge の起動とテストは次のとおりです。
 
 ```bash
-uv run --package unity-bridge unity-bridge --gesture   # 認識アプリも起動し、ws://127.0.0.1:5000 で待ち受ける
-uv run --package unity-bridge unity-gesture-probe      # Unityの代わりに受信を確認する（別ターミナル）
+invoke unity
+invoke unity-tests
 ```
 
 2カメラで認識する設定は [2カメラ認識ガイド](gesture_detection/docs/multicam-runtime.md)、
