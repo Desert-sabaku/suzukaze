@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: cc380757664970642acb2bc056ad0a52
+timeCreated: 1532936924
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 127625
+  packageName: Beach - resort
+  packageVersion: 2.0
+  assetPath: Assets/Beach - resort/Models/Prefabs/Hat.prefab
+  uploadId: 634525

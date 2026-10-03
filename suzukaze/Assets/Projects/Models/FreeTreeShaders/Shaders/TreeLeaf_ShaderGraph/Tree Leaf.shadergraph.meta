@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 414ed391874b6d6489f9b887d643ecc9
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 625f186215c104763be7675aa2d941aa, type: 3}
+AssetOrigin:
+  serializedVersion: 1
+  productId: 383576
+  packageName: Tree Shaders (for Shader Graph)
+  packageVersion: 1.2.3
+  assetPath: Assets/FreeTreeShaders/Shaders/TreeLeaf_ShaderGraph/Tree Leaf.shadergraph
+  uploadId: 961744

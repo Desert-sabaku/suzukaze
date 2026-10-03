@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: acec02843c33387408f2dc6e08984075
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 383576
+  packageName: Tree Shaders (for Shader Graph)
+  packageVersion: 1.2.3
+  assetPath: Assets/FreeTreeShaders/Models/Materials/Trunk_TreePack_1.mat
+  uploadId: 961744

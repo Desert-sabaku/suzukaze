@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 89eb756fc6564ee47a13ace4dc9e01cb
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 383576
+  packageName: Tree Shaders (for Shader Graph)
+  packageVersion: 1.2.3
+  assetPath: Assets/FreeTreeShaders/Models/Materials/Leaf_TreePack_1.mat
+  uploadId: 961744
