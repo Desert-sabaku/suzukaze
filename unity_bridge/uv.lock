@@ -501,7 +501,6 @@ dependencies = [
     { name = "mediapipe" },
     { name = "numpy" },
     { name = "opencv-python" },
-    { name = "python-dotenv" },
     { name = "ultralytics" },
 ]
 
@@ -510,7 +509,6 @@ requires-dist = [
     { name = "mediapipe", specifier = ">=0.10.35" },
     { name = "numpy", specifier = ">=2.5.1" },
     { name = "opencv-python", specifier = ">=5.0.0.93" },
-    { name = "python-dotenv", specifier = ">=1.2.3" },
     { name = "ultralytics", specifier = ">=8.4.121" },
 ]
 

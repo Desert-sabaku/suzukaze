@@ -238,9 +238,12 @@ def test_live_sends_each_occurrence_once(monkeypatch):
     inputs.close.assert_called_once()
 
 
-def test_shared_ramune_release_guide_uses_the_actual_release_condition():
-    frame = np.zeros((24, 32, 3), dtype=np.uint8)
+def test_multicam_keeps_overlays_but_only_draws_text_in_header():
+    frame = np.zeros((360, 640, 3), dtype=np.uint8)
     raw = empty_result(frame, 0, 0)
+    raw["display_landmarks"] = [(0.5, 0.5, 1.0)]
+    raw["subject_state"] = "TRACKING"
+    raw["ramune_state"] = "WAIT_RELEASE"
     fused: PoseResult = {
         "landmarks": [],
         "selected_action": "NONE",
@@ -249,8 +252,16 @@ def test_shared_ramune_release_guide_uses_the_actual_release_condition():
         "locked_events": ("RAMUNE",),
         "release_pending": ("RAMUNE",),
     }
-    with patch("gesture_detection.multicam_app.draw_ramune_guide") as guide:
+    with patch("gesture_detection.multicam_app.cv2.putText") as text:
         image = compose_preview({0: (frame, raw)}, fused)
     assert image.shape == (432, 1280, 3)
-    assert guide.call_args.args[1] == "WAIT_RELEASE"
-    assert "lower pressing hand or separate" in guide.call_args.kwargs["release_message"]
+    labels = [entry.args[1] for entry in text.call_args_list]
+    assert len(labels) == 3
+    assert labels[0].startswith("Camera 0")
+    assert labels[1].startswith("Camera 1")
+    assert labels[2] == "Combined: NONE | event locks: RAMUNE"
+    assert all(entry.args[2][1] < 72 for entry in text.call_args_list)
+    # Landmark and subject rectangle remain in the camera image, without modifying input.
+    assert tuple(image[72 + 180, 320]) == (0, 0, 255)
+    assert tuple(image[72 + 54, 224]) == (80, 180, 80)
+    assert not frame.any()

@@ -12,12 +12,11 @@ import cv2
 import numpy as np
 
 from . import config
-from .app import GestureApplication
 from .multicam_fusion import MultiCameraFusion
 from .multicam_input import Frame, LiveInputs, Preview, RecordedInput, load_session
 from .pose_worker import PoseAnalyzer
 from .recognition_types import GestureSample, PoseResult
-from .rendering import draw_ramune_guide
+from .rendering import draw_landmarks, draw_subject_area
 from .video_output import AsyncVideoWriter
 
 WINDOW = "Gesture Recognition - two cameras"
@@ -32,21 +31,14 @@ def compose_preview(
         value = previews.get(slot)
         if value is not None:
             frame, result = value
-            image = GestureApplication._annotate_frame(frame, result)
-            current = fused.get("current", {"gesture": "NONE", "tracking": False})["gesture"]
-            if current == "RAMUNE":
-                draw_ramune_guide(image, "OPENED")
-            elif "RAMUNE" in fused.get("release_pending", ()):
-                draw_ramune_guide(
-                    image,
-                    "WAIT_RELEASE",
-                    release_message="Ramune: lower pressing hand or separate hands",
-                )
-            elif (
-                "RAMUNE" in fused.get("locked_events", ())
-                and result.get("ramune_state") == "WAIT_RELEASE"
-            ):
-                draw_ramune_guide(image, "IDLE")
+            image = frame.copy()
+            draw_landmarks(
+                image,
+                result.get("display_landmarks", result.get("landmarks", [])),
+                config.POSE_CONNECTIONS,
+            )
+            if "subject_state" in result:
+                draw_subject_area(image, result["subject_state"], show_label=False)
             scale = min(PANEL_WIDTH / image.shape[1], PANEL_HEIGHT / image.shape[0])
             width, height = (
                 max(1, round(image.shape[1] * scale)),
