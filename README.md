@@ -35,9 +35,11 @@ Unity 6000.5.8f1（Unityを使う場合）、TinyGo（ファームウェアを�
 
 2. Pythonの各プロジェクトで依存関係を入れる。
 
+   > [!importnant]
+   > プロジェクトルートで実行してください！
+
    ```bash
-   (cd gesture_detection && uv sync --group dev)
-   (cd unity_bridge && uv sync --group dev)  # gesture_detection も editable で入る
+   uv sync
    ```
 
 3. Unityでは `suzukaze/` を開きます。`Google.Protobuf` はNuGetForUnityが
@@ -49,6 +51,14 @@ Unity 6000.5.8f1（Unityを使う場合）、TinyGo（ファームウェアを�
 cd unity_bridge
 uv run unity-bridge --gesture   # 認識アプリも起動し、ws://127.0.0.1:5000 で待ち受ける
 uv run unity-gesture-probe      # Unityの代わりに受信を確認する（別ターミナル）
+```
+
+> [!note]
+> もしくは，プロジェクトルートで以下
+
+```bash
+uv run --package unity-bridge unity-bridge --gesture   # 認識アプリも起動し、ws://127.0.0.1:5000 で待ち受ける
+uv run --package unity-bridge unity-gesture-probe      # Unityの代わりに受信を確認する（別ターミナル）
 ```
 
 2カメラで認識する設定は [2カメラ認識ガイド](gesture_detection/docs/multicam-runtime.md)、
