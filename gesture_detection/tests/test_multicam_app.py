@@ -132,7 +132,7 @@ def test_headless_live_requires_explicit_camera_indices(monkeypatch):
     monkeypatch.setattr(config, "MULTICAM_VIDEO_SESSION", None)
     monkeypatch.setattr(config, "MULTICAM_HEADLESS", True)
     monkeypatch.setattr(config, "CAMERA_INDICES", None)
-    with pytest.raises(ValueError, match="CAMERA_INDICES"):
+    with pytest.raises(ValueError, match="camera.indices"):
         app.main()
 
 

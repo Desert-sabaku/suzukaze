@@ -321,7 +321,7 @@ def main(samples: Queue[GestureSample] | None = None, stop: Event | None = None)
     live = config.MULTICAM_VIDEO_SESSION is None if MULTICAM_ENABLED else VIDEO_SOURCE is None
     if live and indices is None:
         if MULTICAM_ENABLED and config.MULTICAM_HEADLESS:
-            raise ValueError("Set CAMERA_INDICES for headless live recognition")
+            raise ValueError("Set camera.indices for headless live recognition")
         from .camera_selection import select_camera_indices
 
         indices = select_camera_indices(2 if MULTICAM_ENABLED else 1, stop)
