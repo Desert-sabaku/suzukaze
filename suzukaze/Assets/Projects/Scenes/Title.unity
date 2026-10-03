@@ -490,7 +490,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
   m_AnchoredPosition: {x: 0, y: 30}
-  m_SizeDelta: {x: 400, y: 50}
+  m_SizeDelta: {x: 600, y: 50}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &685877849
 MonoBehaviour:
@@ -512,7 +512,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\"\u793C\" \u3067\u59CB\u3081\u308B"
+  m_text: "\"\u6B63\u9762\u306B\u793C\" \u3067\u59CB\u3081\u308B"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 716c4d9b385784e2cb33605b777fec79, type: 2}
   m_sharedMaterial: {fileID: -928432313335147677, guid: 716c4d9b385784e2cb33605b777fec79, type: 2}
@@ -1081,6 +1081,26 @@ PrefabInstance:
     - target: {fileID: 1997837634142584868, guid: 72c5937fac0874f2abff6733ae2b79f9, type: 3}
       propertyPath: playOnStartGesture
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8570952133754478539, guid: 72c5937fac0874f2abff6733ae2b79f9, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8570952133754478539, guid: 72c5937fac0874f2abff6733ae2b79f9, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8570952133754478539, guid: 72c5937fac0874f2abff6733ae2b79f9, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8570952133754478539, guid: 72c5937fac0874f2abff6733ae2b79f9, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8570952133754478539, guid: 72c5937fac0874f2abff6733ae2b79f9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 180
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 4309350143169408029, guid: 72c5937fac0874f2abff6733ae2b79f9, type: 3}
