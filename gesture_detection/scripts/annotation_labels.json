@@ -5,7 +5,7 @@
       "id": "action",
       "name": "Action",
       "exclusive": true,
-      "labels": ["FANNING", "UCHIMIZU", "RELAXING", "RAMUNE"]
+      "labels": ["FANNING", "UCHIMIZU", "RELAXING", "RAMUNE", "BOW"]
     },
     {
       "id": "fanning_phase",
@@ -30,6 +30,12 @@
       "name": "Ramune phase",
       "exclusive": true,
       "labels": ["FORMING", "READY", "OPENED", "WAIT_RELEASE"]
+    },
+    {
+      "id": "bow_phase",
+      "name": "Bow phase",
+      "exclusive": true,
+      "labels": ["BENDING", "HOLD", "RETURNING"]
     }
   ],
   "events": [
@@ -55,6 +61,10 @@
     "RAMUNE": {
       "phase_track": "ramune_phase",
       "events": ["RAMUNE_PRESS_START", "RAMUNE_OPEN"]
+    },
+    "BOW": {
+      "phase_track": "bow_phase",
+      "events": []
     }
   },
   "landmarks": [
