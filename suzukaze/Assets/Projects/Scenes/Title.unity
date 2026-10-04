@@ -914,23 +914,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: LitMotion.Animation::LitMotion.Animation.LitMotionAnimation
   autoPlayMode: 1
-  animationMode: 1
+  animationMode: 0
   components:
-  - rid: 1348855644947742969
+  - rid: 1348855669482062080
   playOnAwake: 1
   version: 1
   references:
     version: 2
     RefIds:
-    - rid: 1348855644947742969
+    - rid: 1348855669482062080
       type: {class: TransformPositionAnimation, ns: LitMotion.Animation.Components, asm: LitMotion.Animation}
       data:
         displayName: Position
         enabled: 1
         target: {fileID: 1424191662}
         settings:
-          startValue: {x: -50, y: 0, z: 0}
-          endValue: {x: 50, y: 0, z: 0}
+          startValue: {x: -20, y: 0, z: 0}
+          endValue: {x: 20, y: 0, z: 0}
           duration: 2
           ease: 3
           customEaseCurve:

@@ -1,5 +1,25 @@
 {
   "dependencies": {
+    "com.annulusgames.lit-motion": {
+      "version": "https://github.com/annulusgames/LitMotion.git?path=src/LitMotion/Assets/LitMotion",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.burst": "1.6.0",
+        "com.unity.collections": "1.5.1",
+        "com.unity.mathematics": "1.0.1"
+      },
+      "hash": "422eb124051c81a9bc3f422ebf190703c5053514"
+    },
+    "com.annulusgames.lit-motion.animation": {
+      "version": "https://github.com/annulusgames/LitMotion.git?path=src/LitMotion/Assets/LitMotion.Animation",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.annulusgames.lit-motion": "2.0.0"
+      },
+      "hash": "422eb124051c81a9bc3f422ebf190703c5053514"
+    },
     "com.github-glitchenzo.nugetforunity": {
       "version": "https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity#v4.5.0",
       "depth": 0,
@@ -24,20 +44,11 @@
     },
     "com.unity.burst": {
       "version": "1.8.30",
-      "depth": 2,
+      "depth": 1,
       "source": "registry",
       "dependencies": {
         "com.unity.mathematics": "1.2.1",
         "com.unity.modules.jsonserialize": "1.0.0"
-      },
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.collab-proxy": {
-      "version": "2.13.5",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.collections": "2.6.8"
       },
       "url": "https://packages.unity.com"
     },
@@ -59,7 +70,7 @@
       "dependencies": {}
     },
     "com.unity.ide.rider": {
-      "version": "3.0.38",
+      "version": "3.0.40",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -87,7 +98,7 @@
     },
     "com.unity.mathematics": {
       "version": "1.4.0",
-      "depth": 3,
+      "depth": 1,
       "source": "builtin",
       "dependencies": {}
     },
