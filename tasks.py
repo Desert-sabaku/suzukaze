@@ -18,31 +18,31 @@ def proto(c):
 @task
 def gesture(c):
     """Run gesture detection."""
-    _run_package(c, "gesture_detection", "gesture-detection")
+    _run_package(c, "", "gesture-detection")
 
 
 @task
 def annotate_landmarks(c):
     """Annotate landmarks in a gesture-detection input."""
-    _run_package(c, "gesture_detection", "annotate-landmarks")
+    _run_package(c, "", "annotate-landmarks")
 
 
 @task
-def annotate_video(c):
+def annotate_video(c, video_path: str):
     """Annotate a gesture-detection video."""
-    _run_package(c, "gesture_detection", "annotate-video")
+    _run_package(c, "", f"annotate-video {video_path}")
 
 
 @task
 def record_cameras(c):
     """Record from the configured cameras."""
-    _run_package(c, "gesture_detection", "record-cameras")
+    _run_package(c, "", "record-cameras")
 
 
 @task
 def record_three_cameras(c):
     """Record from three cameras."""
-    _run_package(c, "gesture_detection", "record-three-cameras")
+    _run_package(c, "", "record-three-cameras")
 
 
 @task
@@ -66,7 +66,7 @@ def mcu(c):
 @task
 def gesture_tests(c):
     """Run gesture-detection tests."""
-    _run_package(c, "gesture_detection", "python -m pytest")
+    _run_package(c, "", "python -m pytest")
 
 
 @task
@@ -84,7 +84,7 @@ def mcu_tests(c):
 @task
 def format(c):
     """Format all Python projects."""
-    for package in ("gesture_detection", "unity_bridge", "mcu"):
+    for package in ("", "unity_bridge", "mcu"):
         with c.cd(package):
             c.run("uv run ruff format")
 
@@ -92,7 +92,7 @@ def format(c):
 @task
 def lint(c):
     """Lint all Python projects."""
-    for package in ("gesture_detection", "unity_bridge", "mcu"):
+    for package in ("", "unity_bridge", "mcu"):
         with c.cd(package):
             c.run("uv run ruff check")
 
@@ -100,6 +100,6 @@ def lint(c):
 @task
 def typecheck(c):
     """Type-check all Python projects."""
-    for package in ("gesture_detection", "unity_bridge", "mcu"):
+    for package in ("", "unity_bridge", "mcu"):
         with c.cd(package):
             c.run("uv run pyright")

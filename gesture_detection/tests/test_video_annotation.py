@@ -297,6 +297,61 @@ def app(timeline):
     instance.reader.close()
 
 
+def test_bow_action_and_phases_can_be_annotated_and_reloaded(app):
+    app.render()
+    assert any(
+        action == "label" and payload == ("action", "BOW") for _, action, payload in app.buttons
+    )
+    app.handle("label", ("action", "BOW"))
+    app.seek(1)
+    app.handle("start")
+    app.seek(10)
+    app.handle("end")
+    action_id = app.selected_action_id
+    app.render()
+    assert {
+        payload
+        for _, action, payload in app.buttons
+        if action == "label" and payload[0] != "action"
+    } == {("bow_phase", label) for label in ("BENDING", "HOLD", "RETURNING")}
+    assert not any(action == "event" for _, action, _ in app.buttons)
+    for label, start, end in (("BENDING", 1, 3), ("HOLD", 4, 6), ("RETURNING", 7, 10)):
+        app.handle("label", ("bow_phase", label))
+        app.seek(start)
+        app.handle("start")
+        app.seek(end)
+        app.handle("end")
+    loaded = load_timeline(app.editor.output)
+    phases = [item for item in loaded["intervals"] if item["track"] == "bow_phase"]
+    assert [(item["label"], item["start_frame"], item["end_frame"]) for item in phases] == [
+        ("BENDING", 1, 3),
+        ("HOLD", 4, 6),
+        ("RETURNING", 7, 10),
+    ]
+    assert all(item["parent_action_id"] == action_id for item in phases)
+
+
+@pytest.mark.parametrize("custom_labels", [False, True])
+def test_existing_timeline_gains_bow_only_for_standard_labels(timeline, custom_labels):
+    _, output, editor = timeline
+    config = editor.data["label_config"]
+    config["tracks"] = [track for track in config["tracks"] if track["id"] != "bow_phase"]
+    config["tracks"][0]["labels"].remove("BOW")
+    del config["workflows"]["BOW"]
+    if custom_labels:
+        config["tracks"][0]["labels"].append("CUSTOM")
+    editor.add_interval("action", "FANNING", 1, 5)
+    editor.set_landmark(2, "left_wrist", "marked", (10, 15))
+    loaded = load_timeline(output)
+    assert ("BOW" in loaded["label_config"]["tracks"][0]["labels"]) == (not custom_labels)
+    assert ("BOW" in loaded["label_config"]["workflows"]) == (not custom_labels)
+    assert any(track["id"] == "bow_phase" for track in loaded["label_config"]["tracks"]) == (
+        not custom_labels
+    )
+    assert loaded["intervals"] == editor.data["intervals"]
+    assert loaded["landmarks"] == editor.data["landmarks"]
+
+
 def test_pending_start_and_bottom_controls(app):
     app.handle("label", ("action", "FANNING"))
     app.seek(2)
