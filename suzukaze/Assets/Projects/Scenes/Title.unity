@@ -749,7 +749,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c4ea318697e41eaba88c2ff04d3fdb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Features.SceneTransition.TitleSceneTransition
-  transitionDuration: 1
 --- !u!4 &858899787
 Transform:
   m_ObjectHideFlags: 0

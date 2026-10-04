@@ -8,8 +8,9 @@ namespace Features.Common.Scripts
 
         public static T Instance => _instance ??= FindAnyObjectByType<T>();
     }
-    
-    public abstract class SingletonMonoBehaviourAutoCreate<T> : MonoBehaviour where T : SingletonMonoBehaviourAutoCreate<T>
+
+    public abstract class SingletonMonoBehaviourAutoCreate<T> : MonoBehaviour
+        where T : SingletonMonoBehaviourAutoCreate<T>
     {
         private static T _instance;
 
@@ -19,10 +20,11 @@ namespace Features.Common.Scripts
             {
                 if (_instance != null) return _instance;
                 _instance = FindAnyObjectByType<T>();
-                
+
                 if (_instance != null) return _instance;
                 var obj = new GameObject(typeof(T).Name);
                 _instance = obj.AddComponent<T>();
+                DontDestroyOnLoad(obj);
                 return _instance;
             }
         }
