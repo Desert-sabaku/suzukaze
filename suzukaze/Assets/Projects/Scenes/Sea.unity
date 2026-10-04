@@ -456,6 +456,49 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 81d861ebea6000f4b949ae52839994e6, type: 3}
   m_PrefabInstance: {fileID: 588310253}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &701053273 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1657896323943719997, guid: a85e6ed0bc0f14289bc1a6602bf66f4c, type: 3}
+  m_PrefabInstance: {fileID: 1108678632}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &701053274 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8543561944827567361, guid: a85e6ed0bc0f14289bc1a6602bf66f4c, type: 3}
+  m_PrefabInstance: {fileID: 1108678632}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 701053273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6983ab2008f7a9f499b3f8cd6bec328d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Formats.Alembic.Runtime::UnityEngine.Formats.Alembic.Importer.AlembicStreamPlayer
+--- !u!114 &701053276
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 701053273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 315745f8dd0747d184192b322d791422, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Features.GestureEffect.GroundWetness
+  waterRenderers:
+  - {fileID: 969057515}
+  player: {fileID: 701053274}
+  stampShader: {fileID: 4800000, guid: b6c6d11e98ee46c8ab579755779e800d, type: 3}
+  areaSize: 7
+  resolution: 512
+  terrain: {fileID: 1400585486}
+  contactHeight: 0.3
+  dryDuration: 20
+  darken: 0.5
+  wetSmoothness: 0.6
+  normalFlatten: 0.1
+  blurTexels: 3
+  edgeNoiseScale: 24
+  edgeNoise: 0.5
 --- !u!1001 &756678347
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -666,6 +709,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 3331d9bc37016f04a8861ee5deaed187, type: 3}
   m_PrefabInstance: {fileID: 905106029}
   m_PrefabAsset: {fileID: 0}
+--- !u!23 &969057515 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1442776536119233587, guid: a85e6ed0bc0f14289bc1a6602bf66f4c, type: 3}
+  m_PrefabInstance: {fileID: 1108678632}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1108678632
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -700,7 +748,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1054620399296013224, guid: a85e6ed0bc0f14289bc1a6602bf66f4c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 8.61
+      value: 8.369
       objectReference: {fileID: 0}
     - target: {fileID: 1054620399296013224, guid: a85e6ed0bc0f14289bc1a6602bf66f4c, type: 3}
       propertyPath: m_LocalPosition.z
@@ -790,7 +838,10 @@ PrefabInstance:
     m_RemovedGameObjects:
     - {fileID: 4330731456689522909, guid: a85e6ed0bc0f14289bc1a6602bf66f4c, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1657896323943719997, guid: a85e6ed0bc0f14289bc1a6602bf66f4c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 701053276}
   m_SourcePrefab: {fileID: 8318733276415857878, guid: a85e6ed0bc0f14289bc1a6602bf66f4c, type: 3}
 --- !u!1001 &1256537229
 PrefabInstance:

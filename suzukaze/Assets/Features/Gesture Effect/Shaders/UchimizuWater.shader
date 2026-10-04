@@ -1,11 +1,3 @@
-// Water for the uchimizu (打ち水) splash.
-// The Alembic fluid mesh has no usable UVs and changes topology every frame, so all
-// surface detail is generated procedurally in world space. The body of the water is
-// rendered by refracting the already-drawn scene (_CameraOpaqueTexture), tinted by
-// Beer-Lambert absorption, and combined with Fresnel-weighted reflections and specular.
-// Lengths are given in object units and follow the Transform's scale, so the look
-// survives resizing the splash. Absorption is per object unit of path length.
-// Requires "Opaque Texture" and "Depth Texture" on the URP asset.
 Shader "Suzukaze/UchimizuWater"
 {
     Properties
@@ -36,6 +28,9 @@ Shader "Suzukaze/UchimizuWater"
 
         [Header(Edges)]
         _EdgeFade ("Intersection Fade (object units)", Range(0.00001, 0.05)) = 0.0008
+
+        [Header(Advanced)]
+        _Alpha ("Alpha", Range(0, 1)) = 1
     }
 
     SubShader
@@ -51,7 +46,10 @@ Shader "Suzukaze/UchimizuWater"
         Pass
         {
             Name "ForwardLit"
-            Tags { "LightMode" = "UniversalForward" }
+            Tags
+            {
+                "LightMode" = "UniversalForward"
+            }
 
             Blend SrcAlpha OneMinusSrcAlpha
             ZWrite Off
@@ -95,6 +93,7 @@ Shader "Suzukaze/UchimizuWater"
                 half _RippleStrength;
                 float _RippleSpeed;
                 float _EdgeFade;
+                float _Alpha;
             CBUFFER_END
 
             struct Attributes
@@ -200,7 +199,7 @@ Shader "Suzukaze/UchimizuWater"
 
             // Screen UV of the background seen through the surface along a refracted ray.
             float2 RefractedUV(float2 baseUV, float2 surfaceUV, float3 positionWS, float3 viewDirWS,
-                               float3 normalWS, float eta, float travel)
+                       float3 normalWS, float eta, float travel)
             {
                 float3 refracted = refract(-viewDirWS, normalWS, eta);
                 // Total internal reflection: fall back to the straight-through ray.
@@ -225,9 +224,9 @@ Shader "Suzukaze/UchimizuWater"
             float3 SampleBlurredScene(float2 uv, float2 radius)
             {
                 float3 c = SampleSceneColor(uv) * 0.4;
-                c += SampleSceneColor(uv + float2( radius.x, 0)) * 0.15;
+                c += SampleSceneColor(uv + float2(radius.x, 0)) * 0.15;
                 c += SampleSceneColor(uv + float2(-radius.x, 0)) * 0.15;
-                c += SampleSceneColor(uv + float2(0,  radius.y)) * 0.15;
+                c += SampleSceneColor(uv + float2(0, radius.y)) * 0.15;
                 c += SampleSceneColor(uv + float2(0, -radius.y)) * 0.15;
                 return c;
             }
@@ -259,13 +258,15 @@ Shader "Suzukaze/UchimizuWater"
             half3 DirectSpecular(InputData inputData, half roughness, half3 f0)
             {
                 float4 shadowCoord = TransformWorldToShadowCoord(inputData.positionWS);
-                half3 spec = SpecularGGX(GetMainLight(shadowCoord), inputData.normalWS, inputData.viewDirectionWS, roughness, f0);
+                half3 spec = SpecularGGX(GetMainLight(shadowCoord), inputData.normalWS, inputData.viewDirectionWS,
+             roughness, f0);
 
                 #if defined(_ADDITIONAL_LIGHTS)
                 uint pixelLightCount = GetAdditionalLightsCount();
 
                 #if USE_CLUSTER_LIGHT_LOOP
-                [loop] for (uint lightIndex = 0; lightIndex < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS); lightIndex++)
+                [loop] for (uint lightIndex = 0; lightIndex < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS);
+                                                           lightIndex++)
                 {
                     CLUSTER_LIGHT_LOOP_SUBTRACTIVE_LIGHT_CHECK
                     Light light = GetAdditionalLight(lightIndex, inputData.positionWS, half4(1, 1, 1, 1));
@@ -339,7 +340,9 @@ Shader "Suzukaze/UchimizuWater"
                 half3 fresnel = FresnelSchlick(f0, nDotV);
                 half3 reflectDir = reflect(-viewDirWS, normalWS);
                 half3 reflection = GlossyEnvironmentReflection(reflectDir, positionWS,
-                    PerceptualSmoothnessToPerceptualRoughness(_Smoothness), 1.0, baseUV) * _ReflectionStrength;
+                                PerceptualSmoothnessToPerceptualRoughness(
+                                    _Smoothness), 1.0,
+                                baseUV) * _ReflectionStrength;
 
                 InputData inputData = (InputData)0;
                 inputData.positionWS = positionWS;
@@ -353,7 +356,7 @@ Shader "Suzukaze/UchimizuWater"
 
                 // Soften where the water touches other geometry.
                 half alpha = saturate(depthBehind / (_EdgeFade * objectScale));
-                return half4(color, alpha);
+                return half4(color, alpha * _Alpha);
             }
             ENDHLSL
         }

@@ -26,6 +26,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _AbsorptionDensity: 125
+    - _Alpha: 1
     - _BlurRadius: 1
     - _Dispersion: 0.012
     - _EdgeFade: 0.0008
