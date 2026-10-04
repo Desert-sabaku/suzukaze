@@ -61,7 +61,9 @@ def test_optional_presence():
 def test_bow_state_round_trips():
     message = {**FIXTURES[0]["message"], "gesture": "BOW"}
     wire = encode_message(message)
-    assert pb.GestureEnvelope.FromString(wire).state.gesture == pb.CONTINUOUS_GESTURE_BOW
+    assert (
+        pb.GestureEnvelope.FromString(wire).state.gesture == pb.CONTINUOUS_GESTURE_BOW
+    )
     assert decode_message(wire) == message
 
 
