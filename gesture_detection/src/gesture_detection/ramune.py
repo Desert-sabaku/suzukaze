@@ -13,11 +13,13 @@ from .config import (
     RAMUNE_HOLD_SECONDS,
     RAMUNE_MAX_FRAME_GAP,
     RAMUNE_MAX_READY_GAP,
+    RAMUNE_MAX_WINDUP_GAP,
     RAMUNE_MIN_PRESS,
     RAMUNE_MIN_READY_GAP,
     RAMUNE_PRESS_TIMEOUT,
     RAMUNE_READY_ALIGN_TOLERANCE,
     RAMUNE_UPPER_RAISE_TOLERANCE,
+    RAMUNE_WINDUP_SECONDS,
 )
 
 
@@ -43,6 +45,7 @@ class RamuneAnalyzer:
         self.scale = 1.0
         self.since = 0.0
         self.last_time: float | None = None
+        self.windup_since: float | None = None
 
     def update(self, landmarks: Sequence[Landmark], now: float) -> bool:
         if self.last_time is not None and (
@@ -115,7 +118,19 @@ class RamuneAnalyzer:
             self.reset()
             return False
         raised_gap = (base.y - pressing.y) / self.scale
-        if ready and pressing.y < self.upper_y and raised_gap > self.ready_gap:
+        if self.windup_since is not None and (
+            now - self.windup_since > RAMUNE_WINDUP_SECONDS + 1e-9
+            or raised_gap > RAMUNE_MAX_WINDUP_GAP
+        ):
+            self.reset()
+            return False
+        raising = pressing.y < self.upper_y and raised_gap > self.ready_gap
+        if raising and raised_gap > RAMUNE_MAX_WINDUP_GAP:
+            self.reset()
+            return False
+        if raising and RAMUNE_MIN_READY_GAP <= raised_gap <= RAMUNE_MAX_WINDUP_GAP:
+            if raised_gap > RAMUNE_MAX_READY_GAP and self.windup_since is None:
+                self.windup_since = now
             # Completing the raise is still preparation, not an invalid press.
             # Use its latest position in both single- and multicamera profiles.
             self.upper_y, self.ready_gap = pressing.y, raised_gap
@@ -129,6 +144,9 @@ class RamuneAnalyzer:
         # Require the upper hand to descend AND close the gap. Wider positional
         # tolerances must not turn common downward motion into a press.
         closing = self.ready_gap - remaining
+        if press >= RAMUNE_MIN_PRESS and closing >= RAMUNE_MIN_PRESS:
+            # The backswing has transitioned into a relative downward press.
+            self.windup_since = None
         if (
             aligned
             and press >= RAMUNE_MIN_PRESS

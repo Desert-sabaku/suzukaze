@@ -63,7 +63,7 @@ def test_invalid_press(failure):
     elif failure == "gap":
         now = 1.0
     elif failure == "up":
-        landmarks[16].y = 0.2  # Above the permitted preparation gap.
+        landmarks[16].y = 0.0  # Above even the post-preparation windup gap.
     elif failure == "timeout":
         landmarks[16].y = 0.45
         deadline = 0.3 + RAMUNE_PRESS_TIMEOUT
@@ -303,3 +303,91 @@ def test_lower_hand_still_resets_outside_bounded_drift(axis, displacement):
     setattr(landmarks[15], axis, getattr(landmarks[15], axis) + displacement)
     assert not analyzer.update(landmarks, 0.4)
     assert analyzer.state == "IDLE"
+
+
+@pytest.mark.parametrize("analyzer_type", [RamuneAnalyzer, FollowingRamuneAnalyzer])
+@pytest.mark.parametrize("base_index", [15, 16])
+@pytest.mark.parametrize("duration,opens", [(0.8, True), (1.0, True), (1.1, False)])
+def test_one_second_high_windup_then_press(analyzer_type, base_index, duration, opens):
+    analyzer = analyzer_type()
+    landmarks = points(base_index)
+    prepare(analyzer, landmarks)
+    upper_index = 31 - base_index
+    landmarks[upper_index].y = 0.20  # 1.125 shoulder widths above the lower hand.
+    assert not analyzer.update(landmarks, 0.4)
+    assert analyzer.state == "READY"
+    assert analyzer.windup_since == pytest.approx(0.4)
+    press_at = 0.4 + duration
+    now = 0.65
+    while now < press_at:
+        landmarks[upper_index].y = 0.15  # Continue the raise; do not restart its clock.
+        assert not analyzer.update(landmarks, now)
+        assert analyzer.state == "READY"
+        assert analyzer.windup_since == pytest.approx(0.4)
+        now += 0.25
+    landmarks[upper_index].y = 0.61
+    assert analyzer.update(landmarks, press_at) is opens
+    assert analyzer.state == ("OPENED" if opens else "IDLE")
+
+
+@pytest.mark.parametrize("analyzer_type", [RamuneAnalyzer, FollowingRamuneAnalyzer])
+def test_high_hand_requires_initial_preparation(analyzer_type):
+    analyzer = analyzer_type()
+    landmarks = points()
+    landmarks[16].y = 0.15
+    for now in (0.0, 0.1, 0.3):
+        assert not analyzer.update(landmarks, now)
+        assert analyzer.state == "IDLE"
+    landmarks[16].y = 0.61
+    assert not analyzer.update(landmarks, 0.4)
+
+
+def test_windup_does_not_accept_both_hands_descending_or_pause_indefinitely():
+    analyzer = RamuneAnalyzer()
+    landmarks = points()
+    prepare(analyzer, landmarks)
+    landmarks[16].y = 0.20
+    assert not analyzer.update(landmarks, 0.4)
+    landmarks[15].y += 0.15
+    landmarks[16].y += 0.15
+    assert not analyzer.update(landmarks, 0.5)
+    assert analyzer.windup_since == pytest.approx(0.4)
+    for now in (0.8, 1.1, 1.4):
+        assert not analyzer.update(landmarks, now)
+    assert not analyzer.update(landmarks, 1.5)
+    assert analyzer.state == "IDLE"
+
+
+def test_windup_can_transition_to_press_before_contact():
+    analyzer = RamuneAnalyzer()
+    landmarks = points()
+    prepare(analyzer, landmarks)
+    landmarks[16].y = 0.15
+    assert not analyzer.update(landmarks, 0.4)
+    assert not analyzer.update(landmarks, 0.7)
+    landmarks[16].y = 0.30
+    assert not analyzer.update(landmarks, 1.0)
+    assert analyzer.state == "READY"
+    assert analyzer.windup_since is None
+    assert not analyzer.update(landmarks, 1.3)
+    landmarks[16].y = 0.61
+    assert analyzer.update(landmarks, 1.6)
+
+
+@pytest.mark.parametrize("failure", ["excessive_raise", "tracking_gap", "lost_hand"])
+def test_windup_still_requires_bounded_height_and_tracking(failure):
+    analyzer = RamuneAnalyzer()
+    landmarks = points()
+    prepare(analyzer, landmarks)
+    landmarks[16].y = 0.15
+    assert not analyzer.update(landmarks, 0.4)
+    now = 0.5
+    if failure == "excessive_raise":
+        landmarks[16].y = 0.04  # Just beyond 1.5 shoulder widths.
+    elif failure == "tracking_gap":
+        now = 1.0
+    else:
+        landmarks[16].visibility = 0.0
+    assert not analyzer.update(landmarks, now)
+    assert analyzer.state == "IDLE"
+    assert analyzer.windup_since is None
