@@ -14,32 +14,37 @@ uv sync
 
 ## ジェスチャーを認識する
 
-初回のみ `.env.example` を `.env` にコピーして、入力元を設定します。
+初回のみ `config.example.toml` を `config.toml` にコピーして、入力元を設定します。
 
 ```bash
-cp .env.example .env
+cp config.example.toml config.toml
 uv run gesture-detection
 ```
 
-既定ではカメラ0を使用します。表示された枠に胴体の中心を合わせてください。
+ライブ入力では起動時に候補カメラの映像を表示します。数字キーで使用するカメラを選びます。
+表示された枠に胴体の中心を合わせてください。
 終了は `Esc` です。姿勢推定モデルがない場合は初回起動時に自動取得します。
 単体で起動した場合はUnityへ送信しません。Unityへ送るときは `unity_bridge/` で
 `uv run unity-bridge --gesture` を実行すると、この認識アプリも起動します（[Unity連携](docs/integration.md)）。
 
-主な設定は `.env` で変更します。
+主な設定は `config.toml` で変更します。ファイルがなければ既定値を使います。
 
-| 設定           | 用途                                   |
-| -------------- | -------------------------------------- |
-| `CAMERA_INDEX` | 使用するカメラのID（既定 `0`）         |
-| `VIDEO_SOURCE` | 動画ファイルのパス。空欄ならカメラ入力 |
-| `OUTPUT_DIR`   | `VIDEO_SOURCE` の注釈付き解析結果の保存先（既定 `output/`） |
+| 設定 | 用途 |
+| ---- | ---- |
+| `camera.indices` | カメラ番号の配列。空なら起動時に映像から選択 |
+| `video.source` | 動画ファイルのパス。空欄ならカメラ入力 |
+| `output.directory` | 認識結果の保存先（既定 `output/`） |
+| `output.record_live` | `true` なら認識中の表示映像を保存 |
 
-その他の設定は [.env.example](.env.example) を参照してください。
+その他の設定は [config.example.toml](config.example.toml) を参照してください。
+従来の `.env` は読み込みません。[移行対応表](docs/configuration.md)に従って値を移してください。
+ファイルの場所は `GESTURE_CONFIG_PATH`（相対指定はプロジェクトルート基準）で変更できます。
 [学習済みラムネ判定](docs/learned-ramune.md)は設定で切り替えられます。
 
 ### 2カメラで認識する
 
-`.env`で`MULTICAM_ENABLED=true`と`MULTICAM_CAMERA_INDICES=1,2`を指定します。
+`config.toml` の `[multicam]` で `enabled = true` を指定します。起動時に2台を役割順に選ぶか、
+画面なしでは `[camera]` に `indices = [1, 2]` のように指定します。
 先頭のカメラで人物選択、2台目で全画面解析を行い、結果を統合します。
 実カメラと録画セッションの設定は[Unity連携・OS別セットアップ・2カメラ](docs/integration.md)を参照してください。
 

@@ -196,7 +196,7 @@ def status_messages(result: PoseResult) -> list[Message]:
     return messages
 
 
-def draw_subject_area(image: npt.NDArray[np.uint8], state: str) -> None:
+def draw_subject_area(image: npt.NDArray[np.uint8], state: str, *, show_label: bool = True) -> None:
     """Guide torso placement; limbs can extend outside the selection area."""
     height, width = image.shape[:2]
     left, top, right, bottom = SUBJECT_AREA
@@ -208,6 +208,8 @@ def draw_subject_area(image: npt.NDArray[np.uint8], state: str) -> None:
         color,
         1,
     )
+    if not show_label:
+        return
     label = {
         "TRACKING": "Participant tracked",
         "ACQUIRING": "Hold position...",

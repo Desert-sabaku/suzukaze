@@ -21,19 +21,22 @@ VIDEOモードで標準有効。カメラと動画の両方に適用する。
 
 ## 設定
 
-`.env` の例（座標は入力画像基準。左上0,0、右下1,1）：
+`config.toml` の例（座標は入力画像基準。左上0,0、右下1,1）：
 
-```dotenv
-POSE_SELECT_SUBJECT=true
-SUBJECT_AREA=0.35,0.15,0.75,0.90
-SUBJECT_MIN_TORSO_HEIGHT=0.18
-SUBJECT_MIN_SHOULDER_WIDTH=0.10
+```toml
+[pose]
+select_subject = true
+
+[pose.subject]
+area = [0.35, 0.15, 0.75, 0.90]
+min_torso_height = 0.18
+min_shoulder_width = 0.10
 ```
 
-`SUBJECT_AREA` は胴体中心に適用する左・上・右・下。
+`pose.subject.area` は胴体中心に適用する左・上・右・下。
 高さは肩中心から腰中心までの縦方向差 / 画像高さ、肩幅は横方向差 / 画像幅。
 カメラの距離や画角が変わると調整が必要。
-`POSE_SELECT_SUBJECT=false` で従来の全画面単一人物追跡へ戻せる。
+`pose.select_subject = false` で従来の全画面単一人物追跡へ戻せる。
 独立した静止画の評価に使うIMAGEモードには適用しない。
 新しいモデルや依存パッケージは追加していない。
 

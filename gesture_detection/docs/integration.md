@@ -26,8 +26,8 @@ Unity側は切断時に再接続してください（Unityの受信実装は500m
 プローブの `--ignore-events` は演出中の見送りを模擬します。実機は操作しません。
 終了はブリッジでCtrl+C、または認識画面でEscです。認識側が終了するとブリッジも終了します。
 
-`gesture-detection` を単体で起動した場合は送信しません。`VIDEO_SOURCE` を設定した
-動画評価や `MULTICAM_VIDEO_SESSION` による録画再生でも送信しません（時刻が入力元の時刻のため）。
+`gesture-detection` を単体で起動した場合は送信しません。`video.source` を設定した
+動画評価や `multicam.replay.session` による録画再生でも送信しません（時刻が入力元の時刻のため）。
 未確認イベントの容量超過は黙って無視せず、ブリッジのエラーとして終了させます。
 
 2カメラ認識は、このページの[2カメラ認識](#2カメラ認識)の設定で起動します。
@@ -36,7 +36,8 @@ Unity側は切断時に再接続してください（Unityの受信実装は500m
 送信間隔などは `unity_bridge` の環境変数で変更します（既定値）:
 `GESTURE_STATE_INTERVAL=0.1`、`GESTURE_STALE_TIMEOUT=0.5`、`GESTURE_EVENT_TTL=1.0`、
 `GESTURE_RETRY_INTERVAL=0.1`、`GESTURE_MAX_PENDING=64`。
-`GESTURE_EVENT_TTL` は2カメラ統合でも使うため、`gesture_detection/.env` と同じ値にしてください。
+`GESTURE_EVENT_TTL` は2カメラ統合でも使うため、`gesture_detection/config.toml` の
+`events.ttl_seconds` と同じ値にしてください。
 
 ## 通信形式
 
@@ -227,30 +228,36 @@ uv run --locked unity-gesture-probe
 
 ## 2カメラ認識
 
-`.env` に次を設定して実行します。
+`config.toml` に次を設定して実行します（その他の項目は省略可能です）。
 
-```dotenv
-MULTICAM_ENABLED=true
-MULTICAM_CAMERA_INDICES=1,2
-MULTICAM_FIRST_SELECT_SUBJECT=true
-MULTICAM_SECOND_SELECT_SUBJECT=false
-MULTICAM_VIDEO_SESSION=
-VIDEO_SOURCE=
-POSE_RUNNING_MODE=VIDEO
-RAMUNE_DETECTOR=rules
-MULTICAM_HEADLESS=false
+```toml
+[multicam]
+enabled = true
+headless = false
+
+[multicam.first]
+select_subject = true
+
+[multicam.second]
+select_subject = false
 ```
 
 ```bash
 uv run gesture-detection
 ```
 
-最初のカメラは人物選択、2台目は全画面解析です。Linuxでは1台のカメラが複数の
-`/dev/video*` として見えることがあるため、実際のデバイス番号を指定してください。
+起動時に映像を見て人物選択用、全画面解析用の順に数字キーで選択します。
+画面なしでは`[camera]`に`indices = [1, 2]`のように明示してください。Linuxでは1台のカメラが複数の
+`/dev/video*` として見えることがあるため、映像で確認してください。
 2台の入力は同じ実演者を撮影する構成で使います。
+2カメラ画面では映像内にランドマークと人物選択枠だけを描画します。
+ステータス文字は映像枠外の統合状態・カメラ情報にまとめ、映像内のスコア・所作名・
+ラムネ操作ガイド・人物選択の文字は表示しません。録画される合成映像も同じ表示です。
 
-録画セッションを再生する場合は `MULTICAM_VIDEO_SESSION` に `session.json` を指定します。
-録画再生ではUnityへ通知しません。`MULTICAM_TRACE_PATH` を指定すると統合結果をJSONLへ
+認識中の合成プレビューを録画する場合は`[output]`に`record_live = true`を設定します。
+録画セッションを再生する場合は `[multicam.replay]` の `session` に `session.json` を指定します。
+再生時に`camera.indices`が空配列ならセッション内の先頭2台を役割順に使用します。
+録画再生ではUnityへ通知しません。`diagnostics.multicam_trace` を指定すると統合結果をJSONLへ
 保存できます。統合は直近の入力時刻を使い、古いイベントの期限を新しい入力で延長しません。
 
 2カメラの責任分界は、各カメラの取得・推論を子プロセスで行い、親側で結果を統合してから

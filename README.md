@@ -35,9 +35,11 @@ Unity 6000.5.8f1（Unityを使う場合）、TinyGo（ファームウェアを�
 
 2. Pythonの各プロジェクトで依存関係を入れる。
 
+   > [!importnant]
+   > プロジェクトルートで実行してください！
+
    ```bash
-   (cd gesture_detection && uv sync --group dev)
-   (cd unity_bridge && uv sync --group dev)  # gesture_detection も editable で入る
+   uv sync
    ```
 
 3. Unityでは `suzukaze/` を開きます。`Google.Protobuf` はNuGetForUnityが
@@ -49,6 +51,17 @@ Unity 6000.5.8f1（Unityを使う場合）、TinyGo（ファームウェアを�
 cd unity_bridge
 uv run unity-bridge --gesture   # 認識アプリも起動し、ws://127.0.0.1:5000 で待ち受ける
 uv run unity-gesture-probe      # Unityの代わりに受信を確認する（別ターミナル）
+```
+
+> [!note]
+> もしくは，`invoke`を使うことができます。仮想環境を活性化（zshなら `source .venv/bin/activate`など）をすれば，以下のように非常に短く実行できます。
+
+プロジェクトルートで `invoke --list` を実行すると利用可能なタスクを確認できます。protobuf の生成が必要な場合は、先に
+`invoke proto` を実行してください。例えば、Unity Bridge の起動とテストは次のとおりです。
+
+```bash
+invoke unity
+invoke unity-tests
 ```
 
 2カメラで認識する設定は [2カメラ認識ガイド](gesture_detection/docs/multicam-runtime.md)、
