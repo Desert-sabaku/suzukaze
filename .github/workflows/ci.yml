@@ -5,9 +5,61 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
+  difference-detection:
+    name: Difference Detection
+    runs-on: ubuntu-latest
+    outputs:
+      python: ${{ steps.filter.outputs.python }}
+      bridge: ${{ steps.filter.outputs.bridge }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            python:
+              - "gesture_detection/**"
+              - "mcu/**"
+              - "pyproject.toml"
+              - "uv.lock"
+            bridge:
+              - "unity_bridge/**"
+              - "proto/**"
+              - "pyproject.toml"
+              - "uv.lock"
+
+  python-checkers:
+    needs: difference-detection
+    if: ${{ needs.difference-detection.outputs.python == 'true' }}
+    name: Python Checkers (lint, types, tests)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: gesture_detection
+    steps:
+      - uses: actions/checkout@v4
+      - name: install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          python-version: "3.14"
+      - name: Install dependencies
+        run: uv sync --group dev
+      - name: Format check
+        run: uv run ruff format --check src tests scripts main.py
+      - name: Lint
+        run: uv run ruff check src tests scripts main.py
+      - name: Type-check
+        run: uv run pyright
+      - name: Test
+        run: uv run pytest
+
   unity-bridge:
+    needs: difference-detection
+    if: ${{ needs.difference-detection.outputs.bridge == 'true' }}
     name: Unity bridge (lint, types, protocol tests)
     runs-on: ubuntu-latest
     defaults:
@@ -34,54 +86,4 @@ jobs:
       - name: Type-check
         run: uv run pyright
       - name: Test gesture delivery
-        run: uv run python -m pytest
-
-  ruff:
-    name: Ruff (format + lint)
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: gesture_detection
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
-        with:
-          python-version: "3.14"
-      - name: Install dependencies
-        run: uv sync --group dev
-      - name: Format check
-        run: uv run ruff format --check src tests scripts main.py
-      - name: Lint
-        run: uv run ruff check src tests scripts main.py
-
-  pyright:
-    name: Pyright (type checking)
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: gesture_detection
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
-        with:
-          python-version: "3.14"
-      - name: Install dependencies
-        run: uv sync --group dev
-      - name: Type-check
-        run: uv run pyright
-
-  pytest:
-    name: Pytest (tests)
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: gesture_detection
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
-        with:
-          python-version: "3.14"
-      - name: Install dependencies
-        run: uv sync --group dev
-      - name: Run tests
         run: uv run python -m pytest
