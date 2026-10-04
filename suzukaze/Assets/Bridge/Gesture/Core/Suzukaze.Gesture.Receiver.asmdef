@@ -1,5 +1,6 @@
 {
   "name": "Suzukaze.Gesture.Receiver",
+  "rootNamespace": "Suzukaze.Gesture.Receiver",
   "references": ["Suzukaze.Gesture.Protocol"],
   "noEngineReferences": true
 }

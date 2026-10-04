@@ -1,5 +1,6 @@
 {
   "name": "Suzukaze.Gesture.PlayMode",
+  "rootNamespace": "Suzukaze.Gesture.Receiver.Tests",
   "references": [
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner",

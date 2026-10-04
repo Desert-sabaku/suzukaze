@@ -1,5 +1,6 @@
 {
   "name": "Suzukaze.Gesture.EditMode",
+  "rootNamespace": "Suzukaze.Gesture.Receiver.Tests",
   "references": [
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner",
