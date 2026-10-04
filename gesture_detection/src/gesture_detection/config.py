@@ -112,8 +112,9 @@ RELAXING_DWELL_SECONDS = 1.0
 RELAXING_MAX_FRAME_GAP = 0.25
 # Bow is a sustained, side-visible hip hinge; angles are measured from vertical.
 BOW_MIN_ANGLE_DEGREES = 20.0
-BOW_MAX_ANGLE_DEGREES = 45.0
-BOW_MAX_HEAD_DEVIATION_DEGREES = 25.0
+BOW_MAX_ANGLE_DEGREES = 75.0
+# Compare hip-to-face and hip-to-shoulder directions, not a neck angle.
+BOW_MAX_HEAD_DEVIATION_DEGREES = 35.0
 BOW_DWELL_SECONDS = 0.25
 BOW_MAX_FRAME_GAP = 0.25
 BOW_MIN_VISIBILITY = 0.5

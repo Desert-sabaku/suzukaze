@@ -1,4 +1,4 @@
-"""Recognize a held waist bow from a side-visible torso and straight neck."""
+"""Recognize a held waist bow from a side-visible torso and forward head."""
 
 import math
 
@@ -36,6 +36,7 @@ class BowAnalyzer:
             or not math.isfinite(landmarks[i].y)
             or not 0 <= landmarks[i].x <= 1
             or not 0 <= landmarks[i].y <= 1
+            or not math.isfinite(getattr(landmarks[i], "visibility", 1.0))
             or getattr(landmarks[i], "visibility", 1.0) < BOW_MIN_VISIBILITY
             for i in indices
         ):
@@ -47,15 +48,21 @@ class BowAnalyzer:
         hip_y = (landmarks[23].y + landmarks[24].y) / 2
         dx, dy = shoulder_x - hip_x, hip_y - shoulder_y
         head_dx = (landmarks[0].x * aspect_ratio) - shoulder_x
-        head_dy = shoulder_y - landmarks[0].y
+        face_dx = landmarks[0].x * aspect_ratio - hip_x
+        face_dy = hip_y - landmarks[0].y
+        if math.hypot(dx, dy) <= 1e-6 or math.hypot(face_dx, face_dy) <= 1e-6:
+            self.reset()
+            return False
         torso_angle = math.degrees(math.atan2(abs(dx), dy)) if dy > 0 else 180.0
-        head_angle = math.degrees(math.atan2(abs(head_dx), head_dy)) if head_dy > 0 else 180.0
+        # A nose can lie below the shoulders in a deep bow. Its short vector
+        # from the shoulder midpoint is not an anatomical neck direction;
+        # use the shared hip origin to compare the complete upper-body axes.
+        torso_direction = math.degrees(math.atan2(dx, dy))
+        face_direction = math.degrees(math.atan2(face_dx, face_dy))
         self.torso_angle = torso_angle
-        self.head_deviation = abs(torso_angle - head_angle)
-        # The face should continue the torso line: a head nod alone is not a bow.
-        aligned = (
-            dx * head_dx >= 0 and abs(torso_angle - head_angle) <= BOW_MAX_HEAD_DEVIATION_DEGREES
-        )
+        self.head_deviation = abs((face_direction - torso_direction + 180) % 360 - 180)
+        # Reject head-only nods and a face left behind the leaning shoulders.
+        aligned = dx * head_dx >= 0 and self.head_deviation <= BOW_MAX_HEAD_DEVIATION_DEGREES
         self.head_aligned = aligned
         valid = BOW_MIN_ANGLE_DEGREES <= torso_angle <= BOW_MAX_ANGLE_DEGREES and aligned
         gap = timestamp - self._last_time if self._last_time is not None else None

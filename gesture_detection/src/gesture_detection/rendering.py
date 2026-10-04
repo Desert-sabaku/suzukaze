@@ -95,18 +95,21 @@ def draw_bow_meter(image: npt.NDArray[np.uint8], result: PoseResult) -> None:
     ):
         deviation = result.get("bow_head_deviation")
         text = (
-            f"Bow: {angle:.0f} deg | neck {deviation:.0f} deg (max {BOW_MAX_HEAD_DEVIATION_DEGREES:.0f})"
+            f"Bow: {angle:.0f} deg | head axis {deviation:.0f} deg (max {BOW_MAX_HEAD_DEVIATION_DEGREES:.0f})"
             if deviation is not None
-            else f"Bow: {angle:.0f} deg | straighten neck"
+            else f"Bow: {angle:.0f} deg | face forward"
         )
     else:
-        text = f"Bow: {angle:.0f} deg (target 20-45) | hold {held:.2f}/{BOW_DWELL_SECONDS:.2f}s"
+        text = (
+            f"Bow: {angle:.0f} deg (target {BOW_MIN_ANGLE_DEGREES:.0f}-{BOW_MAX_ANGLE_DEGREES:.0f})"
+            f" | hold {held:.2f}/{BOW_DWELL_SECONDS:.2f}s"
+        )
     cv2.putText(image, text, (10, 225), cv2.FONT_HERSHEY_SIMPLEX, 0.55, color, 2)
     left, right = 10, min(width - 10, 310)
     span = right - left
 
     def position(degrees: float) -> int:
-        return left + round(span * min(max(degrees, 0), 60) / 60)
+        return left + round(span * min(max(degrees, 0), 90) / 90)
 
     cv2.rectangle(image, (left, 237), (right, 252), (80, 80, 80), 1)
     cv2.rectangle(
@@ -119,7 +122,7 @@ def draw_bow_meter(image: npt.NDArray[np.uint8], result: PoseResult) -> None:
     if angle is not None:
         x = position(angle)
         cv2.line(image, (x, 234), (x, 255), color, 3)
-    # The second bar fills only while the bow angle and neck alignment are held.
+    # The second bar fills only while the bow angle and forward head are held.
     cv2.rectangle(image, (left, 259), (right, 266), (80, 80, 80), 1)
     if valid and held > 0:
         cv2.rectangle(
