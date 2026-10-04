@@ -17,6 +17,7 @@ from .config import (
     RAMUNE_MIN_READY_GAP,
     RAMUNE_PRESS_TIMEOUT,
     RAMUNE_READY_ALIGN_TOLERANCE,
+    RAMUNE_UPPER_RAISE_TOLERANCE,
 )
 
 
@@ -27,7 +28,7 @@ class Landmark(Protocol):
 
 
 class RamuneAnalyzer:
-    """Require a stable lower hand followed by a downward upper-hand press."""
+    """Allow bounded lower-hand drift, then require a relative upper-hand press."""
 
     def __init__(self) -> None:
         self.reset()
@@ -122,7 +123,7 @@ class RamuneAnalyzer:
             self.since = now
         press = (pressing.y - self.upper_y) / self.scale
         remaining = (base.y - pressing.y) / self.scale
-        if press < -RAMUNE_BASE_TOLERANCE or remaining < -RAMUNE_CONTACT_GAP:
+        if press < -RAMUNE_UPPER_RAISE_TOLERANCE or remaining < -RAMUNE_CONTACT_GAP:
             self.reset()
             return False
         # Require the upper hand to descend AND close the gap. Wider positional

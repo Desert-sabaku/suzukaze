@@ -74,7 +74,7 @@ def test_invalid_press(failure):
         landmarks[16].y = 0.61
         now = deadline + 0.1
     assert not analyzer.update(landmarks, now)
-    assert analyzer.state == ("READY" if failure == "sideways" else "IDLE")
+    assert analyzer.state == ("READY" if failure in {"sideways", "both_down"} else "IDLE")
 
 
 def test_contact_without_preparation_does_not_open():
@@ -242,4 +242,64 @@ def test_raising_after_deadline_does_not_revive_expired_preparation(analyzer_typ
         now += 0.25
     landmarks[16].y = 0.40
     assert not analyzer.update(landmarks, deadline + 0.1)
+    assert analyzer.state == "IDLE"
+
+
+@pytest.mark.parametrize("analyzer_type", [RamuneAnalyzer, FollowingRamuneAnalyzer])
+@pytest.mark.parametrize("base_index", [15, 16])
+@pytest.mark.parametrize("direction", [-1, 1])
+@pytest.mark.parametrize("vertical", [-0.14, 0.16])
+def test_lower_hand_drift_preserves_preparation_and_allows_relative_press(
+    analyzer_type, base_index, direction, vertical
+):
+    analyzer = analyzer_type()
+    landmarks = points(base_index)
+    upper_index = 31 - base_index
+    landmarks[upper_index].y = 0.30
+    prepare(analyzer, landmarks)
+    landmarks[base_index].x += direction * 0.26
+    landmarks[base_index].y += vertical
+    assert not analyzer.update(landmarks, 0.4)
+    assert analyzer.state == "READY"
+    landmarks[upper_index].x = landmarks[base_index].x
+    landmarks[upper_index].y = landmarks[base_index].y - 0.04
+    assert analyzer.update(landmarks, 0.5)
+
+
+@pytest.mark.parametrize("analyzer_type", [RamuneAnalyzer, FollowingRamuneAnalyzer])
+def test_lower_hand_drift_during_forming_is_allowed(analyzer_type):
+    analyzer = analyzer_type()
+    landmarks = points()
+    assert not analyzer.update(landmarks, 0.0)
+    for index in (15, 16):
+        landmarks[index].x += 0.26
+        landmarks[index].y += 0.16
+    for now in (0.1, 0.3):
+        assert not analyzer.update(landmarks, now)
+    assert analyzer.state == "READY"
+    landmarks[16].y = landmarks[15].y - 0.04
+    assert analyzer.update(landmarks, 0.4)
+
+
+@pytest.mark.parametrize("analyzer_type", [RamuneAnalyzer, FollowingRamuneAnalyzer])
+def test_wider_lower_hand_allowance_does_not_turn_common_motion_into_press(analyzer_type):
+    analyzer = analyzer_type()
+    landmarks = points()
+    landmarks[16].y = 0.526
+    prepare(analyzer, landmarks)
+    # The lower hand exceeds the old vertical tolerance. Both hands descend,
+    # but their relative separation barely changes.
+    landmarks[15].y += 0.16
+    landmarks[16].y += 0.18
+    assert not analyzer.update(landmarks, 0.4)
+    assert analyzer.state == "READY"
+
+
+@pytest.mark.parametrize("axis,displacement", [("x", 0.31), ("y", -0.21)])
+def test_lower_hand_still_resets_outside_bounded_drift(axis, displacement):
+    analyzer = RamuneAnalyzer()
+    landmarks = points()
+    prepare(analyzer, landmarks)
+    setattr(landmarks[15], axis, getattr(landmarks[15], axis) + displacement)
+    assert not analyzer.update(landmarks, 0.4)
     assert analyzer.state == "IDLE"

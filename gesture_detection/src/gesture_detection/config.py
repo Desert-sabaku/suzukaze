@@ -175,8 +175,10 @@ RAMUNE_ALIGN_TOLERANCE = 0.60
 RAMUNE_READY_ALIGN_TOLERANCE = 1.0
 # Allow landmark drift across the hand, especially sideways. Relative closing
 # motion still distinguishes a press from moving both hands down together.
-RAMUNE_BASE_X_TOLERANCE = 0.50
-RAMUNE_BASE_TOLERANCE = 0.30
+RAMUNE_BASE_X_TOLERANCE = 0.75
+RAMUNE_BASE_TOLERANCE = 0.50
+# Separate upper-hand upward excursions from lower-hand position tolerance.
+RAMUNE_UPPER_RAISE_TOLERANCE = 0.30
 RAMUNE_MIN_READY_GAP = 0.30
 RAMUNE_MAX_READY_GAP = 0.90
 RAMUNE_CONTACT_GAP = 0.30
