@@ -72,14 +72,16 @@ Material:
     - _MaxCutoff: 0
     - _MaxDist: 250
     - _MaxWaveDist: 250
-    - _NormalStrength: 0.1
+    - _NormalFadeEnd: 80
+    - _NormalFadeStart: 10.8
+    - _NormalStrength: 0.15
     - _Normal_Strength: 0.1
     - _Offset: 0.9
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _ScreenSpaceReflections: 1
-    - _Speed: 0.2
+    - _Speed: 0.1
     - _SrcBlend: 5
     - _Surface: 1
     - _Tiling: 0.2
@@ -95,7 +97,7 @@ Material:
     - _ZWrite: 1
     - _ZWriteControl: 1
     m_Colors:
-    - _Color: {r: 0.19215687, g: 0.23921569, b: 0.2627451, a: 1}
+    - _Color: {r: 0.19215682, g: 0.23921564, b: 0.26274508, a: 1}
     - _EdgeColor: {r: 0.25098038, g: 0.32941175, b: 0.28627446, a: 1}
     - _Edge_Color: {r: 0.2507565, g: 0.3301887, b: 0.28799033, a: 1}
     - _FoamColor: {r: 4, g: 4, b: 4, a: 1}

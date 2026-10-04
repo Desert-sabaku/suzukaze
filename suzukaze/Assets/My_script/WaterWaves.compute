@@ -1,0 +1,98 @@
+// WaterSurfaceMesh の頂点を波で動かす。
+// 向き・波長・位相の違う Gerstner 波を重ね、浅瀬では波を弱めて砂浜を駆け上がる寄せ波に変える。
+#pragma kernel CSMain
+
+struct Wave
+{
+    float2 dir;
+    float k;
+    float amp;
+    float omega;
+    float phase;
+    float q;
+    float pad;
+};
+
+StructuredBuffer<Wave> _Waves;
+StructuredBuffer<float2> _BasePositions;
+RWByteAddressBuffer _Vertices;
+Texture2D<float> _ShoreDepth;
+SamplerState sampler_linear_clamp;
+
+uint _VertexCount;
+uint _WaveCount;
+uint _Stride;
+float3 _Center;
+float _WaveTime;
+float4 _ShoreRect;     // xy: 最小の XZ, zw: 1 / サイズ
+float _ShoreEnabled;
+float _ShoalDepth;     // この水深より浅いと波が弱まる
+float _SwashHeight;    // 寄せ波で水位が上がる高さ
+float _RunupLimit;     // 水面よりこれ以上高い陸には寄せ波を上げない
+float _SwashOmega;     // 寄せ波が打ち寄せる速さ (一番大きいうねりと同じ)
+float _GridSpacing;    // 中心から距離 d の格子の間隔は _GridSpacing * sqrt(d)
+float _DetailRadius;   // これより外は格子がとても粗い
+
+float SampleDepth(float2 xz)
+{
+    if (_ShoreEnabled < 0.5)
+        return 1000.0;
+    float2 uv = (xz - _ShoreRect.xy) * _ShoreRect.zw;
+    if (any(uv < 0.0) || any(uv > 1.0))
+        return 1000.0;
+    return _ShoreDepth.SampleLevel(sampler_linear_clamp, uv, 0);
+}
+
+[numthreads(64, 1, 1)]
+void CSMain(uint id : SV_DispatchThreadID)
+{
+    if (id >= _VertexCount)
+        return;
+
+    float2 local = _BasePositions[id];
+    float2 xz = _Center.xz + local;
+    float depth = SampleDepth(xz);
+    float att = smoothstep(0.0, _ShoalDepth, depth);
+    // 格子の間隔より短い波は形が崩れて筋になるので、遠くでは短い波から順に消す
+    float d = max(abs(local.x), abs(local.y));
+    float spacing = d < _DetailRadius ? _GridSpacing * sqrt(d) : 1e6;
+
+    float3 disp = 0.0;
+    float3 n = float3(0.0, 1.0, 0.0);
+    for (uint i = 0; i < _WaveCount; i++)
+    {
+        Wave w = _Waves[i];
+        float theta = w.k * dot(w.dir, xz) - w.omega * _WaveTime + w.phase;
+        // 1 波長に格子が 4 個以上あれば全部、2 個以下なら消す
+        w.amp *= saturate((6.2831853 / (w.k * spacing) - 2.0) / 2.0);
+        float s, c;
+        sincos(theta, s, c);
+        disp.xz += w.q * w.amp * w.dir * c;
+        disp.y += w.amp * s;
+        float wa = w.k * w.amp;
+        n.x -= w.dir.x * wa * c;
+        n.z -= w.dir.y * wa * c;
+        n.y -= w.q * wa * s;
+    }
+    disp *= att;
+    n = normalize(lerp(float3(0.0, 1.0, 0.0), n, att));
+
+    // 波の谷でも水面が海底より下がって砂が出ないよう、浅いところでは下がる量を水深の 8 割までに抑える
+    if (disp.y < 0.0)
+    {
+        float room = max(depth, 0.0) * 0.8 + 1e-3;
+        disp.y = -room * (1.0 - exp(disp.y / room));
+    }
+
+    // 寄せ波: 深いところから浅いところへ進む波で、波打ち際の水位を上下させる。
+    // 水深で位相を決めるので、海岸線の向きによらず岸に向かってまっすぐ打ち寄せる。
+    // 岸に沿って打ち寄せる時刻を少しずつずらし、全部が同時に上がらないようにする
+    float shore = (1.0 - smoothstep(0.0, _ShoalDepth, max(depth, 0.0))) * (1.0 - smoothstep(0.0, _RunupLimit, -depth));
+    float along = 1.5 * sin(dot(xz, float2(0.021, 0.034))) + sin(dot(xz, float2(-0.047, 0.013)));
+    float swashTheta = -depth * (3.14159265 / _ShoalDepth) - _SwashOmega * _WaveTime + along;
+    disp.y += _SwashHeight * shore * (0.5 + 0.5 * sin(swashTheta));
+
+    uint addr = id * _Stride;
+    _Vertices.Store3(addr, asuint(float3(local.x + disp.x, disp.y, local.y + disp.z)));
+    _Vertices.Store3(addr + 12, asuint(n));
+}

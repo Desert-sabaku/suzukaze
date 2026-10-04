@@ -282,7 +282,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6857817388853022380, guid: 6d89d0f39bb8c074286138ba3ee3612b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 9
+      value: 8.75
       objectReference: {fileID: 0}
     - target: {fileID: 6857817388853022380, guid: 6d89d0f39bb8c074286138ba3ee3612b, type: 3}
       propertyPath: m_LocalPosition.z
@@ -315,6 +315,22 @@ PrefabInstance:
     - target: {fileID: 6857817388853022380, guid: 6d89d0f39bb8c074286138ba3ee3612b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8150326308445423545, guid: 6d89d0f39bb8c074286138ba3ee3612b, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 6893bfd133353a94d9786792518f0e31, type: 2}
+    - target: {fileID: 8159222257676507756, guid: 6d89d0f39bb8c074286138ba3ee3612b, type: 3}
+      propertyPath: 'targetMaterials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 6893bfd133353a94d9786792518f0e31, type: 2}
+    - target: {fileID: 8897739976912751457, guid: 6d89d0f39bb8c074286138ba3ee3612b, type: 3}
+      propertyPath: waveCount
+      value: 31
+      objectReference: {fileID: 0}
+    - target: {fileID: 8897739976912751457, guid: 6d89d0f39bb8c074286138ba3ee3612b, type: 3}
+      propertyPath: heightScale
+      value: 3.37
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1316,6 +1332,7 @@ MonoBehaviour:
   player: {fileID: 829739233}
   neck: {fileID: 1491025766}
   heightOffset: 0.1
+  receiveGestures: 1
 --- !u!1001 &1009886197
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -272,6 +272,7 @@ MonoBehaviour:
   player: {fileID: 731901067}
   neck: {fileID: 1929439405}
   heightOffset: 0.125
+  receiveGestures: 1
 --- !u!1 &1309386997
 GameObject:
   m_ObjectHideFlags: 0
@@ -592,6 +593,10 @@ PrefabInstance:
     - target: {fileID: 280844725987520003, guid: 6d89d0f39bb8c074286138ba3ee3612b, type: 3}
       propertyPath: m_Name
       value: Water_Plane
+      objectReference: {fileID: 0}
+    - target: {fileID: 3433012491015266846, guid: 6d89d0f39bb8c074286138ba3ee3612b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6857817388853022380, guid: 6d89d0f39bb8c074286138ba3ee3612b, type: 3}
       propertyPath: m_LocalPosition.x
