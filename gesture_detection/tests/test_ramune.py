@@ -65,10 +65,10 @@ def test_invalid_press(failure):
         landmarks[16].y = 0.3
     elif failure == "timeout":
         landmarks[16].y = 0.45
-        for t in (0.7, 1.1, 1.5, 1.9):
+        for t in (0.7, 1.1, 1.5, 1.9, 2.3, 2.7, 3.1):
             assert not analyzer.update(landmarks, t)
         landmarks[16].y = 0.61
-        now = 2.0
+        now = 3.4
     assert not analyzer.update(landmarks, now)
     assert analyzer.state == ("READY" if failure == "sideways" else "IDLE")
 
@@ -184,3 +184,21 @@ def test_multicam_reference_follows_raised_hand_inside_wider_preparation_band():
     landmarks[16].x = landmarks[15].x
     landmarks[16].y = 0.61
     assert analyzer.update(landmarks, 0.5)
+
+
+@pytest.mark.parametrize("analyzer_type", [RamuneAnalyzer, FollowingRamuneAnalyzer])
+@pytest.mark.parametrize("delay,opens", [(2.5, True), (3.0, True), (3.1, False)])
+def test_press_can_wait_three_seconds_after_preparation(analyzer_type, delay, opens):
+    analyzer = analyzer_type()
+    landmarks = points()
+    prepare(analyzer, landmarks)
+    press_at = 0.3 + delay
+    now = 0.55
+    # Keep tracking continuously: a long missing-frame gap must still reset.
+    while now < press_at:
+        assert not analyzer.update(landmarks, now)
+        assert analyzer.state == "READY"
+        now += 0.25
+    landmarks[16].y = 0.61
+    assert analyzer.update(landmarks, press_at) is opens
+    assert analyzer.state == ("OPENED" if opens else "IDLE")
