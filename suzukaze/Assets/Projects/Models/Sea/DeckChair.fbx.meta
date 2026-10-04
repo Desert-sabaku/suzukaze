@@ -25,13 +25,18 @@ ModelImporter:
   - first:
       43: 4300000
     second: DeckChair
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DeckChair
+    second: {fileID: 2100000, guid: 9960cdd0ad6b94741ad08c313b4346b0, type: 2}
   materials:
     materialImportMode: 2
     materialName: 1
     materialSearch: 1
-    materialLocation: 0
-    searchTexturesGlobally: 1
+    materialLocation: 1
+    searchTexturesGlobally: 0
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
