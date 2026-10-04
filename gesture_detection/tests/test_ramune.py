@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 import pytest
 
+from gesture_detection.config import RAMUNE_PRESS_TIMEOUT
 from gesture_detection.ramune import FollowingRamuneAnalyzer, RamuneAnalyzer
 
 
@@ -62,13 +63,16 @@ def test_invalid_press(failure):
     elif failure == "gap":
         now = 1.0
     elif failure == "up":
-        landmarks[16].y = 0.3
+        landmarks[16].y = 0.2  # Above the permitted preparation gap.
     elif failure == "timeout":
         landmarks[16].y = 0.45
-        for t in (0.7, 1.1, 1.5, 1.9, 2.3, 2.7, 3.1):
+        deadline = 0.3 + RAMUNE_PRESS_TIMEOUT
+        t = 0.55
+        while t < deadline:
             assert not analyzer.update(landmarks, t)
+            t += 0.25
         landmarks[16].y = 0.61
-        now = 3.4
+        now = deadline + 0.1
     assert not analyzer.update(landmarks, now)
     assert analyzer.state == ("READY" if failure == "sideways" else "IDLE")
 
@@ -187,12 +191,12 @@ def test_multicam_reference_follows_raised_hand_inside_wider_preparation_band():
 
 
 @pytest.mark.parametrize("analyzer_type", [RamuneAnalyzer, FollowingRamuneAnalyzer])
-@pytest.mark.parametrize("delay,opens", [(2.5, True), (3.0, True), (3.1, False)])
-def test_press_can_wait_three_seconds_after_preparation(analyzer_type, delay, opens):
+@pytest.mark.parametrize("offset,opens", [(-0.5, True), (0.0, True), (0.1, False)])
+def test_press_can_wait_until_configured_deadline(analyzer_type, offset, opens):
     analyzer = analyzer_type()
     landmarks = points()
     prepare(analyzer, landmarks)
-    press_at = 0.3 + delay
+    press_at = 0.3 + RAMUNE_PRESS_TIMEOUT + offset
     now = 0.55
     # Keep tracking continuously: a long missing-frame gap must still reset.
     while now < press_at:
@@ -202,3 +206,40 @@ def test_press_can_wait_three_seconds_after_preparation(analyzer_type, delay, op
     landmarks[16].y = 0.61
     assert analyzer.update(landmarks, press_at) is opens
     assert analyzer.state == ("OPENED" if opens else "IDLE")
+
+
+@pytest.mark.parametrize("analyzer_type", [RamuneAnalyzer, FollowingRamuneAnalyzer])
+def test_gradual_raise_keeps_preparation_and_allows_delayed_press(analyzer_type):
+    analyzer = analyzer_type()
+    landmarks = points()
+    prepare(analyzer, landmarks)
+    for now, upper_y in ((0.4, 0.40), (0.5, 0.35), (0.6, 0.30)):
+        landmarks[16].y = upper_y
+        assert not analyzer.update(landmarks, now)
+        assert analyzer.state == "READY"
+    assert analyzer.upper_y == pytest.approx(0.30)
+    assert analyzer.since == pytest.approx(0.6)
+    assert analyzer.setup_started_at == 0.0
+    press_at = 0.6 + RAMUNE_PRESS_TIMEOUT - 0.1
+    now = 0.85
+    while now < press_at:
+        assert not analyzer.update(landmarks, now)
+        assert analyzer.state == "READY"
+        now += 0.25
+    landmarks[16].y = 0.61
+    assert analyzer.update(landmarks, press_at)
+
+
+@pytest.mark.parametrize("analyzer_type", [RamuneAnalyzer, FollowingRamuneAnalyzer])
+def test_raising_after_deadline_does_not_revive_expired_preparation(analyzer_type):
+    analyzer = analyzer_type()
+    landmarks = points()
+    prepare(analyzer, landmarks)
+    deadline = 0.3 + RAMUNE_PRESS_TIMEOUT
+    now = 0.55
+    while now < deadline:
+        assert not analyzer.update(landmarks, now)
+        now += 0.25
+    landmarks[16].y = 0.40
+    assert not analyzer.update(landmarks, deadline + 0.1)
+    assert analyzer.state == "IDLE"

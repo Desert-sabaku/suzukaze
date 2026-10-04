@@ -113,6 +113,13 @@ class RamuneAnalyzer:
         if now - self.since > RAMUNE_PRESS_TIMEOUT:
             self.reset()
             return False
+        raised_gap = (base.y - pressing.y) / self.scale
+        if ready and pressing.y < self.upper_y and raised_gap > self.ready_gap:
+            # Completing the raise is still preparation, not an invalid press.
+            # Use its latest position in both single- and multicamera profiles.
+            self.upper_y, self.ready_gap = pressing.y, raised_gap
+            self.base = (base.x, base.y)
+            self.since = now
         press = (pressing.y - self.upper_y) / self.scale
         remaining = (base.y - pressing.y) / self.scale
         if press < -RAMUNE_BASE_TOLERANCE or remaining < -RAMUNE_CONTACT_GAP:
@@ -134,38 +141,4 @@ class RamuneAnalyzer:
 
 
 class FollowingRamuneAnalyzer(RamuneAnalyzer):
-    """Track a raised preparation reference; keep the existing press thresholds."""
-
-    def update(self, landmarks: Sequence[Landmark], now: float) -> bool:
-        if (
-            self.state == "READY"
-            and self.base_index is not None
-            and self.last_time is not None
-            and 0 < now - self.last_time <= RAMUNE_MAX_FRAME_GAP
-            and len(landmarks) >= 25
-            and all(
-                p.visibility > 0.5 and math.isfinite(p.x) and math.isfinite(p.y)
-                for p in [landmarks[i] for i in (11, 12, 15, 16, 23, 24)]
-            )
-        ):
-            base, upper = landmarks[self.base_index], landmarks[31 - self.base_index]
-            shoulder_y = (landmarks[11].y + landmarks[12].y) / 2
-            hip_y = (landmarks[23].y + landmarks[24].y) / 2
-            width = abs(landmarks[11].x - landmarks[12].x)
-            gap = (base.y - upper.y) / self.scale
-            stable = (
-                abs(base.x - self.base[0]) / self.scale <= RAMUNE_BASE_X_TOLERANCE
-                and abs(base.y - self.base[1]) / self.scale <= RAMUNE_BASE_TOLERANCE
-            )
-            ready = (
-                width > 1e-6
-                and stable
-                and shoulder_y <= base.y <= hip_y
-                and abs(base.x - upper.x) / width <= RAMUNE_READY_ALIGN_TOLERANCE
-                and RAMUNE_MIN_READY_GAP <= (base.y - upper.y) / width <= RAMUNE_MAX_READY_GAP
-            )
-            if ready and upper.y < self.upper_y and gap > self.ready_gap:
-                self.upper_y, self.ready_gap = upper.y, gap
-                self.base = (base.x, base.y)
-                self.since = now
-        return super().update(landmarks, now)
+    """Multicamera profile name; raised-hand following is shared with single view."""
