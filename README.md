@@ -35,8 +35,8 @@ Unity 6000.5.8f1（Unityを使う場合）、TinyGo（ファームウェアを�
 
 2. Pythonの各プロジェクトで依存関係を入れる。
 
-   > [!importnant]
-   > プロジェクトルートで実行してください！
+> [!important]
+> プロジェクトルートで実行してください！
 
    ```bash
    uv sync
