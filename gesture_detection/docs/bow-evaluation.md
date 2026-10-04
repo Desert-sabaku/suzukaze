@@ -14,6 +14,16 @@ uv run python -m scripts.evaluate_bow ../shared/annotations \
 `camera_2/timeline.json`です。動画は各注釈の`source.path`から読み込み、SHA-256を
 照合します。両カメラは同じFPS・総フレーム数である必要があります。
 
+モデルも比較する場合は`--pose-model lite`・`full`・`heavy`を指定できます。
+必要なモデルは初回にダウンロードされ、アプリケーションの設定ファイルは変更しません。
+省略時は設定済みのモデルを使います。比較例:
+
+```bash
+uv run python -m scripts.evaluate_bow ../shared/annotations \
+  --output shared/results/bow-full-development-20261004 \
+  --takes take_002 take_003 take_004 --pose-model full
+```
+
 ## 評価条件
 
 - `take_002`〜`004`は調整用、別の被写体の`take_001`は評価用です。
@@ -29,7 +39,7 @@ uv run python -m scripts.evaluate_bow ../shared/annotations \
 
 ## 保存する結果
 
-- `summary.json`: 設定、モデルのハッシュ、動画情報、撮影別・カメラ別・統合後の集計。
+- `summary.json`: 設定、モデルと礼認識実装のハッシュ、動画情報、撮影別・カメラ別・統合後の集計。
 - `take_00N/camera_1.csv`・`camera_2.csv`: フレーム単位の正解・出力、追跡状態、
   上体角度、頭の向き、保持時間、判定対象点の不備、骨格33点。
 - `take_00N/fused.csv`: 統合後のフレーム単位の正解・出力。

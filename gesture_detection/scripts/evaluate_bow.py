@@ -7,6 +7,7 @@ import csv
 import json
 import subprocess
 from collections import Counter
+from inspect import getfile
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,8 @@ import cv2
 import numpy as np
 
 from gesture_detection import config
+from gesture_detection import pose_worker as pose_module
+from gesture_detection.bow import BowAnalyzer
 from gesture_detection.multicam_fusion import MultiCameraFusion
 from gesture_detection.pose_worker import PoseAnalyzer
 from gesture_detection.recognition_types import PoseResult
@@ -286,6 +289,12 @@ def main() -> None:
     parser.add_argument("annotations", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument(
+        "--pose-model",
+        choices=("configured", "lite", "full", "heavy"),
+        default="configured",
+        help="Offline model comparison; leaves application configuration unchanged",
+    )
+    parser.add_argument(
         "--takes",
         nargs="+",
         choices=[f"take_{i:03}" for i in range(1, 5)],
@@ -297,6 +306,14 @@ def main() -> None:
         help="Diagnostic full-frame inference on both cameras",
     )
     args = parser.parse_args()
+    if args.pose_model != "configured":
+        pose_module.POSE_MODEL_PATH = (
+            config.PROJECT_ROOT / f"pose_landmarker_{args.pose_model}.task"
+        )
+        pose_module.POSE_MODEL_URL = (
+            "https://storage.googleapis.com/mediapipe-models/pose_landmarker/"
+            f"pose_landmarker_{args.pose_model}/float16/1/pose_landmarker_{args.pose_model}.task"
+        )
     directories = [args.annotations / take for take in sorted(set(args.takes))]
     if not all(directory.is_dir() for directory in directories):
         parser.error("Missing selected take directory")
@@ -310,8 +327,9 @@ def main() -> None:
         "settings": {
             "select_subject": select_subject,
             "subject_area": config.SUBJECT_AREA,
-            "model_path": str(config.POSE_MODEL_PATH),
+            "model_path": str(pose_module.POSE_MODEL_PATH),
             "model_sha256": None,
+            "recognizer_sha256": sha256(Path(getfile(BowAnalyzer))),
             **{name: getattr(config, name) for name in dir(config) if name.startswith("BOW_")},
         },
         "takes": {},
@@ -321,7 +339,7 @@ def main() -> None:
         report["takes"][directory.name] = evaluate_take(
             directory, args.output / directory.name, select_subject
         )
-    report["settings"]["model_sha256"] = sha256(config.POSE_MODEL_PATH)
+    report["settings"]["model_sha256"] = sha256(pose_module.POSE_MODEL_PATH)
     save_hold_previews(args.annotations, args.output)
     (args.output / "summary.json").write_text(
         json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
