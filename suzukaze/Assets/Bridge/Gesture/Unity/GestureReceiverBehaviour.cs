@@ -26,7 +26,7 @@ namespace Suzukaze.Gesture.Receiver
         public static GestureReceiverBehaviour GetOrCreate()
         {
             if (owner != null) return owner;
-            var configured = FindFirstObjectByType<GestureReceiverBehaviour>();
+            var configured = FindAnyObjectByType<GestureReceiverBehaviour>();
             if (configured != null) return configured;
             return new GameObject("GestureReceiver").AddComponent<GestureReceiverBehaviour>();
         }

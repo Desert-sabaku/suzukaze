@@ -78,6 +78,14 @@ public class WaterSurfaceMesh : MonoBehaviour
     Vector4 shoreRect;
     float gridSpacing;
     bool rebuildRequested;
+    float[] depthData;      // shoreDepth と同じ水深 (CPU で波の高さを求めるとき用)
+    int depthWidth, depthHeight;
+    float waveHeight;       // 最後に作った波の高さの目安
+    Vector2 gameCenter;     // ゲームカメラ用の格子の中心 (遠くの短い波を消す範囲を合わせる)
+    bool hasGameCenter;
+
+    float WaveTime => Application.isPlaying ? Time.timeSinceLevelLoad : Time.realtimeSinceStartup;
+    float EffectiveShoalDepth => Mathf.Max(0.01f, shoalDepth, waveHeight * 1.5f);
 
     void OnEnable()
     {
@@ -138,6 +146,11 @@ public class WaterSurfaceMesh : MonoBehaviour
         var center = new Vector3(Mathf.Round(p.x / snap) * snap, transform.position.y, Mathf.Round(p.z / snap) * snap);
 
         float height = UpdateWaves(material);
+        if (cam.cameraType == CameraType.Game)
+        {
+            gameCenter = new Vector2(center.x, center.z);
+            hasGameCenter = true;
+        }
         // URP はカメラごとに描画を送り出すので、このカメラ用の頂点を描画の直前に計算しておく
         waveCompute.SetBuffer(0, WavesId, waveBuffer);
         waveCompute.SetBuffer(0, BasePositionsId, basePositions);
@@ -147,11 +160,11 @@ public class WaterSurfaceMesh : MonoBehaviour
         waveCompute.SetInt(WaveCountId, waves.Length);
         waveCompute.SetInt(StrideId, VertexStride);
         waveCompute.SetVector(CenterId, center);
-        waveCompute.SetFloat(WaveTimeId, Application.isPlaying ? Time.timeSinceLevelLoad : Time.realtimeSinceStartup);
+        waveCompute.SetFloat(WaveTimeId, WaveTime);
         waveCompute.SetVector(ShoreRectId, shoreRect);
         waveCompute.SetFloat(ShoreEnabledId, shoreRect.z > 0f ? 1f : 0f);
         // 波が高いほど深いところから弱め始める
-        waveCompute.SetFloat(ShoalDepthId, Mathf.Max(0.01f, shoalDepth, height * 1.5f));
+        waveCompute.SetFloat(ShoalDepthId, EffectiveShoalDepth);
         waveCompute.SetFloat(SwashOmegaId, waves[0].omega);
         waveCompute.SetFloat(SwashHeightId, height * swashScale);
         waveCompute.SetFloat(RunupLimitId, Mathf.Max(0.01f, runupLimit));
@@ -226,7 +239,80 @@ public class WaterSurfaceMesh : MonoBehaviour
             waveBuffer = new ComputeBuffer(count, Marshal.SizeOf<Wave>());
         }
         waveBuffer.SetData(waves);
+        waveHeight = height;
         return height;
+    }
+
+    // 水面の点 (波が無いときの位置 worldXZ) が今どれだけ動いているかと、その点の法線を返す。
+    // 浮かぶ物をこの点と一緒に動かすと、波に乗って上下・前後に揺れる。計算は WaterWaves.compute と同じ
+    public bool SampleSurface(Vector2 worldXZ, out Vector3 displacement, out Vector3 normal)
+    {
+        displacement = Vector3.zero;
+        normal = Vector3.up;
+        if (waves == null)
+        {
+            var material = meshRenderer != null ? meshRenderer.sharedMaterial : null;
+            if (material == null) return false;
+            UpdateWaves(material);
+        }
+
+        float shoal = EffectiveShoalDepth;
+        float depth = SampleDepthCpu(worldXZ);
+        float att = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(depth / shoal));
+        float spacing = 0f;
+        if (hasGameCenter)
+        {
+            var local = worldXZ - gameCenter;
+            float d = Mathf.Max(Mathf.Abs(local.x), Mathf.Abs(local.y));
+            spacing = d < detailRadius ? gridSpacing * Mathf.Sqrt(d) : 1e6f;
+        }
+
+        float time = WaveTime;
+        var n = Vector3.up;
+        foreach (var w in waves)
+        {
+            float amp = w.amp;
+            if (spacing > 0f) amp *= Mathf.Clamp01((2f * Mathf.PI / (w.k * spacing) - 2f) / 2f);
+            float theta = w.k * Vector2.Dot(w.dir, worldXZ) - w.omega * time + w.phase;
+            float sin = Mathf.Sin(theta), cos = Mathf.Cos(theta);
+            displacement.x += w.q * amp * w.dir.x * cos;
+            displacement.z += w.q * amp * w.dir.y * cos;
+            displacement.y += amp * sin;
+            float wa = w.k * amp;
+            n.x -= w.dir.x * wa * cos;
+            n.z -= w.dir.y * wa * cos;
+            n.y -= w.q * wa * sin;
+        }
+        displacement *= att;
+        normal = Vector3.Lerp(Vector3.up, n, att).normalized;
+
+        if (displacement.y < 0f)
+        {
+            float room = Mathf.Max(depth, 0f) * 0.8f + 1e-3f;
+            displacement.y = -room * (1f - Mathf.Exp(displacement.y / room));
+        }
+        float shore = (1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(Mathf.Max(depth, 0f) / shoal)))
+            * (1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(-depth / Mathf.Max(0.01f, runupLimit))));
+        float along = 1.5f * Mathf.Sin(worldXZ.x * 0.021f + worldXZ.y * 0.034f) + Mathf.Sin(worldXZ.x * -0.047f + worldXZ.y * 0.013f);
+        float swashTheta = -depth * (Mathf.PI / shoal) - waves[0].omega * time + along;
+        displacement.y += waveHeight * swashScale * shore * (0.5f + 0.5f * Mathf.Sin(swashTheta));
+        return true;
+    }
+
+    // シェーダーの SampleLevel (バイリニア, 範囲外は深い海) と同じように水深を読む
+    float SampleDepthCpu(Vector2 xz)
+    {
+        if (depthData == null || shoreRect.z <= 0f) return 1000f;
+        float u = (xz.x - shoreRect.x) * shoreRect.z, v = (xz.y - shoreRect.y) * shoreRect.w;
+        if (u < 0f || v < 0f || u > 1f || v > 1f) return 1000f;
+        float fx = Mathf.Clamp(u * depthWidth - 0.5f, 0f, depthWidth - 1f);
+        float fy = Mathf.Clamp(v * depthHeight - 0.5f, 0f, depthHeight - 1f);
+        int x0 = (int)fx, y0 = (int)fy;
+        int x1 = Mathf.Min(x0 + 1, depthWidth - 1), y1 = Mathf.Min(y0 + 1, depthHeight - 1);
+        float tx = fx - x0, ty = fy - y0;
+        float a = Mathf.Lerp(depthData[y0 * depthWidth + x0], depthData[y0 * depthWidth + x1], tx);
+        float b = Mathf.Lerp(depthData[y1 * depthWidth + x0], depthData[y1 * depthWidth + x1], tx);
+        return Mathf.Lerp(a, b, ty);
     }
 
     // 地形の高さから水深の地図を作る (水面より上の陸は負の値)
@@ -285,6 +371,9 @@ public class WaterSurfaceMesh : MonoBehaviour
         else shoreDepth.Reinitialize(w, h, TextureFormat.RFloat, false);
         shoreDepth.SetPixelData(depths, 0);
         shoreDepth.Apply(false, false);
+        depthData = depths;
+        depthWidth = w;
+        depthHeight = h;
         if (any) shoreRect = new Vector4(bounds.xMin, bounds.yMin, 1f / bounds.width, 1f / bounds.height);
     }
 
