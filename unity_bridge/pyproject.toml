@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-gesture_detection = { path = "../gesture_detection", editable = true }
+gesture-detection = { workspace = true }
 
 [project.scripts]
 unity-bridge = "unity_bridge.core:main"
