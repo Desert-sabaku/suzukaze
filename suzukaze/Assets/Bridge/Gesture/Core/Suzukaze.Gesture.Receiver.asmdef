@@ -1,6 +1,6 @@
 {
   "name": "Suzukaze.Gesture.Receiver",
   "rootNamespace": "Suzukaze.Gesture.Receiver",
-  "references": ["Suzukaze.Gesture.Protocol"],
+  "references": ["GUID:99a0ba2df56f424cb18569701627560f"],
   "noEngineReferences": true
 }
