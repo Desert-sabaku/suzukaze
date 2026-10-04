@@ -68,5 +68,6 @@ def main() -> None:
 
                 _fade_prompt(client)
 
+
 if __name__ == "__main__":
     main()

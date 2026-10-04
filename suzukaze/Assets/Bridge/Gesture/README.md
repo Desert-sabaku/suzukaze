@@ -18,7 +18,7 @@ WebSocket → 配送ポリシー（失効・重複・ACK）→ GestureEvents →
 
 | API | 内容 |
 |---|---|
-| `CurrentState` | 現在の状態。`Gesture` は `None / Fanning / Relaxing`、`Fresh` と `Tracking` も公開 |
+| `CurrentState` | 現在の状態。`Gesture` は `None / Fanning / Relaxing / Bow`、`Fresh` と `Tracking` も公開 |
 | `StateChanged` | 所作・鮮度・追跡・セッションが変わったときの通知。失効・切断でも解除状態を通知 |
 | `Occurred` | `Ramune / Uchimizu` の成立通知。コールバックは採用したときだけ `true` を返す |
 
@@ -80,6 +80,28 @@ public sealed class GestureExample : MonoBehaviour
 再送の重複・期限切れは購読者に渡しません。後から購読しても過去の成立イベントは再生しません。
 複数の演出が同じイベントを採用した場合、それぞれ実行されます。排他的な演出判断は演出側で行います。
 購読者は `OnDisable` で解除し、自分の継続演出も停止してください。
+
+## スタート画面と礼の接続
+
+`Assets/My_script/FOR SCENE/RandomSceneLoader.cs`は、Spaceキーに加え、
+`StateChanged`で新たに届いた`Bow`状態でもゲームを開始します。
+`Fresh`と`Tracking`が両方trueの場合だけ、Spaceと同じ`TryStartGame()`を呼び、
+Inspectorで設定した`sceneNames`からランダムにシーンを選びます。
+開始処理はコンポーネントごとに一度だけ実行し、礼の継続・再接続や同時のSpace入力で
+二重に開始しません。画面の無効化時に購読を解除します。
+購読開始時の保存済み状態は再生せず、画面表示後の状態変更を待ちます。
+
+開始画面`Scene_ch`の`SceneCahnger`オブジェクトに`RandomSceneLoader`を配置済みです。
+`sceneNames`にはBuild Settingsで有効な`Forest`、`☆1湖`、`river(中流)`、`river`、`sea`
+を設定しています。追加の受信器やイベント設定は不要です。
+受信器は開始画面で自動作成し、次のシーンでも再利用します。
+起動は`unity_bridge/`で`uv run unity-bridge --gesture`を実行し、Unityで開始画面を再生します。
+Spaceによる手動開始は、ブリッジ未接続でも利用できます。
+
+確認時は、開始画面で礼をしてシーンが一度だけ切り替わること、礼を戻してから
+開始画面を開き直してSpaceでも切り替わることを確認してください。
+probeもWebSocketの受信クライアントなので、Unityで試す前にprobeは終了してください。
+ブリッジは同時に1つの受信クライアントだけを許可します。
 
 ## 打ち水演出への接続
 

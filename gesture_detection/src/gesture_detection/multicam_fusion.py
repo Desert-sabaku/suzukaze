@@ -7,7 +7,7 @@ from .config import GESTURE_EVENT_TTL, MULTICAM_EVENT_DEDUP_SECONDS, MULTICAM_MA
 from .event_rearm import EVENT_GESTURES, EventRearmGate
 from .recognition_types import OccurrenceEvidence, PoseResult
 
-PRIORITY = {"NONE": 0, "RELAXING": 1, "FANNING": 2, "UCHIMIZU": 3, "RAMUNE": 4}
+PRIORITY = {"NONE": 0, "RELAXING": 1, "BOW": 2, "FANNING": 3, "UCHIMIZU": 4, "RAMUNE": 5}
 
 
 class MultiCameraFusion:
@@ -104,6 +104,7 @@ class MultiCameraFusion:
             "current": {"gesture": gesture, "tracking": any(r["landmarks"] for r in fresh)},
             "selected_action": gesture if gesture in {"FANNING", "RAMUNE", "UCHIMIZU"} else "NONE",
             "relaxing_state": gesture == "RELAXING",
+            "bow_state": gesture == "BOW",
             "occurrences": accepted,
             "occurrence_evidence": {g: evidence[g] for g in accepted},
             "occurrence_timestamps": {g: event_times[g] for g in accepted},

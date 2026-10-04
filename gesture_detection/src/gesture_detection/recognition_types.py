@@ -4,10 +4,14 @@ from dataclasses import dataclass
 from typing import Literal, NotRequired, Self, TypedDict
 
 type Landmark = tuple[float, float, float]
-type ContinuousGesture = Literal["NONE", "FANNING", "RELAXING"]
+type ContinuousGesture = Literal["NONE", "FANNING", "RELAXING", "BOW"]
 type OccurrenceGesture = Literal["RAMUNE", "UCHIMIZU"]
 
-_CONTINUOUS: dict[str, ContinuousGesture] = {"FANNING": "FANNING", "RELAXING": "RELAXING"}
+_CONTINUOUS: dict[str, ContinuousGesture] = {
+    "FANNING": "FANNING",
+    "RELAXING": "RELAXING",
+    "BOW": "BOW",
+}
 _OCCURRENCES: dict[str, OccurrenceGesture] = {"RAMUNE": "RAMUNE", "UCHIMIZU": "UCHIMIZU"}
 
 
@@ -38,6 +42,11 @@ class PoseResult(TypedDict):
     subject_state: NotRequired[str]
     selected_action: str
     relaxing_state: bool
+    bow_state: NotRequired[bool]
+    bow_angle: NotRequired[float | None]
+    bow_head_deviation: NotRequired[float | None]
+    bow_head_aligned: NotRequired[bool]
+    bow_hold_seconds: NotRequired[float]
     current: NotRequired[RecognitionState]
     # Per-input occurrence pulses; consume before the latest-value IPC queue.
     occurrences: NotRequired[tuple[str, ...]]

@@ -26,6 +26,7 @@ from .ipc import SharedLatestFrame, get_latest
 from .pose_worker import pose_worker
 from .recognition_types import GestureSample, PoseResult
 from .rendering import (
+    draw_bow_meter,
     draw_landmarks,
     draw_messages,
     draw_ramune_guide,
@@ -286,6 +287,7 @@ class GestureApplication:
         draw_messages(image, status_messages(pose_result))
         draw_ramune_guide(image, pose_result.get("ramune_state", "IDLE"))
         GestureApplication._draw_action(image, GestureApplication._primary_action(pose_result))
+        draw_bow_meter(image, pose_result)
         return image
 
     @staticmethod
@@ -306,6 +308,7 @@ class GestureApplication:
             "SPRINKLING": ("Action: Sprinkling Water!", (255, 100, 100)),
             "RAMUNE": ("Action: Opening Ramune!", (0, 255, 255)),
             "RELAXING": ("Action: Relaxing...", (0, 255, 255)),
+            "BOW": ("Action: Bowing", (0, 255, 255)),
         }
         if action not in labels:
             return

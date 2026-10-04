@@ -2,6 +2,7 @@
 
 from typing import Any
 
+from .bow import BowAnalyzer
 from .config import FPS, RAMUNE_DETECTOR, RAMUNE_LEARNED_MODEL_PATH
 from .hand_gesture import HandGestureAnalyzer
 from .learned_ramune import LearnedRamuneAnalyzer
@@ -42,8 +43,10 @@ class RecognitionCoordinator:
             else None
         )
         self.relaxing = RelaxingAnalyzer()
+        self.bow = BowAnalyzer()
 
         self.relaxing_state = False
+        self.bow_state = False
         self._reset_gesture_state()
 
     def _reset_gesture_state(self, *, preserve_ramune: bool = False):
@@ -105,6 +108,8 @@ class RecognitionCoordinator:
         self._reset_gesture_state(preserve_ramune=preserve_ramune)
         self.relaxing.reset()
         self.relaxing_state = False
+        self.bow.reset()
+        self.bow_state = False
 
     def process(
         self, landmarks: Any, timestamp: float, frame_id: int, *, aspect_ratio: float
@@ -118,14 +123,18 @@ class RecognitionCoordinator:
             self.relaxing_state = self.relaxing.update(
                 landmarks, timestamp, aspect_ratio=aspect_ratio
             )
+            self.bow_state = self.bow.update(landmarks, timestamp, aspect_ratio)
         else:
             learned = isinstance(self.ramune, LearnedRamuneAnalyzer)
             if isinstance(self.ramune, LearnedRamuneAnalyzer):
                 self.ramune.update([], timestamp, aspect_ratio=aspect_ratio, frame_id=frame_id)
             self._reset_tracking_state(preserve_ramune=learned)
         current = self.selected_action
-        if current == "NONE" and self.relaxing_state:
-            current = "RELAXING"
+        if current == "NONE":
+            if self.bow_state:
+                current = "BOW"
+            elif self.relaxing_state:
+                current = "RELAXING"
         occurrences: tuple[str, ...] = ()
         evidence: dict[str, OccurrenceEvidence] = {}
         ramune_event = (
@@ -169,6 +178,11 @@ class RecognitionCoordinator:
             "occurrence_evidence": evidence,
             "selected_action": self.selected_action,
             "relaxing_state": self.relaxing_state,
+            "bow_state": self.bow_state,
+            "bow_angle": self.bow.torso_angle,
+            "bow_head_deviation": self.bow.head_deviation,
+            "bow_head_aligned": self.bow.head_aligned,
+            "bow_hold_seconds": self.bow.hold_seconds,
             "ramune_state": self.ramune.state,
             "uchimizu_state": self.uchimizu_state,
             "fanning_score": self.fanning_score,

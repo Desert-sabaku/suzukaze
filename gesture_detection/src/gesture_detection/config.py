@@ -106,10 +106,18 @@ BUFFER_SIZE = FPS * WINDOW_SECONDS
 RELAXING_LANDMARKS = (0, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32)
 RELAXING_TORSO_LANDMARKS = (11, 12, 23, 24)
 RELAXING_MIN_VISIBILITY = 0.5
-RELAXING_MAX_SPEED = 0.30
-RELAXING_MAX_DRIFT = 0.05
+RELAXING_MAX_SPEED = 0.40
+RELAXING_MAX_DRIFT = 0.055
 RELAXING_DWELL_SECONDS = 1.0
 RELAXING_MAX_FRAME_GAP = 0.25
+# Bow is a sustained, side-visible hip hinge; angles are measured from vertical.
+BOW_MIN_ANGLE_DEGREES = 20.0
+BOW_MAX_ANGLE_DEGREES = 75.0
+# Compare hip-to-face and hip-to-shoulder directions, not a neck angle.
+BOW_MAX_HEAD_DEVIATION_DEGREES = 35.0
+BOW_DWELL_SECONDS = 0.25
+BOW_MAX_FRAME_GAP = 0.25
+BOW_MIN_VISIBILITY = 0.5
 RIGHT_WRIST_INDEX = 16
 YOLO_BOTTLE_CLASS_ID = 39
 YOLO_CONFIDENCE_THRESHOLD = 0.5
@@ -163,16 +171,23 @@ POSE_CONNECTIONS = (
 
 # Ramune distances are measured in shoulder widths; times use source seconds.
 RAMUNE_ALIGN_TOLERANCE = 0.60
+# Preparation can be wider than the final press/contact alignment.
+RAMUNE_READY_ALIGN_TOLERANCE = 1.0
 # Allow landmark drift across the hand, especially sideways. Relative closing
 # motion still distinguishes a press from moving both hands down together.
-RAMUNE_BASE_X_TOLERANCE = 0.50
-RAMUNE_BASE_TOLERANCE = 0.30
+RAMUNE_BASE_X_TOLERANCE = 0.75
+RAMUNE_BASE_TOLERANCE = 0.50
+# Separate upper-hand upward excursions from lower-hand position tolerance.
+RAMUNE_UPPER_RAISE_TOLERANCE = 0.30
 RAMUNE_MIN_READY_GAP = 0.30
 RAMUNE_MAX_READY_GAP = 0.90
+# Once prepared, allow a higher backswing before the downward press.
+RAMUNE_MAX_WINDUP_GAP = 1.50
+RAMUNE_WINDUP_SECONDS = 1.0
 RAMUNE_CONTACT_GAP = 0.30
 RAMUNE_MIN_PRESS = 0.25
 RAMUNE_DWELL_SECONDS = 0.25
-RAMUNE_PRESS_TIMEOUT = 1.5
+RAMUNE_PRESS_TIMEOUT = 3.0
 RAMUNE_HOLD_SECONDS = 0.8
 RAMUNE_MAX_FRAME_GAP = 0.5
 

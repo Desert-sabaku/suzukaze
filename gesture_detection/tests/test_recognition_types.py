@@ -34,6 +34,13 @@ def test_empty_result_is_not_tracking():
     assert sample.frame_id is None
 
 
+def test_bow_is_delivered_as_continuous_state():
+    sample = GestureSample.from_result(
+        result(current={"gesture": "BOW", "tracking": True}), observed_at=1.0
+    )
+    assert sample.gesture == "BOW"
+
+
 def test_unknown_occurrence_is_rejected():
     with pytest.raises(ValueError, match="Unknown occurrence"):
         GestureSample.from_result(result(occurrences=("FANNING",)), observed_at=1.0)

@@ -24,6 +24,11 @@ message State {
   optional double observed_at = 7;
   optional uint64 frame_id = 8;
   optional double source_timestamp = 9;
+  // Execution quality of this gesture, not recognition confidence.
+  // Finite score in [0, 1]: 0 = no conformity, 1 = full conformity to the
+  // gesture-specific motion criteria. Absence means not evaluated.
+  // Applies to this observation; omit for NONE or unavailable tracking.
+  optional double action_accuracy = 10;
 }
 
 message Event {
@@ -33,6 +38,10 @@ message Event {
   double expires_at = 4;
   optional uint64 frame_id = 5;
   optional double source_timestamp = 6;
+  // Execution quality of this occurrence using gesture-specific motion
+  // criteria. Same finite [0, 1] scale as State.action_accuracy; absence
+  // means not evaluated. Retries of an event retain the original score.
+  optional double action_accuracy = 7;
 }
 
 message Ack {
@@ -45,6 +54,7 @@ enum ContinuousGesture {
   CONTINUOUS_GESTURE_NONE = 1;
   CONTINUOUS_GESTURE_FANNING = 2;
   CONTINUOUS_GESTURE_RELAXING = 3;
+  CONTINUOUS_GESTURE_BOW = 4;
 }
 
 enum OccurrenceGesture {
