@@ -4,9 +4,9 @@ namespace Features.Common.Scripts
 {
     public abstract class SingletonMonoBehaviour<T> : MonoBehaviour where T : SingletonMonoBehaviour<T>
     {
-        private static T _instance;
+        protected static T InstanceInternal;
 
-        public static T Instance => _instance ??= FindAnyObjectByType<T>();
+        public static T Instance => InstanceInternal ??= FindAnyObjectByType<T>();
     }
 
     public abstract class SingletonMonoBehaviourAutoCreate<T> : MonoBehaviour

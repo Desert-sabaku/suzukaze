@@ -10,8 +10,7 @@ namespace Features.SceneTransition
 {
     public class SceneTransitionManager : SingletonMonoBehaviourAutoCreate<SceneTransitionManager>
     {
-        [SerializeField] private float transitionDuration = 0.5f;
-
+        private GameSettings _gameSettings;
         private Image[] _images;
 
         public async UniTask LoadSceneAsync(string sceneName)
@@ -22,10 +21,13 @@ namespace Features.SceneTransition
                 _images = transitionPanel.GetComponentsInChildren<Image>();
             }
 
+            _gameSettings ??= await GameSettings.GetInstanceAsync();
+
             await UniTask.WhenAll(_images.Select(image =>
             {
                 var pivotX = image.rectTransform.pivot.x;
-                return LMotion.Create(pivotX, 1f - pivotX, transitionDuration)
+
+                return LMotion.Create(pivotX, 1f - pivotX, _gameSettings.sceneTransitionDuration)
                     .Bind(v =>
                     {
                         var pivot = image.rectTransform.pivot;
@@ -39,7 +41,7 @@ namespace Features.SceneTransition
             await UniTask.WhenAll(_images.Select(image =>
             {
                 var pivotX = image.rectTransform.pivot.x;
-                return LMotion.Create(pivotX, 1f - pivotX, transitionDuration)
+                return LMotion.Create(pivotX, 1f - pivotX, _gameSettings.sceneTransitionDuration)
                     .Bind(v =>
                     {
                         var pivot = image.rectTransform.pivot;
