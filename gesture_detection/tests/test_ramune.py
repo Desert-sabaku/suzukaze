@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 import pytest
 
-from gesture_detection.ramune import RamuneAnalyzer
+from gesture_detection.ramune import FollowingRamuneAnalyzer, RamuneAnalyzer
 
 
 @dataclass
@@ -70,7 +70,7 @@ def test_invalid_press(failure):
         landmarks[16].y = 0.61
         now = 2.0
     assert not analyzer.update(landmarks, now)
-    assert analyzer.state == "IDLE"
+    assert analyzer.state == ("READY" if failure == "sideways" else "IDLE")
 
 
 def test_contact_without_preparation_does_not_open():
@@ -140,3 +140,47 @@ def test_lower_hand_rising_without_upper_hand_press_does_not_open():
     landmarks[15].y -= 0.11
     assert not analyzer.update(landmarks, 0.4)
     assert analyzer.state == "READY"
+
+
+@pytest.mark.parametrize("analyzer_type", [RamuneAnalyzer, FollowingRamuneAnalyzer])
+@pytest.mark.parametrize("base_index", [15, 16])
+@pytest.mark.parametrize("direction", [-1, 1])
+def test_wider_upper_hand_preparation_requires_alignment_before_opening(
+    analyzer_type, base_index, direction
+):
+    analyzer = analyzer_type()
+    landmarks = points(base_index)
+    upper_index = 31 - base_index
+    # 0.9 shoulder widths is outside the old preparation band of 0.6.
+    landmarks[upper_index].x += direction * 0.36
+    prepare(analyzer, landmarks)
+    assert not analyzer.update(landmarks, 0.4)
+    assert analyzer.state == "READY"
+    landmarks[upper_index].y = 0.61
+    assert not analyzer.update(landmarks, 0.5)
+    assert analyzer.state == "READY"
+    landmarks[upper_index].x = landmarks[base_index].x
+    assert analyzer.update(landmarks, 0.6)
+
+
+@pytest.mark.parametrize("analyzer_type", [RamuneAnalyzer, FollowingRamuneAnalyzer])
+def test_preparation_outside_wider_band_is_rejected(analyzer_type):
+    analyzer = analyzer_type()
+    landmarks = points()
+    landmarks[16].x += 0.41  # More than one shoulder width.
+    for now in (0.0, 0.1, 0.3):
+        assert not analyzer.update(landmarks, now)
+    assert analyzer.state == "IDLE"
+
+
+def test_multicam_reference_follows_raised_hand_inside_wider_preparation_band():
+    analyzer = FollowingRamuneAnalyzer()
+    landmarks = points()
+    landmarks[16].x += 0.36
+    prepare(analyzer, landmarks)
+    landmarks[16].y -= 0.05
+    assert not analyzer.update(landmarks, 0.4)
+    assert analyzer.upper_y == pytest.approx(landmarks[16].y)
+    landmarks[16].x = landmarks[15].x
+    landmarks[16].y = 0.61
+    assert analyzer.update(landmarks, 0.5)

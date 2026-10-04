@@ -16,6 +16,7 @@ from .config import (
     RAMUNE_MIN_PRESS,
     RAMUNE_MIN_READY_GAP,
     RAMUNE_PRESS_TIMEOUT,
+    RAMUNE_READY_ALIGN_TOLERANCE,
 )
 
 
@@ -62,11 +63,13 @@ class RamuneAnalyzer:
         lower = max((15, 16), key=lambda i: landmarks[i].y)
         upper = 31 - lower
         gap = (landmarks[lower].y - landmarks[upper].y) / scale
-        aligned = abs(landmarks[15].x - landmarks[16].x) / scale <= RAMUNE_ALIGN_TOLERANCE
+        horizontal_gap = abs(landmarks[15].x - landmarks[16].x) / scale
+        aligned = horizontal_gap <= RAMUNE_ALIGN_TOLERANCE
+        ready_aligned = horizontal_gap <= RAMUNE_READY_ALIGN_TOLERANCE
         shoulder_y = (landmarks[11].y + landmarks[12].y) / 2
         hip_y = (landmarks[23].y + landmarks[24].y) / 2
         in_torso = shoulder_y <= landmarks[lower].y <= hip_y
-        ready = aligned and in_torso and RAMUNE_MIN_READY_GAP <= gap <= RAMUNE_MAX_READY_GAP
+        ready = ready_aligned and in_torso and RAMUNE_MIN_READY_GAP <= gap <= RAMUNE_MAX_READY_GAP
 
         if self.state == "OPENED":
             if now - self.since < RAMUNE_HOLD_SECONDS:
@@ -95,7 +98,7 @@ class RamuneAnalyzer:
             abs(base.x - self.base[0]) / self.scale <= RAMUNE_BASE_X_TOLERANCE
             and abs(base.y - self.base[1]) / self.scale <= RAMUNE_BASE_TOLERANCE
         )
-        if not stable or not aligned or not in_torso:
+        if not stable or not ready_aligned or not in_torso:
             self.reset()
             return False
         if self.state == "FORMING":
@@ -119,7 +122,8 @@ class RamuneAnalyzer:
         # tolerances must not turn common downward motion into a press.
         closing = self.ready_gap - remaining
         if (
-            press >= RAMUNE_MIN_PRESS
+            aligned
+            and press >= RAMUNE_MIN_PRESS
             and closing >= RAMUNE_MIN_PRESS
             and abs(remaining) <= RAMUNE_CONTACT_GAP
         ):
@@ -157,7 +161,7 @@ class FollowingRamuneAnalyzer(RamuneAnalyzer):
                 width > 1e-6
                 and stable
                 and shoulder_y <= base.y <= hip_y
-                and abs(base.x - upper.x) / width <= RAMUNE_ALIGN_TOLERANCE
+                and abs(base.x - upper.x) / width <= RAMUNE_READY_ALIGN_TOLERANCE
                 and RAMUNE_MIN_READY_GAP <= (base.y - upper.y) / width <= RAMUNE_MAX_READY_GAP
             )
             if ready and upper.y < self.upper_y and gap > self.ready_gap:

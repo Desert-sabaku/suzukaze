@@ -171,6 +171,8 @@ POSE_CONNECTIONS = (
 
 # Ramune distances are measured in shoulder widths; times use source seconds.
 RAMUNE_ALIGN_TOLERANCE = 0.60
+# Preparation can be wider than the final press/contact alignment.
+RAMUNE_READY_ALIGN_TOLERANCE = 1.0
 # Allow landmark drift across the hand, especially sideways. Relative closing
 # motion still distinguishes a press from moving both hands down together.
 RAMUNE_BASE_X_TOLERANCE = 0.50
