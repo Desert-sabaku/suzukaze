@@ -34,6 +34,11 @@ area = [0.35, 0.15, 0.75, 0.90] # 胴体中心の範囲 [左, 上, 右, 下]
 min_torso_height = 0.18
 min_shoulder_width = 0.10
 
+[booth]
+# pose.subject のROI・最小人物サイズを使用。2カメラでは1台目で判定。
+dwell_seconds = 1.0 # 同じ人物の連続滞在で在席を確定（静止は不要）
+release_seconds = 0.5 # 確定後の短い検出抜けを許容
+
 [ramune]
 detector = "rules" # rules / learned（learnedはVIDEOモードが必要）
 learned_model = "" # 空欄なら同梱モデル

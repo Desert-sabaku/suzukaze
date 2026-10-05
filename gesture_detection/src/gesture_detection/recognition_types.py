@@ -35,6 +35,7 @@ class PoseResult(TypedDict):
     landmarks: list[Landmark]
     display_landmarks: NotRequired[list[Landmark]]
     subject_state: NotRequired[str]
+    booth_present: NotRequired[bool]
     selected_action: str
     relaxing_state: bool
     bow_state: NotRequired[bool]
@@ -104,6 +105,7 @@ class GestureSample:
     source_timestamp: float | None = None
     action: str | None = None
     phase: str | None = None
+    booth_present: bool = False
 
     def __post_init__(self) -> None:
         """Normalize string input at the IPC boundary to the shared enums."""
@@ -142,4 +144,5 @@ class GestureSample:
             source_timestamp=result.get("timestamp"),
             action=action,
             phase=phase,
+            booth_present=result.get("booth_present", False),
         )

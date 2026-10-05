@@ -73,6 +73,7 @@ class DeliveryOutbox:
                 "source_timestamp": sample.source_timestamp,
                 "action": sample.action,
                 "phase": sample.phase,
+                "booth_present": sample.booth_present,
             }
             for kind, occurred_at in sample.occurrences:
                 if not math.isfinite(occurred_at) or occurred_at > now:
@@ -111,6 +112,7 @@ class DeliveryOutbox:
                 "fresh": fresh,
                 "gesture": latest["gesture"] if fresh and latest else Gesture.NONE,
                 "tracking": bool(fresh and latest and latest["tracking"]),
+                "booth_present": bool(fresh and latest and latest["booth_present"]),
                 "observed_at": latest["observed_at"] if latest else None,
                 "frame_id": latest["frame_id"] if latest else None,
                 "source_timestamp": latest["source_timestamp"] if latest else None,

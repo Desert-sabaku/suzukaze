@@ -1,14 +1,16 @@
 using System;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Cysharp.Threading.Tasks;
 using Features.Common.Scripts;
 using LitMotion;
 using Sirenix.OdinInspector;
+using Suzukaze.Gesture;
+using Suzukaze.Gesture.Protocol;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Formats.Alembic.Importer;
 using UnityEngine.VFX;
+using Event = Suzukaze.Gesture.Protocol.Event;
 using Random = Unity.Mathematics.Random;
 
 namespace Features.Gesture_Effect.Scripts
@@ -22,7 +24,7 @@ namespace Features.Gesture_Effect.Scripts
 
         [Title("全体設定")] [SerializeField] [InfoBox("上書き可能な所作の種類")]
         private Gestures[] overridableGestures = { Gestures.Yusuzumi, Gestures.Aogi };
-        
+
         [Title("打ち水")] [SerializeField] [ChildGameObjectsOnly]
         private AlembicStreamPlayer uchimizuPlayer;
 
@@ -33,9 +35,11 @@ namespace Features.Gesture_Effect.Scripts
         [Title("扇ぎ")] [SerializeField] [ChildGameObjectsOnly]
         private VisualEffect aogiVfx;
 
+        private GestureReceiverBehaviour _gestureReceiver;
+
         [Title("現在の所作")] [ReadOnly] [ShowInInspector]
         private Gestures _gestures;
-        private float _progress;
+
         private Random _random;
         private float3 _startUchimizuPos;
 
@@ -47,6 +51,22 @@ namespace Features.Gesture_Effect.Scripts
             aogiVfx.Stop();
         }
 
+        private void OnEnable()
+        {
+            if (_gestureReceiver) return;
+            _gestureReceiver = GestureReceiverBehaviour.GetOrCreate();
+            _gestureReceiver.Events.StateChanged += OnGestureStateChanged;
+            _gestureReceiver.Events.Occurred += OnGestureOccurred;
+        }
+
+        private void OnDisable()
+        {
+            if (!_gestureReceiver) return;
+            _gestureReceiver.Events.StateChanged -= OnGestureStateChanged;
+            _gestureReceiver.Events.Occurred -= OnGestureOccurred;
+            _gestureReceiver = null;
+        }
+
         [Button("Play Effect")]
         public async UniTask PlayEffect(Gestures gesture, bool force = false)
         {
@@ -56,8 +76,7 @@ namespace Features.Gesture_Effect.Scripts
                 Debug.LogWarning($"Gesture {_gestures} is already playing. Use force=true to override.");
                 return;
             }
-            
-            _progress = 0f;
+
             _gestures = gesture;
 
             switch (gesture)
@@ -113,24 +132,53 @@ namespace Features.Gesture_Effect.Scripts
 
             await LSequence.Create()
                 .Join(LMotion.Create(0f, 1f, uchimizuDuration)
-                    .Bind(v =>
-                    {
-                        uchimizuPlayer.CurrentTime = math.lerp(startTime, endTime, v);
-                        _progress = math.lerp(0f, 0.8f, v);
-                    })
+                    .Bind(v => uchimizuPlayer.CurrentTime = math.lerp(startTime, endTime, v))
                 )
                 .AppendInterval(uchimizuDuration * 0.8f)
                 .Append(LMotion.Create(1f, 0f, uchimizuDuration * 0.2f)
-                    .Bind(v =>
-                    {
-                        uchimizuMat.SetFloat(AlphaPropId, v);
-                        _progress = 0.8f + math.lerp(0f, 0.2f, v);
-                    })
+                    .Bind(v => uchimizuMat.SetFloat(AlphaPropId, v))
                 )
                 .Run();
 
             uchimizuPlayer.enabled = false;
             uchimizuMat.SetFloat(AlphaPropId, 1f);
+        }
+
+        private void OnGestureStateChanged(StateView state)
+        {
+            if (!state.Tracking) return;
+
+            switch (state.Gesture)
+            {
+                case ContinuousGesture.Fanning:
+                    PlayEffect(Gestures.Aogi).Forget();
+                    break;
+                case ContinuousGesture.Bow:
+                case ContinuousGesture.None:
+                case ContinuousGesture.Unspecified:
+                case ContinuousGesture.Relaxing:
+                default:
+                    break;
+            }
+        }
+
+        private bool OnGestureOccurred(string sessionId, Event events)
+        {
+            switch (events.Gesture)
+            {
+                case OccurrenceGesture.Ramune:
+                    Debug.LogWarning("Gesture Ramune is not implemented.");
+                    break;
+                case OccurrenceGesture.Uchimizu:
+                    PlayEffect(Gestures.Uchimizu).Forget();
+                    break;
+                case OccurrenceGesture.Unspecified:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            return true;
         }
     }
 }
