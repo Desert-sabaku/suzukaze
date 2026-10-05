@@ -2,7 +2,7 @@ using Suzukaze.Gesture.Protocol;
 using UnityEngine;
 using Event = Suzukaze.Gesture.Protocol.Event;
 
-namespace Suzukaze.Gesture.Receiver
+namespace Suzukaze.Gesture
 {
     // Explicit opt-in diagnostic sink. No scene/device mappings are implied.
     public sealed class GestureDiagnosticSink : MonoBehaviour

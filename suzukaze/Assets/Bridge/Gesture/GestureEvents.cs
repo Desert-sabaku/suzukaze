@@ -1,7 +1,7 @@
 using System;
 using Suzukaze.Gesture.Protocol;
 
-namespace Suzukaze.Gesture.Receiver
+namespace Suzukaze.Gesture
 {
     // One main-thread API for every scene effect. DeliveryPolicy owns expiry,
     // deduplication and ACKs; this class only publishes the resulting gestures.

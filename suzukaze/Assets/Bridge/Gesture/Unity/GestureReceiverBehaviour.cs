@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Suzukaze.Gesture.Receiver
+namespace Suzukaze.Gesture
 {
     [DisallowMultipleComponent]
     public sealed class GestureReceiverBehaviour : MonoBehaviour

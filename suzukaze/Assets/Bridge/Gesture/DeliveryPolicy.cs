@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Suzukaze.Gesture.Protocol;
 using GestureAction = Suzukaze.Gesture.Protocol.Action;
 
-namespace Suzukaze.Gesture.Receiver
+namespace Suzukaze.Gesture
 {
     public interface IMonotonicClock { double Now { get; } }
 

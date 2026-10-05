@@ -1,5 +1,5 @@
 using System;
-using Suzukaze.Gesture.Receiver;
+using Suzukaze.Gesture;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;

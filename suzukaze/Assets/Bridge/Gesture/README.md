@@ -85,7 +85,7 @@ phaseを利用する送受信側はこのスキーマから両方再生成して
 
 ```csharp
 using Suzukaze.Gesture.Protocol;
-using Suzukaze.Gesture.Receiver;
+using Suzukaze.Gesture;
 using UnityEngine;
 using GestureEvent = Suzukaze.Gesture.Protocol.Event;
 

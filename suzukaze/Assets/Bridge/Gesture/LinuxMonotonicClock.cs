@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 
-namespace Suzukaze.Gesture.Receiver
+namespace Suzukaze.Gesture
 {
     // Same native Linux host and epoch as CPython time.monotonic().
     // CLOCK_MONOTONIC excludes suspend time; CLOCK_BOOTTIME is not interchangeable.

@@ -1,5 +1,5 @@
 using Suzukaze.Gesture.Protocol;
-using Suzukaze.Gesture.Receiver;
+using Suzukaze.Gesture;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
