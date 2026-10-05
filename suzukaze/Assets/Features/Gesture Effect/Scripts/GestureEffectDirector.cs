@@ -35,7 +35,6 @@ namespace Features.Gesture_Effect.Scripts
 
         [Title("現在の所作")] [ReadOnly] [ShowInInspector]
         private Gestures _gestures;
-        private float _progress;
         private Random _random;
         private float3 _startUchimizuPos;
 
@@ -57,7 +56,6 @@ namespace Features.Gesture_Effect.Scripts
                 return;
             }
             
-            _progress = 0f;
             _gestures = gesture;
 
             switch (gesture)
@@ -113,19 +111,11 @@ namespace Features.Gesture_Effect.Scripts
 
             await LSequence.Create()
                 .Join(LMotion.Create(0f, 1f, uchimizuDuration)
-                    .Bind(v =>
-                    {
-                        uchimizuPlayer.CurrentTime = math.lerp(startTime, endTime, v);
-                        _progress = math.lerp(0f, 0.8f, v);
-                    })
+                    .Bind(v => uchimizuPlayer.CurrentTime = math.lerp(startTime, endTime, v))
                 )
                 .AppendInterval(uchimizuDuration * 0.8f)
                 .Append(LMotion.Create(1f, 0f, uchimizuDuration * 0.2f)
-                    .Bind(v =>
-                    {
-                        uchimizuMat.SetFloat(AlphaPropId, v);
-                        _progress = 0.8f + math.lerp(0f, 0.2f, v);
-                    })
+                    .Bind(v => uchimizuMat.SetFloat(AlphaPropId, v))
                 )
                 .Run();
 
