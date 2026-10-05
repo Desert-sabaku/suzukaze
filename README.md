@@ -1,4 +1,7 @@
-# suzukaze
+# suzukaze - 涼を出力するシステム
+
+<img width="3300" height="1628" alt="image" src="https://github.com/user-attachments/assets/1627e86c-d667-4e9f-ba96-0c5c3e08f928" />
+
 
 カメラで所作（扇ぎ・打ち水・夕涼み・礼・ラムネ開栓）を認識し、Unityの映像とファン・スピーカーで
 体験を演出するプロジェクトのモノレポです。
