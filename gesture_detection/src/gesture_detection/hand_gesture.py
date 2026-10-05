@@ -110,6 +110,8 @@ class HandGestureAnalyzer:
         # Reserve preparation and the post-release window for the scoop sequence.
         # Only confirmed repeated fanning may override it; a residual FFT score
         # must not do so, including through action hysteresis.
+        # Outside that protected sequence, position dwell and the motion score
+        # suffice; requiring three reversals also delays gentle fanning onset.
         fanning_blocked = (
             not fanning_allowed
             or self.uchimizu_state == Phase.READY

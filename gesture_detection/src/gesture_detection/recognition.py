@@ -69,7 +69,7 @@ class RecognitionCoordinator:
             )
         else:
             opened = self.ramune.update(landmarks, timestamp)
-        if opened or self.ramune.state in (Phase.FORMING, Phase.READY):
+        if opened or self.ramune.state == Phase.READY:
             # Keep the press from leaking into the single-hand classifiers.
             for hand in self.hands:
                 hand._reset_gesture_state()
@@ -82,6 +82,18 @@ class RecognitionCoordinator:
                 hand._update_gesture_scores(landmarks, timestamp)
             else:
                 hand._reset_gesture_state()
+        if self.ramune.state == Phase.FORMING:
+            # A loose two-hand candidate must not erase the low scoop history.
+            # A completed scoop preparation wins before Ramune's dwell commits.
+            if isinstance(self.ramune, RamuneAnalyzer) and any(
+                hand.uchimizu_state in (Phase.READY, Phase.SWING) for hand in self.hands
+            ):
+                self.ramune.reset()
+            else:
+                self.selected_action = "NONE"
+                self.fanning_score = self.uchimizu_score = 0.0
+                self.uchimizu_state = "IDLE"
+                return
         # Preserve the existing priority when hands perform different gestures.
         priority = {Gesture.NONE: 0, Gesture.FANNING: 1, Gesture.UCHIMIZU: 2}
         selected = max(self.hands, key=lambda hand: priority[hand.selected_action])
