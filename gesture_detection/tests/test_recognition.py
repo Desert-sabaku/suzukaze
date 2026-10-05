@@ -1,6 +1,7 @@
 from copy import deepcopy
 from unittest.mock import patch
 
+import numpy as np
 import pytest
 
 from gesture_detection.recognition import RecognitionCoordinator
@@ -108,22 +109,21 @@ def test_scoop_survives_incidental_ramune_candidate(profile, wrist):
     assert "RAMUNE" not in actions
 
 
+@pytest.mark.parametrize("profile", ["default", "multicam"])
 @pytest.mark.parametrize("wrist", [15, 16])
-def test_single_raise_without_low_scoop_is_not_fanning(wrist):
-    coordinator = RecognitionCoordinator(ramune_detector="rules")
+def test_gentle_fanning_starts_before_three_reversals(profile, wrist):
+    coordinator = RecognitionCoordinator(ramune_detector="rules", profile=profile)
     points = landmarks()
     points[31 - wrist].visibility = 0
     actions = []
-    # A single chest-level raise/release can have a high FFT score but
-    # provides neither a low scoop nor the repeated reversals of fanning.
-    with patch(
-        "gesture_detection.hand_gesture.HandGestureAnalyzer._calculate_fanning_score",
-        return_value=0.9,
-    ):
-        for frame, y in enumerate(
-            [0.54] * 4 + [0.50, 0.46, 0.42] + [0.42] * 8 + [0.46, 0.50, 0.54]
-        ):
-            points[wrist].y = y
-            result = coordinator.process(points, frame / 30, frame, aspect_ratio=1.0)
-            actions.append(result["selected_action"])
-    assert set(actions) == {"NONE"}
+    # A small chest-level oscillation should be recognized on its first
+    # cycle, using the real FFT score rather than a mocked high score.
+    for frame in range(25):
+        now = frame / 30
+        points[wrist].y = 0.48 + 0.02 * np.sin(2 * np.pi * 1.5 * now)
+        result = coordinator.process(points, now, frame, aspect_ratio=1.0)
+        actions.append(result["selected_action"])
+    hand = coordinator.hands[wrist - 15]
+    assert not hand._has_repeated_fanning()
+    assert "FANNING" in actions
+    assert "UCHIMIZU" not in actions
