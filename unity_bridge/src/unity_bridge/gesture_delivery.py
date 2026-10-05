@@ -70,6 +70,8 @@ class DeliveryOutbox:
                 "observed_at": observed_at,
                 "frame_id": sample.frame_id,
                 "source_timestamp": sample.source_timestamp,
+                "phase_action": sample.phase_action,
+                "phase": sample.phase,
             }
             for kind, occurred_at in sample.occurrences:
                 if not math.isfinite(occurred_at) or occurred_at > now:
@@ -98,7 +100,7 @@ class DeliveryOutbox:
             fresh = (
                 latest is not None and now < latest["observed_at"] + self.stale_timeout
             )
-            return {
+            message = {
                 "version": PROTOCOL_VERSION,
                 "type": "state",
                 "session_id": self.session_id,
@@ -112,6 +114,15 @@ class DeliveryOutbox:
                 "frame_id": latest["frame_id"] if latest else None,
                 "source_timestamp": latest["source_timestamp"] if latest else None,
             }
+            if (
+                fresh
+                and latest
+                and latest["tracking"]
+                and latest["phase_action"] is not None
+            ):
+                message["phase_action"] = latest["phase_action"]
+                message["phase"] = latest["phase"]
+            return message
 
     def events(self, now: float, *, reconnect: bool = False) -> list[Message]:
         with self._lock:

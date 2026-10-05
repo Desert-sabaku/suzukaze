@@ -17,6 +17,10 @@ uv run unity-bridge --gesture
 で受け取って、UnityのWebSocket `ws://127.0.0.1:5000` へProtobufで送ります。
 このモードではシリアルポートを開きません。同時接続は1クライアントです。
 状態通知・イベントの再送・UnityからのACKはブリッジ内の `DeliveryOutbox` が扱います。
+状態通知には、準備を含む進行状態として任意の文字列 `phase_action` と `phase` も
+送ります（例: `gesture: NONE, phase_action: RAMUNE, phase: READY`）。両フィールドは
+一緒に存在し、アイドル・追跡喪失・失効時は省略します。`unity-gesture-probe` でも
+表示されます。phaseの値とUnity側の利用例は下記の受信実装READMEを参照してください。
 認識側・ブリッジ・Unityは同一Windows PCまたは同一64-bit Linux PCで実行します。
 Windows UnityとWSL/Linux Pythonの組み合わせには対応しません。
 

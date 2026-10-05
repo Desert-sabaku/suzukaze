@@ -67,6 +67,39 @@ def test_bow_state_round_trips():
     assert decode_message(wire) == message
 
 
+def test_preparation_phase_round_trips_with_none_action():
+    message = {
+        **FIXTURES[1]["message"],
+        "gesture": "NONE",
+        "fresh": True,
+        "tracking": True,
+        "phase_action": "RAMUNE",
+        "phase": "READY",
+    }
+    wire = encode_message(message)
+    assert decode_message(wire) == message
+    assert pb.GestureEnvelope.FromString(wire).state.HasField("phase")
+
+
+@pytest.mark.parametrize(
+    "extra",
+    [
+        {"phase_action": "RAMUNE"},
+        {"phase": "READY"},
+        {"phase_action": "UNKNOWN", "phase": "READY"},
+        {"phase_action": "RAMUNE", "phase": ""},
+        {"phase_action": "RAMUNE", "phase": 1},
+        {"phase_action": "RAMUNE", "phase": "READY", "fresh": False},
+        {"phase_action": "RAMUNE", "phase": "READY", "tracking": False},
+    ],
+)
+def test_invalid_phase_is_rejected(extra):
+    with pytest.raises(ValueError):
+        encode_message(
+            {**FIXTURES[1]["message"], "fresh": True, "tracking": True, **extra}
+        )
+
+
 @pytest.mark.parametrize("kind", ["state", "event"])
 @pytest.mark.parametrize("score", [0.0, 0.5, 1.0])
 def test_action_accuracy_schema_preserves_presence_and_existing_message_semantics(

@@ -24,6 +24,8 @@ _FIELDS = {
         "observed_at",
         "frame_id",
         "source_timestamp",
+        "phase_action",
+        "phase",
     ),
     "event": (
         "event_id",
@@ -35,7 +37,7 @@ _FIELDS = {
     ),
     "ack": ("event_id", "status"),
 }
-_OPTIONAL = {"observed_at", "frame_id", "source_timestamp"}
+_OPTIONAL = {"observed_at", "frame_id", "source_timestamp", "phase_action", "phase"}
 _TIMES = {
     "sent_at",
     "stale_timeout",
@@ -88,6 +90,20 @@ def _validate(message: dict) -> str:
                 raise ValueError(f"{field} must be finite")
         elif field in {"fresh", "tracking"} and type(value) is not bool:
             raise ValueError(f"{field} must be bool")
+        elif field in {"phase_action", "phase"} and (
+            not isinstance(value, str) or not value
+        ):
+            raise ValueError(f"{field} must be a nonempty string")
+    if kind == "state":
+        action, phase = message.get("phase_action"), message.get("phase")
+        if (action is None) != (phase is None):
+            raise ValueError("phase_action and phase must be present together")
+        if action is not None and (
+            action not in {"RAMUNE", "UCHIMIZU", "FANNING", "RELAXING", "BOW"}
+            or not message["fresh"]
+            or not message["tracking"]
+        ):
+            raise ValueError("Phase requires a known action and fresh tracking")
     if kind == "state" and message["stale_timeout"] <= 0:
         raise ValueError("stale_timeout must be positive")
     if kind == "event" and message["expires_at"] <= message["occurred_at"]:
@@ -139,6 +155,8 @@ def decode_message(data: bytes) -> dict:
     reverse = {number: name for name, number in values.items()}
     for field in _FIELDS[kind]:
         if field in _OPTIONAL and not payload.HasField(field):
+            if field in {"phase_action", "phase"}:
+                continue
             message[field] = None
             continue
         value = getattr(payload, field)
