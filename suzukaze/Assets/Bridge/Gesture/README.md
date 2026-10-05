@@ -19,13 +19,42 @@ WebSocket → 配送ポリシー（失効・重複・ACK）→ GestureEvents →
 | API | 内容 |
 |---|---|
 | `CurrentState` | 現在の状態。`Gesture` は `None / Fanning / Relaxing / Bow`、`Fresh`、`Tracking`、`Action`、`Phase` も公開 |
-| `StateChanged` | 所作・phase・鮮度・追跡・セッションが変わったときの通知。失効・切断でも解除状態を通知 |
+| `StateChanged` | 所作・phase・在席・鮮度・追跡・セッションが変わったときの通知。失効・切断でも解除状態を通知 |
 | `Occurred` | `Ramune / Uchimizu` の成立通知。コールバックは採用したときだけ `true` を返す |
 
 すべて Unity メインスレッドで呼ばれます。`CurrentState` は各 Update で更新し、
 連番・受信時刻だけの更新では `StateChanged` を再発行しません。購読開始時は
 `CurrentState` も読み、既に継続している扇ぎ・夕涼みを反映してください。
 現プロトコルの継続状態は代表動作1つで、扇ぎと夕涼みを同時に表しません。
+
+### ブース前の人物の在席
+
+`CurrentState.BoothPresent` はジェスチャーと独立した在席状態です。
+同じ人物の胴体中心が `gesture_detection/config.toml` の `pose.subject.area` 内にあり、
+最小胴体高さ・肩幅を満たして1秒間連続で検出されると `true` になります。
+静止や特定の姿勢は不要です。人物選択が有効な場合、その取得待ちの後から滞在時間を計測します。
+確定前の検出抜けは滞在時間をリセットし、確定後は0.5秒未満の検出抜けを許容します。
+この間は `Tracking == false` でも `BoothPresent == true` になり得ます。
+離脱・観測の失効・切断時は `false` に戻ります。2カメラでは1台目だけで判定します。
+
+時間は `[booth]` の `dwell_seconds` / `release_seconds` で変更できます。
+スキーマ変更後は `proto/` で `buf generate` を実行してください。
+
+```csharp
+private bool boothPresent;
+
+void OnStateChanged(StateView state)
+{
+    bool arrived = !boothPresent && state.BoothPresent;
+    boothPresent = state.BoothPresent;
+    if (arrived) Debug.Log("ブース前に人が来ました");
+}
+```
+
+`GestureReceiverBehaviour.GetOrCreate().Events.StateChanged` に購読し、
+`OnDisable` で解除してください。購読時に `CurrentState` も読むと既にいる人物を反映できます。
+これは最新の在席状態の通知です。切断中の入退場履歴は再生せず、再接続時に在席中なら
+再び `true` になります。再接続で演出を重複開始させたくない場合は演出側で開始済み状態を管理します。
 
 所作の役割は次のように区別します。
 
