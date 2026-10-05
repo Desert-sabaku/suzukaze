@@ -71,6 +71,25 @@ def test_lost_pose_is_fresh_but_not_tracking():
     assert state["fresh"] and not state["tracking"]
 
 
+def test_phase_updates_independently_of_action_and_clears_on_stale_or_lost_pose():
+    outbox = DeliveryOutbox()
+    for now, phase in ((10.0, "FORMING"), (10.1, "READY")):
+        outbox.publish(
+            GestureSample("NONE", True, now, (), action="RAMUNE", phase=phase),
+            now=now,
+        )
+        state = outbox.state(now)
+        assert state["gesture"] == "NONE"
+        assert (state["action"], state["phase"]) == ("RAMUNE", phase)
+        assert outbox.events(now) == []
+    assert "phase" not in outbox.state(10.6)
+    outbox.publish(
+        GestureSample("NONE", False, 10.7, (), action="RAMUNE", phase="READY"),
+        now=10.7,
+    )
+    assert "action" not in outbox.state(10.7)
+
+
 def test_capacity_fails_explicitly_and_expired_events_release_capacity():
     outbox = DeliveryOutbox(max_pending=1)
     outbox.publish(result("NONE", "RAMUNE"), now=10.0)

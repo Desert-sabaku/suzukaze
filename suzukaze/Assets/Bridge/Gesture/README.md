@@ -18,14 +18,70 @@ WebSocket → 配送ポリシー（失効・重複・ACK）→ GestureEvents →
 
 | API | 内容 |
 |---|---|
-| `CurrentState` | 現在の状態。`Gesture` は `None / Fanning / Relaxing / Bow`、`Fresh` と `Tracking` も公開 |
-| `StateChanged` | 所作・鮮度・追跡・セッションが変わったときの通知。失効・切断でも解除状態を通知 |
+| `CurrentState` | 現在の状態。`Gesture` は `None / Fanning / Relaxing / Bow`、`Fresh`、`Tracking`、`Action`、`Phase` も公開 |
+| `StateChanged` | 所作・phase・鮮度・追跡・セッションが変わったときの通知。失効・切断でも解除状態を通知 |
 | `Occurred` | `Ramune / Uchimizu` の成立通知。コールバックは採用したときだけ `true` を返す |
 
 すべて Unity メインスレッドで呼ばれます。`CurrentState` は各 Update で更新し、
 連番・受信時刻だけの更新では `StateChanged` を再発行しません。購読開始時は
 `CurrentState` も読み、既に継続している扇ぎ・夕涼みを反映してください。
 現プロトコルの継続状態は代表動作1つで、扇ぎと夕涼みを同時に表しません。
+
+所作の役割は次のように区別します。
+
+| API | 所作の意味 |
+|---|---|
+| `CurrentState.Gesture` | 継続中の所作（扇ぎ・夕涼み・礼） |
+| `Occurred` の `occurrence.Gesture` | 新規に成立した所作（ラムネ・打ち水） |
+| `CurrentState.Action / Phase` | 進行中の所作とその段階。準備中・成立後の状態も含む |
+
+`Action` と `Phase` はProtobufから生成するenumのnullable値で、認識器の現在の進行状態を公開します。
+型は `Suzukaze.Gesture.Protocol.Action?` と `Suzukaze.Gesture.Protocol.Phase?` です。
+ラムネや打ち水の準備中は `Gesture == None` でも取得できます。
+準備状態は成立イベントではなく、`Occurred` は成立時だけ通知します。
+
+| `Action` | `Phase` |
+|---|---|
+| `Action.Ramune` | `Phase.Forming / Ready / Opened / WaitRelease` |
+| `Action.Uchimizu` | `Phase.Ready / Swing` |
+| `Action.Fanning / Relaxing` | `Phase.Active` |
+| `Action.Bow` | `Phase.Hold` |
+
+この表が許容する対象動作とphaseの組み合わせです。Pythonの送受信とUnityの受信で
+検証し、`RAMUNE / NONE`、`BOW / READY` などの未定義の組み合わせは拒否します。
+phaseの追加時は送信側・受信側の検証も同時に更新してください。
+進行状態がない場合は `NONE / IDLE` を送らず、両フィールドを省略します。
+
+phaseは最新値のスナップショットです。配送中の最新値への集約によって、
+`FORMING → READY → OPENED` の全段階を観測する保証はありません。`StateChanged` は
+Unityが採用した現在値の変化を通知し、認識器内のすべての遷移を通知するものではありません。
+複数カメラの観測選択によって、phaseが前の段階に戻ることもあります。
+`OPENED / SWING` を観測しても成立イベントが採用されたとは限らないため、
+ラムネ・打ち水の成立演出は `Occurred` を使って開始してください。
+
+アイドル・追跡喪失・失効・切断時は両方 `null` です。phaseも代表動作1つを送り、
+現在の動作を優先し、動作がない場合はラムネ、打ち水の順に準備状態を選びます。
+複数カメラでは現在の動作に対応するphaseを優先し、それ以外は動作の優先順位と
+最新の観測時刻で選びます。礼の `BENDING / RETURNING` など、認識器がまだ判定しない
+段階は送信しません。
+
+```csharp
+using GestureAction = Suzukaze.Gesture.Protocol.Action;
+using GesturePhase = Suzukaze.Gesture.Protocol.Phase;
+
+bool ramuneReady = gestures.CurrentState.Action == GestureAction.Ramune
+    && gestures.CurrentState.Phase == GesturePhase.Ready;
+```
+
+所作・フェーズの通信定義は `proto/gesture/v1/gesture.proto` にまとめています。
+C#側は生成された `ContinuousGesture / OccurrenceGesture / Action / Phase` を使い、
+組み合わせの検証は `WireMessage.ValidPhase` に集約しています。
+Python側は `gesture_detection.gesture_types.Gesture / Phase` の `StrEnum` と
+`ACTION_PHASES` を認識器・ブリッジで共用します。生成されたProtobufのenumとの
+名前の一致をテストで検証します。JSONや診断ログでは従来の大文字表記になります。
+
+文字列だった `action / phase` のタグ11・12は予約し、enum版はタグ13・14を使います。
+phaseを利用する送受信側はこのスキーマから両方再生成してください。
 
 ```csharp
 using Suzukaze.Gesture.Protocol;

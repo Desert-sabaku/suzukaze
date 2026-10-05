@@ -17,6 +17,7 @@ from .config import (
     WINDOW_SECONDS,
 )
 from .gesture_position import is_fanning_position, normalized_wrist_distances
+from .gesture_types import Gesture, Phase
 from .signal_processing import resample_time_window
 from .uchimizu import AnchoredUchimizuAnalyzer, UchimizuAnalyzer
 
@@ -37,7 +38,7 @@ class HandGestureAnalyzer:
         self.wrist_y_history.clear()
         self.wrist_t_history.clear()
         self.wrist_dy_history.clear()
-        self.uchimizu_state = "IDLE"
+        self.uchimizu_state = Phase.IDLE
         self.uchimizu = self._uchimizu_type(self.wrist_index)
         self.uchimizu_score = 0.0
         self.fanning_score = 0.0
@@ -45,7 +46,7 @@ class HandGestureAnalyzer:
         self.fanning_position_since: float | None = None
         self.fanning_position_last_seen: float | None = None
         self.fanning_height_history: deque[tuple[float, float]] = deque()
-        self.selected_action = "NONE"
+        self.selected_action = Gesture.NONE
         self.action_hold_count = 0
 
     def _update_gesture_scores(self, landmarks, timestamp: float) -> None:
@@ -99,7 +100,7 @@ class HandGestureAnalyzer:
         if repeated_fanning:
             self.fanning_suppressed_until = 0.0
             self.uchimizu.reset()
-            self.uchimizu_state = "IDLE"
+            self.uchimizu_state = Phase.IDLE
             self.uchimizu_score = 0.0
         elif self.uchimizu.completed_at is not None:
             self.fanning_suppressed_until = (
@@ -111,11 +112,11 @@ class HandGestureAnalyzer:
         # must not do so, including through action hysteresis.
         fanning_blocked = (
             not fanning_allowed
-            or self.uchimizu_state == "READY"
+            or self.uchimizu_state == Phase.READY
             or now < self.fanning_suppressed_until
         )
-        if fanning_blocked and self.selected_action == "FANNING":
-            self.selected_action = "NONE"
+        if fanning_blocked and self.selected_action == Gesture.FANNING:
+            self.selected_action = Gesture.NONE
 
     def _has_repeated_fanning(self) -> bool:
         """Require several substantial reversals, not a single scoop/release."""
@@ -193,28 +194,28 @@ class HandGestureAnalyzer:
         )
 
     def _select_action(self):
-        if self.uchimizu_state == "SWING":
-            candidate = "UCHIMIZU"
+        if self.uchimizu_state == Phase.SWING:
+            candidate = Gesture.UCHIMIZU
         elif (self.fanning_score > 0.55 and self.uchimizu_score < 0.5) or (
             self.fanning_score > 0.45 and self.uchimizu_score < 0.35
         ):
-            candidate = "FANNING"
+            candidate = Gesture.FANNING
         elif self.fanning_score < 0.25 and self.uchimizu_score < 0.25:
-            candidate = "NONE"
+            candidate = Gesture.NONE
         else:
             candidate = self.selected_action
 
-        if candidate == "NONE" and self.relaxing_state:
-            candidate = "RELAXING"
-        if candidate == "NONE":
-            if self.selected_action == "FANNING" and self.fanning_score > 0.38:
-                candidate = "FANNING"
-            elif self.selected_action == "UCHIMIZU" and self.uchimizu_score > 0.42:
-                candidate = "UCHIMIZU"
+        if candidate == Gesture.NONE and self.relaxing_state:
+            candidate = Gesture.RELAXING
+        if candidate == Gesture.NONE:
+            if self.selected_action == Gesture.FANNING and self.fanning_score > 0.38:
+                candidate = Gesture.FANNING
+            elif self.selected_action == Gesture.UCHIMIZU and self.uchimizu_score > 0.42:
+                candidate = Gesture.UCHIMIZU
 
         if (
-            candidate in ("FANNING", "UCHIMIZU")
-            and self.selected_action in ("FANNING", "UCHIMIZU")
+            candidate in (Gesture.FANNING, Gesture.UCHIMIZU)
+            and self.selected_action in (Gesture.FANNING, Gesture.UCHIMIZU)
             and candidate != self.selected_action
             and abs(self.fanning_score - self.uchimizu_score) < 0.08
         ):

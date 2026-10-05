@@ -19,6 +19,7 @@ namespace Suzukaze.Gesture.Receiver
             var previous = CurrentState;
             CurrentState = state;
             if (previous.SessionId != state.SessionId || previous.Gesture != state.Gesture
+                || previous.Action != state.Action || previous.Phase != state.Phase
                 || previous.Fresh != state.Fresh || previous.Tracking != state.Tracking)
                 StateChanged?.Invoke(state);
         }

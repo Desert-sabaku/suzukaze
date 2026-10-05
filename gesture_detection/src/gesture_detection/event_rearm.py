@@ -11,9 +11,10 @@ from .config import (
     RAMUNE_HOLD_SECONDS,
     UCHIMIZU_FEEDBACK_SECONDS,
 )
+from .gesture_types import OCCURRENCE_GESTURES, Gesture
 from .recognition_types import Landmark, OccurrenceEvidence
 
-EVENT_GESTURES = frozenset({"UCHIMIZU", "RAMUNE"})
+EVENT_GESTURES = OCCURRENCE_GESTURES
 
 
 def observes_release(points: list[Landmark], gesture: str, wrist: int | None) -> bool:
@@ -32,7 +33,7 @@ def observes_release(points: list[Landmark], gesture: str, wrist: int | None) ->
     if min(scale, width) <= 1e-6:
         return False
     lowered = bool(((p[wrists, 1] - shoulder) / scale >= FANNING_EXIT_TORSO_HEIGHT).all())
-    if gesture == "UCHIMIZU":
+    if gesture == Gesture.UCHIMIZU:
         return lowered
     separated = (
         np.isfinite(p[[15, 16]]).all()
@@ -113,11 +114,11 @@ class EventRearmGate:
             self._last_observed.pop(label, None)
             self._release_at.pop(label, None)
             self._feedback_end[label] = now + (
-                RAMUNE_HOLD_SECONDS if label == "RAMUNE" else UCHIMIZU_FEEDBACK_SECONDS
+                RAMUNE_HOLD_SECONDS if label == Gesture.RAMUNE else UCHIMIZU_FEEDBACK_SECONDS
             )
             self._active = label
         if self._active is not None and now < self._feedback_end[self._active]:
             gesture = self._active
         elif gesture in EVENT_GESTURES:
-            gesture = "NONE"
+            gesture = Gesture.NONE
         return gesture, tuple(accepted)
