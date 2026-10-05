@@ -1,5 +1,5 @@
 using Cysharp.Threading.Tasks;
-using Suzukaze.Gesture.Receiver;
+using Suzukaze.Gesture;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Event = Suzukaze.Gesture.Protocol.Event;
