@@ -2,19 +2,17 @@ using System;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
-using Google.Protobuf;
 
-namespace Suzukaze.Gesture.Receiver
+namespace Suzukaze.Core
 {
-    public sealed class WebSocketReceiver
+    public sealed class Transceiver
     {
-        private readonly ReceiverHandoff handoff;
-        private readonly IMonotonicClock clock;
+        private readonly ITransceiverHandler handler;
         public string LastError => Volatile.Read(ref lastError);
         private string lastError;
 
-        public WebSocketReceiver(ReceiverHandoff handoff, IMonotonicClock clock)
-        { this.handoff = handoff; this.clock = clock; }
+        public Transceiver(ITransceiverHandler handler)
+        { this.handler = handler; }
 
         public async Task RunAsync(Uri uri, CancellationToken stopping)
         {
@@ -31,14 +29,14 @@ namespace Suzukaze.Gesture.Receiver
                         connection.CancelAfter(TimeSpan.FromSeconds(5));
                         await socket.ConnectAsync(uri, connection.Token).ConfigureAwait(false);
                         connection.CancelAfter(Timeout.Infinite);
-                        token = handoff.BeginConnection();
+                        token = handler.Begin();
                         if (token == 0) return;
                         Volatile.Write(ref lastError, null);
-                        Task receive = ReceiveLoop(socket, token, connection.Token);
-                        Task send = SendLoop(socket, token, connection.Token);
+                        var receive = ReceiveLoop(socket, token, connection.Token);
+                        var send = SendLoop(socket, token, connection.Token);
                         // Also wake if Update overflows while both socket operations
                         // are blocked. No dependence on another network packet.
-                        await Task.WhenAny(receive, send, handoff.WaitForDisconnectAsync(token)).ConfigureAwait(false);
+                        await Task.WhenAny(receive, send, handler.WaitForEndAsync(token)).ConfigureAwait(false);
                         connection.Cancel();
                         socket.Abort();
                         // Observe both tasks before disposing the socket/CTS.
@@ -51,7 +49,7 @@ namespace Suzukaze.Gesture.Receiver
                     }
                     finally
                     {
-                        if (token != 0) handoff.Disconnect(token);
+                        if (token != 0) handler.End(token);
                         connection.Cancel();
                         socket.Abort();
                     }
@@ -63,10 +61,9 @@ namespace Suzukaze.Gesture.Receiver
 
         private async Task ReceiveLoop(WebSocket socket, long token, CancellationToken cancellation)
         {
-            while (handoff.IsConnected(token))
+            while (handler.IsConnected(token))
             {
-                var message = await WireMessage.ReceiveAsync(socket, clock, cancellation).ConfigureAwait(false);
-                if (message == null || !handoff.Publish(token, message)) return;
+                if (!await handler.ReceiveAsync(socket, token, cancellation).ConfigureAwait(false)) return;
             }
         }
 
@@ -74,12 +71,10 @@ namespace Suzukaze.Gesture.Receiver
         {
             // The only SendAsync caller. Polling also notices main-thread overflow
             // while ReceiveAsync is idle, without an unbounded task/signal queue.
-            while (handoff.IsConnected(token))
+            while (handler.IsConnected(token))
             {
-                var ack = handoff.TakeAck(token);
-                if (ack == null) { await Task.Delay(10, cancellation).ConfigureAwait(false); continue; }
-                byte[] bytes = ack.ToByteArray();
-                if (bytes.Length > WireMessage.MaxBytes) throw new InvalidOperationException("ACK too large");
+                var bytes = handler.TakeOutgoing(token);
+                if (bytes == null) { await Task.Delay(10, cancellation).ConfigureAwait(false); continue; }
                 await socket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Binary,
                     true, cancellation).ConfigureAwait(false);
             }

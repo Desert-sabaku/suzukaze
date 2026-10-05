@@ -32,28 +32,25 @@ namespace Suzukaze.Fan
         private static void ResetPlaySession()
         {
             FanOutput.ResetInstance();
-            // Mock only: start the middle row at 100% so the three-digit layout is visible.
-            FanOutput.Instance.Set(FanSide.Left, FanPosition.Side, 255);
-            FanOutput.Instance.Set(FanSide.Right, FanPosition.Side, 255);
         }
 
         private void OnGUI()
         {
-            if (!Debug.isDebugBuild) return;
+            // if (!Debug.isDebugBuild) return;
             nameStyle ??= new GUIStyle(GUI.skin.label) { fontSize = FontSize, alignment = TextAnchor.MiddleLeft };
             // The value is right-aligned, so "%" stays put whatever the digit count.
             valueStyle ??= new GUIStyle(nameStyle) { alignment = TextAnchor.MiddleRight };
             var output = FanOutput.Instance;
-            for (int side = 0; side < 2; side++)
+            for (var side = 0; side < FanOutput.SideCount; side++)
             {
-                float x = side == (int)FanSide.Left ? Margin : Screen.width - RowWidth - Margin;
-                for (int position = 0; position < PositionNames.Length; position++)
+                var x = side == (int)FanSide.Left ? Margin : Screen.width - RowWidth - Margin;
+                for (var position = 0; position < PositionNames.Length; position++)
                 {
-                    float y = position == (int)FanPosition.Back ? Margin
+                    var y = position == (int)FanPosition.Back ? Margin
                         : position == (int)FanPosition.Side ? (Screen.height - RowHeight) / 2f
                         : Screen.height - RowHeight - Margin;
                     var row = new Rect(x, y, RowWidth, RowHeight);
-                    int percent = FanOutput.Percent(output.Get((FanSide)side, (FanPosition)position));
+                    var percent = output.DutyPercent((FanSide)side, (FanPosition)position);
                     GUI.Box(row, GUIContent.none);
                     GUI.Label(new Rect(row.x + Padding, row.y, NameWidth, RowHeight), PositionNames[position] + ":", nameStyle);
                     GUI.Label(new Rect(row.x + NameWidth, row.y, RowWidth - NameWidth - Padding, RowHeight), percent + "%", valueStyle);

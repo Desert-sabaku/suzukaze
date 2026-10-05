@@ -1,7 +1,7 @@
 using System;
 using Suzukaze.Gesture.Protocol;
 
-namespace Suzukaze.Gesture.Receiver
+namespace Suzukaze.Gesture
 {
     // One main-thread API for every scene effect. DeliveryPolicy owns expiry,
     // deduplication and ACKs; this class only publishes the resulting gestures.
@@ -28,7 +28,8 @@ namespace Suzukaze.Gesture.Receiver
         {
             var handlers = Occurred;
             if (handlers == null) return false;
-            bool accepted = false;
+            var accepted = false;
+            // ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
             foreach (Func<string, Event, bool> handler in handlers.GetInvocationList())
                 accepted |= handler(sessionId, occurrence.Clone());
             return accepted;

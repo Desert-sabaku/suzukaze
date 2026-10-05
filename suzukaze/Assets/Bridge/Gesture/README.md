@@ -85,7 +85,7 @@ phaseを利用する送受信側はこのスキーマから両方再生成して
 
 ```csharp
 using Suzukaze.Gesture.Protocol;
-using Suzukaze.Gesture.Receiver;
+using Suzukaze.Gesture;
 using UnityEngine;
 using GestureEvent = Suzukaze.Gesture.Protocol.Event;
 
@@ -267,8 +267,10 @@ dedup because an effect may have run before the exception; retry returns
 
 - Windows: `WindowsQpcClock`, `QueryPerformanceCounter / QueryPerformanceFrequency`.
 - 64-bit Linux (LP64): `LinuxMonotonicClock`, libc `clock_gettime(CLOCK_MONOTONIC)`.
+- macOS: `OSXMonotonicClock`, `mach_absolute_time()` converted to nanoseconds with
+  `mach_timebase_info`, like CPython.
 
-Neither subtracts a process start time. Both share CPython `time.monotonic()`'s
+None subtracts a process start time. All share CPython `time.monotonic()`'s
 epoch on the **same native OS and PC**. Linux uses MONOTONIC, not BOOTTIME or
 MONOTONIC_RAW. Unity `Time.time`, wall clock, and stopwatch **elapsed** time are
 unsuitable. Other hosts/32-bit Linux are rejected before native calls.

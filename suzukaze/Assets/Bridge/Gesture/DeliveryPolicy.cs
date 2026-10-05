@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Suzukaze.Gesture.Protocol;
 using GestureAction = Suzukaze.Gesture.Protocol.Action;
 
-namespace Suzukaze.Gesture.Receiver
+namespace Suzukaze.Gesture
 {
     public interface IMonotonicClock { double Now { get; } }
 
@@ -64,11 +64,11 @@ namespace Suzukaze.Gesture.Receiver
 
         public StateView Current(double now)
         {
-            bool fresh = state != null && state.Fresh && state.HasObservedAt
-                && state.ObservedAt <= now && state.SentAt <= now
-                && now - state.ObservedAt < state.StaleTimeout
-                && now - state.SentAt < state.StaleTimeout
-                && now - receivedAt < state.StaleTimeout;
+            bool fresh = state is { Fresh: true, HasObservedAt: true }
+                         && state.ObservedAt <= now && state.SentAt <= now
+                         && now - state.ObservedAt < state.StaleTimeout
+                         && now - state.SentAt < state.StaleTimeout
+                         && now - receivedAt < state.StaleTimeout;
             bool tracking = fresh && state.Tracking;
             return new StateView {
                 SessionId = session, Sequence = sequence, ReceivedAt = receivedAt,

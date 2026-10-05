@@ -6,34 +6,54 @@ namespace Suzukaze.Fan.Tests
     public class FanOutputTests
     {
         [Test]
-        public void FansAreIndependentAndStartAtZero()
+        public void UsesTheMockWhileDisconnected()
         {
-            var output = new FanOutput();
-            output.Set(FanSide.Right, FanPosition.Front, 255);
-            Assert.AreEqual(255, output.Get(FanSide.Right, FanPosition.Front));
-            Assert.AreEqual(0, output.Get(FanSide.Left, FanPosition.Front));
-            Assert.AreEqual(0, output.Get(FanSide.Right, FanPosition.Back));
+            var mock = new FanDeviceMock(() => 0);
+            var output = new FanOutput(new FanDeviceMcu(), mock);
+            output.Set(FanSide.Right, FanPosition.Front, mock.MaxValue);
+            Assert.AreEqual(mock.MaxValue, output.Get(FanSide.Right, FanPosition.Front));
+            Assert.AreEqual(mock.MinValue, output.Get(FanSide.Left, FanPosition.Front));
         }
 
         [Test]
-        public void EveryFanKeepsItsOwnValue()
+        public void UsesTheActualValueWhileConnected()
         {
-            var output = new FanOutput();
-            byte next = 1;
-            foreach (FanSide side in Enum.GetValues(typeof(FanSide)))
-                foreach (FanPosition position in Enum.GetValues(typeof(FanPosition)))
-                    output.Set(side, position, next++);
-            next = 1;
-            foreach (FanSide side in Enum.GetValues(typeof(FanSide)))
-                foreach (FanPosition position in Enum.GetValues(typeof(FanPosition)))
-                    Assert.AreEqual(next++, output.Get(side, position));
+            var mcu = new FanDeviceMcu { Connected = true };
+            var mock = new FanDeviceMock(() => 0);
+            var output = new FanOutput(mcu, mock);
+            var actual = (byte)(mcu.MaxValue / 2);
+            output.Set(FanSide.Left, FanPosition.Side, mcu.MaxValue);
+            mcu.SetActual(FanSide.Left, FanPosition.Side, actual);
+            Assert.AreEqual(actual, output.Get(FanSide.Left, FanPosition.Side));
+            mcu.Connected = false;
+            Assert.AreEqual(mock.MinValue, output.Get(FanSide.Left, FanPosition.Side));
         }
 
-        [TestCase(0, 0)]
-        [TestCase(255, 100)]
-        [TestCase(128, 50)]
-        public void PercentRoundsToNearest(int value, int percent) =>
-            Assert.AreEqual(percent, FanOutput.Percent((byte)value));
+        [Test]
+        public void PercentUsesTheRangeOfTheCurrentDevice()
+        {
+            var mcu = new FanDeviceMcu { Connected = true };
+            var mock = new FanDeviceMock(() => 0);
+            var output = new FanOutput(mcu, mock);
+            Assert.AreEqual(100, output.Percent(mcu.MaxValue));
+            Assert.AreEqual(0, output.Percent(mcu.MinValue));
+            Assert.AreEqual(50, output.Percent((byte)(mcu.MaxValue / 2 + 1)));
+            mcu.Connected = false;
+            Assert.AreEqual(100, output.Percent(mock.MaxValue));
+        }
+
+        [Test]
+        public void RangeFollowsTheCurrentDevice()
+        {
+            var mcu = new FanDeviceMcu { Connected = true };
+            var mock = new FanDeviceMock(() => 0);
+            var output = new FanOutput(mcu, mock);
+            Assert.AreEqual(mcu.MinValue, output.MinValue);
+            Assert.AreEqual(mcu.MaxValue, output.MaxValue);
+            mcu.Connected = false;
+            Assert.AreEqual(mock.MinValue, output.MinValue);
+            Assert.AreEqual(mock.MaxValue, output.MaxValue);
+        }
 
         [Test]
         public void UnknownFanIsRejected() =>

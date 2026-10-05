@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 
-namespace Suzukaze.Gesture.Receiver
+namespace Suzukaze.Gesture
 {
     // Same native Linux host and epoch as CPython time.monotonic().
     // CLOCK_MONOTONIC excludes suspend time; CLOCK_BOOTTIME is not interchangeable.
@@ -32,13 +32,11 @@ namespace Suzukaze.Gesture.Receiver
         {
             get
             {
-                if (ClockGetTime(ClockMonotonic, out Timespec time) != 0)
-                {
-                    int errno = Marshal.GetLastWin32Error();
-                    throw new Win32Exception(errno,
-                        "clock_gettime(CLOCK_MONOTONIC) failed; errno=" + errno);
-                }
-                return (double)time.Seconds + time.Nanoseconds / 1_000_000_000.0;
+                if (ClockGetTime(ClockMonotonic, out var time) == 0)
+                    return time.Seconds + time.Nanoseconds / 1_000_000_000.0;
+                int errno = Marshal.GetLastWin32Error();
+                throw new Win32Exception(errno,
+                    "clock_gettime(CLOCK_MONOTONIC) failed; errno=" + errno);
             }
         }
     }
