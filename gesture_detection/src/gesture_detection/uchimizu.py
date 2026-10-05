@@ -19,6 +19,7 @@ from .gesture_position import (
     Landmarks,
     normalized_wrist_distances,
 )
+from .gesture_types import Phase
 
 
 class UchimizuAnalyzer:
@@ -29,7 +30,7 @@ class UchimizuAnalyzer:
         self.reset()
 
     def reset(self) -> None:
-        self.state = "IDLE"
+        self.state = Phase.IDLE
         self.setup_started_at: float | None = None
         self.history: deque[tuple[float, float]] = deque()
         self.peak = 0.0
@@ -56,16 +57,16 @@ class UchimizuAnalyzer:
             elapsed = now - self.completed_at
             if elapsed < UCHIMIZU_FEEDBACK_SECONDS:
                 return True
-            self.state = "IDLE"
+            self.state = Phase.IDLE
             if elapsed < UCHIMIZU_COOLDOWN_SECONDS:
                 return False
             self.completed_at = None
 
         face_distance, _ = normalized_wrist_distances(landmarks, self.wrist_index)
         away_from_face = face_distance >= READY_FACE_EXCLUSION_DISTANCE
-        if self.state == "READY":
+        if self.state == Phase.READY:
             if now - self.ready_at > UCHIMIZU_READY_TIMEOUT_SECONDS or not away_from_face:
-                self.state = "IDLE"
+                self.state = Phase.IDLE
                 self.history.clear()
                 return False
             if height < self.peak:
@@ -74,7 +75,7 @@ class UchimizuAnalyzer:
                 self.ready_at = now
             # The wrist may leave the torso horizontally during the release.
             if height >= UCHIMIZU_FINISH_HEIGHT and height - self.peak >= UCHIMIZU_MIN_DROP:
-                self.state = "SWING"
+                self.state = Phase.SWING
                 self.completed_at = now
                 self.history.clear()
                 return True
@@ -95,7 +96,7 @@ class UchimizuAnalyzer:
             and previous_height - height >= UCHIMIZU_MIN_RAISE
             for _, previous_height in self.history
         ):
-            self.state = "READY"
+            self.state = Phase.READY
             self.setup_started_at = now
             self.ready_at = now
             self.peak = height
@@ -146,10 +147,10 @@ class AnchoredUchimizuAnalyzer(UchimizuAnalyzer):
             self.low_positions.popleft()
         before, previous_completed = self.state, self.completed_at
         history_before = list(self.history)
-        if before == "READY" and wrist.y < self.absolute_peak:
+        if before == Phase.READY and wrist.y < self.absolute_peak:
             self.absolute_peak, self.peak_time = wrist.y, now
         detected = super().update(landmarks, now)
-        if self.state == "READY" and before != "READY":
+        if self.state == Phase.READY and before != Phase.READY:
             candidates = [
                 (t, y, s)
                 for t, y, s in self.low_positions
@@ -157,7 +158,7 @@ class AnchoredUchimizuAnalyzer(UchimizuAnalyzer):
                 and now - t >= MULTICAM_SCOOP_MIN_MOTION_SECONDS
             ]
             if not candidates:
-                self.state = "IDLE"
+                self.state = Phase.IDLE
                 self.setup_started_at = None
                 self.history.extend(history_before)
                 return False
@@ -171,7 +172,7 @@ class AnchoredUchimizuAnalyzer(UchimizuAnalyzer):
             ):
                 self.reset()
                 return False
-        if self.state == "IDLE" and self.completed_at is None:
+        if self.state == Phase.IDLE and self.completed_at is None:
             if central and away:
                 if height >= UCHIMIZU_LOW_HEIGHT:
                     self.low_positions.append((now, wrist.y, scale))

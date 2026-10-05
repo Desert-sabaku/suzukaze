@@ -21,6 +21,7 @@ from .config import (
     RAMUNE_UPPER_RAISE_TOLERANCE,
     RAMUNE_WINDUP_SECONDS,
 )
+from .gesture_types import Phase
 
 
 class Landmark(Protocol):
@@ -36,7 +37,7 @@ class RamuneAnalyzer:
         self.reset()
 
     def reset(self) -> None:
-        self.state = "IDLE"
+        self.state = Phase.IDLE
         self.setup_started_at: float | None = None
         self.base_index: int | None = None
         self.base = (0.0, 0.0)
@@ -75,18 +76,18 @@ class RamuneAnalyzer:
         in_torso = shoulder_y <= landmarks[lower].y <= hip_y
         ready = ready_aligned and in_torso and RAMUNE_MIN_READY_GAP <= gap <= RAMUNE_MAX_READY_GAP
 
-        if self.state == "OPENED":
+        if self.state == Phase.OPENED:
             if now - self.since < RAMUNE_HOLD_SECONDS:
                 return True
-            self.state = "WAIT_RELEASE"
-        if self.state == "WAIT_RELEASE":
+            self.state = Phase.WAIT_RELEASE
+        if self.state == Phase.WAIT_RELEASE:
             # A new separated-hand preparation is required after each opening.
             if ready:
                 self.reset()
             return False
-        if self.state == "IDLE":
+        if self.state == Phase.IDLE:
             if ready:
-                self.state = "FORMING"
+                self.state = Phase.FORMING
                 self.setup_started_at = now
                 self.base_index = lower
                 self.base = (landmarks[lower].x, landmarks[lower].y)
@@ -105,11 +106,11 @@ class RamuneAnalyzer:
         if not stable or not ready_aligned or not in_torso:
             self.reset()
             return False
-        if self.state == "FORMING":
+        if self.state == Phase.FORMING:
             if not ready or lower != self.base_index:
                 self.reset()
             elif now - self.since >= RAMUNE_DWELL_SECONDS:
-                self.state = "READY"
+                self.state = Phase.READY
                 self.upper_y = pressing.y
                 self.ready_gap = (base.y - pressing.y) / self.scale
                 self.since = now
@@ -153,7 +154,7 @@ class RamuneAnalyzer:
             and closing >= RAMUNE_MIN_PRESS
             and abs(remaining) <= RAMUNE_CONTACT_GAP
         ):
-            self.state = "OPENED"
+            self.state = Phase.OPENED
             self.since = now
             return True
         return False

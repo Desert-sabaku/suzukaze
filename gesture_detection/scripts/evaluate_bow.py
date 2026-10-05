@@ -17,6 +17,7 @@ import numpy as np
 from gesture_detection import config
 from gesture_detection import pose_worker as pose_module
 from gesture_detection.bow import BowAnalyzer
+from gesture_detection.gesture_types import Gesture, Phase
 from gesture_detection.multicam_fusion import MultiCameraFusion
 from gesture_detection.pose_worker import PoseAnalyzer
 from gesture_detection.recognition_types import PoseResult
@@ -26,13 +27,13 @@ from .video_annotation import load_timeline, sha256
 
 def summarize(rows: list[dict[str, Any]], fps: float) -> dict[str, Any]:
     """Measure delivered BOW separately from the raw detector and whole action."""
-    positive = [row for row in rows if row["action"] == "BOW"]
-    negative = [row for row in rows if row["action"] != "BOW"]
-    detected = [row for row in positive if row["gesture"] == "BOW"]
-    false_positive = [row for row in negative if row["gesture"] == "BOW"]
+    positive = [row for row in rows if row["action"] == Gesture.BOW]
+    negative = [row for row in rows if row["action"] != Gesture.BOW]
+    detected = [row for row in positive if row["gesture"] == Gesture.BOW]
+    false_positive = [row for row in negative if row["gesture"] == Gesture.BOW]
     runs = []
     for row in rows:
-        if row["gesture"] != "BOW":
+        if row["gesture"] != Gesture.BOW:
             continue
         frame = row["frame_id"]
         if runs and runs[-1][1] == frame - 1:
@@ -40,11 +41,11 @@ def summarize(rows: list[dict[str, Any]], fps: float) -> dict[str, Any]:
         else:
             runs.append([frame, frame])
     phases = {}
-    for label in ("BENDING", "HOLD", "RETURNING"):
+    for label in (Phase.BENDING, Phase.HOLD, Phase.RETURNING):
         subset = [row for row in rows if row["phase"] == label]
         phases[label] = {
             "frames": len(subset),
-            "bow_frames": sum(row["gesture"] == "BOW" for row in subset),
+            "bow_frames": sum(row["gesture"] == Gesture.BOW for row in subset),
             "raw_bow_frames": sum(row["raw_bow"] for row in subset),
             "tracking_frames": sum(row["tracking"] for row in subset),
             "gestures": dict(Counter(row["gesture"] for row in subset)),
@@ -65,7 +66,7 @@ def summarize(rows: list[dict[str, Any]], fps: float) -> dict[str, Any]:
                 "invalid_bow_points_frames": sum(bool(row["invalid_bow_points"]) for row in subset),
                 "subject_states": dict(Counter(row["subject_state"] for row in subset)),
             }
-    first_hold = next((row["frame_id"] for row in rows if row["phase"] == "HOLD"), None)
+    first_hold = next((row["frame_id"] for row in rows if row["phase"] == Phase.HOLD), None)
     return {
         "frames": len(rows),
         "action_frames": len(positive),
@@ -82,7 +83,7 @@ def summarize(rows: list[dict[str, Any]], fps: float) -> dict[str, Any]:
         else None,
         "bow_runs": runs,
         "raw_bow_suppressed_frames": sum(
-            row["raw_bow"] and row["gesture"] != "BOW" for row in rows
+            row["raw_bow"] and row["gesture"] != Gesture.BOW for row in rows
         ),
         "phases": phases,
     }
@@ -94,7 +95,7 @@ def labels_at(data: dict[str, Any], frame: int) -> tuple[str, str]:
         for item in data["intervals"]
         if item["start_frame"] <= frame <= item["end_frame"]
     }
-    return labels.get("action", "NONE"), labels.get("bow_phase", "NONE")
+    return labels.get("action", Gesture.NONE), labels.get("bow_phase", Gesture.NONE)
 
 
 def geometry(result: PoseResult) -> dict[str, Any]:
@@ -121,7 +122,7 @@ def save_hold_previews(annotations: Path, output: Path) -> None:
     for take in sorted(output.glob("take_00*")):
         for camera in ("camera_1", "camera_2"):
             with (take / f"{camera}.csv").open(encoding="utf-8") as source:
-                holds = [row for row in csv.DictReader(source) if row["phase"] == "HOLD"]
+                holds = [row for row in csv.DictReader(source) if row["phase"] == Phase.HOLD]
             if not holds:
                 continue
             row = holds[len(holds) // 2]
@@ -210,13 +211,13 @@ def evaluate_take(
                         "timestamp": timestamp,
                         "action": action,
                         "phase": phase,
-                        "gesture": result.get("current", {"gesture": "NONE", "tracking": False})[
-                            "gesture"
-                        ],
+                        "gesture": result.get(
+                            "current", {"gesture": Gesture.NONE, "tracking": False}
+                        )["gesture"],
                         "raw_bow": result.get("bow_state", False),
-                        "tracking": result.get("current", {"gesture": "NONE", "tracking": False})[
-                            "tracking"
-                        ],
+                        "tracking": result.get(
+                            "current", {"gesture": Gesture.NONE, "tracking": False}
+                        )["tracking"],
                         "angle": result.get("bow_angle"),
                         "head_deviation": result.get("bow_head_deviation"),
                         "head_aligned": result.get("bow_head_aligned", False),
@@ -237,24 +238,24 @@ def evaluate_take(
             phase = next(
                 (
                     label
-                    for label in ("HOLD", "BENDING", "RETURNING")
+                    for label in (Phase.HOLD, Phase.BENDING, Phase.RETURNING)
                     if any(row["phase"] == label for row in current_rows)
                 ),
-                "NONE",
+                Gesture.NONE,
             )
             rows[2].append(
                 {
                     "frame_id": frame_id,
                     "timestamp": timestamp,
-                    "action": "BOW"
-                    if any(row["action"] == "BOW" for row in current_rows)
-                    else "NONE",
+                    "action": Gesture.BOW
+                    if any(row["action"] == Gesture.BOW for row in current_rows)
+                    else Gesture.NONE,
                     "phase": phase,
-                    "gesture": fused.get("current", {"gesture": "NONE", "tracking": False})[
+                    "gesture": fused.get("current", {"gesture": Gesture.NONE, "tracking": False})[
                         "gesture"
                     ],
                     "raw_bow": any(row["raw_bow"] for row in current_rows),
-                    "tracking": fused.get("current", {"gesture": "NONE", "tracking": False})[
+                    "tracking": fused.get("current", {"gesture": Gesture.NONE, "tracking": False})[
                         "tracking"
                     ],
                 }
@@ -346,7 +347,7 @@ def main() -> None:
     )
     for take, value in report["takes"].items():
         for name, metrics in value["views"].items():
-            hold = metrics["phases"]["HOLD"]
+            hold = metrics["phases"][Phase.HOLD]
             print(
                 f"{take} {name}: HOLD {hold['bow_frames']}/{hold['frames']}, "
                 f"false positive frames {metrics['false_positive_frames']}"

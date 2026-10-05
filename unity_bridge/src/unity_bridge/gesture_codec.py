@@ -2,6 +2,7 @@
 
 import math
 
+from gesture_detection.gesture_types import Gesture, Phase, valid_action_phase
 from google.protobuf.message import DecodeError
 
 from .gen.gesture.v1 import gesture_pb2 as pb
@@ -9,9 +10,42 @@ from .gen.gesture.v1 import gesture_pb2 as pb
 MAX_MESSAGE_BYTES = 8192
 
 _ENUMS = {
-    "state": ("gesture", {"NONE": 1, "FANNING": 2, "RELAXING": 3, "BOW": 4}),
-    "event": ("gesture", {"RAMUNE": 1, "UCHIMIZU": 2}),
-    "ack": ("status", {"accepted": 1, "ignored": 2, "expired": 3, "duplicate": 4}),
+    "state": (
+        "gesture",
+        {
+            Gesture(name.removeprefix("CONTINUOUS_GESTURE_")): number
+            for name, number in pb.ContinuousGesture.items()
+            if number != pb.CONTINUOUS_GESTURE_UNSPECIFIED
+        },
+    ),
+    "event": (
+        "gesture",
+        {
+            Gesture(name.removeprefix("OCCURRENCE_GESTURE_")): number
+            for name, number in pb.OccurrenceGesture.items()
+            if number != pb.OCCURRENCE_GESTURE_UNSPECIFIED
+        },
+    ),
+    "ack": (
+        "status",
+        {
+            name.removeprefix("ACK_STATUS_").lower(): number
+            for name, number in pb.AckStatus.items()
+            if number != pb.ACK_STATUS_UNSPECIFIED
+        },
+    ),
+}
+_PROGRESS_ENUMS = {
+    "action": {
+        Gesture(name.removeprefix("ACTION_")): number
+        for name, number in pb.Action.items()
+        if number != pb.ACTION_UNSPECIFIED
+    },
+    "phase": {
+        Phase(name.removeprefix("PHASE_")): number
+        for name, number in pb.Phase.items()
+        if number != pb.PHASE_UNSPECIFIED
+    },
 }
 _FIELDS = {
     "state": (
@@ -24,6 +58,8 @@ _FIELDS = {
         "observed_at",
         "frame_id",
         "source_timestamp",
+        "action",
+        "phase",
     ),
     "event": (
         "event_id",
@@ -35,7 +71,7 @@ _FIELDS = {
     ),
     "ack": ("event_id", "status"),
 }
-_OPTIONAL = {"observed_at", "frame_id", "source_timestamp"}
+_OPTIONAL = {"observed_at", "frame_id", "source_timestamp", "action", "phase"}
 _TIMES = {
     "sent_at",
     "stale_timeout",
@@ -88,6 +124,20 @@ def _validate(message: dict) -> str:
                 raise ValueError(f"{field} must be finite")
         elif field in {"fresh", "tracking"} and type(value) is not bool:
             raise ValueError(f"{field} must be bool")
+        elif field in {"action", "phase"} and (not isinstance(value, str) or not value):
+            raise ValueError(f"{field} must be a nonempty string")
+    if kind == "state":
+        action, phase = message.get("action"), message.get("phase")
+        if (action is None) != (phase is None):
+            raise ValueError("action and phase must be present together")
+        if action is not None and (
+            not valid_action_phase(action, phase)
+            or not message["fresh"]
+            or not message["tracking"]
+        ):
+            raise ValueError(
+                "Phase requires a valid action/phase pair and fresh tracking"
+            )
     if kind == "state" and message["stale_timeout"] <= 0:
         raise ValueError("stale_timeout must be positive")
     if kind == "event" and message["expires_at"] <= message["occurred_at"]:
@@ -105,7 +155,10 @@ def encode_message(message: dict) -> bytes:
         for field in _FIELDS[kind]:
             value = message.get(field)
             if value is not None:
-                setattr(payload, field, values[value] if field == enum_field else value)
+                mapping = values if field == enum_field else _PROGRESS_ENUMS.get(field)
+                setattr(
+                    payload, field, mapping[value] if mapping is not None else value
+                )
         data = envelope.SerializeToString(deterministic=True)
     except (UnicodeError, TypeError, OverflowError) as exc:
         raise ValueError("Invalid protobuf value") from exc
@@ -136,12 +189,20 @@ def decode_message(data: bytes) -> dict:
     }
     payload = getattr(envelope, kind)
     enum_field, values = _ENUMS[kind]
-    reverse = {number: name for name, number in values.items()}
     for field in _FIELDS[kind]:
         if field in _OPTIONAL and not payload.HasField(field):
+            if field in {"action", "phase"}:
+                continue
             message[field] = None
             continue
         value = getattr(payload, field)
-        message[field] = reverse.get(value) if field == enum_field else value
+        mapping = values if field == enum_field else _PROGRESS_ENUMS.get(field)
+        message[field] = (
+            {number: name for name, number in mapping.items()}.get(value)
+            if mapping is not None
+            else value
+        )
+        if mapping is not None and message[field] is None:
+            raise ValueError(f"Unknown {field}")
     _validate(message)
     return message

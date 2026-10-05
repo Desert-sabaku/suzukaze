@@ -4,6 +4,7 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Suzukaze.Gesture.Protocol;
+using GestureAction = Suzukaze.Gesture.Protocol.Action;
 
 namespace Suzukaze.Gesture.Receiver
 {
@@ -11,6 +12,16 @@ namespace Suzukaze.Gesture.Receiver
     {
         public const int MaxBytes = 8192;
         private static bool Finite(double x) => !double.IsNaN(x) && !double.IsInfinity(x);
+
+        public static bool ValidPhase(GestureAction action, Phase phase) => action switch
+        {
+            GestureAction.Ramune => phase == Phase.Forming || phase == Phase.Ready
+                || phase == Phase.Opened || phase == Phase.WaitRelease,
+            GestureAction.Uchimizu => phase == Phase.Ready || phase == Phase.Swing,
+            GestureAction.Fanning or GestureAction.Relaxing => phase == Phase.Active,
+            GestureAction.Bow => phase == Phase.Hold,
+            _ => false
+        };
 
         public static void Validate(GestureEnvelope message)
         {
@@ -21,14 +32,19 @@ namespace Suzukaze.Gesture.Receiver
             if (s != null)
             {
                 if (s.Sequence == 0 || !Finite(s.SentAt) || !Finite(s.StaleTimeout)
-                    || s.StaleTimeout <= 0 || (int)s.Gesture < 1 || (int)s.Gesture > 4
+                    || s.StaleTimeout <= 0 || s.Gesture == ContinuousGesture.Unspecified
+                    || !Enum.IsDefined(typeof(ContinuousGesture), s.Gesture)
                     || (s.HasObservedAt && !Finite(s.ObservedAt))
                     || (s.HasSourceTimestamp && !Finite(s.SourceTimestamp)))
                     throw new InvalidDataException("Invalid state");
+                if (s.HasAction != s.HasPhase || (s.HasPhase &&
+                    (!s.Fresh || !s.Tracking || !ValidPhase(s.Action, s.Phase))))
+                    throw new InvalidDataException("Invalid phase");
             }
             else if (e != null)
             {
-                if (e.EventId == 0 || (int)e.Gesture < 1 || (int)e.Gesture > 2
+                if (e.EventId == 0 || e.Gesture == OccurrenceGesture.Unspecified
+                    || !Enum.IsDefined(typeof(OccurrenceGesture), e.Gesture)
                     || !Finite(e.OccurredAt) || !Finite(e.ExpiresAt) || e.ExpiresAt <= e.OccurredAt
                     || (e.HasSourceTimestamp && !Finite(e.SourceTimestamp)))
                     throw new InvalidDataException("Invalid event");

@@ -11,6 +11,7 @@ from .config import (
     RIGHT_WRIST_INDEX,
     SUBJECT_AREA,
 )
+from .gesture_types import Phase
 from .recognition_types import PoseResult
 
 type Landmark = tuple[float, float, float]
@@ -141,16 +142,16 @@ def draw_ramune_guide(
     release_message: str = "Ramune: lift the upper hand to try again",
 ) -> None:
     """Show the next physical action in a compact bottom panel."""
-    messages = {
-        "IDLE": "Ramune: make a ring; place the other hand above",
-        "FORMING": "Ramune: hold the lower hand still...",
-        "READY": "Ramune: press DOWN with the upper hand!",
-        "OPENED": "POP! Ramune opened!",
-        "WAIT_RELEASE": release_message,
+    messages: dict[str, str] = {
+        Phase.IDLE: "Ramune: make a ring; place the other hand above",
+        Phase.FORMING: "Ramune: hold the lower hand still...",
+        Phase.READY: "Ramune: press DOWN with the upper hand!",
+        Phase.OPENED: "POP! Ramune opened!",
+        Phase.WAIT_RELEASE: release_message,
     }
     height, width = image.shape[:2]
-    text = messages.get(state, messages["IDLE"])
-    color = (0, 255, 255) if state == "OPENED" else (255, 255, 255)
+    text = messages.get(state, messages[Phase.IDLE])
+    color = (0, 255, 255) if state == Phase.OPENED else (255, 255, 255)
     scale = min(0.6, max(0.1, (width - 20) / 1000))
     cv2.rectangle(image, (0, max(0, height - 44)), (width, height), (35, 35, 35), -1)
     cv2.putText(image, text, (10, height - 16), cv2.FONT_HERSHEY_SIMPLEX, scale, color, 1)
