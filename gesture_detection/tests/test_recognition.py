@@ -4,6 +4,7 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
+from gesture_detection.gesture_types import Phase
 from gesture_detection.recognition import RecognitionCoordinator
 from gesture_detection.rendering import status_messages
 from test_pose_worker import landmarks
@@ -103,7 +104,7 @@ def test_scoop_survives_incidental_ramune_candidate(profile, wrist):
         states.append(result.get("uchimizu_state"))
         events.extend(result.get("occurrences", ()))
         actions.append(result["selected_action"])
-    assert "READY" in states
+    assert Phase.READY in states
     assert events == ["UCHIMIZU"]
     assert "FANNING" not in actions
     assert "RAMUNE" not in actions
