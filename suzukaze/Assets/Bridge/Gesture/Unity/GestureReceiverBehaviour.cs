@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Suzukaze.Core;
 using UnityEngine;
 
 namespace Suzukaze.Gesture
@@ -15,7 +16,7 @@ namespace Suzukaze.Gesture
         private static DeliveryPolicy _history = new();
         private ReceiverHandoff handoff;
         private IMonotonicClock clock;
-        private WebSocketReceiver receiver;
+        private Transceiver receiver;
         private CancellationTokenSource stopping;
         private Task worker;
         public bool IsOwner => _owner == this;
@@ -71,7 +72,7 @@ namespace Suzukaze.Gesture
                 var uri = new Uri(endpoint);
                 if (!uri.IsLoopback || (uri.Scheme != "ws" && uri.Scheme != "wss"))
                     throw new ArgumentException("Endpoint must be a loopback WebSocket URI");
-                receiver = new WebSocketReceiver(handoff, clock);
+                receiver = new Transceiver(new GestureConnection(handoff, clock));
                 stopping = new CancellationTokenSource();
                 handoff.Resume();
                 worker = RunAfterRetirement(receiver, uri, stopping.Token);
@@ -83,7 +84,7 @@ namespace Suzukaze.Gesture
             }
         }
 
-        private static async Task RunAfterRetirement(WebSocketReceiver next, Uri uri, CancellationToken cancellation)
+        private static async Task RunAfterRetirement(Transceiver next, Uri uri, CancellationToken cancellation)
         {
             try { await _retiring.ConfigureAwait(false); }
             catch (Exception) { /* Already observed by the retiring owner. */ }
