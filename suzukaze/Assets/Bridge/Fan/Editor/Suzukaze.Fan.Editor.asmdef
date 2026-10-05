@@ -1,0 +1,7 @@
+{
+  "name": "Suzukaze.Fan.Editor",
+  "rootNamespace": "Suzukaze.Fan.Editor",
+  "references": ["Suzukaze.Fan"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": false
+}
