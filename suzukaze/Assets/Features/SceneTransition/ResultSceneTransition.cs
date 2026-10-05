@@ -1,6 +1,10 @@
+using Cysharp.Threading.Tasks;
+using Features.Common.Scripts;
+using Features.Gesture_Movie.Scripts;
 using Features.Result.Scripts;
 using LitMotion;
 using Suzukaze.Gesture;
+using Suzukaze.Gesture.Protocol;
 using UnityEngine;
 
 namespace Features.SceneTransition
@@ -20,22 +24,42 @@ namespace Features.SceneTransition
         private void OnEnable()
         {
             hanabi.OnDropped.AddListener(OnDropped);
+            resultUI.alpha = 0f;
 
+            if (_gestureReceiver) return;
             _gestureReceiver = GestureReceiverBehaviour.GetOrCreate();
-            // _gestureReceiver.Events
+            _gestureReceiver.Events.StateChanged += OnGestureStateChanged;
         }
 
         private void OnDisable()
         {
             hanabi.OnDropped.RemoveListener(OnDropped);
+
+            if (!_gestureReceiver) return;
+            _gestureReceiver.Events.StateChanged -= OnGestureStateChanged;
+            _gestureReceiver = null;
+        }
+
+        private void OnGestureStateChanged(StateView state)
+        {
+            if (!state.Tracking) return;
+
+            if (state.Gesture != ContinuousGesture.Bow) return;
+            SceneTransitionManager.Instance.LoadSceneAsync("Title").Forget();
+            _gestureReceiver.Events.StateChanged -= OnGestureStateChanged;
+            _gestureReceiver = null;
         }
 
         private void OnDropped()
         {
+            var gestureMovie = FindAnyObjectByType<GestureMoviePlayer>();
+            if (!gestureMovie) return;
+            
             LSequence.Create()
                 .AppendInterval(afterDropInterval)
                 .Append(
                     LMotion.Create(0f, 1f, fadeDuration)
+                        .WithOnComplete(() => gestureMovie.SetAnimation(Gestures.Rei))
                         .Bind(v => resultUI.alpha = v)
                 )
                 .Run();
