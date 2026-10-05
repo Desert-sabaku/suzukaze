@@ -29,6 +29,14 @@ message State {
   // gesture-specific motion criteria. Absence means not evaluated.
   // Applies to this observation; omit for NONE or unavailable tracking.
   optional double action_accuracy = 10;
+  // Current detector progress, independent of continuous gesture and events.
+  // Both fields are present together, only while fresh and tracking.
+  // phase_action: RAMUNE, UCHIMIZU, FANNING, RELAXING or BOW.
+  // phase: RAMUNE = FORMING/READY/OPENED/WAIT_RELEASE,
+  // UCHIMIZU = READY/SWING, FANNING/RELAXING = ACTIVE, BOW = HOLD.
+  // Absence means no active phase (including idle or unavailable tracking).
+  optional string phase_action = 11;
+  optional string phase = 12;
 }
 
 message Event {

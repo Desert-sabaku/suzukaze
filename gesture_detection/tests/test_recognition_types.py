@@ -44,3 +44,36 @@ def test_bow_is_delivered_as_continuous_state():
 def test_unknown_occurrence_is_rejected():
     with pytest.raises(ValueError, match="Unknown occurrence"):
         GestureSample.from_result(result(occurrences=("FANNING",)), observed_at=1.0)
+
+
+@pytest.mark.parametrize(
+    "action,diagnostics,expected",
+    [
+        ("NONE", {"ramune_state": "FORMING"}, ("RAMUNE", "FORMING")),
+        ("NONE", {"ramune_state": "READY"}, ("RAMUNE", "READY")),
+        ("RAMUNE", {"ramune_state": "OPENED"}, ("RAMUNE", "OPENED")),
+        ("NONE", {"ramune_state": "WAIT_RELEASE"}, ("RAMUNE", "WAIT_RELEASE")),
+        ("NONE", {"uchimizu_state": "READY"}, ("UCHIMIZU", "READY")),
+        ("UCHIMIZU", {"uchimizu_state": "SWING"}, ("UCHIMIZU", "SWING")),
+        ("FANNING", {"ramune_state": "WAIT_RELEASE"}, ("FANNING", "ACTIVE")),
+        ("RELAXING", {}, ("RELAXING", "ACTIVE")),
+        ("BOW", {}, ("BOW", "HOLD")),
+        ("NONE", {"ramune_state": "IDLE", "uchimizu_state": "IDLE"}, (None, None)),
+    ],
+)
+def test_sample_exposes_progress_without_turning_preparation_into_an_event(
+    action, diagnostics, expected
+):
+    sample = GestureSample.from_result(
+        result(current={"gesture": action, "tracking": True}, **diagnostics), 1.0
+    )
+    assert (sample.phase_action, sample.phase) == expected
+    assert sample.occurrences == ()
+    assert pickle.loads(pickle.dumps(sample)) == sample
+
+
+def test_no_tracking_discards_detector_progress():
+    sample = GestureSample.from_result(
+        result(current={"gesture": "NONE", "tracking": False}, ramune_state="READY"), 1.0
+    )
+    assert sample.phase_action is None and sample.phase is None

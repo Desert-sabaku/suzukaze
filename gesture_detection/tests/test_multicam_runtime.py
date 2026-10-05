@@ -98,6 +98,29 @@ def test_two_camera_pulses_are_merged_and_keep_capture_time():
     assert GestureSample.from_result(result, 0.3).occurrences == (("UCHIMIZU", 0.2),)
 
 
+def test_fusion_keeps_preparation_phase_and_expires_it():
+    fusion = MultiCameraFusion(max_age=0.5)
+    ready = sample(0.1)
+    ready["ramune_state"] = "READY"
+    fusion.submit(0, ready)
+    fusion.submit(1, sample(0.2))
+    delivered = GestureSample.from_result(fusion.advance(0.2), 0.2)
+    assert delivered.gesture == "NONE"
+    assert (delivered.phase_action, delivered.phase) == ("RAMUNE", "READY")
+    stale = GestureSample.from_result(fusion.advance(0.8), 0.8)
+    assert (stale.phase_action, stale.phase) == (None, None)
+
+
+def test_fusion_prefers_phase_from_camera_with_selected_action():
+    fusion = MultiCameraFusion()
+    ready = sample(0.2)
+    ready["ramune_state"] = "READY"
+    fusion.submit(0, ready)
+    fusion.submit(1, sample(0.1, "FANNING"))
+    delivered = GestureSample.from_result(fusion.advance(0.2), 0.2)
+    assert (delivered.phase_action, delivered.phase) == ("FANNING", "ACTIVE")
+
+
 def test_late_event_is_not_renewed_by_a_newer_other_camera_frame():
     fusion = MultiCameraFusion(event_ttl=1.0)
     fusion.submit(0, sample(0.2, "RAMUNE", pulse=True))

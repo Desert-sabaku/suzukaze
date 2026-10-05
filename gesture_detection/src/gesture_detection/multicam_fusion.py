@@ -5,7 +5,7 @@ import math
 
 from .config import GESTURE_EVENT_TTL, MULTICAM_EVENT_DEDUP_SECONDS, MULTICAM_MAX_AGE_SECONDS
 from .event_rearm import EVENT_GESTURES, EventRearmGate
-from .recognition_types import OccurrenceEvidence, PoseResult
+from .recognition_types import OccurrenceEvidence, PoseResult, recognition_phase
 
 PRIORITY = {"NONE": 0, "RELAXING": 1, "BOW": 2, "FANNING": 3, "UCHIMIZU": 4, "RAMUNE": 5}
 
@@ -99,12 +99,23 @@ class MultiCameraFusion:
         gesture, accepted = self.gate.update(
             gesture, tuple(events), now, [r["landmarks"] for r in fresh], evidence
         )
+        phases = [(*recognition_phase(r), r.get("timestamp", 0.0)) for r in fresh]
+        phases = [item for item in phases if item[0] is not None]
+        # Prefer progress for the fused action; otherwise use action priority
+        # and the newest camera observation. Never combine two cameras' fields.
+        selected_phase = max(
+            phases,
+            key=lambda item: (item[0] == gesture, PRIORITY.get(item[0] or "NONE", 0), item[2]),
+            default=(None, None, 0.0),
+        )
         return {
             "landmarks": [],
             "current": {"gesture": gesture, "tracking": any(r["landmarks"] for r in fresh)},
             "selected_action": gesture if gesture in {"FANNING", "RAMUNE", "UCHIMIZU"} else "NONE",
             "relaxing_state": gesture == "RELAXING",
             "bow_state": gesture == "BOW",
+            "phase_action": selected_phase[0],
+            "phase": selected_phase[1],
             "occurrences": accepted,
             "occurrence_evidence": {g: evidence[g] for g in accepted},
             "occurrence_timestamps": {g: event_times[g] for g in accepted},
