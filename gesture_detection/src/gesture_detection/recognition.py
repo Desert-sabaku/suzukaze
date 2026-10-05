@@ -2,6 +2,7 @@
 
 from typing import Any
 
+from .booth_presence import BoothPresence
 from .bow import BowAnalyzer
 from .config import FPS, RAMUNE_DETECTOR, RAMUNE_LEARNED_MODEL_PATH
 from .gesture_types import Gesture, Phase
@@ -45,6 +46,7 @@ class RecognitionCoordinator:
         )
         self.relaxing = RelaxingAnalyzer()
         self.bow = BowAnalyzer()
+        self.booth = BoothPresence()
 
         self.relaxing_state = False
         self.bow_state = False
@@ -187,6 +189,7 @@ class RecognitionCoordinator:
                         "setup_timestamp": hand.uchimizu.setup_started_at,
                     }
         return {
+            "booth_present": self.booth.update(landmarks, timestamp, aspect_ratio),
             "landmarks": [(p.x, p.y, p.visibility) for p in landmarks],
             "frame_id": frame_id,
             "timestamp": timestamp,
