@@ -235,7 +235,7 @@ namespace Suzukaze.Gesture.Tests
         private static void RequireIsolatedReceiverScene()
         {
             if (Object.FindObjectsByType<GestureReceiverBehaviour>(
-                FindObjectsInactive.Include, FindObjectsSortMode.None).Length != 0)
+                FindObjectsInactive.Include).Length != 0)
                 Assert.Ignore("Run in an isolated PlayMode test scene without an existing receiver");
             ResetPlaySession();
         }
