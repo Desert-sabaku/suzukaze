@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using Cysharp.Threading.Tasks;
 using Features.Common.Scripts;
 using LitMotion;
@@ -18,6 +20,9 @@ namespace Features.Gesture_Effect.Scripts
     {
         private static readonly int AlphaPropId = Shader.PropertyToID("_Alpha");
 
+        [Title("全体設定")] [SerializeField] [InfoBox("上書き可能な所作の種類")]
+        private Gestures[] overridableGestures = { Gestures.Yusuzumi, Gestures.Aogi };
+        
         [Title("打ち水")] [SerializeField] [ChildGameObjectsOnly]
         private AlembicStreamPlayer uchimizuPlayer;
 
@@ -28,6 +33,7 @@ namespace Features.Gesture_Effect.Scripts
         [Title("扇ぎ")] [SerializeField] [ChildGameObjectsOnly]
         private VisualEffect aogiVfx;
 
+        [Title("現在の所作")] [ReadOnly] [ShowInInspector]
         private Gestures _gestures;
         private float _progress;
         private Random _random;
@@ -44,6 +50,13 @@ namespace Features.Gesture_Effect.Scripts
         [Button("Play Effect")]
         public async UniTask PlayEffect(Gestures gesture, bool force = false)
         {
+            // すでに再生中の所作が上書き可能な所作でない場合、forceがtrueでない限り警告を出す
+            if (!overridableGestures.Contains(_gestures) && !force)
+            {
+                Debug.LogWarning($"Gesture {_gestures} is already playing. Use force=true to override.");
+                return;
+            }
+            
             _progress = 0f;
             _gestures = gesture;
 
@@ -62,6 +75,7 @@ namespace Features.Gesture_Effect.Scripts
                 case Gestures.Ramune:
                 default:
                     Debug.LogWarning($"Gesture {gesture} is not implemented.");
+                    _gestures = Gestures.Yusuzumi;
                     break;
             }
         }
