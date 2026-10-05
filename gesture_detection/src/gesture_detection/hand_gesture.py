@@ -111,6 +111,7 @@ class HandGestureAnalyzer:
         # must not do so, including through action hysteresis.
         fanning_blocked = (
             not fanning_allowed
+            or not self._has_repeated_fanning()
             or self.uchimizu_state == "READY"
             or now < self.fanning_suppressed_until
         )

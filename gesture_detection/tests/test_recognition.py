@@ -1,6 +1,8 @@
 from copy import deepcopy
 from unittest.mock import patch
 
+import pytest
+
 from gesture_detection.recognition import RecognitionCoordinator
 from gesture_detection.rendering import status_messages
 from test_pose_worker import landmarks
@@ -80,3 +82,48 @@ def test_ramune_occurrence_is_not_reissued_during_hold():
         events.extend(result.get("occurrences", ()))
     assert events == ["RAMUNE"]
     assert result["selected_action"] == "RAMUNE"
+
+
+@pytest.mark.parametrize("profile", ["default", "multicam"])
+@pytest.mark.parametrize("wrist", [15, 16])
+def test_scoop_survives_incidental_ramune_candidate(profile, wrist):
+    coordinator = RecognitionCoordinator(profile=profile, ramune_detector="rules")
+    points = landmarks()
+    # Both hands are visible, separated by less than the widened Ramune
+    # alignment tolerance. The resting hand is not holding a bottle.
+    points[31 - wrist].x, points[31 - wrist].y = 0.43, 0.5
+    points[wrist].x = 0.62
+    states = []
+    events = []
+    actions = []
+    for frame, y in enumerate([0.62, 0.60, 0.58, 0.56, 0.54, 0.54, 0.60]):
+        points[wrist].y = y
+        result = coordinator.process(points, frame / 10, frame, aspect_ratio=1.0)
+        states.append(result.get("uchimizu_state"))
+        events.extend(result.get("occurrences", ()))
+        actions.append(result["selected_action"])
+    assert "READY" in states
+    assert events == ["UCHIMIZU"]
+    assert "FANNING" not in actions
+    assert "RAMUNE" not in actions
+
+
+@pytest.mark.parametrize("wrist", [15, 16])
+def test_single_raise_without_low_scoop_is_not_fanning(wrist):
+    coordinator = RecognitionCoordinator(ramune_detector="rules")
+    points = landmarks()
+    points[31 - wrist].visibility = 0
+    actions = []
+    # A single chest-level raise/release can have a high FFT score but
+    # provides neither a low scoop nor the repeated reversals of fanning.
+    with patch(
+        "gesture_detection.hand_gesture.HandGestureAnalyzer._calculate_fanning_score",
+        return_value=0.9,
+    ):
+        for frame, y in enumerate(
+            [0.54] * 4 + [0.50, 0.46, 0.42] + [0.42] * 8 + [0.46, 0.50, 0.54]
+        ):
+            points[wrist].y = y
+            result = coordinator.process(points, frame / 30, frame, aspect_ratio=1.0)
+            actions.append(result["selected_action"])
+    assert set(actions) == {"NONE"}
