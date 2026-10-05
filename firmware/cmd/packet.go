@@ -6,7 +6,7 @@ import (
 	"io"
 	"sync"
 
-	comms_v1 "firmware/gen/comms/v1"
+	micon_v1 "firmware/gen/micon/v1"
 )
 
 const (
@@ -59,7 +59,7 @@ func (pt *PacketTransceiver) syncHeader() error {
   return nil
 }
 
-func (pt *PacketTransceiver) ReadPacket(pkt *comms_v1.Packet) error {
+func (pt *PacketTransceiver) ReadPacket(pkt *micon_v1.Packet) error {
   if err := pt.syncHeader(); err != nil {
     return err
   }
@@ -83,7 +83,7 @@ func (pt *PacketTransceiver) ReadPacket(pkt *comms_v1.Packet) error {
   return pkt.UnmarshalVT(payload)
 }
 
-func (pt *PacketTransceiver) SendPacket(pkt *comms_v1.Packet) error {
+func (pt *PacketTransceiver) SendPacket(pkt *micon_v1.Packet) error {
   pt.txMu.Lock()
   defer pt.txMu.Unlock()
 

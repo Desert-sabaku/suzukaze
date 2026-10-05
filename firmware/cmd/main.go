@@ -4,7 +4,7 @@ import (
 	"machine"
 	"time"
 
-	comms_v1 "firmware/gen/comms/v1"
+	micon_v1 "firmware/gen/micon/v1"
 )
 
 var Log *Logger
@@ -44,7 +44,7 @@ func main() {
 
 // receiveLoop はホストから送られてくるパケットを読み続け、種別に応じて処理する。
 func receiveLoop(pt *PacketTransceiver) {
-	var pkt comms_v1.Packet
+	var pkt micon_v1.Packet
 	for {
 		if err := pt.ReadPacket(&pkt); err != nil {
 			continue

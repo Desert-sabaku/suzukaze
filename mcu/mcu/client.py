@@ -7,19 +7,19 @@ from typing import TYPE_CHECKING, Self
 
 import serial
 
-from mcu.gen.comms.v1.comms_pb2 import Packet
-from mcu.gen.comms.v1.heartbeat_pb2 import HandshakeReq, VersionInfo
-from mcu.gen.comms.v1.pwm_pb2 import PwmFade
+from mcu.gen.micon.v1.heartbeat_pb2 import HandshakeReq, VersionInfo
+from mcu.gen.micon.v1.micon_pb2 import Packet
+from mcu.gen.micon.v1.pwm_pb2 import PwmFade
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from mcu.gen.comms.v1.heartbeat_pb2 import HandshakeResp
-    from mcu.gen.comms.v1.log_pb2 import LogEntry
+    from mcu.gen.micon.v1.heartbeat_pb2 import HandshakeResp
+    from mcu.gen.micon.v1.log_pb2 import LogEntry
 
-# firmware/Makefile の SCHEMA_HASH と同じ手順(proto/comms/v1/*.protoの内容をsha256)で
+# firmware/Makefile の SCHEMA_HASH と同じ手順(proto/micon/v1/*.protoの内容をsha256)で
 # スキーマの一致を確認するため、リポジトリ内の proto/ を相対パスで参照する。
-PROTO_DIR = Path(__file__).resolve().parents[2] / "proto" / "comms" / "v1"
+PROTO_DIR = Path(__file__).resolve().parents[2] / "proto" / "micon" / "v1"
 
 
 def _local_version() -> VersionInfo:

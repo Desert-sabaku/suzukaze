@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	comms_v1 "firmware/gen/comms/v1"
+	micon_v1 "firmware/gen/micon/v1"
 )
 
 const (
@@ -30,14 +30,14 @@ var (
 		machine.PWM4, machine.PWM5, machine.PWM6, machine.PWM7,
 	}
 
-	pinChans sync.Map // map[uint32]chan *comms_v1.PwmFade
+	pinChans sync.Map // map[uint32]chan *micon_v1.PwmFade
 )
 
 // dispatch sends cmd to the pin's fade worker, starting the worker on first
 // use. If the worker is already fading, the in-flight fade is interrupted.
-func dispatch(cmd *comms_v1.PwmFade) {
-	chAny, loaded := pinChans.LoadOrStore(cmd.GetPin(), make(chan *comms_v1.PwmFade, 1))
-	ch := chAny.(chan *comms_v1.PwmFade)
+func dispatch(cmd *micon_v1.PwmFade) {
+	chAny, loaded := pinChans.LoadOrStore(cmd.GetPin(), make(chan *micon_v1.PwmFade, 1))
+	ch := chAny.(chan *micon_v1.PwmFade)
 
 	if !loaded {
 		go fadeWorker(cmd.GetPin(), ch)
@@ -56,7 +56,7 @@ func dispatch(cmd *comms_v1.PwmFade) {
 
 // fadeWorker owns PWM output for a single pin and applies incoming commands
 // one at a time, interrupting any fade currently in progress.
-func fadeWorker(pinNum uint32, ch chan *comms_v1.PwmFade) {
+func fadeWorker(pinNum uint32, ch chan *micon_v1.PwmFade) {
 	pin := machine.Pin(pinNum)
 
 	slice, err := machine.PWMPeripheral(pin)
@@ -90,8 +90,11 @@ func fadeWorker(pinNum uint32, ch chan *comms_v1.PwmFade) {
 // fade ramps duty from 0 to cmd.Value (0-255) over cmd.DurationMs, applying a
 // gamma 2.2 curve. It returns early with the interrupting command if a new
 // one arrives on ch before the fade completes.
-func fade(pwm pwmDevice, channel uint8, cmd *comms_v1.PwmFade, ch chan *comms_v1.PwmFade) *comms_v1.PwmFade {
+func fade(pwm pwmDevice, channel uint8, cmd *micon_v1.PwmFade, ch chan *micon_v1.PwmFade) *micon_v1.PwmFade {
 	top := float64(pwm.Top())
+	// TODO: when DurationMs is 0, jump to cmd.Value at once. Now the interval is
+	// clamped to 1ms below, so the fade takes about fadeSteps ms. Unity's
+	// FanDeviceMock already jumps instantly.
 	interval := time.Duration(cmd.GetDurationMs()) * time.Millisecond / fadeSteps
 	if interval <= 0 {
 		interval = time.Millisecond

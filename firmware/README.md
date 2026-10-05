@@ -12,7 +12,7 @@ Raspberry Pi Pico向けファームウェア(TinyGo)。ファンコン(PWMフェ
 - `cmd/heartbeat.go`: オンボードLEDを点滅させ、生存確認ログを送信する
 - `cmd/logger.go`: ホストへ送る `LogEntry`
 
-スキーマは `../proto/comms/v1/*.proto` です。
+スキーマは `../proto/micon/v1/*.proto` です。
 
 ## 生成
 
@@ -30,7 +30,7 @@ make flash  # tinygo flash で直接書き込む
 ```
 
 `Makefile` はコミットハッシュ(`git describe --always --dirty`)と、
-`proto/comms/v1/*.proto` のsha256先頭8文字をスキーマハッシュとして埋め込みます。
+`proto/micon/v1/*.proto` のsha256先頭8文字をスキーマハッシュとして埋め込みます。
 ハンドシェイクではスキーマハッシュだけで一致を判定します。
 
 `make build` の `.uf2` を使う場合は、BOOTSELボタンを押しながらPicoを接続し、
