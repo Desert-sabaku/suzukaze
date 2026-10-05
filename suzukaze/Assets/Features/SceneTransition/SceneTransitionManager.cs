@@ -36,7 +36,9 @@ namespace Features.SceneTransition
                     }).ToUniTask();
             }));
 
+            await UniTask.WaitForSeconds(0.05f);
             await SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+            await UniTask.WaitForSeconds(0.05f);
 
             await UniTask.WhenAll(_images.Select(image =>
             {
