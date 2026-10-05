@@ -46,6 +46,10 @@ message State {
   reserved 11, 12;
   optional Action action = 13;
   optional Phase phase = 14;
+  // Debounced foreground presence in the booth ROI, independent of gesture.
+  // May remain true during brief pose loss (tracking=false). False when stale.
+  // In paired-camera mode only the first, subject-selection camera owns this.
+  optional bool booth_present = 15;
 }
 
 message Event {

@@ -38,6 +38,7 @@ class GestureReceiver:
         self.phase: str | None = None
         self.tracking = False
         self.fresh = False
+        self.booth_present = False
         self._last_state = -math.inf
         self._observed_at = -math.inf
         self._timeout = 0.5
@@ -48,6 +49,7 @@ class GestureReceiver:
         self.gesture = Gesture.NONE
         self.action = self.phase = None
         self.tracking = self.fresh = False
+        self.booth_present = False
         self._last_state = -math.inf
 
     def poll(self, now: float) -> None:
@@ -102,6 +104,7 @@ class GestureReceiver:
             self._timeout = timeout
             self.fresh = message["fresh"] and observed_at <= now < observed_at + timeout
             self.tracking = self.fresh and message["tracking"]
+            self.booth_present = self.fresh and message.get("booth_present", False)
             self.gesture = Gesture(gesture) if self.tracking else Gesture.NONE
             self.action = message.get("action") if self.tracking else None
             self.phase = message.get("phase") if self.tracking else None
@@ -168,6 +171,7 @@ async def run(url: str, ignore_events: bool = False) -> None:
                                 "phase": receiver.phase,
                                 "tracking": receiver.tracking,
                                 "fresh": receiver.fresh,
+                                "booth_present": receiver.booth_present,
                                 "decision": ack,
                             }
                         ),
