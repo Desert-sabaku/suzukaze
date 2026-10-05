@@ -61,7 +61,7 @@ def test_any_major_body_part_moving_clears_immediately(index):
     analyzer = RelaxingAnalyzer()
     points = body()
     now = establish_stillness(analyzer, points)
-    points[index].x += 0.02
+    points[index].x += 0.03
     assert not analyzer.update(points, now + 1 / 30, 1.0)
     assert analyzer.still_seconds == 0
 
@@ -83,11 +83,11 @@ def test_whole_body_translation_and_approach_clear_immediately():
         now = establish_stillness(analyzer, points)
         for point in points:
             if movement == "translation":
-                point.x += 0.02
-                point.y += 0.02
+                point.x += 0.03
+                point.y += 0.03
             else:
-                point.x = 0.5 + (point.x - 0.5) * 1.05
-                point.y = 0.5 + (point.y - 0.5) * 1.05
+                point.x = 0.5 + (point.x - 0.5) * 1.10
+                point.y = 0.5 + (point.y - 0.5) * 1.10
         assert not analyzer.update(points, now + 1 / 30, 1.0)
 
 
@@ -105,7 +105,7 @@ def test_movement_requires_a_new_full_stillness_period():
     analyzer = RelaxingAnalyzer()
     points = body()
     now = establish_stillness(analyzer, points) + 1 / 30
-    points[23].x += 0.02
+    points[23].x += 0.03
     assert not analyzer.update(points, now, 1.0)
     for frame_id in range(1, 30):
         assert not analyzer.update(points, now + frame_id / 30, 1.0)
@@ -159,5 +159,14 @@ def test_moderate_tracking_jitter_allows_stillness_but_motion_still_exits():
         analyzer.update(points, frame_id / 30, 1.0)
     assert analyzer.state
     points = body()
-    points[23].x += 0.02
+    points[23].x += 0.03
     assert not analyzer.update(points, 61 / 30, 1.0)
+
+
+def test_slightly_larger_jitter_is_now_tolerated():
+    analyzer = RelaxingAnalyzer()
+    for frame_id in range(61):
+        points = body()
+        points[15].x += 0.0017 * (-1 if frame_id % 2 else 1)
+        analyzer.update(points, frame_id / 30, 1.0)
+    assert analyzer.state

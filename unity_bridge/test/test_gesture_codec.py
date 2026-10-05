@@ -58,6 +58,37 @@ def test_optional_presence():
     assert envelope.state.HasField("source_timestamp")
 
 
+def test_bow_state_round_trips():
+    message = {**FIXTURES[0]["message"], "gesture": "BOW"}
+    wire = encode_message(message)
+    assert (
+        pb.GestureEnvelope.FromString(wire).state.gesture == pb.CONTINUOUS_GESTURE_BOW
+    )
+    assert decode_message(wire) == message
+
+
+@pytest.mark.parametrize("kind", ["state", "event"])
+@pytest.mark.parametrize("score", [0.0, 0.5, 1.0])
+def test_action_accuracy_schema_preserves_presence_and_existing_message_semantics(
+    kind, score
+):
+    message = next(f["message"] for f in FIXTURES if f["message"]["type"] == kind)
+    envelope = pb.GestureEnvelope.FromString(encode_message(message))
+    payload = getattr(envelope, kind)
+    assert not payload.HasField("action_accuracy")
+
+    payload.action_accuracy = score
+    wire = envelope.SerializeToString()
+    restored = pb.GestureEnvelope.FromString(wire)
+    assert getattr(restored, kind).HasField("action_accuracy")
+    assert getattr(restored, kind).action_accuracy == score
+    # Schema-only metadata remains forward-compatible with the current codec.
+    assert decode_message(wire) == message
+
+    getattr(restored, kind).ClearField("action_accuracy")
+    assert restored.SerializeToString(deterministic=True) == encode_message(message)
+
+
 @pytest.mark.parametrize("wire", [b"", b"\xff", b"x" * 8193, b"\x08\x01"])
 def test_bad_wire(wire):
     with pytest.raises(ValueError):

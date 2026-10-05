@@ -113,6 +113,14 @@ namespace Suzukaze.Gesture.Receiver.Tests
         }
 
         [Test]
+        public void BowStateIsAccepted()
+        {
+            var message = DeliveryTests.State().Envelope;
+            message.State.Gesture = ContinuousGesture.Bow;
+            Assert.DoesNotThrow(() => WireMessage.Validate(message));
+        }
+
+        [Test]
         public void PythonGoldenEventProducesGoldenAcceptedAck()
         {
             // Copied from schema-owned messages.json. Full fixture parity is also

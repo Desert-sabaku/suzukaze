@@ -9,7 +9,7 @@ from .gen.gesture.v1 import gesture_pb2 as pb
 MAX_MESSAGE_BYTES = 8192
 
 _ENUMS = {
-    "state": ("gesture", {"NONE": 1, "FANNING": 2, "RELAXING": 3}),
+    "state": ("gesture", {"NONE": 1, "FANNING": 2, "RELAXING": 3, "BOW": 4}),
     "event": ("gesture", {"RAMUNE": 1, "UCHIMIZU": 2}),
     "ack": ("status", {"accepted": 1, "ignored": 2, "expired": 3, "duplicate": 4}),
 }

@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "source": {
+    "path": "/home/kanazawa/procon/suzukaze/gesture_detection/shared/videos/20261003_171235_8il0ez41/take_002/camera_1.mp4",
+    "sha256": "02903bcfa625faa4ee9d7fa9fedec2b5a7c0f1f36a6a4c4c6e43ae70c1a8a298",
+    "fps": 30.0,
+    "total_frames": 233,
+    "width": 1280,
+    "height": 720
+  },
+  "label_config": {
+    "schema_version": 1,
+    "tracks": [
+      {
+        "id": "action",
+        "name": "Action",
+        "exclusive": true,
+        "labels": [
+          "FANNING",
+          "UCHIMIZU",
+          "RELAXING",
+          "RAMUNE",
+          "BOW"
+        ]
+      },
+      {
+        "id": "fanning_phase",
+        "name": "Fanning phase",
+        "exclusive": true,
+        "labels": [
+          "POSITION",
+          "ACTIVE"
+        ]
+      },
+      {
+        "id": "uchimizu_phase",
+        "name": "Uchimizu phase",
+        "exclusive": true,
+        "labels": [
+          "READY",
+          "SWING"
+        ]
+      },
+      {
+        "id": "relaxing_phase",
+        "name": "Relaxing phase",
+        "exclusive": true,
+        "labels": [
+          "DWELL",
+          "ACTIVE"
+        ]
+      },
+      {
+        "id": "ramune_phase",
+        "name": "Ramune phase",
+        "exclusive": true,
+        "labels": [
+          "FORMING",
+          "READY",
+          "OPENED",
+          "WAIT_RELEASE"
+        ]
+      },
+      {
+        "id": "bow_phase",
+        "name": "Bow phase",
+        "exclusive": true,
+        "labels": [
+          "BENDING",
+          "HOLD",
+          "RETURNING"
+        ]
+      }
+    ],
+    "events": [
+      "UCHIMIZU_PEAK",
+      "UCHIMIZU_RELEASE",
+      "RAMUNE_PRESS_START",
+      "RAMUNE_OPEN",
+      "FANNING_REVERSAL"
+    ],
+    "workflows": {
+      "FANNING": {
+        "phase_track": "fanning_phase",
+        "events": [
+          "FANNING_REVERSAL"
+        ]
+      },
+      "UCHIMIZU": {
+        "phase_track": "uchimizu_phase",
+        "events": [
+          "UCHIMIZU_PEAK",
+          "UCHIMIZU_RELEASE"
+        ]
+      },
+      "RELAXING": {
+        "phase_track": "relaxing_phase",
+        "events": []
+      },
+      "RAMUNE": {
+        "phase_track": "ramune_phase",
+        "events": [
+          "RAMUNE_PRESS_START",
+          "RAMUNE_OPEN"
+        ]
+      },
+      "BOW": {
+        "phase_track": "bow_phase",
+        "events": []
+      }
+    },
+    "landmarks": [
+      "nose",
+      "left_eye_inner",
+      "left_eye",
+      "left_eye_outer",
+      "right_eye_inner",
+      "right_eye",
+      "right_eye_outer",
+      "left_ear",
+      "right_ear",
+      "mouth_left",
+      "mouth_right",
+      "left_shoulder",
+      "right_shoulder",
+      "left_elbow",
+      "right_elbow",
+      "left_wrist",
+      "right_wrist",
+      "left_pinky",
+      "right_pinky",
+      "left_index",
+      "right_index",
+      "left_thumb",
+      "right_thumb",
+      "left_hip",
+      "right_hip",
+      "left_knee",
+      "right_knee",
+      "left_ankle",
+      "right_ankle",
+      "left_heel",
+      "right_heel",
+      "left_foot_index",
+      "right_foot_index"
+    ]
+  },
+  "intervals": [
+    {
+      "id": "d8b8056eddd740a2a3c3542f9be777df",
+      "track": "action",
+      "label": "BOW",
+      "start_frame": 43,
+      "end_frame": 128,
+      "start_timestamp": 1.4333333333333333,
+      "end_timestamp": 4.266666666666667
+    },
+    {
+      "id": "ee880432736b43a7b00e70fa10c85afb",
+      "track": "bow_phase",
+      "label": "BENDING",
+      "start_frame": 43,
+      "end_frame": 68,
+      "start_timestamp": 1.4333333333333333,
+      "end_timestamp": 2.2666666666666666,
+      "parent_action_id": "d8b8056eddd740a2a3c3542f9be777df"
+    },
+    {
+      "id": "dd38c56c0fde4661934f5bae74856956",
+      "track": "bow_phase",
+      "label": "HOLD",
+      "start_frame": 69,
+      "end_frame": 93,
+      "start_timestamp": 2.3,
+      "end_timestamp": 3.1,
+      "parent_action_id": "d8b8056eddd740a2a3c3542f9be777df"
+    },
+    {
+      "id": "69092d1667c0417fbcf57e8729059a37",
+      "track": "bow_phase",
+      "label": "RETURNING",
+      "start_frame": 94,
+      "end_frame": 128,
+      "start_timestamp": 3.1333333333333333,
+      "end_timestamp": 4.266666666666667,
+      "parent_action_id": "d8b8056eddd740a2a3c3542f9be777df"
+    }
+  ],
+  "events": [],
+  "landmarks": [],
+  "ui": {
+    "last_frame": 144
+  }
+}

@@ -81,7 +81,7 @@ class GestureReceiver:
             observed = message.get("observed_at")
             observed_at = -math.inf if observed is None else finite_number(observed)
             gesture = message.get("gesture")
-            if gesture not in ("NONE", "FANNING", "RELAXING"):
+            if gesture not in ("NONE", "FANNING", "RELAXING", "BOW"):
                 raise ValueError("Unknown continuous gesture")
             if (
                 type(message.get("tracking")) is not bool
