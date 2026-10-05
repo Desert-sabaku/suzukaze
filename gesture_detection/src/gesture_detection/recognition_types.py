@@ -63,7 +63,7 @@ class PoseResult(TypedDict):
     uchimizu_score: NotRequired[float]
     motion_speed: NotRequired[float | None]
     still_seconds: NotRequired[float]
-    phase_action: NotRequired[str | None]
+    action: NotRequired[str | None]
     phase: NotRequired[str | None]
 
 
@@ -76,8 +76,8 @@ def recognition_phase(result: PoseResult) -> tuple[str | None, str | None]:
     current = result.get("current", {"gesture": "NONE", "tracking": False})
     if not current["tracking"]:
         return None, None
-    if "phase_action" in result:
-        return result.get("phase_action"), result.get("phase")
+    if "action" in result:
+        return result.get("action"), result.get("phase")
     action = current["gesture"]
     phases: dict[str, str] = {}
     ramune = result.get("ramune_state", "IDLE")
@@ -107,14 +107,14 @@ class GestureSample:
     occurrences: tuple[tuple[OccurrenceGesture, float], ...]
     frame_id: int | None = None
     source_timestamp: float | None = None
-    phase_action: str | None = None
+    action: str | None = None
     phase: str | None = None
 
     @classmethod
     def from_result(cls, result: PoseResult, observed_at: float) -> Self:
         """observed_at is capture time, not inference completion or video time."""
         current = result.get("current", {"gesture": "NONE", "tracking": False})
-        phase_action, phase = recognition_phase(result)
+        action, phase = recognition_phase(result)
         timestamps = result.get("occurrence_timestamps", {})
         occurrences = []
         for name in result.get("occurrences", ()):
@@ -129,6 +129,6 @@ class GestureSample:
             occurrences=tuple(occurrences),
             frame_id=result.get("frame_id"),
             source_timestamp=result.get("timestamp"),
-            phase_action=phase_action,
+            action=action,
             phase=phase,
         )

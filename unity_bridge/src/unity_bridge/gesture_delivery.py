@@ -70,7 +70,7 @@ class DeliveryOutbox:
                 "observed_at": observed_at,
                 "frame_id": sample.frame_id,
                 "source_timestamp": sample.source_timestamp,
-                "phase_action": sample.phase_action,
+                "action": sample.action,
                 "phase": sample.phase,
             }
             for kind, occurred_at in sample.occurrences:
@@ -114,13 +114,8 @@ class DeliveryOutbox:
                 "frame_id": latest["frame_id"] if latest else None,
                 "source_timestamp": latest["source_timestamp"] if latest else None,
             }
-            if (
-                fresh
-                and latest
-                and latest["tracking"]
-                and latest["phase_action"] is not None
-            ):
-                message["phase_action"] = latest["phase_action"]
+            if fresh and latest and latest["tracking"] and latest["action"] is not None:
+                message["action"] = latest["action"]
                 message["phase"] = latest["phase"]
             return message
 

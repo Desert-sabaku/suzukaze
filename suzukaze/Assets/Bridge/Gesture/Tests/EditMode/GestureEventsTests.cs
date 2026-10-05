@@ -29,13 +29,13 @@ namespace Suzukaze.Gesture.Receiver.Tests
 
         private void PublishState(ContinuousGesture gesture, ulong sequence = 1,
             string session = "s", bool fresh = true, bool tracking = true,
-            string phaseAction = null, string phase = null)
+            string action = null, string phase = null)
         {
             var state = new State {
                 Sequence = sequence, SentAt = clock.Time, ObservedAt = clock.Time,
                 StaleTimeout = .5, Fresh = fresh, Tracking = tracking, Gesture = gesture
             };
-            if (phaseAction != null) state.PhaseAction = phaseAction;
+            if (action != null) state.Action = action;
             if (phase != null) state.Phase = phase;
             Assert.That(handoff.Publish(token, new ReceivedMessage(new GestureEnvelope {
                 Version = 1, SessionId = session, State = state
@@ -60,19 +60,19 @@ namespace Suzukaze.Gesture.Receiver.Tests
         {
             var changes = new List<StateView>();
             gestures.StateChanged += changes.Add;
-            PublishState(ContinuousGesture.None, phaseAction: "RAMUNE", phase: "FORMING");
+            PublishState(ContinuousGesture.None, action: "RAMUNE", phase: "FORMING");
             Tick();
-            PublishState(ContinuousGesture.None, 2, phaseAction: "RAMUNE", phase: "READY");
+            PublishState(ContinuousGesture.None, 2, action: "RAMUNE", phase: "READY");
             Tick();
             Tick();
             Assert.That(changes.Count, Is.EqualTo(2));
-            Assert.That(gestures.CurrentState.PhaseAction, Is.EqualTo("RAMUNE"));
+            Assert.That(gestures.CurrentState.Action, Is.EqualTo("RAMUNE"));
             Assert.That(gestures.CurrentState.Phase, Is.EqualTo("READY"));
             if (disconnect) handoff.Disconnect(token);
             else clock.Time = 10.5;
             Tick();
             Assert.That(changes.Count, Is.EqualTo(3));
-            Assert.That(gestures.CurrentState.PhaseAction, Is.Null);
+            Assert.That(gestures.CurrentState.Action, Is.Null);
             Assert.That(gestures.CurrentState.Phase, Is.Null);
         }
 

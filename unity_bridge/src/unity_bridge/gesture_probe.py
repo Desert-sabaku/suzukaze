@@ -29,7 +29,7 @@ class GestureReceiver:
     def __init__(self) -> None:
         self.session_id: str | None = None
         self.gesture = "NONE"
-        self.phase_action: str | None = None
+        self.action: str | None = None
         self.phase: str | None = None
         self.tracking = False
         self.fresh = False
@@ -41,7 +41,7 @@ class GestureReceiver:
 
     def disconnected(self) -> None:
         self.gesture = "NONE"
-        self.phase_action = self.phase = None
+        self.action = self.phase = None
         self.tracking = self.fresh = False
         self._last_state = -math.inf
 
@@ -98,7 +98,7 @@ class GestureReceiver:
             self.fresh = message["fresh"] and observed_at <= now < observed_at + timeout
             self.tracking = self.fresh and message["tracking"]
             self.gesture = gesture if self.tracking else "NONE"
-            self.phase_action = message.get("phase_action") if self.tracking else None
+            self.action = message.get("action") if self.tracking else None
             self.phase = message.get("phase") if self.tracking else None
             return None
         event_id = message.get("event_id")
@@ -154,7 +154,7 @@ async def run(url: str, ignore_events: bool = False) -> None:
                         json.dumps(
                             {
                                 "state": receiver.gesture,
-                                "phase_action": receiver.phase_action,
+                                "action": receiver.action,
                                 "phase": receiver.phase,
                                 "tracking": receiver.tracking,
                                 "fresh": receiver.fresh,

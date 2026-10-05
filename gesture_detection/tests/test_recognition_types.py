@@ -67,7 +67,7 @@ def test_sample_exposes_progress_without_turning_preparation_into_an_event(
     sample = GestureSample.from_result(
         result(current={"gesture": action, "tracking": True}, **diagnostics), 1.0
     )
-    assert (sample.phase_action, sample.phase) == expected
+    assert (sample.action, sample.phase) == expected
     assert sample.occurrences == ()
     assert pickle.loads(pickle.dumps(sample)) == sample
 
@@ -76,4 +76,4 @@ def test_no_tracking_discards_detector_progress():
     sample = GestureSample.from_result(
         result(current={"gesture": "NONE", "tracking": False}, ramune_state="READY"), 1.0
     )
-    assert sample.phase_action is None and sample.phase is None
+    assert sample.action is None and sample.phase is None

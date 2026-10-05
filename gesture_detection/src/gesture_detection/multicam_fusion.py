@@ -114,7 +114,7 @@ class MultiCameraFusion:
             "selected_action": gesture if gesture in {"FANNING", "RAMUNE", "UCHIMIZU"} else "NONE",
             "relaxing_state": gesture == "RELAXING",
             "bow_state": gesture == "BOW",
-            "phase_action": selected_phase[0],
+            "action": selected_phase[0],
             "phase": selected_phase[1],
             "occurrences": accepted,
             "occurrence_evidence": {g: evidence[g] for g in accepted},

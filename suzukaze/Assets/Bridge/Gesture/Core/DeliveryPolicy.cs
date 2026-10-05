@@ -22,7 +22,7 @@ namespace Suzukaze.Gesture.Receiver
         public bool Fresh { get; internal set; }
         public bool Tracking { get; internal set; }
         public ContinuousGesture Gesture { get; internal set; } = ContinuousGesture.None;
-        public string PhaseAction { get; internal set; }
+        public string Action { get; internal set; }
         public string Phase { get; internal set; }
     }
 
@@ -73,7 +73,7 @@ namespace Suzukaze.Gesture.Receiver
                 SessionId = session, Sequence = sequence, ReceivedAt = receivedAt,
                 Fresh = fresh, Tracking = tracking,
                 Gesture = tracking ? state.Gesture : ContinuousGesture.None,
-                PhaseAction = tracking && state.HasPhaseAction ? state.PhaseAction : null,
+                Action = tracking && state.HasAction ? state.Action : null,
                 Phase = tracking && state.HasPhase ? state.Phase : null
             };
         }

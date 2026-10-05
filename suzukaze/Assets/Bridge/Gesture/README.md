@@ -18,7 +18,7 @@ WebSocket → 配送ポリシー（失効・重複・ACK）→ GestureEvents →
 
 | API | 内容 |
 |---|---|
-| `CurrentState` | 現在の状態。`Gesture` は `None / Fanning / Relaxing / Bow`、`Fresh`、`Tracking`、`PhaseAction`、`Phase` も公開 |
+| `CurrentState` | 現在の状態。`Gesture` は `None / Fanning / Relaxing / Bow`、`Fresh`、`Tracking`、`Action`、`Phase` も公開 |
 | `StateChanged` | 所作・phase・鮮度・追跡・セッションが変わったときの通知。失効・切断でも解除状態を通知 |
 | `Occurred` | `Ramune / Uchimizu` の成立通知。コールバックは採用したときだけ `true` を返す |
 
@@ -27,11 +27,19 @@ WebSocket → 配送ポリシー（失効・重複・ACK）→ GestureEvents →
 `CurrentState` も読み、既に継続している扇ぎ・夕涼みを反映してください。
 現プロトコルの継続状態は代表動作1つで、扇ぎと夕涼みを同時に表しません。
 
-`PhaseAction` と `Phase` は文字列で、認識器の現在の進行状態を公開します。
+所作の役割は次のように区別します。
+
+| API | 所作の意味 |
+|---|---|
+| `CurrentState.Gesture` | 継続中の所作（扇ぎ・夕涼み・礼） |
+| `Occurred` の `occurrence.Gesture` | 新規に成立した所作（ラムネ・打ち水） |
+| `CurrentState.Action / Phase` | 進行中の所作とその段階。準備中・成立後の状態も含む |
+
+`Action` と `Phase` は文字列で、認識器の現在の進行状態を公開します。
 ラムネや打ち水の準備中は `Gesture == None` でも取得できます。
 準備状態は成立イベントではなく、`Occurred` は成立時だけ通知します。
 
-| `PhaseAction` | `Phase` |
+| `Action` | `Phase` |
 |---|---|
 | `RAMUNE` | `FORMING / READY / OPENED / WAIT_RELEASE` |
 | `UCHIMIZU` | `READY / SWING` |
@@ -57,7 +65,7 @@ Unityが採用した現在値の変化を通知し、認識器内のすべての
 段階は送信しません。
 
 ```csharp
-bool ramuneReady = gestures.CurrentState.PhaseAction == "RAMUNE"
+bool ramuneReady = gestures.CurrentState.Action == "RAMUNE"
     && gestures.CurrentState.Phase == "READY";
 ```
 

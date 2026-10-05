@@ -73,7 +73,7 @@ def test_preparation_phase_round_trips_with_none_action():
         "gesture": "NONE",
         "fresh": True,
         "tracking": True,
-        "phase_action": "RAMUNE",
+        "action": "RAMUNE",
         "phase": "READY",
     }
     wire = encode_message(message)
@@ -84,13 +84,13 @@ def test_preparation_phase_round_trips_with_none_action():
 @pytest.mark.parametrize(
     "extra",
     [
-        {"phase_action": "RAMUNE"},
+        {"action": "RAMUNE"},
         {"phase": "READY"},
-        {"phase_action": "UNKNOWN", "phase": "READY"},
-        {"phase_action": "RAMUNE", "phase": ""},
-        {"phase_action": "RAMUNE", "phase": 1},
-        {"phase_action": "RAMUNE", "phase": "READY", "fresh": False},
-        {"phase_action": "RAMUNE", "phase": "READY", "tracking": False},
+        {"action": "UNKNOWN", "phase": "READY"},
+        {"action": "RAMUNE", "phase": ""},
+        {"action": "RAMUNE", "phase": 1},
+        {"action": "RAMUNE", "phase": "READY", "fresh": False},
+        {"action": "RAMUNE", "phase": "READY", "tracking": False},
     ],
 )
 def test_invalid_phase_is_rejected(extra):
@@ -116,10 +116,10 @@ def test_invalid_phase_is_rejected(extra):
 def test_invalid_action_phase_pair_is_rejected_on_encode_and_decode(action, phase):
     message = {**FIXTURES[1]["message"], "fresh": True, "tracking": True}
     with pytest.raises(ValueError, match="valid action/phase pair"):
-        encode_message({**message, "phase_action": action, "phase": phase})
+        encode_message({**message, "action": action, "phase": phase})
     # Bypass the encoder to exercise validation of a remote sender's payload.
     envelope = pb.GestureEnvelope.FromString(encode_message(message))
-    envelope.state.phase_action = action
+    envelope.state.action = action
     envelope.state.phase = phase
     with pytest.raises(ValueError, match="valid action/phase pair"):
         decode_message(envelope.SerializeToString())
@@ -144,7 +144,7 @@ def test_valid_action_phase_pairs_round_trip(action, phase):
         **FIXTURES[1]["message"],
         "fresh": True,
         "tracking": True,
-        "phase_action": action,
+        "action": action,
         "phase": phase,
     }
     assert decode_message(encode_message(message)) == message

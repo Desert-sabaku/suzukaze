@@ -106,9 +106,9 @@ def test_fusion_keeps_preparation_phase_and_expires_it():
     fusion.submit(1, sample(0.2))
     delivered = GestureSample.from_result(fusion.advance(0.2), 0.2)
     assert delivered.gesture == "NONE"
-    assert (delivered.phase_action, delivered.phase) == ("RAMUNE", "READY")
+    assert (delivered.action, delivered.phase) == ("RAMUNE", "READY")
     stale = GestureSample.from_result(fusion.advance(0.8), 0.8)
-    assert (stale.phase_action, stale.phase) == (None, None)
+    assert (stale.action, stale.phase) == (None, None)
 
 
 def test_fusion_prefers_phase_from_camera_with_selected_action():
@@ -118,7 +118,7 @@ def test_fusion_prefers_phase_from_camera_with_selected_action():
     fusion.submit(0, ready)
     fusion.submit(1, sample(0.1, "FANNING"))
     delivered = GestureSample.from_result(fusion.advance(0.2), 0.2)
-    assert (delivered.phase_action, delivered.phase) == ("FANNING", "ACTIVE")
+    assert (delivered.action, delivered.phase) == ("FANNING", "ACTIVE")
 
 
 def test_late_event_is_not_renewed_by_a_newer_other_camera_frame():

@@ -124,7 +124,7 @@ namespace Suzukaze.Gesture.Receiver.Tests
         public void PhaseRequiresBothFieldsAndFreshTracking()
         {
             var message = DeliveryTests.State().Envelope;
-            message.State.PhaseAction = "RAMUNE";
+            message.State.Action = "RAMUNE";
             Assert.Throws<InvalidDataException>(() => WireMessage.Validate(message));
             message.State.Phase = "READY";
             Assert.DoesNotThrow(() => WireMessage.Validate(message));
@@ -143,7 +143,7 @@ namespace Suzukaze.Gesture.Receiver.Tests
         public void InvalidActionPhasePairsAreRejected(string action, string phase)
         {
             var message = DeliveryTests.State().Envelope;
-            message.State.PhaseAction = action;
+            message.State.Action = action;
             message.State.Phase = phase;
             Assert.Throws<InvalidDataException>(() => WireMessage.Validate(message));
         }
@@ -160,7 +160,7 @@ namespace Suzukaze.Gesture.Receiver.Tests
         public void ValidActionPhasePairsAreAccepted(string action, string phase)
         {
             var message = DeliveryTests.State().Envelope;
-            message.State.PhaseAction = action;
+            message.State.Action = action;
             message.State.Phase = phase;
             Assert.DoesNotThrow(() => WireMessage.Validate(message));
         }

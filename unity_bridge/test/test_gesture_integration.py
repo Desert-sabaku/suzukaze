@@ -23,7 +23,7 @@ def fake_detection(samples, stop) -> None:
             (("RAMUNE", now),),
             1,
             now,
-            phase_action="FANNING",
+            action="FANNING",
             phase="ACTIVE",
         )
     )
@@ -34,7 +34,7 @@ def fake_detection(samples, stop) -> None:
                 True,
                 time.monotonic(),
                 (),
-                phase_action="FANNING",
+                action="FANNING",
                 phase="ACTIVE",
             )
         )
@@ -107,12 +107,12 @@ def test_child_process_through_bridge_to_receiver_and_back():
                     assert outbox.events(time.monotonic(), reconnect=True) == []
                     assert adopted == ["RAMUNE"]
                     assert receiver.gesture == "FANNING"
-                    assert (receiver.phase_action, receiver.phase) == (
+                    assert (receiver.action, receiver.phase) == (
                         "FANNING",
                         "ACTIVE",
                     )
                     receiver.disconnected()
-                    assert receiver.phase_action is None and receiver.phase is None
+                    assert receiver.action is None and receiver.phase is None
         finally:
             pump.cancel()
             await asyncio.gather(pump, return_exceptions=True)
