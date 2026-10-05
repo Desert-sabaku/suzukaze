@@ -8,9 +8,10 @@ namespace Suzukaze.Gesture
     public sealed class GestureDiagnosticSink : MonoBehaviour
     {
         [SerializeField] private bool acceptEvents;
+        
         private GestureReceiverBehaviour receiver;
         private readonly StateView inactiveState = new StateView();
-        public StateView LatestState => receiver != null ? receiver.Events.CurrentState : inactiveState;
+        public StateView LatestState => receiver ? receiver.Events.CurrentState : inactiveState;
         public int EventCount { get; private set; }
 
         private void OnEnable()
@@ -21,7 +22,7 @@ namespace Suzukaze.Gesture
 
         private void OnDisable()
         {
-            if (receiver != null)
+            if (receiver)
             {
                 receiver.Events.Occurred -= TryAcceptEvent;
             }

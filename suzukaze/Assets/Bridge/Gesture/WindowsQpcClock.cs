@@ -28,7 +28,8 @@ namespace Suzukaze.Gesture
                 if (!QueryPerformanceCounter(out long counter))
                     throw new InvalidOperationException("QPC unavailable");
                 // Split the division like CPython to avoid losing low counter bits.
-                return (double)(counter / frequency) + (double)(counter % frequency) / frequency;
+                long seconds = counter / frequency;
+                return seconds + (double)(counter % frequency) / frequency;
             }
         }
     }

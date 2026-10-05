@@ -72,13 +72,11 @@ namespace Suzukaze.Gesture
                     throw new InvalidDataException("Expected binary WebSocket message");
                 length += part.Count;
                 if (length > MaxBytes) throw new InvalidDataException("Message exceeds 8192 bytes");
-                if (part.EndOfMessage)
-                {
-                    if (length == 0) throw new InvalidDataException("Empty message");
-                    var envelope = GestureEnvelope.Parser.ParseFrom(bytes, 0, length);
-                    Validate(envelope);
-                    return new ReceivedMessage(envelope, arrival);
-                }
+                if (!part.EndOfMessage) continue;
+                if (length == 0) throw new InvalidDataException("Empty message");
+                var envelope = GestureEnvelope.Parser.ParseFrom(bytes, 0, length);
+                Validate(envelope);
+                return new ReceivedMessage(envelope, arrival);
             }
         }
     }

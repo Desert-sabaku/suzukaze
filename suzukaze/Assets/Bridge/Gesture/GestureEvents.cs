@@ -28,7 +28,8 @@ namespace Suzukaze.Gesture
         {
             var handlers = Occurred;
             if (handlers == null) return false;
-            bool accepted = false;
+            var accepted = false;
+            // ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
             foreach (Func<string, Event, bool> handler in handlers.GetInvocationList())
                 accepted |= handler(sessionId, occurrence.Clone());
             return accepted;
