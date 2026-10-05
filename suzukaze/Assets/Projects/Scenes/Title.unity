@@ -257,7 +257,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 55
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -927,7 +927,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 5db9402b7c17c43c28c28e82f8bea03f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 17e8cfa73e71b4c6ea0f07e73dc9df33, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

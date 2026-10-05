@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using Object = UnityEngine.Object;
 
-namespace Suzukaze.Gesture.Receiver.Tests
+namespace Suzukaze.Gesture.Tests
 {
     public class UchimizuTests
     {
@@ -28,7 +28,7 @@ namespace Suzukaze.Gesture.Receiver.Tests
         {
             // Never take ownership of, reset, or destroy another scene's receiver.
             if (Object.FindObjectsByType<GestureReceiverBehaviour>(
-                FindObjectsInactive.Include, FindObjectsSortMode.None).Length != 0)
+                FindObjectsInactive.Include).Length != 0)
                 Assert.Ignore("Run in an isolated PlayMode test scene without an existing receiver");
 
             effectType = Type.GetType("ParticleOnEnter, Assembly-CSharp");
@@ -175,8 +175,7 @@ namespace Suzukaze.Gesture.Receiver.Tests
             nextNeck.SetPositionAndRotation(new Vector3(20, 30, 40), Quaternion.Euler(7, 83, 21));
             Set(next, "neck", nextNeck);
             Assert.That(GestureReceiverBehaviour.GetOrCreate(), Is.SameAs(receiver));
-            Assert.That(Object.FindObjectsByType<GestureReceiverBehaviour>(
-                FindObjectsSortMode.None), Has.Length.EqualTo(1));
+            Assert.That(Object.FindObjectsByType<GestureReceiverBehaviour>(), Has.Length.EqualTo(1));
             var handoff = Handoff();
             long token = handoff.BeginConnection();
             AssertAck(handoff, token, Occurrence(1), Protocol.AckStatus.Accepted);
@@ -253,8 +252,7 @@ namespace Suzukaze.Gesture.Receiver.Tests
             Assert.That(receiver.IsOwner, Is.False);
             Assert.That(GestureReceiverBehaviour.GetOrCreate(), Is.SameAs(receiver));
             CreateEffect();
-            Assert.That(Object.FindObjectsByType<GestureReceiverBehaviour>(
-                FindObjectsSortMode.None), Has.Length.EqualTo(1));
+            Assert.That(Object.FindObjectsByType<GestureReceiverBehaviour>(), Has.Length.EqualTo(1));
             var handoff = Handoff();
             handoff.Resume();
             long token = handoff.BeginConnection();
@@ -295,7 +293,7 @@ namespace Suzukaze.Gesture.Receiver.Tests
             (bool)effectType.GetMethod("TryAcceptEvent").Invoke(effect, new object[] { "test", occurrence });
 
         private ParticleSystem[] Copies() => particleName == null ? new ParticleSystem[0] :
-            Object.FindObjectsByType<ParticleSystem>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+            Object.FindObjectsByType<ParticleSystem>(FindObjectsInactive.Include)
                 .Where(particle => particle.name == particleName + "(Clone)").ToArray();
 
         private static void AssertPlacement(ParticleSystem copy, Transform origin, float offset)

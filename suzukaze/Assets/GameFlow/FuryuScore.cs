@@ -1,4 +1,4 @@
-using Suzukaze.Gesture.Receiver;
+using Suzukaze.Gesture;
 using UnityEngine;
 using GestureEvent = Suzukaze.Gesture.Protocol.Event;
 

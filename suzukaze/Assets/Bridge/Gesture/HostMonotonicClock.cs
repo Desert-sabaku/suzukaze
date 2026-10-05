@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Suzukaze.Gesture.Receiver
+namespace Suzukaze.Gesture
 {
     public static class HostMonotonicClock
     {
@@ -12,8 +12,10 @@ namespace Suzukaze.Gesture.Receiver
                 return new WindowsQpcClock();
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 return new LinuxMonotonicClock();
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                return new OSXMonotonicClock();
             throw new PlatformNotSupportedException(
-                "Gesture delivery requires Windows QPC or 64-bit Linux CLOCK_MONOTONIC on the same PC");
+                "Gesture delivery requires Windows QPC, 64-bit Linux CLOCK_MONOTONIC or macOS mach_absolute_time on the same PC");
         }
     }
 }

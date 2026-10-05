@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Suzukaze.Gesture.Receiver
+namespace Suzukaze.Gesture
 {
     // CPython time.monotonic on Windows uses raw QPC / frequency as well.
     // Stopwatch elapsed time has a process-local origin and is not interchangeable.
@@ -28,7 +28,8 @@ namespace Suzukaze.Gesture.Receiver
                 if (!QueryPerformanceCounter(out long counter))
                     throw new InvalidOperationException("QPC unavailable");
                 // Split the division like CPython to avoid losing low counter bits.
-                return (double)(counter / frequency) + (double)(counter % frequency) / frequency;
+                long seconds = counter / frequency;
+                return seconds + (double)(counter % frequency) / frequency;
             }
         }
     }
