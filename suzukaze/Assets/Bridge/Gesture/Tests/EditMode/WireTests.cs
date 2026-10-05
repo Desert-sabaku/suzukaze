@@ -121,6 +121,18 @@ namespace Suzukaze.Gesture.Receiver.Tests
         }
 
         [Test]
+        public void PhaseRequiresBothFieldsAndFreshTracking()
+        {
+            var message = DeliveryTests.State().Envelope;
+            message.State.PhaseAction = "RAMUNE";
+            Assert.Throws<InvalidDataException>(() => WireMessage.Validate(message));
+            message.State.Phase = "READY";
+            Assert.DoesNotThrow(() => WireMessage.Validate(message));
+            message.State.Tracking = false;
+            Assert.Throws<InvalidDataException>(() => WireMessage.Validate(message));
+        }
+
+        [Test]
         public void PythonGoldenEventProducesGoldenAcceptedAck()
         {
             // Copied from schema-owned messages.json. Full fixture parity is also

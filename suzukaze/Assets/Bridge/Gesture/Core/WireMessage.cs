@@ -25,6 +25,12 @@ namespace Suzukaze.Gesture.Receiver
                     || (s.HasObservedAt && !Finite(s.ObservedAt))
                     || (s.HasSourceTimestamp && !Finite(s.SourceTimestamp)))
                     throw new InvalidDataException("Invalid state");
+                if (s.HasPhaseAction != s.HasPhase || (s.HasPhase &&
+                    (!s.Fresh || !s.Tracking || string.IsNullOrEmpty(s.Phase)
+                    || (s.PhaseAction != "RAMUNE" && s.PhaseAction != "UCHIMIZU"
+                        && s.PhaseAction != "FANNING" && s.PhaseAction != "RELAXING"
+                        && s.PhaseAction != "BOW"))))
+                    throw new InvalidDataException("Invalid phase");
             }
             else if (e != null)
             {

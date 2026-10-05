@@ -18,14 +18,36 @@ WebSocket → 配送ポリシー（失効・重複・ACK）→ GestureEvents →
 
 | API | 内容 |
 |---|---|
-| `CurrentState` | 現在の状態。`Gesture` は `None / Fanning / Relaxing / Bow`、`Fresh` と `Tracking` も公開 |
-| `StateChanged` | 所作・鮮度・追跡・セッションが変わったときの通知。失効・切断でも解除状態を通知 |
+| `CurrentState` | 現在の状態。`Gesture` は `None / Fanning / Relaxing / Bow`、`Fresh`、`Tracking`、`PhaseAction`、`Phase` も公開 |
+| `StateChanged` | 所作・phase・鮮度・追跡・セッションが変わったときの通知。失効・切断でも解除状態を通知 |
 | `Occurred` | `Ramune / Uchimizu` の成立通知。コールバックは採用したときだけ `true` を返す |
 
 すべて Unity メインスレッドで呼ばれます。`CurrentState` は各 Update で更新し、
 連番・受信時刻だけの更新では `StateChanged` を再発行しません。購読開始時は
 `CurrentState` も読み、既に継続している扇ぎ・夕涼みを反映してください。
 現プロトコルの継続状態は代表動作1つで、扇ぎと夕涼みを同時に表しません。
+
+`PhaseAction` と `Phase` は文字列で、認識器の現在の進行状態を公開します。
+ラムネや打ち水の準備中は `Gesture == None` でも取得できます。
+準備状態は成立イベントではなく、`Occurred` は成立時だけ通知します。
+
+| `PhaseAction` | `Phase` |
+|---|---|
+| `RAMUNE` | `FORMING / READY / OPENED / WAIT_RELEASE` |
+| `UCHIMIZU` | `READY / SWING` |
+| `FANNING / RELAXING` | `ACTIVE` |
+| `BOW` | `HOLD` |
+
+アイドル・追跡喪失・失効・切断時は両方 `null` です。phaseも代表動作1つを送り、
+現在の動作を優先し、動作がない場合はラムネ、打ち水の順に準備状態を選びます。
+複数カメラでは現在の動作に対応するphaseを優先し、それ以外は動作の優先順位と
+最新の観測時刻で選びます。礼の `BENDING / RETURNING` など、認識器がまだ判定しない
+段階は送信しません。
+
+```csharp
+bool ramuneReady = gestures.CurrentState.PhaseAction == "RAMUNE"
+    && gestures.CurrentState.Phase == "READY";
+```
 
 ```csharp
 using Suzukaze.Gesture.Protocol;

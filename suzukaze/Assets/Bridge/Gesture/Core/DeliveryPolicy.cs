@@ -22,6 +22,8 @@ namespace Suzukaze.Gesture.Receiver
         public bool Fresh { get; internal set; }
         public bool Tracking { get; internal set; }
         public ContinuousGesture Gesture { get; internal set; } = ContinuousGesture.None;
+        public string PhaseAction { get; internal set; }
+        public string Phase { get; internal set; }
     }
 
     public sealed class DeliveryPolicy
@@ -70,7 +72,9 @@ namespace Suzukaze.Gesture.Receiver
             return new StateView {
                 SessionId = session, Sequence = sequence, ReceivedAt = receivedAt,
                 Fresh = fresh, Tracking = tracking,
-                Gesture = tracking ? state.Gesture : ContinuousGesture.None
+                Gesture = tracking ? state.Gesture : ContinuousGesture.None,
+                PhaseAction = tracking && state.HasPhaseAction ? state.PhaseAction : null,
+                Phase = tracking && state.HasPhase ? state.Phase : null
             };
         }
 

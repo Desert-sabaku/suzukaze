@@ -28,13 +28,17 @@ namespace Suzukaze.Gesture.Receiver.Tests
         }
 
         private void PublishState(ContinuousGesture gesture, ulong sequence = 1,
-            string session = "s", bool fresh = true, bool tracking = true)
+            string session = "s", bool fresh = true, bool tracking = true,
+            string phaseAction = null, string phase = null)
         {
+            var state = new State {
+                Sequence = sequence, SentAt = clock.Time, ObservedAt = clock.Time,
+                StaleTimeout = .5, Fresh = fresh, Tracking = tracking, Gesture = gesture
+            };
+            if (phaseAction != null) state.PhaseAction = phaseAction;
+            if (phase != null) state.Phase = phase;
             Assert.That(handoff.Publish(token, new ReceivedMessage(new GestureEnvelope {
-                Version = 1, SessionId = session, State = new State {
-                    Sequence = sequence, SentAt = clock.Time, ObservedAt = clock.Time,
-                    StaleTimeout = .5, Fresh = fresh, Tracking = tracking, Gesture = gesture
-                }
+                Version = 1, SessionId = session, State = state
             }, clock.Time)), Is.True);
         }
 
@@ -49,6 +53,28 @@ namespace Suzukaze.Gesture.Receiver.Tests
         }
 
         private void Tick() { handoff.Tick(clock, gestures); }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void PhaseOnlyChangesNotifyAndStaleOrDisconnectClearsProgress(bool disconnect)
+        {
+            var changes = new List<StateView>();
+            gestures.StateChanged += changes.Add;
+            PublishState(ContinuousGesture.None, phaseAction: "RAMUNE", phase: "FORMING");
+            Tick();
+            PublishState(ContinuousGesture.None, 2, phaseAction: "RAMUNE", phase: "READY");
+            Tick();
+            Tick();
+            Assert.That(changes.Count, Is.EqualTo(2));
+            Assert.That(gestures.CurrentState.PhaseAction, Is.EqualTo("RAMUNE"));
+            Assert.That(gestures.CurrentState.Phase, Is.EqualTo("READY"));
+            if (disconnect) handoff.Disconnect(token);
+            else clock.Time = 10.5;
+            Tick();
+            Assert.That(changes.Count, Is.EqualTo(3));
+            Assert.That(gestures.CurrentState.PhaseAction, Is.Null);
+            Assert.That(gestures.CurrentState.Phase, Is.Null);
+        }
 
         private void AssertAck(AckStatus status, ulong id = 1)
         {
