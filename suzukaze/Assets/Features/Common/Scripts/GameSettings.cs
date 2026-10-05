@@ -1,4 +1,8 @@
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Sirenix.OdinInspector;
+using UnityEditor;
 using UnityEngine;
 
 namespace Features.Common.Scripts
@@ -10,5 +14,23 @@ namespace Features.Common.Scripts
         [Title("シーン遷移")] public float sceneTransitionDuration = 1f;
         [Title("時間管理")] public float timeScale = 1f;
         public Vector3 lightAxis = new(0.3f, -1f, 0.3f);
+
+#if UNITY_EDITOR
+        [ValueDropdown(nameof(GetSceneNames))]
+#endif
+        public string[] ignoreTimeManageScenes;
+
+#if UNITY_EDITOR
+        private static IEnumerable<string> GetSceneNames()
+        {
+            // 登録されているシーンの名前を取得する
+            return from t in EditorBuildSettings.scenes
+                select t.path
+                into scenePath
+                let sceneName = Path.GetFileNameWithoutExtension(scenePath)
+                where !string.IsNullOrEmpty(sceneName)
+                select sceneName;
+        }
+#endif
     }
 }
