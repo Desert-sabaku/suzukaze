@@ -15,23 +15,32 @@ message GestureEnvelope {
 }
 
 message State {
+  // 状態の通し番号。
   uint64 sequence = 1;
+  // 送信時刻（秒）。
   double sent_at = 2;
+  // 状態の有効期間（秒）。
   double stale_timeout = 3;
+  // 状態が有効かどうか。
   bool fresh = 4;
+  // 現在認識中の継続ジェスチャー。
   ContinuousGesture gesture = 5;
+  // 人物を追跡中かどうか。
   bool tracking = 6;
+  // 観測時刻（秒）。
   optional double observed_at = 7;
+  // カメラのフレーム番号。
   optional uint64 frame_id = 8;
+  // カメラ側の時刻（秒）。
   optional double source_timestamp = 9;
-  // Motion quality score in [0, 1]. Absent when not evaluated.
+  // 動作の品質スコア（0〜1）。
   optional double action_accuracy = 10;
-  // Current action and phase. Present only while fresh and tracking.
-  // This is a latest-value snapshot; use Event for completed actions.
   reserved 11, 12;
+  // 現在進行中の動作。
   optional Action action = 13;
+  // 現在の動作フェーズ。
   optional Phase phase = 14;
-  // True when a person is stably present in the booth ROI.
+  // ブース内に人物がいるかどうか。
   optional bool booth_present = 15;
 }
 
