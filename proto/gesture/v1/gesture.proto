@@ -42,8 +42,10 @@ message State {
   // and camera arbitration may move progress backwards. Even OPENED/SWING
   // does not guarantee an accepted occurrence; use Event for completion.
   // Absence means no active phase (including idle or unavailable tracking).
-  optional string action = 11;
-  optional string phase = 12;
+  // Former string fields; do not reuse their wire tags for enum values.
+  reserved 11, 12;
+  optional Action action = 13;
+  optional Phase phase = 14;
 }
 
 message Event {
@@ -84,4 +86,34 @@ enum AckStatus {
   ACK_STATUS_IGNORED = 2;
   ACK_STATUS_EXPIRED = 3;
   ACK_STATUS_DUPLICATE = 4;
+}
+
+// All motions, including NONE used by recognition before an action is selected.
+// State.action must not be NONE or UNSPECIFIED; omit action/phase when idle.
+enum Action {
+  ACTION_UNSPECIFIED = 0;
+  ACTION_NONE = 1;
+  ACTION_FANNING = 2;
+  ACTION_RELAXING = 3;
+  ACTION_BOW = 4;
+  ACTION_RAMUNE = 5;
+  ACTION_UCHIMIZU = 6;
+}
+
+// IDLE is an internal detector state, never a delivered State.phase.
+enum Phase {
+  PHASE_UNSPECIFIED = 0;
+  PHASE_IDLE = 1;
+  PHASE_FORMING = 2;
+  PHASE_READY = 3;
+  PHASE_OPENED = 4;
+  PHASE_WAIT_RELEASE = 5;
+  PHASE_SWING = 6;
+  PHASE_ACTIVE = 7;
+  PHASE_HOLD = 8;
+  // Annotation-only stages; not valid in delivered State.phase yet.
+  PHASE_POSITION = 9;
+  PHASE_DWELL = 10;
+  PHASE_BENDING = 11;
+  PHASE_RETURNING = 12;
 }

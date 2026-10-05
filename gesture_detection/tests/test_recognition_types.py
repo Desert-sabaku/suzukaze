@@ -2,6 +2,7 @@ import pickle
 
 import pytest
 
+from gesture_detection.gesture_types import Gesture, Phase
 from gesture_detection.recognition_types import GestureSample, PoseResult
 
 
@@ -32,6 +33,17 @@ def test_empty_result_is_not_tracking():
     sample = GestureSample.from_result(result(), observed_at=1.0)
     assert (sample.gesture, sample.tracking, sample.occurrences) == ("NONE", False, ())
     assert sample.frame_id is None
+
+
+def test_ipc_sample_normalizes_strings_to_shared_enums():
+    sample = GestureSample("NONE", True, 1.0, (("RAMUNE", 1.0),), action="RAMUNE", phase="READY")
+    assert sample.gesture is Gesture.NONE
+    assert sample.occurrences[0][0] is Gesture.RAMUNE
+    assert sample.action is Gesture.RAMUNE
+    assert sample.phase is Phase.READY
+    restored = pickle.loads(pickle.dumps(sample))
+    assert restored.action is Gesture.RAMUNE
+    assert restored.phase is Phase.READY
 
 
 def test_bow_is_delivered_as_continuous_state():

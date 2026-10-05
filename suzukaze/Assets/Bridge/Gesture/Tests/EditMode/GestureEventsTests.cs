@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Suzukaze.Gesture.Protocol;
+using GestureAction = Suzukaze.Gesture.Protocol.Action;
 
 namespace Suzukaze.Gesture.Receiver.Tests
 {
@@ -29,14 +30,14 @@ namespace Suzukaze.Gesture.Receiver.Tests
 
         private void PublishState(ContinuousGesture gesture, ulong sequence = 1,
             string session = "s", bool fresh = true, bool tracking = true,
-            string action = null, string phase = null)
+            GestureAction? action = null, Phase? phase = null)
         {
             var state = new State {
                 Sequence = sequence, SentAt = clock.Time, ObservedAt = clock.Time,
                 StaleTimeout = .5, Fresh = fresh, Tracking = tracking, Gesture = gesture
             };
-            if (action != null) state.Action = action;
-            if (phase != null) state.Phase = phase;
+            if (action.HasValue) state.Action = action.Value;
+            if (phase.HasValue) state.Phase = phase.Value;
             Assert.That(handoff.Publish(token, new ReceivedMessage(new GestureEnvelope {
                 Version = 1, SessionId = session, State = state
             }, clock.Time)), Is.True);
@@ -60,14 +61,14 @@ namespace Suzukaze.Gesture.Receiver.Tests
         {
             var changes = new List<StateView>();
             gestures.StateChanged += changes.Add;
-            PublishState(ContinuousGesture.None, action: "RAMUNE", phase: "FORMING");
+            PublishState(ContinuousGesture.None, action: GestureAction.Ramune, phase: Phase.Forming);
             Tick();
-            PublishState(ContinuousGesture.None, 2, action: "RAMUNE", phase: "READY");
+            PublishState(ContinuousGesture.None, 2, action: GestureAction.Ramune, phase: Phase.Ready);
             Tick();
             Tick();
             Assert.That(changes.Count, Is.EqualTo(2));
-            Assert.That(gestures.CurrentState.Action, Is.EqualTo("RAMUNE"));
-            Assert.That(gestures.CurrentState.Phase, Is.EqualTo("READY"));
+            Assert.That(gestures.CurrentState.Action, Is.EqualTo(GestureAction.Ramune));
+            Assert.That(gestures.CurrentState.Phase, Is.EqualTo(Phase.Ready));
             if (disconnect) handoff.Disconnect(token);
             else clock.Time = 10.5;
             Tick();

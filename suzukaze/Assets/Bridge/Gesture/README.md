@@ -35,16 +35,17 @@ WebSocket → 配送ポリシー（失効・重複・ACK）→ GestureEvents →
 | `Occurred` の `occurrence.Gesture` | 新規に成立した所作（ラムネ・打ち水） |
 | `CurrentState.Action / Phase` | 進行中の所作とその段階。準備中・成立後の状態も含む |
 
-`Action` と `Phase` は文字列で、認識器の現在の進行状態を公開します。
+`Action` と `Phase` はProtobufから生成するenumのnullable値で、認識器の現在の進行状態を公開します。
+型は `Suzukaze.Gesture.Protocol.Action?` と `Suzukaze.Gesture.Protocol.Phase?` です。
 ラムネや打ち水の準備中は `Gesture == None` でも取得できます。
 準備状態は成立イベントではなく、`Occurred` は成立時だけ通知します。
 
 | `Action` | `Phase` |
 |---|---|
-| `RAMUNE` | `FORMING / READY / OPENED / WAIT_RELEASE` |
-| `UCHIMIZU` | `READY / SWING` |
-| `FANNING / RELAXING` | `ACTIVE` |
-| `BOW` | `HOLD` |
+| `Action.Ramune` | `Phase.Forming / Ready / Opened / WaitRelease` |
+| `Action.Uchimizu` | `Phase.Ready / Swing` |
+| `Action.Fanning / Relaxing` | `Phase.Active` |
+| `Action.Bow` | `Phase.Hold` |
 
 この表が許容する対象動作とphaseの組み合わせです。Pythonの送受信とUnityの受信で
 検証し、`RAMUNE / NONE`、`BOW / READY` などの未定義の組み合わせは拒否します。
@@ -65,9 +66,22 @@ Unityが採用した現在値の変化を通知し、認識器内のすべての
 段階は送信しません。
 
 ```csharp
-bool ramuneReady = gestures.CurrentState.Action == "RAMUNE"
-    && gestures.CurrentState.Phase == "READY";
+using GestureAction = Suzukaze.Gesture.Protocol.Action;
+using GesturePhase = Suzukaze.Gesture.Protocol.Phase;
+
+bool ramuneReady = gestures.CurrentState.Action == GestureAction.Ramune
+    && gestures.CurrentState.Phase == GesturePhase.Ready;
 ```
+
+所作・フェーズの通信定義は `proto/gesture/v1/gesture.proto` にまとめています。
+C#側は生成された `ContinuousGesture / OccurrenceGesture / Action / Phase` を使い、
+組み合わせの検証は `WireMessage.ValidPhase` に集約しています。
+Python側は `gesture_detection.gesture_types.Gesture / Phase` の `StrEnum` と
+`ACTION_PHASES` を認識器・ブリッジで共用します。生成されたProtobufのenumとの
+名前の一致をテストで検証します。JSONや診断ログでは従来の大文字表記になります。
+
+文字列だった `action / phase` のタグ11・12は予約し、enum版はタグ13・14を使います。
+phaseを利用する送受信側はこのスキーマから両方再生成してください。
 
 ```csharp
 using Suzukaze.Gesture.Protocol;

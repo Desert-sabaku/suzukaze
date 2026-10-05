@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Suzukaze.Gesture.Protocol;
+using GestureAction = Suzukaze.Gesture.Protocol.Action;
 
 namespace Suzukaze.Gesture.Receiver
 {
@@ -22,8 +23,8 @@ namespace Suzukaze.Gesture.Receiver
         public bool Fresh { get; internal set; }
         public bool Tracking { get; internal set; }
         public ContinuousGesture Gesture { get; internal set; } = ContinuousGesture.None;
-        public string Action { get; internal set; }
-        public string Phase { get; internal set; }
+        public GestureAction? Action { get; internal set; }
+        public Phase? Phase { get; internal set; }
     }
 
     public sealed class DeliveryPolicy

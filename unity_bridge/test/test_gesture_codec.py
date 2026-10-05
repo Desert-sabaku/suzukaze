@@ -1,7 +1,9 @@
 import json
 from pathlib import Path
+from typing import cast
 
 import pytest
+from gesture_detection.gesture_types import Gesture, Phase
 
 from unity_bridge.gen.gesture.v1 import gesture_pb2 as pb
 from unity_bridge.gesture_codec import decode_message, encode_message
@@ -73,8 +75,8 @@ def test_preparation_phase_round_trips_with_none_action():
         "gesture": "NONE",
         "fresh": True,
         "tracking": True,
-        "action": "RAMUNE",
-        "phase": "READY",
+        "action": Gesture.RAMUNE,
+        "phase": Phase.READY,
     }
     wire = encode_message(message)
     assert decode_message(wire) == message
@@ -111,6 +113,11 @@ def test_invalid_phase_is_rejected(extra):
         ("RELAXING", "HOLD"),
         ("BOW", "READY"),
         ("RAMUNE", "UNKNOWN"),
+        (Gesture.NONE, Phase.READY),
+        (Gesture.FANNING, Phase.POSITION),
+        (Gesture.RELAXING, Phase.DWELL),
+        (Gesture.BOW, Phase.BENDING),
+        (Gesture.BOW, Phase.RETURNING),
     ],
 )
 def test_invalid_action_phase_pair_is_rejected_on_encode_and_decode(action, phase):
@@ -119,24 +126,26 @@ def test_invalid_action_phase_pair_is_rejected_on_encode_and_decode(action, phas
         encode_message({**message, "action": action, "phase": phase})
     # Bypass the encoder to exercise validation of a remote sender's payload.
     envelope = pb.GestureEnvelope.FromString(encode_message(message))
-    envelope.state.action = action
-    envelope.state.phase = phase
-    with pytest.raises(ValueError, match="valid action/phase pair"):
+    envelope.state.action = cast(pb.Action, pb.Action.Value(f"ACTION_{action}"))
+    envelope.state.phase = cast(
+        pb.Phase, dict(pb.Phase.items()).get(f"PHASE_{phase}", 99)
+    )
+    with pytest.raises(ValueError):
         decode_message(envelope.SerializeToString())
 
 
 @pytest.mark.parametrize(
     "action,phase",
     [
-        ("RAMUNE", "FORMING"),
-        ("RAMUNE", "READY"),
-        ("RAMUNE", "OPENED"),
-        ("RAMUNE", "WAIT_RELEASE"),
-        ("UCHIMIZU", "READY"),
-        ("UCHIMIZU", "SWING"),
-        ("FANNING", "ACTIVE"),
-        ("RELAXING", "ACTIVE"),
-        ("BOW", "HOLD"),
+        (Gesture.RAMUNE, Phase.FORMING),
+        (Gesture.RAMUNE, Phase.READY),
+        (Gesture.RAMUNE, Phase.OPENED),
+        (Gesture.RAMUNE, Phase.WAIT_RELEASE),
+        (Gesture.UCHIMIZU, Phase.READY),
+        (Gesture.UCHIMIZU, Phase.SWING),
+        (Gesture.FANNING, Phase.ACTIVE),
+        (Gesture.RELAXING, Phase.ACTIVE),
+        (Gesture.BOW, Phase.HOLD),
     ],
 )
 def test_valid_action_phase_pairs_round_trip(action, phase):
@@ -148,6 +157,36 @@ def test_valid_action_phase_pairs_round_trip(action, phase):
         "phase": phase,
     }
     assert decode_message(encode_message(message)) == message
+
+
+def test_python_vocabulary_matches_generated_protocol_enums():
+    assert {member.value for member in Gesture} == {
+        name.removeprefix("ACTION_")
+        for name, _ in pb.Action.items()
+        if name != "ACTION_UNSPECIFIED"
+    }
+    assert {member.value for member in Phase} == {
+        name.removeprefix("PHASE_")
+        for name, _ in pb.Phase.items()
+        if name != "PHASE_UNSPECIFIED"
+    }
+
+
+@pytest.mark.parametrize(
+    "field,value", [("action", 0), ("action", 99), ("phase", 0), ("phase", 99)]
+)
+def test_unknown_progress_enum_numbers_are_rejected(field, value):
+    message = {
+        **FIXTURES[1]["message"],
+        "fresh": True,
+        "tracking": True,
+        "action": Gesture.RAMUNE,
+        "phase": Phase.READY,
+    }
+    envelope = pb.GestureEnvelope.FromString(encode_message(message))
+    setattr(envelope.state, field, value)
+    with pytest.raises(ValueError, match=f"Unknown {field}"):
+        decode_message(envelope.SerializeToString())
 
 
 @pytest.mark.parametrize("kind", ["state", "event"])

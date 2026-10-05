@@ -5,6 +5,7 @@ import threading
 import uuid
 from typing import Any
 
+from gesture_detection.gesture_types import Gesture
 from gesture_detection.recognition_types import GestureSample
 
 PROTOCOL_VERSION = 1
@@ -108,7 +109,7 @@ class DeliveryOutbox:
                 "sent_at": now,
                 "stale_timeout": self.stale_timeout,
                 "fresh": fresh,
-                "gesture": latest["gesture"] if fresh and latest else "NONE",
+                "gesture": latest["gesture"] if fresh and latest else Gesture.NONE,
                 "tracking": bool(fresh and latest and latest["tracking"]),
                 "observed_at": latest["observed_at"] if latest else None,
                 "frame_id": latest["frame_id"] if latest else None,

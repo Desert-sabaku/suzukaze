@@ -12,6 +12,7 @@ import cv2
 import numpy as np
 
 from . import config
+from .gesture_types import Gesture
 from .multicam_fusion import MultiCameraFusion
 from .multicam_input import Frame, LiveInputs, Preview, RecordedInput, load_session
 from .pose_worker import PoseAnalyzer
@@ -60,7 +61,7 @@ def compose_preview(
             (0, 180, 255) if stale else (200, 200, 200),
             1,
         )
-    gesture = fused.get("current", {"gesture": "NONE", "tracking": False})["gesture"]
+    gesture = fused.get("current", {"gesture": Gesture.NONE, "tracking": False})["gesture"]
     locked = ",".join(fused.get("locked_events", ())) or "none"
     cv2.putText(
         canvas,

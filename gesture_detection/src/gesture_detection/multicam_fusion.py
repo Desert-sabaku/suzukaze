@@ -5,9 +5,17 @@ import math
 
 from .config import GESTURE_EVENT_TTL, MULTICAM_EVENT_DEDUP_SECONDS, MULTICAM_MAX_AGE_SECONDS
 from .event_rearm import EVENT_GESTURES, EventRearmGate
+from .gesture_types import Gesture
 from .recognition_types import OccurrenceEvidence, PoseResult, recognition_phase
 
-PRIORITY = {"NONE": 0, "RELAXING": 1, "BOW": 2, "FANNING": 3, "UCHIMIZU": 4, "RAMUNE": 5}
+PRIORITY: dict[str, int] = {
+    Gesture.NONE: 0,
+    Gesture.RELAXING: 1,
+    Gesture.BOW: 2,
+    Gesture.FANNING: 3,
+    Gesture.UCHIMIZU: 4,
+    Gesture.RAMUNE: 5,
+}
 
 
 class MultiCameraFusion:
@@ -51,7 +59,7 @@ class MultiCameraFusion:
             previous_time, previous_id = self._submitted[camera]
             if timestamp <= previous_time or frame_id <= previous_id:
                 raise ValueError("Camera results must strictly increase")
-        current = result.get("current", {"gesture": "NONE", "tracking": False})
+        current = result.get("current", {"gesture": Gesture.NONE, "tracking": False})
         if current["gesture"] not in PRIORITY or any(
             g not in EVENT_GESTURES for g in result.get("occurrences", ())
         ):
@@ -92,10 +100,10 @@ class MultiCameraFusion:
             r for r in self.latest.values() if now - r.get("timestamp", -math.inf) <= self.max_age
         ]
         candidates = {
-            r.get("current", {"gesture": "NONE", "tracking": False})["gesture"] for r in fresh
+            r.get("current", {"gesture": Gesture.NONE, "tracking": False})["gesture"] for r in fresh
         }
         candidates.update(events)
-        gesture = max(candidates, key=PRIORITY.__getitem__) if candidates else "NONE"
+        gesture = max(candidates, key=PRIORITY.__getitem__) if candidates else Gesture.NONE
         gesture, accepted = self.gate.update(
             gesture, tuple(events), now, [r["landmarks"] for r in fresh], evidence
         )
@@ -105,15 +113,21 @@ class MultiCameraFusion:
         # and the newest camera observation. Never combine two cameras' fields.
         selected_phase = max(
             phases,
-            key=lambda item: (item[0] == gesture, PRIORITY.get(item[0] or "NONE", 0), item[2]),
+            key=lambda item: (
+                item[0] == gesture,
+                PRIORITY.get(item[0] or Gesture.NONE, 0),
+                item[2],
+            ),
             default=(None, None, 0.0),
         )
         return {
             "landmarks": [],
             "current": {"gesture": gesture, "tracking": any(r["landmarks"] for r in fresh)},
-            "selected_action": gesture if gesture in {"FANNING", "RAMUNE", "UCHIMIZU"} else "NONE",
-            "relaxing_state": gesture == "RELAXING",
-            "bow_state": gesture == "BOW",
+            "selected_action": gesture
+            if gesture in {Gesture.FANNING, Gesture.RAMUNE, Gesture.UCHIMIZU}
+            else Gesture.NONE,
+            "relaxing_state": gesture == Gesture.RELAXING,
+            "bow_state": gesture == Gesture.BOW,
             "action": selected_phase[0],
             "phase": selected_phase[1],
             "occurrences": accepted,

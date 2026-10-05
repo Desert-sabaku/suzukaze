@@ -1,18 +1,13 @@
 """Recognition snapshots and diagnostic data; no scene or device state."""
 
 from dataclasses import dataclass
-from typing import Literal, NotRequired, Self, TypedDict
+from typing import NotRequired, Self, TypedDict
+
+from .gesture_types import ACTION_PHASES, CONTINUOUS_GESTURES, OCCURRENCE_GESTURES, Gesture, Phase
 
 type Landmark = tuple[float, float, float]
-type ContinuousGesture = Literal["NONE", "FANNING", "RELAXING", "BOW"]
-type OccurrenceGesture = Literal["RAMUNE", "UCHIMIZU"]
-
-_CONTINUOUS: dict[str, ContinuousGesture] = {
-    "FANNING": "FANNING",
-    "RELAXING": "RELAXING",
-    "BOW": "BOW",
-}
-_OCCURRENCES: dict[str, OccurrenceGesture] = {"RAMUNE": "RAMUNE", "UCHIMIZU": "UCHIMIZU"}
+type ContinuousGesture = Gesture | str
+type OccurrenceGesture = Gesture | str
 
 
 class RecognitionState(TypedDict):
@@ -73,24 +68,24 @@ def recognition_phase(result: PoseResult) -> tuple[str | None, str | None]:
     The current action wins; otherwise prefer Ramune preparation to Uchimizu.
     Explicit fields carry the selected camera's phase through fusion.
     """
-    current = result.get("current", {"gesture": "NONE", "tracking": False})
+    current = result.get("current", {"gesture": Gesture.NONE, "tracking": False})
     if not current["tracking"]:
         return None, None
     if "action" in result:
         return result.get("action"), result.get("phase")
     action = current["gesture"]
     phases: dict[str, str] = {}
-    ramune = result.get("ramune_state", "IDLE")
-    water = result.get("uchimizu_state", "IDLE")
-    if ramune in {"FORMING", "READY", "OPENED", "WAIT_RELEASE"}:
-        phases["RAMUNE"] = ramune
-    if water in {"READY", "SWING"}:
-        phases["UCHIMIZU"] = water
-    if action in {"FANNING", "RELAXING", "BOW"}:
-        phases[action] = "HOLD" if action == "BOW" else "ACTIVE"
+    ramune = result.get("ramune_state", Phase.IDLE)
+    water = result.get("uchimizu_state", Phase.IDLE)
+    if ramune in ACTION_PHASES[Gesture.RAMUNE]:
+        phases[Gesture.RAMUNE] = ramune
+    if water in ACTION_PHASES[Gesture.UCHIMIZU]:
+        phases[Gesture.UCHIMIZU] = water
+    if action in CONTINUOUS_GESTURES - {Gesture.NONE}:
+        phases[action] = Phase.HOLD if action == Gesture.BOW else Phase.ACTIVE
     if action in phases:
         return action, phases[action]
-    for candidate in ("RAMUNE", "UCHIMIZU"):
+    for candidate in (Gesture.RAMUNE, Gesture.UCHIMIZU):
         if candidate in phases:
             return candidate, phases[candidate]
     return None, None
@@ -110,20 +105,36 @@ class GestureSample:
     action: str | None = None
     phase: str | None = None
 
+    def __post_init__(self) -> None:
+        """Normalize string input at the IPC boundary to the shared enums."""
+        gesture = Gesture(self.gesture)
+        if gesture not in CONTINUOUS_GESTURES:
+            raise ValueError("Unknown continuous gesture")
+        occurrences = tuple((Gesture(kind), when) for kind, when in self.occurrences)
+        if any(kind not in OCCURRENCE_GESTURES for kind, _ in occurrences):
+            raise ValueError("Unknown occurrence")
+        object.__setattr__(self, "gesture", gesture)
+        object.__setattr__(self, "occurrences", occurrences)
+        if self.action is not None:
+            object.__setattr__(self, "action", Gesture(self.action))
+        if self.phase is not None:
+            object.__setattr__(self, "phase", Phase(self.phase))
+
     @classmethod
     def from_result(cls, result: PoseResult, observed_at: float) -> Self:
         """observed_at is capture time, not inference completion or video time."""
-        current = result.get("current", {"gesture": "NONE", "tracking": False})
+        current = result.get("current", {"gesture": Gesture.NONE, "tracking": False})
         action, phase = recognition_phase(result)
         timestamps = result.get("occurrence_timestamps", {})
         occurrences = []
         for name in result.get("occurrences", ()):
-            kind = _OCCURRENCES.get(name)
-            if kind is None:
+            if name not in OCCURRENCE_GESTURES:
                 raise ValueError("Unknown occurrence")
-            occurrences.append((kind, timestamps.get(name, observed_at)))
+            occurrences.append((Gesture(name), timestamps.get(name, observed_at)))
         return cls(
-            gesture=_CONTINUOUS.get(current["gesture"], "NONE"),
+            gesture=Gesture(current["gesture"])
+            if current["gesture"] in CONTINUOUS_GESTURES
+            else Gesture.NONE,
             tracking=current["tracking"],
             observed_at=observed_at,
             occurrences=tuple(occurrences),

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Google.Protobuf;
 using NUnit.Framework;
 using Suzukaze.Gesture.Protocol;
+using GestureAction = Suzukaze.Gesture.Protocol.Action;
 
 namespace Suzukaze.Gesture.Receiver.Tests
 {
@@ -16,7 +17,7 @@ namespace Suzukaze.Gesture.Receiver.Tests
         {
             private readonly Queue<byte[]> fragments = new Queue<byte[]>();
             public WebSocketMessageType Type = WebSocketMessageType.Binary;
-            public Action Received;
+            public System.Action Received;
             public FragmentSocket(params byte[][] parts) { foreach (var part in parts) fragments.Enqueue(part); }
             public override Task<WebSocketReceiveResult> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancellation)
             {
@@ -124,23 +125,30 @@ namespace Suzukaze.Gesture.Receiver.Tests
         public void PhaseRequiresBothFieldsAndFreshTracking()
         {
             var message = DeliveryTests.State().Envelope;
-            message.State.Action = "RAMUNE";
+            message.State.Action = GestureAction.Ramune;
             Assert.Throws<InvalidDataException>(() => WireMessage.Validate(message));
-            message.State.Phase = "READY";
+            message.State.Phase = Phase.Ready;
             Assert.DoesNotThrow(() => WireMessage.Validate(message));
             message.State.Tracking = false;
             Assert.Throws<InvalidDataException>(() => WireMessage.Validate(message));
         }
 
-        [TestCase("RAMUNE", "NONE")]
-        [TestCase("RAMUNE", "IDLE")]
-        [TestCase("RAMUNE", "ACTIVE")]
-        [TestCase("UCHIMIZU", "OPENED")]
-        [TestCase("FANNING", "READY")]
-        [TestCase("RELAXING", "HOLD")]
-        [TestCase("BOW", "READY")]
-        [TestCase("RAMUNE", "UNKNOWN")]
-        public void InvalidActionPhasePairsAreRejected(string action, string phase)
+        [TestCase(GestureAction.Ramune, Phase.Unspecified)]
+        [TestCase(GestureAction.Ramune, Phase.Idle)]
+        [TestCase(GestureAction.Ramune, Phase.Active)]
+        [TestCase(GestureAction.Uchimizu, Phase.Opened)]
+        [TestCase(GestureAction.Fanning, Phase.Ready)]
+        [TestCase(GestureAction.Relaxing, Phase.Hold)]
+        [TestCase(GestureAction.Bow, Phase.Ready)]
+        [TestCase(GestureAction.Ramune, (Phase)99)]
+        [TestCase(GestureAction.None, Phase.Ready)]
+        [TestCase(GestureAction.Unspecified, Phase.Ready)]
+        [TestCase((GestureAction)99, Phase.Ready)]
+        [TestCase(GestureAction.Fanning, Phase.Position)]
+        [TestCase(GestureAction.Relaxing, Phase.Dwell)]
+        [TestCase(GestureAction.Bow, Phase.Bending)]
+        [TestCase(GestureAction.Bow, Phase.Returning)]
+        public void InvalidActionPhasePairsAreRejected(GestureAction action, Phase phase)
         {
             var message = DeliveryTests.State().Envelope;
             message.State.Action = action;
@@ -148,16 +156,16 @@ namespace Suzukaze.Gesture.Receiver.Tests
             Assert.Throws<InvalidDataException>(() => WireMessage.Validate(message));
         }
 
-        [TestCase("RAMUNE", "FORMING")]
-        [TestCase("RAMUNE", "READY")]
-        [TestCase("RAMUNE", "OPENED")]
-        [TestCase("RAMUNE", "WAIT_RELEASE")]
-        [TestCase("UCHIMIZU", "READY")]
-        [TestCase("UCHIMIZU", "SWING")]
-        [TestCase("FANNING", "ACTIVE")]
-        [TestCase("RELAXING", "ACTIVE")]
-        [TestCase("BOW", "HOLD")]
-        public void ValidActionPhasePairsAreAccepted(string action, string phase)
+        [TestCase(GestureAction.Ramune, Phase.Forming)]
+        [TestCase(GestureAction.Ramune, Phase.Ready)]
+        [TestCase(GestureAction.Ramune, Phase.Opened)]
+        [TestCase(GestureAction.Ramune, Phase.WaitRelease)]
+        [TestCase(GestureAction.Uchimizu, Phase.Ready)]
+        [TestCase(GestureAction.Uchimizu, Phase.Swing)]
+        [TestCase(GestureAction.Fanning, Phase.Active)]
+        [TestCase(GestureAction.Relaxing, Phase.Active)]
+        [TestCase(GestureAction.Bow, Phase.Hold)]
+        public void ValidActionPhasePairsAreAccepted(GestureAction action, Phase phase)
         {
             var message = DeliveryTests.State().Envelope;
             message.State.Action = action;

@@ -7,6 +7,8 @@ from pathlib import Path
 
 import numpy as np
 
+from .gesture_types import Phase
+
 DEFAULT_MODEL = Path(__file__).with_name("models") / "ramune_0924.npz"
 
 
@@ -84,7 +86,7 @@ class LearnedRamuneAnalyzer:
     def reset(self) -> None:
         self.history.clear()
         self.gate = "WAIT_SETUP"
-        self.state = "IDLE"
+        self.state = Phase.IDLE
         self.last_time: float | None = None
         self.last_frame: int | None = None
         self.last_open = -math.inf
@@ -115,14 +117,14 @@ class LearnedRamuneAnalyzer:
     def advance(self, phase: int, action: int, observed: bool, now: float) -> bool:
         self.just_opened = False
         if self.gate == "ARMED" and phase == 3:
-            self.gate = "OPENED"
+            self.gate = Phase.OPENED
             self.last_open = now
             self.just_opened = True
-        if self.gate == "OPENED":
+        if self.gate == Phase.OPENED:
             if phase == 3:
                 self.last_open = now
             if phase == 3 or now - self.last_open <= self.metadata["hold_seconds"] + 1e-9:
-                self.state = "OPENED"
+                self.state = Phase.OPENED
                 return True
             self.gate = "LOCKED"
             self.setup_since = self.release_since = None
@@ -141,11 +143,11 @@ class LearnedRamuneAnalyzer:
             else:
                 self.setup_since = None
         self.state = (
-            "WAIT_RELEASE"
+            Phase.WAIT_RELEASE
             if self.gate == "LOCKED"
-            else {1: "FORMING", 2: "READY"}.get(phase, "IDLE")
+            else {1: Phase.FORMING, 2: Phase.READY}.get(phase, Phase.IDLE)
             if action == 1
-            else "IDLE"
+            else Phase.IDLE
         )
         return False
 
@@ -169,7 +171,7 @@ class LearnedRamuneAnalyzer:
             self.release_since = self.setup_since = None
             if self.gate == "ARMED":
                 self.gate = "WAIT_SETUP"
-            if self.gate == "OPENED" and now - self.last_open > self.metadata["hold_seconds"]:
+            if self.gate == Phase.OPENED and now - self.last_open > self.metadata["hold_seconds"]:
                 self.gate = "LOCKED"
             if now - self.last_time > 0.5:
                 self.history.clear()
