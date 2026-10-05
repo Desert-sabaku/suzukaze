@@ -132,6 +132,39 @@ namespace Suzukaze.Gesture.Receiver.Tests
             Assert.Throws<InvalidDataException>(() => WireMessage.Validate(message));
         }
 
+        [TestCase("RAMUNE", "NONE")]
+        [TestCase("RAMUNE", "IDLE")]
+        [TestCase("RAMUNE", "ACTIVE")]
+        [TestCase("UCHIMIZU", "OPENED")]
+        [TestCase("FANNING", "READY")]
+        [TestCase("RELAXING", "HOLD")]
+        [TestCase("BOW", "READY")]
+        [TestCase("RAMUNE", "UNKNOWN")]
+        public void InvalidActionPhasePairsAreRejected(string action, string phase)
+        {
+            var message = DeliveryTests.State().Envelope;
+            message.State.PhaseAction = action;
+            message.State.Phase = phase;
+            Assert.Throws<InvalidDataException>(() => WireMessage.Validate(message));
+        }
+
+        [TestCase("RAMUNE", "FORMING")]
+        [TestCase("RAMUNE", "READY")]
+        [TestCase("RAMUNE", "OPENED")]
+        [TestCase("RAMUNE", "WAIT_RELEASE")]
+        [TestCase("UCHIMIZU", "READY")]
+        [TestCase("UCHIMIZU", "SWING")]
+        [TestCase("FANNING", "ACTIVE")]
+        [TestCase("RELAXING", "ACTIVE")]
+        [TestCase("BOW", "HOLD")]
+        public void ValidActionPhasePairsAreAccepted(string action, string phase)
+        {
+            var message = DeliveryTests.State().Envelope;
+            message.State.PhaseAction = action;
+            message.State.Phase = phase;
+            Assert.DoesNotThrow(() => WireMessage.Validate(message));
+        }
+
         [Test]
         public void PythonGoldenEventProducesGoldenAcceptedAck()
         {

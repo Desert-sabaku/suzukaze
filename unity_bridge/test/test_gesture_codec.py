@@ -100,6 +100,56 @@ def test_invalid_phase_is_rejected(extra):
         )
 
 
+@pytest.mark.parametrize(
+    "action,phase",
+    [
+        ("RAMUNE", "NONE"),
+        ("RAMUNE", "IDLE"),
+        ("RAMUNE", "ACTIVE"),
+        ("UCHIMIZU", "OPENED"),
+        ("FANNING", "READY"),
+        ("RELAXING", "HOLD"),
+        ("BOW", "READY"),
+        ("RAMUNE", "UNKNOWN"),
+    ],
+)
+def test_invalid_action_phase_pair_is_rejected_on_encode_and_decode(action, phase):
+    message = {**FIXTURES[1]["message"], "fresh": True, "tracking": True}
+    with pytest.raises(ValueError, match="valid action/phase pair"):
+        encode_message({**message, "phase_action": action, "phase": phase})
+    # Bypass the encoder to exercise validation of a remote sender's payload.
+    envelope = pb.GestureEnvelope.FromString(encode_message(message))
+    envelope.state.phase_action = action
+    envelope.state.phase = phase
+    with pytest.raises(ValueError, match="valid action/phase pair"):
+        decode_message(envelope.SerializeToString())
+
+
+@pytest.mark.parametrize(
+    "action,phase",
+    [
+        ("RAMUNE", "FORMING"),
+        ("RAMUNE", "READY"),
+        ("RAMUNE", "OPENED"),
+        ("RAMUNE", "WAIT_RELEASE"),
+        ("UCHIMIZU", "READY"),
+        ("UCHIMIZU", "SWING"),
+        ("FANNING", "ACTIVE"),
+        ("RELAXING", "ACTIVE"),
+        ("BOW", "HOLD"),
+    ],
+)
+def test_valid_action_phase_pairs_round_trip(action, phase):
+    message = {
+        **FIXTURES[1]["message"],
+        "fresh": True,
+        "tracking": True,
+        "phase_action": action,
+        "phase": phase,
+    }
+    assert decode_message(encode_message(message)) == message
+
+
 @pytest.mark.parametrize("kind", ["state", "event"])
 @pytest.mark.parametrize("score", [0.0, 0.5, 1.0])
 def test_action_accuracy_schema_preserves_presence_and_existing_message_semantics(

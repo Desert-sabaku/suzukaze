@@ -32,11 +32,11 @@ message State {
   // Current detector progress, independent of continuous gesture and events.
   // Both fields are present together, only while fresh and tracking.
   // phase_action: RAMUNE, UCHIMIZU, FANNING, RELAXING or BOW.
-  // phase is a nonempty, extensible string. Current producer values:
+  // Only the following action/phase pairs are valid:
   // RAMUNE = FORMING/READY/OPENED/WAIT_RELEASE,
   // UCHIMIZU = READY/SWING, FANNING/RELAXING = ACTIVE, BOW = HOLD.
-  // Receivers preserve unknown phase values for a known phase_action;
-  // consumers apply effects only to action/phase pairs they understand.
+  // Receivers reject unknown or mismatched pairs, including NONE/IDLE phases.
+  // Adding a phase requires updating sender and receiver validation together.
   // This is a latest-value snapshot: intermediate phases may be skipped,
   // and camera arbitration may move progress backwards. Even OPENED/SWING
   // does not guarantee an accepted occurrence; use Event for completion.

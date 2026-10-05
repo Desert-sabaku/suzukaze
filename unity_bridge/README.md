@@ -21,7 +21,8 @@ uv run unity-bridge --gesture
 送ります（例: `gesture: NONE, phase_action: RAMUNE, phase: READY`）。両フィールドは
 一緒に存在し、アイドル・追跡喪失・失効時は省略します。`unity-gesture-probe` でも
 表示されます。phaseの値とUnity側の利用例は下記の受信実装READMEを参照してください。
-`phase_action` は既知の動作名に限定し、`phase` は拡張可能な空でない文字列です。
+`phase_action` と `phase` は受信実装READMEに記載した組み合わせだけを許容します。
+`RAMUNE / NONE` などの未定義の組み合わせは送受信で拒否します。
 phaseは最新状態であり、すべての段階の到達・順序を保証しません。成立の通知には
 phaseではなく、再送・ACKのあるイベントを使用してください。
 認識側・ブリッジ・Unityは同一Windows PCまたは同一64-bit Linux PCで実行します。

@@ -38,10 +38,10 @@ WebSocket → 配送ポリシー（失効・重複・ACK）→ GestureEvents →
 | `FANNING / RELAXING` | `ACTIVE` |
 | `BOW` | `HOLD` |
 
-この表は現在の認識器が送信する値です。`PhaseAction` は上記の動作名に限定し、
-`Phase` は将来拡張できる空でない文字列として扱います。受信器は未知のphaseも
-そのまま公開します。演出側は理解できる対象動作とphaseの組み合わせだけに反応し、
-未知の値ではphaseに対応する演出を解除してください。
+この表が許容する対象動作とphaseの組み合わせです。Pythonの送受信とUnityの受信で
+検証し、`RAMUNE / NONE`、`BOW / READY` などの未定義の組み合わせは拒否します。
+phaseの追加時は送信側・受信側の検証も同時に更新してください。
+進行状態がない場合は `NONE / IDLE` を送らず、両フィールドを省略します。
 
 phaseは最新値のスナップショットです。配送中の最新値への集約によって、
 `FORMING → READY → OPENED` の全段階を観測する保証はありません。`StateChanged` は

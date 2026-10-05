@@ -12,6 +12,16 @@ namespace Suzukaze.Gesture.Receiver
         public const int MaxBytes = 8192;
         private static bool Finite(double x) => !double.IsNaN(x) && !double.IsInfinity(x);
 
+        private static bool ValidPhase(string action, string phase) => action switch
+        {
+            "RAMUNE" => phase == "FORMING" || phase == "READY"
+                || phase == "OPENED" || phase == "WAIT_RELEASE",
+            "UCHIMIZU" => phase == "READY" || phase == "SWING",
+            "FANNING" or "RELAXING" => phase == "ACTIVE",
+            "BOW" => phase == "HOLD",
+            _ => false
+        };
+
         public static void Validate(GestureEnvelope message)
         {
             if (message.Version != 1 || string.IsNullOrEmpty(message.SessionId))
@@ -26,10 +36,7 @@ namespace Suzukaze.Gesture.Receiver
                     || (s.HasSourceTimestamp && !Finite(s.SourceTimestamp)))
                     throw new InvalidDataException("Invalid state");
                 if (s.HasPhaseAction != s.HasPhase || (s.HasPhase &&
-                    (!s.Fresh || !s.Tracking || string.IsNullOrEmpty(s.Phase)
-                    || (s.PhaseAction != "RAMUNE" && s.PhaseAction != "UCHIMIZU"
-                        && s.PhaseAction != "FANNING" && s.PhaseAction != "RELAXING"
-                        && s.PhaseAction != "BOW"))))
+                    (!s.Fresh || !s.Tracking || !ValidPhase(s.PhaseAction, s.Phase))))
                     throw new InvalidDataException("Invalid phase");
             }
             else if (e != null)

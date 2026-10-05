@@ -8,6 +8,14 @@ from .gen.gesture.v1 import gesture_pb2 as pb
 
 MAX_MESSAGE_BYTES = 8192
 
+_PHASES = {
+    "RAMUNE": {"FORMING", "READY", "OPENED", "WAIT_RELEASE"},
+    "UCHIMIZU": {"READY", "SWING"},
+    "FANNING": {"ACTIVE"},
+    "RELAXING": {"ACTIVE"},
+    "BOW": {"HOLD"},
+}
+
 _ENUMS = {
     "state": ("gesture", {"NONE": 1, "FANNING": 2, "RELAXING": 3, "BOW": 4}),
     "event": ("gesture", {"RAMUNE": 1, "UCHIMIZU": 2}),
@@ -99,11 +107,13 @@ def _validate(message: dict) -> str:
         if (action is None) != (phase is None):
             raise ValueError("phase_action and phase must be present together")
         if action is not None and (
-            action not in {"RAMUNE", "UCHIMIZU", "FANNING", "RELAXING", "BOW"}
+            phase not in _PHASES.get(action, set())
             or not message["fresh"]
             or not message["tracking"]
         ):
-            raise ValueError("Phase requires a known action and fresh tracking")
+            raise ValueError(
+                "Phase requires a valid action/phase pair and fresh tracking"
+            )
     if kind == "state" and message["stale_timeout"] <= 0:
         raise ValueError("stale_timeout must be positive")
     if kind == "event" and message["expires_at"] <= message["occurred_at"]:
