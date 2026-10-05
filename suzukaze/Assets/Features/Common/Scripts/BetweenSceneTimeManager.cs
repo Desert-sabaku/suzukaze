@@ -14,6 +14,7 @@ namespace Features.Common.Scripts
         private float _currentTime;
         private Transform _directionalLight;
         private GameSettings _gameSettings;
+        private bool _isActive = true;
 
         private void Start()
         {
@@ -22,12 +23,16 @@ namespace Features.Common.Scripts
             Debug.Assert(_directionalLight != null, "Directional light not found in the scene.");
 
             SceneManager.activeSceneChanged += OnActiveSceneChanged;
-            UniTask.Create(async () => _gameSettings = await GameSettings.GetInstanceAsync()).Forget();
+            UniTask.Create(async () =>
+            {
+                _gameSettings = await GameSettings.GetInstanceAsync();
+                _isActive = _gameSettings.ignoreTimeManageScenes.All(ignoreScene => ignoreScene != currentScene.name);
+            }).Forget();
         }
 
         private void Update()
         {
-            if (!_gameSettings) return;
+            if (!_gameSettings || !_isActive) return;
 
             _currentTime += Time.deltaTime * _gameSettings.timeScale;
             _directionalLight.rotation = Quaternion.AngleAxis(
@@ -38,7 +43,7 @@ namespace Features.Common.Scripts
 
         private void OnDrawGizmos()
         {
-            if (!_gameSettings) return;
+            if (!_gameSettings || !_isActive) return;
 
             Gizmos.color = Color.yellow;
             Gizmos.DrawLine(Vector3.zero, _gameSettings.lightAxis.normalized * 5);
@@ -52,6 +57,7 @@ namespace Features.Common.Scripts
             UnityEngine.SceneManagement.Scene newScene
         )
         {
+            _isActive = _gameSettings.ignoreTimeManageScenes.All(ignoreScene => ignoreScene != newScene.name);
             _directionalLight = FindDirectionalLight(newScene);
             Debug.Assert(_directionalLight != null, "Directional light not found in the new scene.");
         }
