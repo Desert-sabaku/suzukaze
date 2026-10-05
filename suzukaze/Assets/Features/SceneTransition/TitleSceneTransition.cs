@@ -40,11 +40,16 @@ namespace Features.SceneTransition
             _input.Dispose();
         }
 
-        private static void OnGestureStateChanged(StateView state)
+        private void OnGestureStateChanged(StateView state)
         {
             if (!state.Tracking) return;
 
-            if (state.Gesture == ContinuousGesture.Bow) OnTransition(default);
+            if (state.Gesture == ContinuousGesture.Bow)
+            {
+                OnTransition(default);
+                _gestureReceiver.Events.StateChanged -= OnGestureStateChanged;
+                _gestureReceiver = null;
+            }
         }
 
         private static void OnTransition(InputAction.CallbackContext ctx)
