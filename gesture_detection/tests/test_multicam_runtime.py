@@ -59,6 +59,21 @@ def test_multicam_profile_survives_tracking_resets():
         )
 
 
+def test_booth_presence_uses_only_fresh_first_camera_and_reaches_ipc():
+    fusion = MultiCameraFusion()
+    second = sample(1.0)
+    second["booth_present"] = True
+    fusion.submit(1, second)
+    assert fusion.advance(1.0).get("booth_present") is False
+    first = sample(1.1)
+    first["booth_present"] = True
+    fusion.submit(0, first)
+    result = fusion.advance(1.1)
+    assert GestureSample.from_result(result, 1.1).booth_present
+    fusion.submit(1, sample(1.4))
+    assert fusion.advance(1.4).get("booth_present") is False
+
+
 @pytest.mark.parametrize("profile, detector", [("bad", "rules"), ("multicam", "learned")])
 def test_incompatible_profiles_are_rejected(profile, detector):
     with pytest.raises(ValueError, match="multicam"):

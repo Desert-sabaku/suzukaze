@@ -121,6 +121,10 @@ class MultiCameraFusion:
             default=(None, None, 0.0),
         )
         return {
+            # Only the first (ROI/subject-selection) camera owns booth presence.
+            "booth_present": any(
+                r is self.latest.get(0) and r.get("booth_present", False) for r in fresh
+            ),
             "landmarks": [],
             "current": {"gesture": gesture, "tracking": any(r["landmarks"] for r in fresh)},
             "selected_action": gesture

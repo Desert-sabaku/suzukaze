@@ -15,37 +15,33 @@ message GestureEnvelope {
 }
 
 message State {
+  // 状態の通し番号。
   uint64 sequence = 1;
+  // 送信時刻（秒）。
   double sent_at = 2;
+  // 状態の有効期間（秒）。
   double stale_timeout = 3;
+  // 状態が有効かどうか。
   bool fresh = 4;
+  // 現在認識中の継続ジェスチャー。
   ContinuousGesture gesture = 5;
+  // 人物を追跡中かどうか。
   bool tracking = 6;
+  // 観測時刻（秒）。
   optional double observed_at = 7;
+  // カメラのフレーム番号。
   optional uint64 frame_id = 8;
+  // カメラ側の時刻（秒）。
   optional double source_timestamp = 9;
-  // Execution quality of this gesture, not recognition confidence.
-  // Finite score in [0, 1]: 0 = no conformity, 1 = full conformity to the
-  // gesture-specific motion criteria. Absence means not evaluated.
-  // Applies to this observation; omit for NONE or unavailable tracking.
+  // 動作の品質スコア（0〜1）。
   optional double action_accuracy = 10;
-  // Current detector progress, independent of continuous gesture and events.
-  // Both fields are present together, only while fresh and tracking.
-  // action identifies the progressing motion, including preparation before
-  // completion: RAMUNE, UCHIMIZU, FANNING, RELAXING or BOW.
-  // Only the following action/phase pairs are valid:
-  // RAMUNE = FORMING/READY/OPENED/WAIT_RELEASE,
-  // UCHIMIZU = READY/SWING, FANNING/RELAXING = ACTIVE, BOW = HOLD.
-  // Receivers reject unknown or mismatched pairs, including NONE/IDLE phases.
-  // Adding a phase requires updating sender and receiver validation together.
-  // This is a latest-value snapshot: intermediate phases may be skipped,
-  // and camera arbitration may move progress backwards. Even OPENED/SWING
-  // does not guarantee an accepted occurrence; use Event for completion.
-  // Absence means no active phase (including idle or unavailable tracking).
-  // Former string fields; do not reuse their wire tags for enum values.
   reserved 11, 12;
+  // 現在進行中の動作。
   optional Action action = 13;
+  // 現在の動作フェーズ。
   optional Phase phase = 14;
+  // ブース内に人物がいるかどうか。
+  optional bool booth_present = 15;
 }
 
 message Event {
@@ -55,9 +51,7 @@ message Event {
   double expires_at = 4;
   optional uint64 frame_id = 5;
   optional double source_timestamp = 6;
-  // Execution quality of this occurrence using gesture-specific motion
-  // criteria. Same finite [0, 1] scale as State.action_accuracy; absence
-  // means not evaluated. Retries of an event retain the original score.
+  // Motion quality score in [0, 1]. Absent when not evaluated.
   optional double action_accuracy = 7;
 }
 

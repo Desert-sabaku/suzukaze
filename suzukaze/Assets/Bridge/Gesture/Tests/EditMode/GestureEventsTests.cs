@@ -30,11 +30,12 @@ namespace Suzukaze.Gesture.Tests
 
         private void PublishState(ContinuousGesture gesture, ulong sequence = 1,
             string session = "s", bool fresh = true, bool tracking = true,
-            GestureAction? action = null, Phase? phase = null)
+            GestureAction? action = null, Phase? phase = null, bool boothPresent = false)
         {
             var state = new State {
                 Sequence = sequence, SentAt = clock.Time, ObservedAt = clock.Time,
-                StaleTimeout = .5, Fresh = fresh, Tracking = tracking, Gesture = gesture
+                StaleTimeout = .5, Fresh = fresh, Tracking = tracking, Gesture = gesture,
+                BoothPresent = boothPresent
             };
             if (action.HasValue) state.Action = action.Value;
             if (phase.HasValue) state.Phase = phase.Value;
@@ -54,6 +55,27 @@ namespace Suzukaze.Gesture.Tests
         }
 
         private void Tick() { handoff.Tick(clock, gestures); }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void BoothPresenceNotifiesWithoutGestureOrTrackingAndClearsOnLoss(bool disconnect)
+        {
+            var changes = new List<bool>();
+            gestures.StateChanged += state => changes.Add(state.BoothPresent);
+            PublishState(ContinuousGesture.None);
+            Tick();
+            PublishState(ContinuousGesture.None, 2, boothPresent: true);
+            Tick();
+            Tick();
+            Assert.That(changes, Is.EqualTo(new[] { false, true }));
+            PublishState(ContinuousGesture.None, 3, tracking: false, boothPresent: true);
+            Tick();
+            Assert.That(gestures.CurrentState.BoothPresent, Is.True);
+            if (disconnect) handoff.Disconnect(token);
+            else clock.Time = 10.5;
+            Tick();
+            Assert.That(gestures.CurrentState.BoothPresent, Is.False);
+        }
 
         [TestCase(false)]
         [TestCase(true)]
