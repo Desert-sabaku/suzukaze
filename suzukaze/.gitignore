@@ -116,3 +116,5 @@ InitTestScene*.unity*
 /[Aa]ssets/Bridge/Generated/*
 !/[Aa]ssets/Bridge/Generated/*.asmdef
 !/[Aa]ssets/Bridge/Generated/*.asmdef.meta
+
+.idea/
