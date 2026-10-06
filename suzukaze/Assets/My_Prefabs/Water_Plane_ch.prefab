@@ -72,7 +72,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 4dff5912774136c4abe30fe6531b29e6, type: 2}
+  - {fileID: 2100000, guid: 6893bfd133353a94d9786792518f0e31, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -245,8 +245,8 @@ MonoBehaviour:
   horizonRadius: 50000
   maxWaveHeight: 5
   waveCompute: {fileID: 7200000, guid: c6e94f5a4d474784815f6a52b62cb639, type: 3}
-  heightScale: 1
-  waveCount: 16
+  heightScale: 3.37
+  waveCount: 31
   seed: 1234
   directionSpread: 35
   shoalDepth: 3
@@ -292,4 +292,4 @@ MonoBehaviour:
   blendDistance: 0
   priority: 0
   targetMaterials:
-  - {fileID: 2100000, guid: 4dff5912774136c4abe30fe6531b29e6, type: 2}
+  - {fileID: 2100000, guid: 6893bfd133353a94d9786792518f0e31, type: 2}
