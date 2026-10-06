@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using Sirenix.OdinInspector;
 using Suzukaze.Gesture;
 using Suzukaze.Gesture.Protocol;
 using UnityEngine;
@@ -8,15 +9,29 @@ namespace Features.SceneTransition
 {
     public class TitleSceneTransition : MonoBehaviour
     {
+        [SerializeField] private CanvasGroup gestureCanvasGroup;
+        [SerializeField] private float gestureDisplayDuration = 2f;
+
         private GestureReceiverBehaviour _gestureReceiver;
         private GameInputs _input;
+
+        [ShowInInspector] private bool _isShowingGesture;
 
         private void Start()
         {
             _input = new GameInputs();
             _input.Debug.Enable();
 
+            gestureCanvasGroup.alpha = 0f;
             _input.Debug.NextStep.performed += OnTransition;
+        }
+
+        private void Update()
+        {
+            gestureCanvasGroup.alpha = Mathf.MoveTowards(
+                gestureCanvasGroup.alpha, _isShowingGesture ? 1f : 0f,
+                Time.deltaTime * gestureDisplayDuration
+            );
         }
 
         private void OnEnable()
@@ -43,6 +58,8 @@ namespace Features.SceneTransition
         private void OnGestureStateChanged(StateView state)
         {
             if (!state.Tracking) return;
+
+            _isShowingGesture = state.BoothPresent;
 
             if (state.Gesture == ContinuousGesture.Bow)
             {
