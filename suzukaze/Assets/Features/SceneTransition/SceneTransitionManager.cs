@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using Features.Common.Scripts;
+using Features.Sound.Scripts;
 using LitMotion;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -23,18 +24,21 @@ namespace Features.SceneTransition
 
             _gameSettings ??= await GameSettings.GetInstanceAsync();
 
-            await UniTask.WhenAll(_images.Select(image =>
-            {
-                var pivotX = image.rectTransform.pivot.x;
+            // 障子が閉じるのに合わせて環境音を絞る。次のシーンでは SoundscapeDirector がフェードインする
+            await UniTask.WhenAll(
+                UniTask.WhenAll(_images.Select(image =>
+                {
+                    var pivotX = image.rectTransform.pivot.x;
 
-                return LMotion.Create(pivotX, 1f - pivotX, _gameSettings.sceneTransitionDuration)
-                    .Bind(v =>
-                    {
-                        var pivot = image.rectTransform.pivot;
-                        pivot.x = v;
-                        image.rectTransform.pivot = pivot;
-                    }).ToUniTask();
-            }));
+                    return LMotion.Create(pivotX, 1f - pivotX, _gameSettings.sceneTransitionDuration)
+                        .Bind(v =>
+                        {
+                            var pivot = image.rectTransform.pivot;
+                            pivot.x = v;
+                            image.rectTransform.pivot = pivot;
+                        }).ToUniTask();
+                })),
+                SoundscapeDirector.FadeOutAsync(_gameSettings.sceneTransitionDuration));
 
             await UniTask.WaitForSeconds(0.05f);
             await SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
