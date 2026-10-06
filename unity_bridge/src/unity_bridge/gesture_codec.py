@@ -61,18 +61,21 @@ _FIELDS = {
         "action",
         "phase",
         "booth_present",
+        "action_accuracy",
     ),
     "event": (
         "event_id",
         "gesture",
         "occurred_at",
         "expires_at",
+        "action_accuracy",
         "frame_id",
         "source_timestamp",
     ),
     "ack": ("event_id", "status"),
 }
 _OPTIONAL = {
+    "action_accuracy",
     "observed_at",
     "frame_id",
     "source_timestamp",
@@ -115,6 +118,12 @@ def _validate(message: dict) -> str:
         value = message.get(field)
         if field in _OPTIONAL and value is None:
             continue
+        if field == "action_accuracy" and (
+            not isinstance(value, int | float)
+            or isinstance(value, bool)
+            or not 0 <= value <= 1
+        ):
+            raise ValueError("action_accuracy must be finite and in [0, 1]")
         if field in {"sequence", "event_id", "frame_id"}:
             minimum = 0 if field == "frame_id" else 1
             if type(value) is not int or not minimum <= value < 2**64:
@@ -137,6 +146,12 @@ def _validate(message: dict) -> str:
         elif field in {"action", "phase"} and (not isinstance(value, str) or not value):
             raise ValueError(f"{field} must be a nonempty string")
     if kind == "state":
+        if message.get("action_accuracy") is not None and (
+            not message["fresh"]
+            or not message["tracking"]
+            or message["gesture"] == Gesture.NONE
+        ):
+            raise ValueError("State accuracy requires a fresh tracked gesture")
         action, phase = message.get("action"), message.get("phase")
         if (action is None) != (phase is None):
             raise ValueError("action and phase must be present together")
@@ -201,7 +216,7 @@ def decode_message(data: bytes) -> dict:
     enum_field, values = _ENUMS[kind]
     for field in _FIELDS[kind]:
         if field in _OPTIONAL and not payload.HasField(field):
-            if field in {"action", "phase", "booth_present"}:
+            if field in {"action", "phase", "booth_present", "action_accuracy"}:
                 continue
             message[field] = None
             continue

@@ -1,4 +1,4 @@
-from unity_bridge.gesture_probe import GestureReceiver
+from unity_bridge.gesture_probe import GestureReceiver, log_snapshot
 
 
 def decision(receiver, message, now, accept):
@@ -74,3 +74,36 @@ def test_old_state_cannot_overwrite_newer_state():
     receiver.receive(newer, 10.1, lambda _: True)
     receiver.receive(state(), 10.2, lambda _: True)
     assert receiver.gesture == "RELAXING"
+
+
+def test_probe_separates_state_and_event_scores_and_preserves_zero():
+    receiver = GestureReceiver()
+    current = {**state(), "action_accuracy": 0.75}
+    receiver.receive(current, 10.1, lambda _: True)
+    assert log_snapshot(receiver, current, None)["action_accuracy"] == 0.75
+    occurrence = {**event(), "gesture": "UCHIMIZU", "action_accuracy": 0.0}
+    ack = receiver.receive(occurrence, 10.2, lambda _: True)
+    output = log_snapshot(receiver, occurrence, ack)
+    assert output["action_accuracy"] == 0.75
+    assert output["event"] == {
+        "event_id": 1,
+        "gesture": "UCHIMIZU",
+        "action_accuracy": 0.0,
+    }
+    assert output["decision"] == ack
+    receiver.poll(10.5)
+    assert receiver.action_accuracy is None
+
+
+def test_probe_clears_missing_scores_and_ignores_old_state_scores():
+    receiver = GestureReceiver()
+    receiver.receive(
+        {**state(sequence=2), "action_accuracy": 0.0}, 10.1, lambda _: True
+    )
+    receiver.receive({**state(), "action_accuracy": 1.0}, 10.2, lambda _: True)
+    assert receiver.action_accuracy == 0.0
+    receiver.receive(state(sequence=3), 10.3, lambda _: True)
+    assert receiver.action_accuracy is None
+    occurrence = event()
+    ack = receiver.receive(occurrence, 10.4, lambda _: True)
+    assert log_snapshot(receiver, occurrence, ack)["event"]["action_accuracy"] is None

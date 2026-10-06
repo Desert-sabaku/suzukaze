@@ -195,6 +195,8 @@ def test_action_accuracy_schema_preserves_presence_and_existing_message_semantic
     kind, score
 ):
     message = next(f["message"] for f in FIXTURES if f["message"]["type"] == kind)
+    if kind == "state":
+        message = {**message, "gesture": "BOW", "fresh": True, "tracking": True}
     envelope = pb.GestureEnvelope.FromString(encode_message(message))
     payload = getattr(envelope, kind)
     assert not payload.HasField("action_accuracy")
@@ -204,8 +206,8 @@ def test_action_accuracy_schema_preserves_presence_and_existing_message_semantic
     restored = pb.GestureEnvelope.FromString(wire)
     assert getattr(restored, kind).HasField("action_accuracy")
     assert getattr(restored, kind).action_accuracy == score
-    # Schema-only metadata remains forward-compatible with the current codec.
-    assert decode_message(wire) == message
+    assert decode_message(wire) == {**message, "action_accuracy": score}
+    assert encode_message({**message, "action_accuracy": score}) == wire
 
     getattr(restored, kind).ClearField("action_accuracy")
     assert restored.SerializeToString(deterministic=True) == encode_message(message)

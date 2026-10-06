@@ -39,6 +39,7 @@ class GestureReceiver:
         self.tracking = False
         self.fresh = False
         self.booth_present = False
+        self.action_accuracy: float | None = None
         self._last_state = -math.inf
         self._observed_at = -math.inf
         self._timeout = 0.5
@@ -50,6 +51,7 @@ class GestureReceiver:
         self.action = self.phase = None
         self.tracking = self.fresh = False
         self.booth_present = False
+        self.action_accuracy = None
         self._last_state = -math.inf
 
     def poll(self, now: float) -> None:
@@ -108,6 +110,11 @@ class GestureReceiver:
             self.gesture = Gesture(gesture) if self.tracking else Gesture.NONE
             self.action = message.get("action") if self.tracking else None
             self.phase = message.get("phase") if self.tracking else None
+            self.action_accuracy = (
+                message.get("action_accuracy")
+                if self.tracking and self.gesture != Gesture.NONE
+                else None
+            )
             return None
         event_id = message.get("event_id")
         if type(event_id) is not int or event_id <= 0:
@@ -145,6 +152,29 @@ def decode_payload(raw: str | bytes) -> dict[str, Any]:
     return decode_message(raw)
 
 
+def log_snapshot(
+    receiver: GestureReceiver, message: dict[str, Any], ack: dict[str, Any] | None
+) -> dict[str, Any]:
+    """Separate the latest state score from this received occurrence's score."""
+    return {
+        "state": receiver.gesture,
+        "action": receiver.action,
+        "phase": receiver.phase,
+        "tracking": receiver.tracking,
+        "fresh": receiver.fresh,
+        "booth_present": receiver.booth_present,
+        "action_accuracy": receiver.action_accuracy,
+        "event": {
+            "event_id": message["event_id"],
+            "gesture": message["gesture"],
+            "action_accuracy": message.get("action_accuracy"),
+        }
+        if message["type"] == "event"
+        else None,
+        "decision": ack,
+    }
+
+
 async def run(url: str, ignore_events: bool = False) -> None:
     receiver = GestureReceiver()
     while True:
@@ -164,17 +194,7 @@ async def run(url: str, ignore_events: bool = False) -> None:
                         message, time.monotonic(), lambda _: not ignore_events
                     )
                     print(
-                        json.dumps(
-                            {
-                                "state": receiver.gesture,
-                                "action": receiver.action,
-                                "phase": receiver.phase,
-                                "tracking": receiver.tracking,
-                                "fresh": receiver.fresh,
-                                "booth_present": receiver.booth_present,
-                                "decision": ack,
-                            }
-                        ),
+                        json.dumps(log_snapshot(receiver, message, ack)),
                         flush=True,
                     )
                     if ack is not None:
