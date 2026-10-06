@@ -21,7 +21,7 @@ EditorBuildSettings:
     path: Assets/MyScenes/Forest.unity
     guid: 88cbe6f490b5e524ab853841b7320c21
   - enabled: 0
-    path: "Assets/MyScenes/\u26061\u6E56.unity"
+    path: Assets/Projects/Scenes/Lake.unity
     guid: ef286cc31cd764e4b8256ecc622f3cbe
   - enabled: 0
     path: "Assets/MyScenes/river(\u4E2D\u6D41).unity"
