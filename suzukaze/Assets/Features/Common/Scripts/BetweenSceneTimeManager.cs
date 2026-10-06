@@ -16,6 +16,19 @@ namespace Features.Common.Scripts
         private GameSettings _gameSettings;
         private bool _isActive = true;
 
+        /// <summary>
+        ///     現在の時刻 (0〜24)。太陽 (Directional Light) が最も高くなる角度を 12 時とする
+        /// </summary>
+        public float CurrentHour
+        {
+            get
+            {
+                if (!_gameSettings) return 12f;
+                var angle = _currentTime * 360f / 24f - NoonAngle(_gameSettings.lightAxis);
+                return Mathf.Repeat(12f + angle * 24f / 360f, 24f);
+            }
+        }
+
         private void Start()
         {
             var currentScene = SceneManager.GetActiveScene();
@@ -60,6 +73,17 @@ namespace Features.Common.Scripts
             _isActive = _gameSettings.ignoreTimeManageScenes.All(ignoreScene => ignoreScene != newScene.name);
             _directionalLight = FindDirectionalLight(newScene);
             Debug.Assert(_directionalLight != null, "Directional light not found in the new scene.");
+        }
+
+        /// <summary>
+        ///     ライトは AngleAxis(angle, axis) * forward を向くので、その y 成分は
+        ///     -a.x * sin(angle) + a.y * a.z * (1 - cos(angle)) になる。これが最も小さく
+        ///     (ライトが最も下向きに) なる角度を正午とする
+        /// </summary>
+        private static float NoonAngle(Vector3 axis)
+        {
+            var a = axis.normalized;
+            return Mathf.Atan2(a.x, a.y * a.z) * Mathf.Rad2Deg;
         }
 
         private static Transform FindDirectionalLight(UnityEngine.SceneManagement.Scene scene)
