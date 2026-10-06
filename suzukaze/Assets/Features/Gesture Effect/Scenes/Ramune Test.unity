@@ -463,9 +463,9 @@ MonoBehaviour:
   gravity: 20
   bounciness: 0.4
   settleSpeed: 0.8
-  fizzBubbleDensity: 0.7
+  fizzBubbleDensity: 0.4
   fizzBubbleSpeed: 1.6
-  fizzDuration: 3
+  fizzDuration: 1.4
 --- !u!1 &2120431597
 GameObject:
   m_ObjectHideFlags: 0
