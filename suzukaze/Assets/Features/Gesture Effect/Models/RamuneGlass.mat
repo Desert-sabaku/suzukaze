@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: RamuneGlass
+  m_Shader: {fileID: 4800000, guid: 3a7103a6bf6e4d3b9456a29b7f3a9cf9, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _BUBBLES_ON
+  - _MARBLE_ON
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints: []
+    m_Floats:
+    - _BottomThickness: 0.16
+    - _BubbleCellSize: 0.1
+    - _BubbleDensity: 0.15
+    - _BubbleIntensity: 1.5
+    - _BubbleRadius: 0.012
+    - _BubbleSpeed: 0.5
+    - _Bubbles: 1
+    - _FillLevel: -0.05
+    - _GlassDensity: 10
+    - _GlassIOR: 1.5
+    - _GlassScatter: 0.25
+    - _GlassThickness: 0.05
+    - _InternalReflection: 0.6
+    - _LiquidDensity: 1
+    - _LiquidIOR: 1.34
+    - _Marble: 1
+    - _MarbleCenter: 0.56
+    - _MarbleDensity: 1.5
+    - _MarbleRadius: 0.19
+    - _MaxTravel: 0.5
+    - _ProfileScale: 1
+    - _ReflectionStrength: 1
+    - _Smoothness: 0.97
+    - _SpecularStrength: 1
+    - _WaveScale: 8
+    - _WaveSpeed: 2
+    - _WaveStrength: 0.15
+    m_Colors:
+    - _BottleAxis: {r: 0, g: 0, b: 1, a: 0}
+    - _BubbleColor: {r: 0.9, g: 0.97, b: 1, a: 1}
+    - _GlassAbsorption: {r: 0.8, g: 0.15, b: 0.2, a: 1}
+    - _GlassScatterColor: {r: 0.55, g: 0.9, b: 0.85, a: 1}
+    - _LiquidAbsorption: {r: 0.12, g: 0.04, b: 0.03, a: 1}
+    - _LiquidTilt: {r: 0, g: 0, b: 0, a: 0}
+    - _MarbleAbsorption: {r: 0.5, g: 0.12, b: 0.15, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

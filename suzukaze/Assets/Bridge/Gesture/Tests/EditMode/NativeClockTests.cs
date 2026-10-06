@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
-namespace Suzukaze.Gesture.Receiver.Tests
+namespace Suzukaze.Gesture.Tests
 {
     public class NativeClockTests
     {

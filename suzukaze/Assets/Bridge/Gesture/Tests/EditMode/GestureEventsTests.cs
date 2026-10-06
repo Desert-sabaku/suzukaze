@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Suzukaze.Gesture.Protocol;
+using GestureAction = Suzukaze.Gesture.Protocol.Action;
 
-namespace Suzukaze.Gesture.Receiver.Tests
+namespace Suzukaze.Gesture.Tests
 {
     public class GestureEventsTests
     {
@@ -28,13 +29,18 @@ namespace Suzukaze.Gesture.Receiver.Tests
         }
 
         private void PublishState(ContinuousGesture gesture, ulong sequence = 1,
-            string session = "s", bool fresh = true, bool tracking = true)
+            string session = "s", bool fresh = true, bool tracking = true,
+            GestureAction? action = null, Phase? phase = null, bool boothPresent = false)
         {
+            var state = new State {
+                Sequence = sequence, SentAt = clock.Time, ObservedAt = clock.Time,
+                StaleTimeout = .5, Fresh = fresh, Tracking = tracking, Gesture = gesture,
+                BoothPresent = boothPresent
+            };
+            if (action.HasValue) state.Action = action.Value;
+            if (phase.HasValue) state.Phase = phase.Value;
             Assert.That(handoff.Publish(token, new ReceivedMessage(new GestureEnvelope {
-                Version = 1, SessionId = session, State = new State {
-                    Sequence = sequence, SentAt = clock.Time, ObservedAt = clock.Time,
-                    StaleTimeout = .5, Fresh = fresh, Tracking = tracking, Gesture = gesture
-                }
+                Version = 1, SessionId = session, State = state
             }, clock.Time)), Is.True);
         }
 
@@ -49,6 +55,49 @@ namespace Suzukaze.Gesture.Receiver.Tests
         }
 
         private void Tick() { handoff.Tick(clock, gestures); }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void BoothPresenceNotifiesWithoutGestureOrTrackingAndClearsOnLoss(bool disconnect)
+        {
+            var changes = new List<bool>();
+            gestures.StateChanged += state => changes.Add(state.BoothPresent);
+            PublishState(ContinuousGesture.None);
+            Tick();
+            PublishState(ContinuousGesture.None, 2, boothPresent: true);
+            Tick();
+            Tick();
+            Assert.That(changes, Is.EqualTo(new[] { false, true }));
+            PublishState(ContinuousGesture.None, 3, tracking: false, boothPresent: true);
+            Tick();
+            Assert.That(gestures.CurrentState.BoothPresent, Is.True);
+            if (disconnect) handoff.Disconnect(token);
+            else clock.Time = 10.5;
+            Tick();
+            Assert.That(gestures.CurrentState.BoothPresent, Is.False);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void PhaseOnlyChangesNotifyAndStaleOrDisconnectClearsProgress(bool disconnect)
+        {
+            var changes = new List<StateView>();
+            gestures.StateChanged += changes.Add;
+            PublishState(ContinuousGesture.None, action: GestureAction.Ramune, phase: Phase.Forming);
+            Tick();
+            PublishState(ContinuousGesture.None, 2, action: GestureAction.Ramune, phase: Phase.Ready);
+            Tick();
+            Tick();
+            Assert.That(changes.Count, Is.EqualTo(2));
+            Assert.That(gestures.CurrentState.Action, Is.EqualTo(GestureAction.Ramune));
+            Assert.That(gestures.CurrentState.Phase, Is.EqualTo(Phase.Ready));
+            if (disconnect) handoff.Disconnect(token);
+            else clock.Time = 10.5;
+            Tick();
+            Assert.That(changes.Count, Is.EqualTo(3));
+            Assert.That(gestures.CurrentState.Action, Is.Null);
+            Assert.That(gestures.CurrentState.Phase, Is.Null);
+        }
 
         private void AssertAck(AckStatus status, ulong id = 1)
         {

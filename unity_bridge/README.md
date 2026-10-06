@@ -17,6 +17,27 @@ uv run unity-bridge --gesture
 で受け取って、UnityのWebSocket `ws://127.0.0.1:5000` へProtobufで送ります。
 このモードではシリアルポートを開きません。同時接続は1クライアントです。
 状態通知・イベントの再送・UnityからのACKはブリッジ内の `DeliveryOutbox` が扱います。
+状態通知には、準備を含む進行状態として省略可能なenum `action` と `phase` も
+送ります（例: `gesture: NONE, action: RAMUNE, phase: READY`）。両フィールドは
+一緒に存在し、アイドル・追跡喪失・失効時は省略します。`unity-gesture-probe` でも
+表示されます。phaseの値とUnity側の利用例は下記の受信実装READMEを参照してください。
+`action` と `phase` は受信実装READMEに記載した組み合わせだけを許容します。
+`RAMUNE / NONE` などの未定義の組み合わせは送受信で拒否します。
+phaseは最新状態であり、すべての段階の到達・順序を保証しません。成立の通知には
+phaseではなく、再送・ACKのあるイベントを使用してください。
+
+| フィールド | 所作の意味 |
+|---|---|
+| `State.gesture` | 継続中の所作（扇ぎ・夕涼み・礼）。ない場合は `NONE` |
+| `Event.gesture` | 新規に成立した所作（ラムネ・打ち水）。成立ごとにイベントとして配送 |
+| `State.action / phase` | 進行中の所作とその段階。準備中・成立後の状態も含む |
+
+Python側の所作・フェーズは `gesture_detection.gesture_types.Gesture / Phase` に、
+許容する組み合わせは同モジュールの `ACTION_PHASES` に集約しています。
+認識器・ブリッジでこの `StrEnum` を共用し、通信時はProtobufから生成したenumに変換します。
+JSONの表示は `RAMUNE / READY` などの文字列です。
+旧文字列フィールドのタグ11・12は予約し、enum版はタグ13・14を使用します。
+
 認識側・ブリッジ・Unityは同一Windows PCまたは同一64-bit Linux PCで実行します。
 Windows UnityとWSL/Linux Pythonの組み合わせには対応しません。
 

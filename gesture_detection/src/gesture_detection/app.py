@@ -22,10 +22,12 @@ from .config import (
     VIDEO_SOURCE,
     WINDOW_TITLE,
 )
+from .gesture_types import Gesture, Phase
 from .ipc import SharedLatestFrame, get_latest
 from .pose_worker import pose_worker
 from .recognition_types import GestureSample, PoseResult
 from .rendering import (
+    draw_bow_meter,
     draw_landmarks,
     draw_messages,
     draw_ramune_guide,
@@ -83,7 +85,7 @@ class GestureApplication:
 
         latest_pose: PoseResult = {
             "landmarks": [],
-            "selected_action": "NONE",
+            "selected_action": Gesture.NONE,
             "relaxing_state": False,
         }
         previous_time = time.monotonic()
@@ -284,8 +286,9 @@ class GestureApplication:
         if "subject_state" in pose_result:
             draw_subject_area(image, pose_result["subject_state"])
         draw_messages(image, status_messages(pose_result))
-        draw_ramune_guide(image, pose_result.get("ramune_state", "IDLE"))
+        draw_ramune_guide(image, pose_result.get("ramune_state", Phase.IDLE))
         GestureApplication._draw_action(image, GestureApplication._primary_action(pose_result))
+        draw_bow_meter(image, pose_result)
         return image
 
     @staticmethod
@@ -293,19 +296,25 @@ class GestureApplication:
         current = pose_result.get("current")
         if current is not None:
             gesture = current["gesture"]
-            return "SPRINKLING" if gesture == "UCHIMIZU" else gesture
-        selected = pose_result.get("selected_action", "NONE")
-        return {"RAMUNE": "RAMUNE", "UCHIMIZU": "SPRINKLING", "FANNING": "FANNING"}.get(
-            selected, "RELAXING" if pose_result.get("relaxing_state") else "NONE"
+            return "SPRINKLING" if gesture == Gesture.UCHIMIZU else gesture
+        selected = pose_result.get("selected_action", Gesture.NONE)
+        actions: dict[str, str] = {
+            Gesture.RAMUNE: Gesture.RAMUNE,
+            Gesture.UCHIMIZU: "SPRINKLING",
+            Gesture.FANNING: Gesture.FANNING,
+        }
+        return actions.get(
+            selected, Gesture.RELAXING if pose_result.get("relaxing_state") else Gesture.NONE
         )
 
     @staticmethod
     def _draw_action(image: Frame, action: str) -> None:
         labels = {
-            "FANNING": ("Action: Fanning!", (0, 165, 255)),
+            Gesture.FANNING: ("Action: Fanning!", (0, 165, 255)),
             "SPRINKLING": ("Action: Sprinkling Water!", (255, 100, 100)),
-            "RAMUNE": ("Action: Opening Ramune!", (0, 255, 255)),
-            "RELAXING": ("Action: Relaxing...", (0, 255, 255)),
+            Gesture.RAMUNE: ("Action: Opening Ramune!", (0, 255, 255)),
+            Gesture.RELAXING: ("Action: Relaxing...", (0, 255, 255)),
+            Gesture.BOW: ("Action: Bowing", (0, 255, 255)),
         }
         if action not in labels:
             return

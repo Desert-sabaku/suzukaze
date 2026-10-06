@@ -18,8 +18,8 @@ WebSocket → 配送ポリシー（失効・重複・ACK）→ GestureEvents →
 
 | API | 内容 |
 |---|---|
-| `CurrentState` | 現在の状態。`Gesture` は `None / Fanning / Relaxing`、`Fresh` と `Tracking` も公開 |
-| `StateChanged` | 所作・鮮度・追跡・セッションが変わったときの通知。失効・切断でも解除状態を通知 |
+| `CurrentState` | 現在の状態。`Gesture` は `None / Fanning / Relaxing / Bow`、`Fresh`、`Tracking`、`Action`、`Phase` も公開 |
+| `StateChanged` | 所作・phase・在席・鮮度・追跡・セッションが変わったときの通知。失効・切断でも解除状態を通知 |
 | `Occurred` | `Ramune / Uchimizu` の成立通知。コールバックは採用したときだけ `true` を返す |
 
 すべて Unity メインスレッドで呼ばれます。`CurrentState` は各 Update で更新し、
@@ -27,9 +27,94 @@ WebSocket → 配送ポリシー（失効・重複・ACK）→ GestureEvents →
 `CurrentState` も読み、既に継続している扇ぎ・夕涼みを反映してください。
 現プロトコルの継続状態は代表動作1つで、扇ぎと夕涼みを同時に表しません。
 
+### ブース前の人物の在席
+
+`CurrentState.BoothPresent` はジェスチャーと独立した在席状態です。
+同じ人物の胴体中心が `gesture_detection/config.toml` の `pose.subject.area` 内にあり、
+最小胴体高さ・肩幅を満たして1秒間連続で検出されると `true` になります。
+静止や特定の姿勢は不要です。人物選択が有効な場合、その取得待ちの後から滞在時間を計測します。
+確定前の検出抜けは滞在時間をリセットし、確定後は0.5秒未満の検出抜けを許容します。
+この間は `Tracking == false` でも `BoothPresent == true` になり得ます。
+離脱・観測の失効・切断時は `false` に戻ります。2カメラでは1台目だけで判定します。
+
+時間は `[booth]` の `dwell_seconds` / `release_seconds` で変更できます。
+スキーマ変更後は `proto/` で `buf generate` を実行してください。
+
+```csharp
+private bool boothPresent;
+
+void OnStateChanged(StateView state)
+{
+    bool arrived = !boothPresent && state.BoothPresent;
+    boothPresent = state.BoothPresent;
+    if (arrived) Debug.Log("ブース前に人が来ました");
+}
+```
+
+`GestureReceiverBehaviour.GetOrCreate().Events.StateChanged` に購読し、
+`OnDisable` で解除してください。購読時に `CurrentState` も読むと既にいる人物を反映できます。
+これは最新の在席状態の通知です。切断中の入退場履歴は再生せず、再接続時に在席中なら
+再び `true` になります。再接続で演出を重複開始させたくない場合は演出側で開始済み状態を管理します。
+
+所作の役割は次のように区別します。
+
+| API | 所作の意味 |
+|---|---|
+| `CurrentState.Gesture` | 継続中の所作（扇ぎ・夕涼み・礼） |
+| `Occurred` の `occurrence.Gesture` | 新規に成立した所作（ラムネ・打ち水） |
+| `CurrentState.Action / Phase` | 進行中の所作とその段階。準備中・成立後の状態も含む |
+
+`Action` と `Phase` はProtobufから生成するenumのnullable値で、認識器の現在の進行状態を公開します。
+型は `Suzukaze.Gesture.Protocol.Action?` と `Suzukaze.Gesture.Protocol.Phase?` です。
+ラムネや打ち水の準備中は `Gesture == None` でも取得できます。
+準備状態は成立イベントではなく、`Occurred` は成立時だけ通知します。
+
+| `Action` | `Phase` |
+|---|---|
+| `Action.Ramune` | `Phase.Forming / Ready / Opened / WaitRelease` |
+| `Action.Uchimizu` | `Phase.Ready / Swing` |
+| `Action.Fanning / Relaxing` | `Phase.Active` |
+| `Action.Bow` | `Phase.Hold` |
+
+この表が許容する対象動作とphaseの組み合わせです。Pythonの送受信とUnityの受信で
+検証し、`RAMUNE / NONE`、`BOW / READY` などの未定義の組み合わせは拒否します。
+phaseの追加時は送信側・受信側の検証も同時に更新してください。
+進行状態がない場合は `NONE / IDLE` を送らず、両フィールドを省略します。
+
+phaseは最新値のスナップショットです。配送中の最新値への集約によって、
+`FORMING → READY → OPENED` の全段階を観測する保証はありません。`StateChanged` は
+Unityが採用した現在値の変化を通知し、認識器内のすべての遷移を通知するものではありません。
+複数カメラの観測選択によって、phaseが前の段階に戻ることもあります。
+`OPENED / SWING` を観測しても成立イベントが採用されたとは限らないため、
+ラムネ・打ち水の成立演出は `Occurred` を使って開始してください。
+
+アイドル・追跡喪失・失効・切断時は両方 `null` です。phaseも代表動作1つを送り、
+現在の動作を優先し、動作がない場合はラムネ、打ち水の順に準備状態を選びます。
+複数カメラでは現在の動作に対応するphaseを優先し、それ以外は動作の優先順位と
+最新の観測時刻で選びます。礼の `BENDING / RETURNING` など、認識器がまだ判定しない
+段階は送信しません。
+
+```csharp
+using GestureAction = Suzukaze.Gesture.Protocol.Action;
+using GesturePhase = Suzukaze.Gesture.Protocol.Phase;
+
+bool ramuneReady = gestures.CurrentState.Action == GestureAction.Ramune
+    && gestures.CurrentState.Phase == GesturePhase.Ready;
+```
+
+所作・フェーズの通信定義は `proto/gesture/v1/gesture.proto` にまとめています。
+C#側は生成された `ContinuousGesture / OccurrenceGesture / Action / Phase` を使い、
+組み合わせの検証は `WireMessage.ValidPhase` に集約しています。
+Python側は `gesture_detection.gesture_types.Gesture / Phase` の `StrEnum` と
+`ACTION_PHASES` を認識器・ブリッジで共用します。生成されたProtobufのenumとの
+名前の一致をテストで検証します。JSONや診断ログでは従来の大文字表記になります。
+
+文字列だった `action / phase` のタグ11・12は予約し、enum版はタグ13・14を使います。
+phaseを利用する送受信側はこのスキーマから両方再生成してください。
+
 ```csharp
 using Suzukaze.Gesture.Protocol;
-using Suzukaze.Gesture.Receiver;
+using Suzukaze.Gesture;
 using UnityEngine;
 using GestureEvent = Suzukaze.Gesture.Protocol.Event;
 
@@ -80,6 +165,28 @@ public sealed class GestureExample : MonoBehaviour
 再送の重複・期限切れは購読者に渡しません。後から購読しても過去の成立イベントは再生しません。
 複数の演出が同じイベントを採用した場合、それぞれ実行されます。排他的な演出判断は演出側で行います。
 購読者は `OnDisable` で解除し、自分の継続演出も停止してください。
+
+## スタート画面と礼の接続
+
+`Assets/My_script/FOR SCENE/RandomSceneLoader.cs`は、Spaceキーに加え、
+`StateChanged`で新たに届いた`Bow`状態でもゲームを開始します。
+`Fresh`と`Tracking`が両方trueの場合だけ、Spaceと同じ`TryStartGame()`を呼び、
+Inspectorで設定した`sceneNames`からランダムにシーンを選びます。
+開始処理はコンポーネントごとに一度だけ実行し、礼の継続・再接続や同時のSpace入力で
+二重に開始しません。画面の無効化時に購読を解除します。
+購読開始時の保存済み状態は再生せず、画面表示後の状態変更を待ちます。
+
+開始画面`Scene_ch`の`SceneCahnger`オブジェクトに`RandomSceneLoader`を配置済みです。
+`sceneNames`にはBuild Settingsで有効な`Forest`、`☆1湖`、`river(中流)`、`river`、`sea`
+を設定しています。追加の受信器やイベント設定は不要です。
+受信器は開始画面で自動作成し、次のシーンでも再利用します。
+起動は`unity_bridge/`で`uv run unity-bridge --gesture`を実行し、Unityで開始画面を再生します。
+Spaceによる手動開始は、ブリッジ未接続でも利用できます。
+
+確認時は、開始画面で礼をしてシーンが一度だけ切り替わること、礼を戻してから
+開始画面を開き直してSpaceでも切り替わることを確認してください。
+probeもWebSocketの受信クライアントなので、Unityで試す前にprobeは終了してください。
+ブリッジは同時に1つの受信クライアントだけを許可します。
 
 ## 打ち水演出への接続
 
@@ -189,8 +296,10 @@ dedup because an effect may have run before the exception; retry returns
 
 - Windows: `WindowsQpcClock`, `QueryPerformanceCounter / QueryPerformanceFrequency`.
 - 64-bit Linux (LP64): `LinuxMonotonicClock`, libc `clock_gettime(CLOCK_MONOTONIC)`.
+- macOS: `OSXMonotonicClock`, `mach_absolute_time()` converted to nanoseconds with
+  `mach_timebase_info`, like CPython.
 
-Neither subtracts a process start time. Both share CPython `time.monotonic()`'s
+None subtracts a process start time. All share CPython `time.monotonic()`'s
 epoch on the **same native OS and PC**. Linux uses MONOTONIC, not BOOTTIME or
 MONOTONIC_RAW. Unity `Time.time`, wall clock, and stopwatch **elapsed** time are
 unsuitable. Other hosts/32-bit Linux are rejected before native calls.

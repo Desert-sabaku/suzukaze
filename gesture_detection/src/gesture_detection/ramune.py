@@ -13,10 +13,15 @@ from .config import (
     RAMUNE_HOLD_SECONDS,
     RAMUNE_MAX_FRAME_GAP,
     RAMUNE_MAX_READY_GAP,
+    RAMUNE_MAX_WINDUP_GAP,
     RAMUNE_MIN_PRESS,
     RAMUNE_MIN_READY_GAP,
     RAMUNE_PRESS_TIMEOUT,
+    RAMUNE_READY_ALIGN_TOLERANCE,
+    RAMUNE_UPPER_RAISE_TOLERANCE,
+    RAMUNE_WINDUP_SECONDS,
 )
+from .gesture_types import Phase
 
 
 class Landmark(Protocol):
@@ -26,13 +31,13 @@ class Landmark(Protocol):
 
 
 class RamuneAnalyzer:
-    """Require a stable lower hand followed by a downward upper-hand press."""
+    """Allow bounded lower-hand drift, then require a relative upper-hand press."""
 
     def __init__(self) -> None:
         self.reset()
 
     def reset(self) -> None:
-        self.state = "IDLE"
+        self.state = Phase.IDLE
         self.setup_started_at: float | None = None
         self.base_index: int | None = None
         self.base = (0.0, 0.0)
@@ -41,6 +46,7 @@ class RamuneAnalyzer:
         self.scale = 1.0
         self.since = 0.0
         self.last_time: float | None = None
+        self.windup_since: float | None = None
 
     def update(self, landmarks: Sequence[Landmark], now: float) -> bool:
         if self.last_time is not None and (
@@ -62,24 +68,26 @@ class RamuneAnalyzer:
         lower = max((15, 16), key=lambda i: landmarks[i].y)
         upper = 31 - lower
         gap = (landmarks[lower].y - landmarks[upper].y) / scale
-        aligned = abs(landmarks[15].x - landmarks[16].x) / scale <= RAMUNE_ALIGN_TOLERANCE
+        horizontal_gap = abs(landmarks[15].x - landmarks[16].x) / scale
+        aligned = horizontal_gap <= RAMUNE_ALIGN_TOLERANCE
+        ready_aligned = horizontal_gap <= RAMUNE_READY_ALIGN_TOLERANCE
         shoulder_y = (landmarks[11].y + landmarks[12].y) / 2
         hip_y = (landmarks[23].y + landmarks[24].y) / 2
         in_torso = shoulder_y <= landmarks[lower].y <= hip_y
-        ready = aligned and in_torso and RAMUNE_MIN_READY_GAP <= gap <= RAMUNE_MAX_READY_GAP
+        ready = ready_aligned and in_torso and RAMUNE_MIN_READY_GAP <= gap <= RAMUNE_MAX_READY_GAP
 
-        if self.state == "OPENED":
+        if self.state == Phase.OPENED:
             if now - self.since < RAMUNE_HOLD_SECONDS:
                 return True
-            self.state = "WAIT_RELEASE"
-        if self.state == "WAIT_RELEASE":
+            self.state = Phase.WAIT_RELEASE
+        if self.state == Phase.WAIT_RELEASE:
             # A new separated-hand preparation is required after each opening.
             if ready:
                 self.reset()
             return False
-        if self.state == "IDLE":
+        if self.state == Phase.IDLE:
             if ready:
-                self.state = "FORMING"
+                self.state = Phase.FORMING
                 self.setup_started_at = now
                 self.base_index = lower
                 self.base = (landmarks[lower].x, landmarks[lower].y)
@@ -95,14 +103,14 @@ class RamuneAnalyzer:
             abs(base.x - self.base[0]) / self.scale <= RAMUNE_BASE_X_TOLERANCE
             and abs(base.y - self.base[1]) / self.scale <= RAMUNE_BASE_TOLERANCE
         )
-        if not stable or not aligned or not in_torso:
+        if not stable or not ready_aligned or not in_torso:
             self.reset()
             return False
-        if self.state == "FORMING":
+        if self.state == Phase.FORMING:
             if not ready or lower != self.base_index:
                 self.reset()
             elif now - self.since >= RAMUNE_DWELL_SECONDS:
-                self.state = "READY"
+                self.state = Phase.READY
                 self.upper_y = pressing.y
                 self.ready_gap = (base.y - pressing.y) / self.scale
                 self.since = now
@@ -110,58 +118,47 @@ class RamuneAnalyzer:
         if now - self.since > RAMUNE_PRESS_TIMEOUT:
             self.reset()
             return False
+        raised_gap = (base.y - pressing.y) / self.scale
+        if self.windup_since is not None and (
+            now - self.windup_since > RAMUNE_WINDUP_SECONDS + 1e-9
+            or raised_gap > RAMUNE_MAX_WINDUP_GAP
+        ):
+            self.reset()
+            return False
+        raising = pressing.y < self.upper_y and raised_gap > self.ready_gap
+        if raising and raised_gap > RAMUNE_MAX_WINDUP_GAP:
+            self.reset()
+            return False
+        if raising and RAMUNE_MIN_READY_GAP <= raised_gap <= RAMUNE_MAX_WINDUP_GAP:
+            if raised_gap > RAMUNE_MAX_READY_GAP and self.windup_since is None:
+                self.windup_since = now
+            # Completing the raise is still preparation, not an invalid press.
+            # Use its latest position in both single- and multicamera profiles.
+            self.upper_y, self.ready_gap = pressing.y, raised_gap
+            self.base = (base.x, base.y)
+            self.since = now
         press = (pressing.y - self.upper_y) / self.scale
         remaining = (base.y - pressing.y) / self.scale
-        if press < -RAMUNE_BASE_TOLERANCE or remaining < -RAMUNE_CONTACT_GAP:
+        if press < -RAMUNE_UPPER_RAISE_TOLERANCE or remaining < -RAMUNE_CONTACT_GAP:
             self.reset()
             return False
         # Require the upper hand to descend AND close the gap. Wider positional
         # tolerances must not turn common downward motion into a press.
         closing = self.ready_gap - remaining
+        if press >= RAMUNE_MIN_PRESS and closing >= RAMUNE_MIN_PRESS:
+            # The backswing has transitioned into a relative downward press.
+            self.windup_since = None
         if (
-            press >= RAMUNE_MIN_PRESS
+            aligned
+            and press >= RAMUNE_MIN_PRESS
             and closing >= RAMUNE_MIN_PRESS
             and abs(remaining) <= RAMUNE_CONTACT_GAP
         ):
-            self.state = "OPENED"
+            self.state = Phase.OPENED
             self.since = now
             return True
         return False
 
 
 class FollowingRamuneAnalyzer(RamuneAnalyzer):
-    """Track a raised preparation reference; keep the existing press thresholds."""
-
-    def update(self, landmarks: Sequence[Landmark], now: float) -> bool:
-        if (
-            self.state == "READY"
-            and self.base_index is not None
-            and self.last_time is not None
-            and 0 < now - self.last_time <= RAMUNE_MAX_FRAME_GAP
-            and len(landmarks) >= 25
-            and all(
-                p.visibility > 0.5 and math.isfinite(p.x) and math.isfinite(p.y)
-                for p in [landmarks[i] for i in (11, 12, 15, 16, 23, 24)]
-            )
-        ):
-            base, upper = landmarks[self.base_index], landmarks[31 - self.base_index]
-            shoulder_y = (landmarks[11].y + landmarks[12].y) / 2
-            hip_y = (landmarks[23].y + landmarks[24].y) / 2
-            width = abs(landmarks[11].x - landmarks[12].x)
-            gap = (base.y - upper.y) / self.scale
-            stable = (
-                abs(base.x - self.base[0]) / self.scale <= RAMUNE_BASE_X_TOLERANCE
-                and abs(base.y - self.base[1]) / self.scale <= RAMUNE_BASE_TOLERANCE
-            )
-            ready = (
-                width > 1e-6
-                and stable
-                and shoulder_y <= base.y <= hip_y
-                and abs(base.x - upper.x) / width <= RAMUNE_ALIGN_TOLERANCE
-                and RAMUNE_MIN_READY_GAP <= (base.y - upper.y) / width <= RAMUNE_MAX_READY_GAP
-            )
-            if ready and upper.y < self.upper_y and gap > self.ready_gap:
-                self.upper_y, self.ready_gap = upper.y, gap
-                self.base = (base.x, base.y)
-                self.since = now
-        return super().update(landmarks, now)
+    """Multicamera profile name; raised-hand following is shared with single view."""

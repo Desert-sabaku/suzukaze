@@ -2,7 +2,16 @@ import cv2
 import numpy as np
 import numpy.typing as npt
 
-from .config import RELAXING_DWELL_SECONDS, RIGHT_WRIST_INDEX, SUBJECT_AREA
+from .config import (
+    BOW_DWELL_SECONDS,
+    BOW_MAX_ANGLE_DEGREES,
+    BOW_MAX_HEAD_DEVIATION_DEGREES,
+    BOW_MIN_ANGLE_DEGREES,
+    RELAXING_DWELL_SECONDS,
+    RIGHT_WRIST_INDEX,
+    SUBJECT_AREA,
+)
+from .gesture_types import Phase
 from .recognition_types import PoseResult
 
 type Landmark = tuple[float, float, float]
@@ -67,6 +76,65 @@ def draw_messages(
         )
 
 
+def draw_bow_meter(image: npt.NDArray[np.uint8], result: PoseResult) -> None:
+    """Show the measured torso angle, target band and continuous hold progress."""
+    height, width = image.shape[:2]
+    if height < 270 or width < 220:
+        return
+    angle = result.get("bow_angle")
+    held = result.get("bow_hold_seconds", 0.0)
+    valid = (
+        angle is not None
+        and BOW_MIN_ANGLE_DEGREES <= angle <= BOW_MAX_ANGLE_DEGREES
+        and result.get("bow_head_aligned", False)
+    )
+    color = (0, 220, 0) if valid else (0, 180, 255)
+    if angle is None:
+        text = "Bow: -- (face, shoulders and hips needed)"
+    elif BOW_MIN_ANGLE_DEGREES <= angle <= BOW_MAX_ANGLE_DEGREES and not result.get(
+        "bow_head_aligned", False
+    ):
+        deviation = result.get("bow_head_deviation")
+        text = (
+            f"Bow: {angle:.0f} deg | head axis {deviation:.0f} deg (max {BOW_MAX_HEAD_DEVIATION_DEGREES:.0f})"
+            if deviation is not None
+            else f"Bow: {angle:.0f} deg | face forward"
+        )
+    else:
+        text = (
+            f"Bow: {angle:.0f} deg (target {BOW_MIN_ANGLE_DEGREES:.0f}-{BOW_MAX_ANGLE_DEGREES:.0f})"
+            f" | hold {held:.2f}/{BOW_DWELL_SECONDS:.2f}s"
+        )
+    cv2.putText(image, text, (10, 225), cv2.FONT_HERSHEY_SIMPLEX, 0.55, color, 2)
+    left, right = 10, min(width - 10, 310)
+    span = right - left
+
+    def position(degrees: float) -> int:
+        return left + round(span * min(max(degrees, 0), 90) / 90)
+
+    cv2.rectangle(image, (left, 237), (right, 252), (80, 80, 80), 1)
+    cv2.rectangle(
+        image,
+        (position(BOW_MIN_ANGLE_DEGREES), 238),
+        (position(BOW_MAX_ANGLE_DEGREES), 251),
+        (60, 110, 60),
+        -1,
+    )
+    if angle is not None:
+        x = position(angle)
+        cv2.line(image, (x, 234), (x, 255), color, 3)
+    # The second bar fills only while the bow angle and forward head are held.
+    cv2.rectangle(image, (left, 259), (right, 266), (80, 80, 80), 1)
+    if valid and held > 0:
+        cv2.rectangle(
+            image,
+            (left, 260),
+            (left + round(span * min(held / BOW_DWELL_SECONDS, 1)), 265),
+            (0, 220, 0),
+            -1,
+        )
+
+
 def draw_ramune_guide(
     image: npt.NDArray[np.uint8],
     state: str,
@@ -74,16 +142,16 @@ def draw_ramune_guide(
     release_message: str = "Ramune: lift the upper hand to try again",
 ) -> None:
     """Show the next physical action in a compact bottom panel."""
-    messages = {
-        "IDLE": "Ramune: make a ring; place the other hand above",
-        "FORMING": "Ramune: hold the lower hand still...",
-        "READY": "Ramune: press DOWN with the upper hand!",
-        "OPENED": "POP! Ramune opened!",
-        "WAIT_RELEASE": release_message,
+    messages: dict[str, str] = {
+        Phase.IDLE: "Ramune: make a ring; place the other hand above",
+        Phase.FORMING: "Ramune: hold the lower hand still...",
+        Phase.READY: "Ramune: press DOWN with the upper hand!",
+        Phase.OPENED: "POP! Ramune opened!",
+        Phase.WAIT_RELEASE: release_message,
     }
     height, width = image.shape[:2]
-    text = messages.get(state, messages["IDLE"])
-    color = (0, 255, 255) if state == "OPENED" else (255, 255, 255)
+    text = messages.get(state, messages[Phase.IDLE])
+    color = (0, 255, 255) if state == Phase.OPENED else (255, 255, 255)
     scale = min(0.6, max(0.1, (width - 20) / 1000))
     cv2.rectangle(image, (0, max(0, height - 44)), (width, height), (35, 35, 35), -1)
     cv2.putText(image, text, (10, height - 16), cv2.FONT_HERSHEY_SIMPLEX, scale, color, 1)

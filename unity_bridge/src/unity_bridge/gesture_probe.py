@@ -9,6 +9,11 @@ from collections.abc import Callable
 from typing import Any
 
 import websockets
+from gesture_detection.gesture_types import (
+    CONTINUOUS_GESTURES,
+    OCCURRENCE_GESTURES,
+    Gesture,
+)
 
 from .gesture_codec import MAX_MESSAGE_BYTES, decode_message, encode_message
 
@@ -28,9 +33,12 @@ class GestureReceiver:
 
     def __init__(self) -> None:
         self.session_id: str | None = None
-        self.gesture = "NONE"
+        self.gesture = Gesture.NONE
+        self.action: str | None = None
+        self.phase: str | None = None
         self.tracking = False
         self.fresh = False
+        self.booth_present = False
         self._last_state = -math.inf
         self._observed_at = -math.inf
         self._timeout = 0.5
@@ -38,8 +46,10 @@ class GestureReceiver:
         self._seen: dict[int, float] = {}
 
     def disconnected(self) -> None:
-        self.gesture = "NONE"
+        self.gesture = Gesture.NONE
+        self.action = self.phase = None
         self.tracking = self.fresh = False
+        self.booth_present = False
         self._last_state = -math.inf
 
     def poll(self, now: float) -> None:
@@ -81,7 +91,7 @@ class GestureReceiver:
             observed = message.get("observed_at")
             observed_at = -math.inf if observed is None else finite_number(observed)
             gesture = message.get("gesture")
-            if gesture not in ("NONE", "FANNING", "RELAXING"):
+            if not isinstance(gesture, str) or gesture not in CONTINUOUS_GESTURES:
                 raise ValueError("Unknown continuous gesture")
             if (
                 type(message.get("tracking")) is not bool
@@ -94,7 +104,10 @@ class GestureReceiver:
             self._timeout = timeout
             self.fresh = message["fresh"] and observed_at <= now < observed_at + timeout
             self.tracking = self.fresh and message["tracking"]
-            self.gesture = gesture if self.tracking else "NONE"
+            self.booth_present = self.fresh and message.get("booth_present", False)
+            self.gesture = Gesture(gesture) if self.tracking else Gesture.NONE
+            self.action = message.get("action") if self.tracking else None
+            self.phase = message.get("phase") if self.tracking else None
             return None
         event_id = message.get("event_id")
         if type(event_id) is not int or event_id <= 0:
@@ -102,7 +115,12 @@ class GestureReceiver:
         occurred = finite_number(message.get("occurred_at"))
         expires = finite_number(message.get("expires_at"))
         kind = message.get("gesture")
-        if kind not in ("RAMUNE", "UCHIMIZU") or expires <= occurred or occurred > now:
+        if (
+            not isinstance(kind, str)
+            or kind not in OCCURRENCE_GESTURES
+            or expires <= occurred
+            or occurred > now
+        ):
             raise ValueError("Invalid event or incompatible host clock")
         if now >= expires:
             status = "expired"
@@ -149,8 +167,11 @@ async def run(url: str, ignore_events: bool = False) -> None:
                         json.dumps(
                             {
                                 "state": receiver.gesture,
+                                "action": receiver.action,
+                                "phase": receiver.phase,
                                 "tracking": receiver.tracking,
                                 "fresh": receiver.fresh,
+                                "booth_present": receiver.booth_present,
                                 "decision": ack,
                             }
                         ),

@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using Object = UnityEngine.Object;
 
-namespace Suzukaze.Gesture.Receiver.Tests
+namespace Suzukaze.Gesture.Tests
 {
     public class UchimizuTests
     {

@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
-namespace Suzukaze.Gesture.Receiver.Tests
+namespace Suzukaze.Gesture.Tests
 {
     public class UchimizuSceneSerializationTests
     {

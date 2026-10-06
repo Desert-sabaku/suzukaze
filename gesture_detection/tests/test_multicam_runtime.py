@@ -59,6 +59,21 @@ def test_multicam_profile_survives_tracking_resets():
         )
 
 
+def test_booth_presence_uses_only_fresh_first_camera_and_reaches_ipc():
+    fusion = MultiCameraFusion()
+    second = sample(1.0)
+    second["booth_present"] = True
+    fusion.submit(1, second)
+    assert fusion.advance(1.0).get("booth_present") is False
+    first = sample(1.1)
+    first["booth_present"] = True
+    fusion.submit(0, first)
+    result = fusion.advance(1.1)
+    assert GestureSample.from_result(result, 1.1).booth_present
+    fusion.submit(1, sample(1.4))
+    assert fusion.advance(1.4).get("booth_present") is False
+
+
 @pytest.mark.parametrize("profile, detector", [("bad", "rules"), ("multicam", "learned")])
 def test_incompatible_profiles_are_rejected(profile, detector):
     with pytest.raises(ValueError, match="multicam"):
@@ -98,6 +113,29 @@ def test_two_camera_pulses_are_merged_and_keep_capture_time():
     assert GestureSample.from_result(result, 0.3).occurrences == (("UCHIMIZU", 0.2),)
 
 
+def test_fusion_keeps_preparation_phase_and_expires_it():
+    fusion = MultiCameraFusion(max_age=0.5)
+    ready = sample(0.1)
+    ready["ramune_state"] = "READY"
+    fusion.submit(0, ready)
+    fusion.submit(1, sample(0.2))
+    delivered = GestureSample.from_result(fusion.advance(0.2), 0.2)
+    assert delivered.gesture == "NONE"
+    assert (delivered.action, delivered.phase) == ("RAMUNE", "READY")
+    stale = GestureSample.from_result(fusion.advance(0.8), 0.8)
+    assert (stale.action, stale.phase) == (None, None)
+
+
+def test_fusion_prefers_phase_from_camera_with_selected_action():
+    fusion = MultiCameraFusion()
+    ready = sample(0.2)
+    ready["ramune_state"] = "READY"
+    fusion.submit(0, ready)
+    fusion.submit(1, sample(0.1, "FANNING"))
+    delivered = GestureSample.from_result(fusion.advance(0.2), 0.2)
+    assert (delivered.action, delivered.phase) == ("FANNING", "ACTIVE")
+
+
 def test_late_event_is_not_renewed_by_a_newer_other_camera_frame():
     fusion = MultiCameraFusion(event_ttl=1.0)
     fusion.submit(0, sample(0.2, "RAMUNE", pulse=True))
@@ -134,7 +172,7 @@ def test_missing_input_cannot_rearm_and_stale_poses_do_not_track():
     assert fusion.advance(1.6).get("occurrences") == ()
 
 
-@pytest.mark.parametrize("gesture", ["FANNING", "RELAXING"])
+@pytest.mark.parametrize("gesture", ["FANNING", "RELAXING", "BOW"])
 def test_state_gestures_can_reappear(gesture):
     fusion = MultiCameraFusion()
     for t, label in ((0.0, gesture), (0.1, "NONE"), (0.2, gesture)):

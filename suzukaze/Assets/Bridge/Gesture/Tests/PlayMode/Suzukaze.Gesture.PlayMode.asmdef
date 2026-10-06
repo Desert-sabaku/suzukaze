@@ -1,11 +1,12 @@
 {
   "name": "Suzukaze.Gesture.PlayMode",
+  "rootNamespace": "Suzukaze.Gesture.Tests",
   "references": [
-    "UnityEngine.TestRunner",
-    "UnityEditor.TestRunner",
-    "Suzukaze.Gesture.Receiver",
-    "Suzukaze.Gesture.Protocol",
-    "Suzukaze.Gesture.Unity"
+    "GUID:27619889b8ba8c24980f49ee34dbb44a",
+    "GUID:0acc523941302664db1f4e527237feb3",
+    "GUID:fecb3afcdddd54269be91c65c5c35261",
+    "GUID:99a0ba2df56f424cb18569701627560f",
+    "GUID:c65847a1c6315cdc9cbff1e3cfcb6210"
   ],
   "overrideReferences": true,
   "precompiledReferences": ["nunit.framework.dll", "Google.Protobuf.dll"],

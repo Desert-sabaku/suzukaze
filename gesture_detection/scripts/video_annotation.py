@@ -17,6 +17,7 @@ from typing import Any, cast
 import cv2
 import numpy as np
 
+from gesture_detection.gesture_types import Gesture
 from gesture_detection.qt_setup import configure_qt_fonts
 
 configure_qt_fonts()
@@ -278,8 +279,19 @@ def save_timeline(path: Path, data: dict[str, Any]) -> None:
 
 def load_timeline(path: Path, video: Path | None = None) -> dict[str, Any]:
     data = cast(dict[str, Any], json.loads(path.read_text(encoding="utf-8")))
+    defaults = load_label_config()
+    previous_defaults = copy.deepcopy(defaults)
+    previous_defaults["tracks"] = [
+        track for track in previous_defaults["tracks"] if track["id"] != "bow_phase"
+    ]
+    previous_defaults["tracks"][0]["labels"].remove(Gesture.BOW)
+    del previous_defaults["workflows"][Gesture.BOW]
+    config = data.get("label_config", {})
+    if all(config.get(key) == previous_defaults[key] for key in ("tracks", "events", "workflows")):
+        for key in ("tracks", "workflows"):
+            config[key] = defaults[key]
     if tuple(data.get("label_config", {}).get("landmarks", ())) == LEGACY_LANDMARKS:
-        names = load_label_config()["landmarks"]
+        names = defaults["landmarks"]
         data["label_config"]["landmarks"] = names
         for row in data.get("landmarks", []):
             points = row["points"]
@@ -895,7 +907,7 @@ class AnnotationApp:
             )
         y += 89
         selected_action = self._selected_action()
-        action_name = "NONE" if selected_action is None else selected_action["label"]
+        action_name = Gesture.NONE if selected_action is None else selected_action["label"]
         cv2.putText(
             canvas,
             f"STEP 2 - {action_name} PHASE",

@@ -1,14 +1,13 @@
 """Recognition snapshots and diagnostic data; no scene or device state."""
 
 from dataclasses import dataclass
-from typing import Literal, NotRequired, Self, TypedDict
+from typing import NotRequired, Self, TypedDict
+
+from .gesture_types import ACTION_PHASES, CONTINUOUS_GESTURES, OCCURRENCE_GESTURES, Gesture, Phase
 
 type Landmark = tuple[float, float, float]
-type ContinuousGesture = Literal["NONE", "FANNING", "RELAXING"]
-type OccurrenceGesture = Literal["RAMUNE", "UCHIMIZU"]
-
-_CONTINUOUS: dict[str, ContinuousGesture] = {"FANNING": "FANNING", "RELAXING": "RELAXING"}
-_OCCURRENCES: dict[str, OccurrenceGesture] = {"RAMUNE": "RAMUNE", "UCHIMIZU": "UCHIMIZU"}
+type ContinuousGesture = Gesture | str
+type OccurrenceGesture = Gesture | str
 
 
 class RecognitionState(TypedDict):
@@ -36,8 +35,14 @@ class PoseResult(TypedDict):
     landmarks: list[Landmark]
     display_landmarks: NotRequired[list[Landmark]]
     subject_state: NotRequired[str]
+    booth_present: NotRequired[bool]
     selected_action: str
     relaxing_state: bool
+    bow_state: NotRequired[bool]
+    bow_angle: NotRequired[float | None]
+    bow_head_deviation: NotRequired[float | None]
+    bow_head_aligned: NotRequired[bool]
+    bow_hold_seconds: NotRequired[float]
     current: NotRequired[RecognitionState]
     # Per-input occurrence pulses; consume before the latest-value IPC queue.
     occurrences: NotRequired[tuple[str, ...]]
@@ -54,6 +59,37 @@ class PoseResult(TypedDict):
     uchimizu_score: NotRequired[float]
     motion_speed: NotRequired[float | None]
     still_seconds: NotRequired[float]
+    action: NotRequired[str | None]
+    phase: NotRequired[str | None]
+
+
+def recognition_phase(result: PoseResult) -> tuple[str | None, str | None]:
+    """Select detector progress, including preparation before an occurrence.
+
+    The current action wins; otherwise prefer Ramune preparation to Uchimizu.
+    Explicit fields carry the selected camera's phase through fusion.
+    """
+    current = result.get("current", {"gesture": Gesture.NONE, "tracking": False})
+    if not current["tracking"]:
+        return None, None
+    if "action" in result:
+        return result.get("action"), result.get("phase")
+    action = current["gesture"]
+    phases: dict[str, str] = {}
+    ramune = result.get("ramune_state", Phase.IDLE)
+    water = result.get("uchimizu_state", Phase.IDLE)
+    if ramune in ACTION_PHASES[Gesture.RAMUNE]:
+        phases[Gesture.RAMUNE] = ramune
+    if water in ACTION_PHASES[Gesture.UCHIMIZU]:
+        phases[Gesture.UCHIMIZU] = water
+    if action in CONTINUOUS_GESTURES - {Gesture.NONE}:
+        phases[action] = Phase.HOLD if action == Gesture.BOW else Phase.ACTIVE
+    if action in phases:
+        return action, phases[action]
+    for candidate in (Gesture.RAMUNE, Gesture.UCHIMIZU):
+        if candidate in phases:
+            return candidate, phases[candidate]
+    return None, None
 
 
 @dataclass(frozen=True, slots=True)
@@ -67,23 +103,46 @@ class GestureSample:
     occurrences: tuple[tuple[OccurrenceGesture, float], ...]
     frame_id: int | None = None
     source_timestamp: float | None = None
+    action: str | None = None
+    phase: str | None = None
+    booth_present: bool = False
+
+    def __post_init__(self) -> None:
+        """Normalize string input at the IPC boundary to the shared enums."""
+        gesture = Gesture(self.gesture)
+        if gesture not in CONTINUOUS_GESTURES:
+            raise ValueError("Unknown continuous gesture")
+        occurrences = tuple((Gesture(kind), when) for kind, when in self.occurrences)
+        if any(kind not in OCCURRENCE_GESTURES for kind, _ in occurrences):
+            raise ValueError("Unknown occurrence")
+        object.__setattr__(self, "gesture", gesture)
+        object.__setattr__(self, "occurrences", occurrences)
+        if self.action is not None:
+            object.__setattr__(self, "action", Gesture(self.action))
+        if self.phase is not None:
+            object.__setattr__(self, "phase", Phase(self.phase))
 
     @classmethod
     def from_result(cls, result: PoseResult, observed_at: float) -> Self:
         """observed_at is capture time, not inference completion or video time."""
-        current = result.get("current", {"gesture": "NONE", "tracking": False})
+        current = result.get("current", {"gesture": Gesture.NONE, "tracking": False})
+        action, phase = recognition_phase(result)
         timestamps = result.get("occurrence_timestamps", {})
         occurrences = []
         for name in result.get("occurrences", ()):
-            kind = _OCCURRENCES.get(name)
-            if kind is None:
+            if name not in OCCURRENCE_GESTURES:
                 raise ValueError("Unknown occurrence")
-            occurrences.append((kind, timestamps.get(name, observed_at)))
+            occurrences.append((Gesture(name), timestamps.get(name, observed_at)))
         return cls(
-            gesture=_CONTINUOUS.get(current["gesture"], "NONE"),
+            gesture=Gesture(current["gesture"])
+            if current["gesture"] in CONTINUOUS_GESTURES
+            else Gesture.NONE,
             tracking=current["tracking"],
             observed_at=observed_at,
             occurrences=tuple(occurrences),
             frame_id=result.get("frame_id"),
             source_timestamp=result.get("timestamp"),
+            action=action,
+            phase=phase,
+            booth_present=result.get("booth_present", False),
         )

@@ -15,15 +15,33 @@ message GestureEnvelope {
 }
 
 message State {
+  // 状態の通し番号。
   uint64 sequence = 1;
+  // 送信時刻（秒）。
   double sent_at = 2;
+  // 状態の有効期間（秒）。
   double stale_timeout = 3;
+  // 状態が有効かどうか。
   bool fresh = 4;
+  // 現在認識中の継続ジェスチャー。
   ContinuousGesture gesture = 5;
+  // 人物を追跡中かどうか。
   bool tracking = 6;
+  // 観測時刻（秒）。
   optional double observed_at = 7;
+  // カメラのフレーム番号。
   optional uint64 frame_id = 8;
+  // カメラ側の時刻（秒）。
   optional double source_timestamp = 9;
+  // 動作の品質スコア（0〜1）。
+  optional double action_accuracy = 10;
+  reserved 11, 12;
+  // 現在進行中の動作。
+  optional Action action = 13;
+  // 現在の動作フェーズ。
+  optional Phase phase = 14;
+  // ブース内に人物がいるかどうか。
+  optional bool booth_present = 15;
 }
 
 message Event {
@@ -33,6 +51,8 @@ message Event {
   double expires_at = 4;
   optional uint64 frame_id = 5;
   optional double source_timestamp = 6;
+  // Motion quality score in [0, 1]. Absent when not evaluated.
+  optional double action_accuracy = 7;
 }
 
 message Ack {
@@ -45,6 +65,7 @@ enum ContinuousGesture {
   CONTINUOUS_GESTURE_NONE = 1;
   CONTINUOUS_GESTURE_FANNING = 2;
   CONTINUOUS_GESTURE_RELAXING = 3;
+  CONTINUOUS_GESTURE_BOW = 4;
 }
 
 enum OccurrenceGesture {
@@ -59,4 +80,34 @@ enum AckStatus {
   ACK_STATUS_IGNORED = 2;
   ACK_STATUS_EXPIRED = 3;
   ACK_STATUS_DUPLICATE = 4;
+}
+
+// All motions, including NONE used by recognition before an action is selected.
+// State.action must not be NONE or UNSPECIFIED; omit action/phase when idle.
+enum Action {
+  ACTION_UNSPECIFIED = 0;
+  ACTION_NONE = 1;
+  ACTION_FANNING = 2;
+  ACTION_RELAXING = 3;
+  ACTION_BOW = 4;
+  ACTION_RAMUNE = 5;
+  ACTION_UCHIMIZU = 6;
+}
+
+// IDLE is an internal detector state, never a delivered State.phase.
+enum Phase {
+  PHASE_UNSPECIFIED = 0;
+  PHASE_IDLE = 1;
+  PHASE_FORMING = 2;
+  PHASE_READY = 3;
+  PHASE_OPENED = 4;
+  PHASE_WAIT_RELEASE = 5;
+  PHASE_SWING = 6;
+  PHASE_ACTIVE = 7;
+  PHASE_HOLD = 8;
+  // Annotation-only stages; not valid in delivered State.phase yet.
+  PHASE_POSITION = 9;
+  PHASE_DWELL = 10;
+  PHASE_BENDING = 11;
+  PHASE_RETURNING = 12;
 }
