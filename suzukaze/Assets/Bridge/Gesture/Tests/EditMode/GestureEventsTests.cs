@@ -30,7 +30,8 @@ namespace Suzukaze.Gesture.Tests
 
         private void PublishState(ContinuousGesture gesture, ulong sequence = 1,
             string session = "s", bool fresh = true, bool tracking = true,
-            GestureAction? action = null, Phase? phase = null, bool boothPresent = false)
+            GestureAction? action = null, Phase? phase = null, bool boothPresent = false,
+            double? accuracy = null)
         {
             var state = new State {
                 Sequence = sequence, SentAt = clock.Time, ObservedAt = clock.Time,
@@ -39,6 +40,7 @@ namespace Suzukaze.Gesture.Tests
             };
             if (action.HasValue) state.Action = action.Value;
             if (phase.HasValue) state.Phase = phase.Value;
+            if (accuracy.HasValue) state.ActionAccuracy = accuracy.Value;
             Assert.That(handoff.Publish(token, new ReceivedMessage(new GestureEnvelope {
                 Version = 1, SessionId = session, State = state
             }, clock.Time)), Is.True);
@@ -55,6 +57,48 @@ namespace Suzukaze.Gesture.Tests
         }
 
         private void Tick() { handoff.Tick(clock, gestures); }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void AccuracyChangesNotifyAndExpire(bool disconnect)
+        {
+            var changes = new List<double?>();
+            gestures.StateChanged += state => changes.Add(state.ActionAccuracy);
+            PublishState(ContinuousGesture.Bow);
+            Tick();
+            PublishState(ContinuousGesture.Bow, 2, accuracy: 0);
+            Tick();
+            PublishState(ContinuousGesture.Bow, 3, accuracy: .75);
+            Tick();
+            Tick();
+            Assert.That(changes, Is.EqualTo(new double?[] { null, 0, .75 }));
+            if (disconnect) handoff.Disconnect(token);
+            else clock.Time = 10.5;
+            Tick();
+            Assert.That(gestures.CurrentState.ActionAccuracy, Is.Null);
+            Assert.That(changes.Count, Is.EqualTo(4));
+        }
+
+        [Test]
+        public void EventAccuracyIsExposedAndDuplicateDoesNotNotify()
+        {
+            var scores = new List<double?>();
+            gestures.Occurred += (_, occurrence) => {
+                scores.Add(occurrence.HasActionAccuracy ? occurrence.ActionAccuracy : null);
+                return true;
+            };
+            var message = new GestureEnvelope {
+                Version = 1, SessionId = "s", Event = new Event {
+                    EventId = 1, Gesture = OccurrenceGesture.Ramune,
+                    OccurredAt = 10, ExpiresAt = 11, ActionAccuracy = 0
+                }
+            };
+            handoff.Publish(token, new ReceivedMessage(message, clock.Time));
+            Tick();
+            handoff.Publish(token, new ReceivedMessage(message, clock.Time));
+            Tick();
+            Assert.That(scores, Is.EqualTo(new double?[] { 0 }));
+        }
 
         [TestCase(false)]
         [TestCase(true)]

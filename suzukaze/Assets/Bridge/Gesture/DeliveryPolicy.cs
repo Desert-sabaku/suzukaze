@@ -26,6 +26,8 @@ namespace Suzukaze.Gesture
         public ContinuousGesture Gesture { get; internal set; } = ContinuousGesture.None;
         public GestureAction? Action { get; internal set; }
         public Phase? Phase { get; internal set; }
+        // null means unevaluated; zero is an evaluated score.
+        public double? ActionAccuracy { get; internal set; }
     }
 
     public sealed class DeliveryPolicy
@@ -77,7 +79,9 @@ namespace Suzukaze.Gesture
                 BoothPresent = fresh && state.BoothPresent,
                 Gesture = tracking ? state.Gesture : ContinuousGesture.None,
                 Action = tracking && state.HasAction ? state.Action : null,
-                Phase = tracking && state.HasPhase ? state.Phase : null
+                Phase = tracking && state.HasPhase ? state.Phase : null,
+                ActionAccuracy = tracking && state.Gesture != ContinuousGesture.None
+                    && state.HasActionAccuracy ? state.ActionAccuracy : null
             };
         }
 

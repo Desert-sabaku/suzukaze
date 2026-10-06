@@ -31,4 +31,26 @@
 
 既存のフィールド番号を変更せず、Stateに10、Eventに7を追加しています。
 追加フィールドを送らない既存のメッセージは未評価として扱えます。
-採点処理とアプリケーションへの反映は、この定義を用いて実装します。
+採点項目・計算式は
+[`gesture_detection/docs/gestures.md`](../gesture_detection/docs/gestures.md#所作の正確性action_accuracy)
+を参照してください。認識結果からIPC・WebSocket配信を通してUnityへ引き継ぎます。
+
+## Unityでの取得
+
+`GestureEvents.CurrentState.ActionAccuracy` は `double?` です。未評価・期限切れは
+`null`、評価済みのゼロ点は `0.0` です。点数だけが変化した場合も `StateChanged` を通知します。
+
+```csharp
+gestures.StateChanged += state => {
+    if (state.ActionAccuracy is double score)
+        UnityEngine.Debug.Log($"{state.Gesture}: {score:F2}");
+};
+gestures.Occurred += (sessionId, occurrence) => {
+    if (occurrence.HasActionAccuracy)
+        UnityEngine.Debug.Log($"{occurrence.Gesture}: {occurrence.ActionAccuracy:F2}");
+    return false; // 点数の参照だけでは所作を採用したACKにはしない
+};
+```
+
+Pythonの配信辞書では、未評価の `action_accuracy` キーは省略します。
+Python・Unity双方で非有限値・範囲外の点数、および有効な追跡所作を伴わないStateの点数を拒否します。
