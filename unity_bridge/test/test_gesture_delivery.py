@@ -5,7 +5,19 @@ from gesture_detection.recognition_types import (
     OccurrenceGesture,
 )
 
+from unity_bridge.gesture_codec import decode_message, encode_message
 from unity_bridge.gesture_delivery import DeliveryOutbox
+
+
+def test_booth_presence_survives_brief_tracking_loss_and_clears_when_stale():
+    outbox = DeliveryOutbox()
+    assert not outbox.state(10.0)["booth_present"]
+    outbox.publish(GestureSample("NONE", False, 10.0, (), booth_present=True), now=10.0)
+    state = decode_message(encode_message(outbox.state(10.1)))
+    assert state["booth_present"] and not state["tracking"]
+    assert not decode_message(encode_message(outbox.state(10.5)))["booth_present"]
+    outbox.publish(GestureSample("NONE", True, 10.6, ()), now=10.6)
+    assert not outbox.state(10.6)["booth_present"]
 
 
 def result(

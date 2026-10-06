@@ -67,6 +67,11 @@ SUBJECT_MIN_SCALE_RATIO = 0.65
 SUBJECT_MAX_SCALE_RATIO = 1.55
 SUBJECT_MAX_CENTER_DISTANCE = 0.6
 
+BOOTH_DWELL_SECONDS = _settings.number("booth", "dwell_seconds", 1.0)
+BOOTH_RELEASE_SECONDS = _settings.number("booth", "release_seconds", 0.5)
+if any(not math.isfinite(v) or v <= 0 for v in (BOOTH_DWELL_SECONDS, BOOTH_RELEASE_SECONDS)):
+    raise ValueError("Booth durations must be positive and finite")
+
 SUPPRESS_MEDIAPIPE_STARTUP_LOGS = _settings.boolean(
     "diagnostics", "suppress_mediapipe_startup_logs", True
 )

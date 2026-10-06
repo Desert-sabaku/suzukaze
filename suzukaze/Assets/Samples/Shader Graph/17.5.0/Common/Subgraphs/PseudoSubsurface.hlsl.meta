@@ -5,3 +5,10 @@ ShaderIncludeImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 213197
+  packageName: Unity URP Terrain | Terrain Sample Project
+  packageVersion: 
+  assetPath: Assets/Samples/Shader Graph/17.5.0/Common/Subgraphs/PseudoSubsurface.hlsl
+  uploadId: 0
