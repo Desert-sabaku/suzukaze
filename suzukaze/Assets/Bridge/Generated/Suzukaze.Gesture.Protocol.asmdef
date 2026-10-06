@@ -2,5 +2,6 @@
     "name": "Suzukaze.Gesture.Protocol",
     "rootNamespace": "Suzukaze.Gesture.Protocol",
     "references": [],
+    "precompiledReferences": ["Google.Protobuf.dll"],
     "autoReferenced": true
 }

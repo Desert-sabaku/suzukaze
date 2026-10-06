@@ -49,7 +49,6 @@
 *.spriteatlasv2          merge=unityyamlmerge eol=lf linguist-language=yaml
 *.terrainlayer           merge=unityyamlmerge eol=lf linguist-language=yaml
 *.unity                  merge=unityyamlmerge eol=lf linguist-language=yaml
-*.wlt                    merge=unityyamlmerge eol=lf linguist-language=yaml
 
 # "physic" for 3D but "physics" for 2D
 *.physicMaterial         merge=unityyamlmerge eol=lf linguist-language=yaml
