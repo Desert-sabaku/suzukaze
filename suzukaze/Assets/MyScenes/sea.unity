@@ -282,7 +282,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6857817388853022380, guid: 6d89d0f39bb8c074286138ba3ee3612b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 9
+      value: 8.75
       objectReference: {fileID: 0}
     - target: {fileID: 6857817388853022380, guid: 6d89d0f39bb8c074286138ba3ee3612b, type: 3}
       propertyPath: m_LocalPosition.z
@@ -315,6 +315,22 @@ PrefabInstance:
     - target: {fileID: 6857817388853022380, guid: 6d89d0f39bb8c074286138ba3ee3612b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8150326308445423545, guid: 6d89d0f39bb8c074286138ba3ee3612b, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 6893bfd133353a94d9786792518f0e31, type: 2}
+    - target: {fileID: 8159222257676507756, guid: 6d89d0f39bb8c074286138ba3ee3612b, type: 3}
+      propertyPath: 'targetMaterials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 6893bfd133353a94d9786792518f0e31, type: 2}
+    - target: {fileID: 8897739976912751457, guid: 6d89d0f39bb8c074286138ba3ee3612b, type: 3}
+      propertyPath: waveCount
+      value: 31
+      objectReference: {fileID: 0}
+    - target: {fileID: 8897739976912751457, guid: 6d89d0f39bb8c074286138ba3ee3612b, type: 3}
+      propertyPath: heightScale
+      value: 3.37
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1316,6 +1332,7 @@ MonoBehaviour:
   player: {fileID: 829739233}
   neck: {fileID: 1491025766}
   heightOffset: 0.1
+  receiveGestures: 1
 --- !u!1001 &1009886197
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1680,6 +1697,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6857817388853022380, guid: 6d89d0f39bb8c074286138ba3ee3612b, type: 3}
   m_PrefabInstance: {fileID: 118379829}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1770494054 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8897739976912751457, guid: 6d89d0f39bb8c074286138ba3ee3612b, type: 3}
+  m_PrefabInstance: {fileID: 118379829}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c146db56f07542f3890c54844389ac35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WaterSurfaceMesh
 --- !u!198 &1805209141 stripped
 ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 5784215880152737379, guid: 595d289663971e34485dc9d75a0c9f7e, type: 3}
@@ -2021,15 +2049,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4658826950609538, guid: 3a50b5ba620f64243bff2afbcbf463d8, type: 3}
       propertyPath: m_LocalScale.x
-      value: 2
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 4658826950609538, guid: 3a50b5ba620f64243bff2afbcbf463d8, type: 3}
       propertyPath: m_LocalScale.y
-      value: 2
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 4658826950609538, guid: 3a50b5ba620f64243bff2afbcbf463d8, type: 3}
       propertyPath: m_LocalScale.z
-      value: 2
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 4658826950609538, guid: 3a50b5ba620f64243bff2afbcbf463d8, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2041,7 +2069,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4658826950609538, guid: 3a50b5ba620f64243bff2afbcbf463d8, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 248.493
+      value: 280
       objectReference: {fileID: 0}
     - target: {fileID: 4658826950609538, guid: 3a50b5ba620f64243bff2afbcbf463d8, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2074,8 +2102,33 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1454687988969576, guid: 3a50b5ba620f64243bff2afbcbf463d8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2113363893}
   m_SourcePrefab: {fileID: 100100000, guid: 3a50b5ba620f64243bff2afbcbf463d8, type: 3}
+--- !u!1 &2113363892 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1454687988969576, guid: 3a50b5ba620f64243bff2afbcbf463d8, type: 3}
+  m_PrefabInstance: {fileID: 2113363891}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2113363893
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2113363892}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb63a67fc39548c9bf0a52d97f5e8a08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FloatingObject
+  water: {fileID: 1770494054}
+  footprint: 0.6
+  horizontalFollow: 1
+  tiltAmount: 1
+  tiltResponse: 4
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 957579ed33eb22040bb203c8100f624f
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 213197
+  packageName: Unity URP Terrain | Terrain Sample Project
+  packageVersion: 1.0.3
+  assetPath: Assets/TerrainDemoScene_URP/Prefabs/Rocks/Rock_Overgrown_A.prefab
+  uploadId: 996076

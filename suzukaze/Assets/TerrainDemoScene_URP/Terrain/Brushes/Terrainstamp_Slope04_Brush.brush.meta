@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: da7c572fc46d2a345963c4775ee9dc60
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 213197
+  packageName: Unity URP Terrain | Terrain Sample Project
+  packageVersion: 1.0.3
+  assetPath: Assets/TerrainDemoScene_URP/Terrain/Brushes/Terrainstamp_Slope04_Brush.brush
+  uploadId: 996076

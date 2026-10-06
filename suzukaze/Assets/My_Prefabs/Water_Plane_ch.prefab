@@ -12,10 +12,12 @@ GameObject:
   - component: {fileID: 1750415186098223978}
   - component: {fileID: 8150326308445423545}
   - component: {fileID: 3433012491015266846}
-  - component: {fileID: 6625240416105989382}
   - component: {fileID: 8806050500210154572}
   - component: {fileID: 6098965447926704229}
-  m_Layer: 0
+  - component: {fileID: 8897739976912751457}
+  - component: {fileID: 5987129271063743872}
+  - component: {fileID: 8159222257676507756}
+  m_Layer: 4
   m_Name: Water_Plane_ch
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52,7 +54,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 280844725987520003}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -70,7 +72,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: edcfc5aaa4ab59e4cb087049354cfae3, type: 2}
+  - {fileID: 2100000, guid: 4dff5912774136c4abe30fe6531b29e6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -116,18 +118,6 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &6625240416105989382
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 280844725987520003}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 10f7b96a1d2bd1f4db1c1016821e87ad, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &8806050500210154572
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -238,3 +228,68 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &8897739976912751457
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 280844725987520003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c146db56f07542f3890c54844389ac35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WaterSurfaceMesh
+  resolution: 768
+  detailRadius: 3000
+  horizonRadius: 50000
+  maxWaveHeight: 5
+  waveCompute: {fileID: 7200000, guid: c6e94f5a4d474784815f6a52b62cb639, type: 3}
+  heightScale: 1
+  waveCount: 16
+  seed: 1234
+  directionSpread: 35
+  shoalDepth: 3
+  swashScale: 0.6
+  runupLimit: 0.8
+--- !u!114 &5987129271063743872
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 280844725987520003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bea31c60085917e4f962085482397e05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UberWaterPlannerReflection::PlanarReflectionManager
+  runOnEditMode: 1
+--- !u!114 &8159222257676507756
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 280844725987520003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12a94c5ce6a6d9045a0372062fedfa6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UberWaterPlannerReflection::PlanarReflectionVolume
+  isGlobal: 0
+  renderScale: 0.5
+  reflectionLayer:
+    serializedVersion: 2
+    m_Bits: 4294967279
+  reflectSkybox: 1
+  reflectionTarget: {fileID: 0}
+  reflectionTargets:
+  - {fileID: 280844725987520003}
+  reflectionPlaneOffset: 0
+  hideReflectionCamera: 1
+  volumeSize: {x: 10, y: 2000, z: 10}
+  blendDistance: 0
+  priority: 0
+  targetMaterials:
+  - {fileID: 2100000, guid: 4dff5912774136c4abe30fe6531b29e6, type: 2}
