@@ -3,6 +3,7 @@ using Features.Common.Scripts;
 using Features.Gesture_Movie.Scripts;
 using Features.Result.Scripts;
 using LitMotion;
+using Sirenix.OdinInspector;
 using Suzukaze.Gesture;
 using Suzukaze.Gesture.Protocol;
 using UnityEngine;
@@ -18,8 +19,15 @@ namespace Features.SceneTransition
         [SerializeField] private SenkoHanabiController hanabi;
         [SerializeField] private float afterDropInterval = 3f;
         [SerializeField] private float fadeDuration = 0.5f;
+        [ValidateInput(nameof(ValidateAutoTransitionInterval), "自動遷移のインターバルはドロップ後のインターバルより長くする必要があります")]
+        [SerializeField] private float autoTransitionInterval = 60f;
 
         private GestureReceiverBehaviour _gestureReceiver;
+
+        private bool ValidateAutoTransitionInterval()
+        {
+            return autoTransitionInterval > afterDropInterval;
+        }
 
         private void OnEnable()
         {
@@ -63,6 +71,11 @@ namespace Features.SceneTransition
                         .Bind(v => resultUI.alpha = v)
                 )
                 .Run();
+            UniTask.Create(async () =>
+            {
+                await UniTask.Delay(System.TimeSpan.FromSeconds(autoTransitionInterval));
+                SceneTransitionManager.Instance.LoadSceneAsync("Title").Forget();
+            }).Forget();
         }
     }
 }
