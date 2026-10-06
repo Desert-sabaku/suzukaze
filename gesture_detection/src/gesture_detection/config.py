@@ -214,6 +214,12 @@ FANNING_EXIT_TORSO_HEIGHT = 0.75
 FANNING_REVERSAL_DISTANCE = 0.08
 FANNING_MIN_REVERSALS = 3
 
+# Motion-quality observation requirements (separate from classifier scores).
+ACCURACY_FANNING_MIN_SECONDS = 0.6
+ACCURACY_FANNING_MAX_GAP = 0.25
+ACCURACY_FANNING_MIN_HZ = 1.0
+ACCURACY_FANNING_MAX_HZ = 3.0
+
 # Let the scoop/release leave the FFT window before accepting residual fanning.
 FANNING_UCHIMIZU_GRACE_SECONDS = WINDOW_SECONDS
 
