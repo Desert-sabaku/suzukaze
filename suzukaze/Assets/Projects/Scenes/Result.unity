@@ -4079,6 +4079,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  fadeInSeconds: 1.5
   overrideHour: 0
   debugHour: 12
 --- !u!4 &1903652195
