@@ -144,16 +144,16 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9471197}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 983174583}
+  m_Father: {fileID: 860721872}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 70}
+  m_AnchoredPosition: {x: 0, y: 60}
   m_SizeDelta: {x: 512, y: 512}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &9471199
@@ -1769,12 +1769,12 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 685877847}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 983174583}
+  m_Father: {fileID: 860721872}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
@@ -2339,6 +2339,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c4ea318697e41eaba88c2ff04d3fdb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Features.SceneTransition.TitleSceneTransition
+  gestureCanvasGroup: {fileID: 860721873}
+  gestureMoviePlayer: {fileID: 9019518955832230101}
+  gestureDisplayDuration: 2
 --- !u!4 &858899787
 Transform:
   m_ObjectHideFlags: 0
@@ -2354,6 +2357,58 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+<<<<<<< HEAD
+--- !u!1 &860721871
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 860721872}
+  - component: {fileID: 860721873}
+  m_Layer: 5
+  m_Name: Gesture Group
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &860721872
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 860721871}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 9471198}
+  - {fileID: 685877848}
+  m_Father: {fileID: 983174583}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!225 &860721873
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 860721871}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+=======
 --- !u!1001 &874251395
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2726,6 +2781,7 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8638105481477544645, guid: 2c26a303e9d994f1dbb022422a7a9082, type: 3}
   m_PrefabInstance: {fileID: 968304804}
   m_PrefabAsset: {fileID: 0}
+>>>>>>> main
 --- !u!1 &983174579
 GameObject:
   m_ObjectHideFlags: 0
@@ -2822,8 +2878,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1424191662}
-  - {fileID: 9471198}
-  - {fileID: 685877848}
+  - {fileID: 860721872}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -4730,6 +4785,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 72c5937fac0874f2abff6733ae2b79f9, type: 3}
+--- !u!114 &9019518955832230101 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1997837634142584868, guid: 72c5937fac0874f2abff6733ae2b79f9, type: 3}
+  m_PrefabInstance: {fileID: 9019518955832230100}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 704c75e8d5b74261b1a7bcf8787e03a4, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Features.Gesture_Movie.Scripts.GestureMoviePlayer
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
