@@ -2357,7 +2357,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-<<<<<<< HEAD
 --- !u!1 &860721871
 GameObject:
   m_ObjectHideFlags: 0
@@ -2408,7 +2407,6 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
-=======
 --- !u!1001 &874251395
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2781,7 +2779,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8638105481477544645, guid: 2c26a303e9d994f1dbb022422a7a9082, type: 3}
   m_PrefabInstance: {fileID: 968304804}
   m_PrefabAsset: {fileID: 0}
->>>>>>> main
 --- !u!1 &983174579
 GameObject:
   m_ObjectHideFlags: 0
