@@ -57,11 +57,10 @@ namespace Features.SceneTransition
 
         private void OnGestureStateChanged(StateView state)
         {
-            if (!state.Tracking) return;
-
             _isShowingGesture = state.BoothPresent;
+            Debug.Log(state.BoothPresent ? "Gesture detected" : "Gesture lost");
 
-            if (state.Gesture == ContinuousGesture.Bow)
+            if (state.Tracking && state.Gesture == ContinuousGesture.Bow)
             {
                 OnTransition(default);
                 _gestureReceiver.Events.StateChanged -= OnGestureStateChanged;

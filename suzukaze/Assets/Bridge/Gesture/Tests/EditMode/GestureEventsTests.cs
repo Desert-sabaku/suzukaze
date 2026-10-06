@@ -77,6 +77,23 @@ namespace Suzukaze.Gesture.Tests
             Assert.That(gestures.CurrentState.BoothPresent, Is.False);
         }
 
+        [Test]
+        public void BoothExitNotifiesWhileTrackingRemainsLost()
+        {
+            var changes = new List<bool>();
+            gestures.StateChanged += state => changes.Add(state.BoothPresent);
+            PublishState(ContinuousGesture.None, tracking: false, boothPresent: true);
+            Tick();
+            PublishState(ContinuousGesture.None, 2, tracking: false, boothPresent: false);
+            Tick();
+            PublishState(ContinuousGesture.None, 3, tracking: false, boothPresent: false);
+            Tick();
+            Assert.That(changes, Is.EqualTo(new[] { true, false }));
+            Assert.That(gestures.CurrentState.Fresh, Is.True);
+            Assert.That(gestures.CurrentState.Tracking, Is.False);
+            Assert.That(gestures.CurrentState.BoothPresent, Is.False);
+        }
+
         [TestCase(false)]
         [TestCase(true)]
         public void PhaseOnlyChangesNotifyAndStaleOrDisconnectClearsProgress(bool disconnect)
