@@ -11,7 +11,8 @@ namespace Features.Gesture_Movie.Scripts
     {
         [SerializeField] private Animator animator;
 
-        [InfoBox("設定したジェスチャーをスタート時にループ再生します．SetAnimationを呼ぶと，そのジェスチャーに切り替わります．")] [SerializeField]
+        [InfoBox("設定したジェスチャーをスタート時にループ再生します．SetAnimationを呼ぶと，そのジェスチャーに切り替わります．")]
+        [SerializeField]
         private bool playOnStart = true;
 
         [SerializeField] private Gestures playOnStartGesture = Gestures.Yusuzumi;
@@ -19,13 +20,13 @@ namespace Features.Gesture_Movie.Scripts
         private void Start()
         {
             if (playOnStart)
-                animator.Play(playOnStartGesture.ToString());
+                SetAnimation(playOnStartGesture);
         }
 
         [Button]
         public void SetAnimation(Gestures gesture)
         {
-            animator.Play(gesture.ToString());
+            animator.Play(gesture.ToString(), 0, 0f);
         }
     }
 }

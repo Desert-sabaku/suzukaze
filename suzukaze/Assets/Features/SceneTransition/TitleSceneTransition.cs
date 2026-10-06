@@ -1,4 +1,6 @@
 using Cysharp.Threading.Tasks;
+using Features.Common.Scripts;
+using Features.Gesture_Movie.Scripts;
 using Sirenix.OdinInspector;
 using Suzukaze.Gesture;
 using Suzukaze.Gesture.Protocol;
@@ -10,6 +12,7 @@ namespace Features.SceneTransition
     public class TitleSceneTransition : MonoBehaviour
     {
         [SerializeField] private CanvasGroup gestureCanvasGroup;
+        [SerializeField] private GestureMoviePlayer gestureMoviePlayer;
         [SerializeField] private float gestureDisplayDuration = 2f;
 
         private GestureReceiverBehaviour _gestureReceiver;
@@ -57,6 +60,9 @@ namespace Features.SceneTransition
 
         private void OnGestureStateChanged(StateView state)
         {
+            if (state.BoothPresent && !_isShowingGesture)
+                gestureMoviePlayer.SetAnimation(Gestures.Rei);
+
             _isShowingGesture = state.BoothPresent;
             Debug.Log(state.BoothPresent ? "Gesture detected" : "Gesture lost");
 
