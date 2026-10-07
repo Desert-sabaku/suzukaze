@@ -341,6 +341,32 @@ def test_landmarker_options_accept_confidence_overrides(tmp_path):
     assert options.call_args.kwargs["min_tracking_confidence"] == 0.4
 
 
+def test_unknown_missing_model_fails_without_downloading(tmp_path):
+    with (
+        patch("gesture_detection.pose_worker.POSE_MODEL_PATH", tmp_path / "custom.task"),
+        patch("gesture_detection.pose_worker.POSE_MODEL_URL", None),
+        patch("gesture_detection.pose_worker.urllib.request.urlretrieve") as download,
+    ):
+        with pytest.raises(FileNotFoundError, match="custom pose model"):
+            PoseAnalyzer.ensure_model()
+    download.assert_not_called()
+
+
+def test_download_failure_leaves_no_partial_model(tmp_path):
+    model = tmp_path / "models" / "pose_landmarker_heavy.task"
+    with (
+        patch("gesture_detection.pose_worker.POSE_MODEL_PATH", model),
+        patch(
+            "gesture_detection.pose_worker.urllib.request.urlretrieve",
+            side_effect=OSError("offline"),
+        ),
+    ):
+        with pytest.raises(OSError, match="offline"):
+            PoseAnalyzer.ensure_model()
+    assert not model.exists()
+    assert list(model.parent.iterdir()) == []
+
+
 @pytest.mark.parametrize("confidence", [-0.1, 1.1])
 def test_pose_analyzer_rejects_invalid_confidence(confidence):
     with pytest.raises(ValueError, match="between 0 and 1"):

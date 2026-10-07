@@ -72,7 +72,18 @@ def test_empty_source_and_explicit_output() -> None:
 def test_project_root_controls_relative_assets(tmp_path: Path) -> None:
     config = read_config(root=tmp_path)
     assert config["PROJECT_ROOT"] == tmp_path
-    assert config["POSE_MODEL_PATH"] == tmp_path / "pose_landmarker_lite.task"
+    assert config["POSE_MODEL_PATH"] == tmp_path / "pose_landmarker_heavy.task"
+
+
+@pytest.mark.parametrize("size", ["lite", "full", "heavy"])
+def test_model_download_matches_selected_variant(size: str) -> None:
+    name = f"pose_landmarker_{size}"
+    config = read_config(f'[models]\npose = "models/{name}.task"\n')
+    assert config["POSE_MODEL_URL"].endswith(f"/{name}/float16/1/{name}.task")
+
+
+def test_custom_model_is_never_silently_replaced_with_lite() -> None:
+    assert read_config('[models]\npose = "custom.task"\n')["POSE_MODEL_URL"] is None
 
 
 def test_project_local_config_is_loaded_when_present(tmp_path: Path) -> None:

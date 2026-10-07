@@ -25,10 +25,14 @@ CONFIG_PATH = _config_file if _config_file.is_absolute() else PROJECT_ROOT / _co
 _settings = Settings(PROJECT_ROOT, CONFIG_PATH, required=_config_override is not None)
 
 
-POSE_MODEL_PATH = _settings.path("models", "pose", "pose_landmarker_lite.task")
+POSE_MODEL_PATH = _settings.path("models", "pose", "pose_landmarker_heavy.task")
+_pose_name = POSE_MODEL_PATH.stem
 POSE_MODEL_URL = (
     "https://storage.googleapis.com/mediapipe-models/pose_landmarker/"
-    "pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
+    f"{_pose_name}/float16/1/{_pose_name}.task"
+    if POSE_MODEL_PATH.name
+    in {f"pose_landmarker_{size}.task" for size in ("lite", "full", "heavy")}
+    else None
 )
 # Use temporal tracking by default; retain IMAGE for baseline comparisons.
 POSE_RUNNING_MODE = _settings.text("pose", "running_mode", "VIDEO").strip().upper()

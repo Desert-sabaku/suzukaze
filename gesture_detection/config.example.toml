@@ -21,7 +21,7 @@ record_live = false # trueならライブ認識中の表示映像も録画
 buffer_frames = 8
 
 [models]
-pose = "pose_landmarker_lite.task"
+pose = "pose_landmarker_heavy.task"
 yolo = "yolov8n.pt"
 
 [pose]
