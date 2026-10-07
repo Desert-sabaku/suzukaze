@@ -3,7 +3,12 @@ guid: ebe4024d16321c844a43614c2c2e014d
 ModelImporter:
   serializedVersion: 24501
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Torch2_lambert1_AlbedoTransparency.001
+    second: {fileID: 2100000, guid: 771bebc5a97ac0d409c356dfb09daad3, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
