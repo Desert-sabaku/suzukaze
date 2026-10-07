@@ -1599,6 +1599,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  fadeInSeconds: 1.5
   overrideHour: 0
   debugHour: 12
 --- !u!4 &510105018
@@ -4791,7 +4792,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 704c75e8d5b74261b1a7bcf8787e03a4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Features.Gesture_Movie.Scripts.GestureMoviePlayer
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
