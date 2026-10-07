@@ -36,6 +36,11 @@ func main() {
 
   Log.Info().Msg("System is starting up")
 
+	// ファンはデフォルトで OFF。ホストの指示を待たずに、全ピンを最小にする。
+	for _, pin := range fanPins {
+		dispatch(&micon_v1.PwmFade{Pin: pin})
+	}
+
   go heartbeat(led, time.Second)
   go receiveLoop(transceiver)
 
