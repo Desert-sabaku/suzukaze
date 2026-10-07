@@ -14,6 +14,12 @@ fps = 30 # ジェスチャー処理窓の標本数にも使用
 # 空欄ならカメラ入力。
 source = "" # 例: "sample_movies/sample.mp4"
 
+[annotation]
+# 起動時に表示する注釈: intervals = 所作、landmarks = ランドマーク
+default_page = "intervals"
+# trueなら1, 12, ..., 17, 24, 25の順にランドマークを自動選択
+nine_point_landmark_assist = false
+
 [output]
 directory = "output"
 path = "" # 空欄なら directory 配下に実行時刻付きのMP4
@@ -21,7 +27,7 @@ record_live = false # trueならライブ認識中の表示映像も録画
 buffer_frames = 8
 
 [models]
-pose = "pose_landmarker_lite.task"
+pose = "pose_landmarker_heavy.task"
 yolo = "yolov8n.pt"
 
 [pose]

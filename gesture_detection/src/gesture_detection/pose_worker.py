@@ -1,6 +1,7 @@
 import math
 import multiprocessing as mp
 import queue
+import tempfile
 import urllib.request
 from multiprocessing.queues import Queue
 
@@ -78,7 +79,18 @@ class PoseAnalyzer:
     def ensure_model() -> None:
         """Call once before starting multiple inference processes."""
         if not POSE_MODEL_PATH.exists():
-            temp_path = POSE_MODEL_PATH.parent / f".{POSE_MODEL_PATH.name}.tmp"
+            if POSE_MODEL_URL is None:
+                raise FileNotFoundError(
+                    f"Install the configured custom pose model: {POSE_MODEL_PATH}"
+                )
+            POSE_MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
+            with tempfile.NamedTemporaryFile(
+                dir=POSE_MODEL_PATH.parent,
+                prefix=f".{POSE_MODEL_PATH.name}.",
+                suffix=".tmp",
+                delete=False,
+            ) as temporary:
+                temp_path = POSE_MODEL_PATH.parent / temporary.name
             try:
                 urllib.request.urlretrieve(POSE_MODEL_URL, temp_path)
                 temp_path.rename(POSE_MODEL_PATH)

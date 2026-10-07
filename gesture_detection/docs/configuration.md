@@ -26,6 +26,20 @@ select_subject = false
 record_live = true
 ```
 
+## 動画注釈の起動設定
+
+`annotate-video` の起動時に表示する注釈ページと、ランドマークの9点注釈補助を設定できます。
+
+```toml
+[annotation]
+default_page = "intervals" # intervals = 所作、landmarks = ランドマーク
+nine_point_landmark_assist = false
+```
+
+`default_page` は `intervals` または `landmarks` を指定します。
+`nine_point_landmark_assist = true` の場合、ランドマーク注釈後の選択対象は
+`1 → 12 → 13 → 14 → 15 → 16 → 17 → 24 → 25` の順になります。
+
 ## `.env` からの移行
 
 従来の `.env` は読み込みません。既存の値を `config.toml` の対応するテーブルへ移してください。
