@@ -1,5 +1,6 @@
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using LightType = UnityEngine.LightType;
@@ -40,6 +41,9 @@ namespace Features.Common.Scripts
             {
                 _gameSettings = await GameSettings.GetInstanceAsync();
                 _isActive = _gameSettings.ignoreTimeManageScenes.All(ignoreScene => ignoreScene != currentScene.name);
+#if UNITY_EDITOR
+                if (_isActive) _isActive = EditorBuildSettings.scenes.Any(scene => scene.path == currentScene.path);
+#endif
             }).Forget();
         }
 

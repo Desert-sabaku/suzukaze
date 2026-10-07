@@ -10,6 +10,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Formats.Alembic.Importer;
 using UnityEngine.VFX;
+using Action = Suzukaze.Gesture.Protocol.Action;
 using Event = Suzukaze.Gesture.Protocol.Event;
 using Random = Unity.Mathematics.Random;
 
@@ -34,6 +35,8 @@ namespace Features.Gesture_Effect.Scripts
 
         [Title("扇ぎ")] [SerializeField] [ChildGameObjectsOnly]
         private VisualEffect aogiVfx;
+        
+        [Title("ラムネ")] [SerializeField] private RamuneGesturePlayer ramune;
 
         private GestureReceiverBehaviour _gestureReceiver;
 
@@ -49,6 +52,7 @@ namespace Features.Gesture_Effect.Scripts
             _startUchimizuPos = uchimizuPlayer.transform.position;
             _random = new Random((uint)DateTime.Now.Ticks);
             aogiVfx.Stop();
+            ramune.Initialize();
         }
 
         private void OnEnable()
@@ -160,6 +164,8 @@ namespace Features.Gesture_Effect.Scripts
                 default:
                     break;
             }
+
+            ramune.SetReadyOpen(state.Action is Action.Ramune && state.Phase is Phase.Ready);
         }
 
         private bool OnGestureOccurred(string sessionId, Event events)
@@ -167,7 +173,7 @@ namespace Features.Gesture_Effect.Scripts
             switch (events.Gesture)
             {
                 case OccurrenceGesture.Ramune:
-                    Debug.LogWarning("Gesture Ramune is not implemented.");
+                    ramune.PlayOpenAnimation();
                     break;
                 case OccurrenceGesture.Uchimizu:
                     PlayEffect(Gestures.Uchimizu).Forget();

@@ -42,11 +42,6 @@ namespace Features.Gesture_Effect.Scripts
 
         [ShowInInspector] [ReadOnly] public bool IsOpen { get; private set; }
 
-        private void Awake()
-        {
-            Close();
-        }
-
         private void Reset()
         {
             foreach (var r in GetComponentsInChildren<Renderer>(true))
@@ -97,6 +92,8 @@ namespace Features.Gesture_Effect.Scripts
             var material = target.sharedMaterial;
             _baseBubbleDensity = material.GetFloat(BubbleDensityId);
             _baseBubbleSpeed = material.GetFloat(BubbleSpeedId);
+            
+            Close();
         }
 
         /// <summary>
