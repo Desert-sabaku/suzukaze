@@ -18,7 +18,7 @@ EditorBuildSettings:
     path: Assets/MyScenes/Scene_ch.unity
     guid: e3a4fe038aae95c42acbb98c9d3ba237
   - enabled: 0
-    path: Assets/MyScenes/Forest.unity
+    path: Assets/MyScenes/Forest_old.unity
     guid: 88cbe6f490b5e524ab853841b7320c21
   - enabled: 0
     path: Assets/Projects/Scenes/Lake.unity
@@ -27,10 +27,10 @@ EditorBuildSettings:
     path: "Assets/MyScenes/river(\u4E2D\u6D41).unity"
     guid: 6ed539b3d5e64614e8460c45f280a2b9
   - enabled: 0
-    path: Assets/MyScenes/river.unity
+    path: Assets/MyScenes/river_old.unity
     guid: a6555817f02e5a446aa75173434a9e82
   - enabled: 0
-    path: Assets/MyScenes/sea.unity
+    path: Assets/MyScenes/sea_old.unity
     guid: a5ed8fee366e2d643ac89f10181b0d7b
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: e6912ddea8dc64b80a8784ebd6c572dd, type: 2}
