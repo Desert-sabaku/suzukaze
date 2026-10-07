@@ -4,7 +4,7 @@ TARGET ?= pico
 COMMIT_HASH := $(shell git describe --always --dirty)
 
 # proto/以下の全.protoファイルからハッシュを計算(先頭8文字)
-SCHEMA_HASH := $(shell cat ../proto/comms/v1/*.proto | sha256sum | cut -c1-8)
+SCHEMA_HASH := $(shell cat ../proto/micon/v1/*.proto | sha256sum | cut -c1-8)
 
 # TinyGoに埋め込むフラグ
 LDFLAGS := -X main.CommitHash=$(COMMIT_HASH) -X main.SchemaHash=$(SCHEMA_HASH)

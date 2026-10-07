@@ -1,10 +1,10 @@
 # Unity連携・OS別セットアップ・2カメラ
 
-このページに、Unityへの通知、Windows/Linuxのセットアップ、2カメラ認識をまとめます。
+Unityへの通知、Windows/Linuxのセットアップ、2カメラ認識について説明します。
 
 ## 構成と起動
 
-同一Windows PCまたは同一64-bit Linux PC内の1組の認識プロセス、ブリッジ、Unityを対象にします。
+同一Windows PCまたは同一64-bit Linux PCで動く、1組の認識プロセス、ブリッジ、Unityを対象にします。
 Windows UnityとWSL/Linux Pythonの組み合わせや別PC間の配送には対応しません。
 
 `unity_bridge ─(子プロセス起動 + multiprocessing.Queue)─ gesture_detection`
@@ -21,19 +21,19 @@ Unityの受信確認は認識側へは返しません。シーン判断はUnity�
 2. Unityを `ws://127.0.0.1:5000` に接続する。模擬Unityなら同じディレクトリで
    `uv run unity-gesture-probe` を起動する。
 
-Unityが未接続の間も認識結果は受け取り、状態とイベントの期限を進めます。
+Unityが未接続の間もブリッジは認識結果を受け取り、状態とイベントの期限を進めます。
 Unity側は切断時に再接続してください（Unityの受信実装は500ms間隔）。接続はUnity 1台に限定します。
 プローブの `--ignore-events` は演出中の見送りを模擬します。実機は操作しません。
 終了はブリッジでCtrl+C、または認識画面でEscです。認識側が終了するとブリッジも終了します。
 
 `gesture-detection` を単体で起動した場合は送信しません。`video.source` を設定した
 動画評価や `multicam.replay.session` による録画再生でも送信しません（時刻が入力元の時刻のため）。
-未確認イベントの容量超過は黙って無視せず、ブリッジのエラーとして終了させます。
+未確認イベントが容量を超えた場合は、何も知らせずに無視するのではなく、ブリッジのエラーとして終了させます。
 
 2カメラ認識は、このページの[2カメラ認識](#2カメラ認識)の設定で起動します。
 両カメラの結果を統合し、共有の解除・新準備判定を通過したイベントを1つのキューへ送ります。
 
-送信間隔などは `unity_bridge` の環境変数で変更します（既定値）:
+送信間隔などは `unity_bridge` の環境変数で変更します。既定値は次のとおりです。
 `GESTURE_STATE_INTERVAL=0.1`、`GESTURE_STALE_TIMEOUT=0.5`、`GESTURE_EVENT_TTL=1.0`、
 `GESTURE_RETRY_INTERVAL=0.1`、`GESTURE_MAX_PENDING=64`。
 `GESTURE_EVENT_TTL` は2カメラ統合でも使うため、`gesture_detection/config.toml` の
@@ -80,7 +80,7 @@ Python側は `proto/` で `buf generate` して生成した
 - 認識入力が500ms古くなると `fresh=false, tracking=false, gesture=NONE`。
   通信が続いていても古い認識を延命しません。
 - Unityでも状態受信から500msの途絶、または `observed_at + stale_timeout`
-  到達の早い方で解除します。送信された `fresh` だけでなく、Unityで処理するときの
+  への到達の早い方で解除します。送信された `fresh` だけでなく、Unityで処理するときの
   時刻を確認します。Unityメインスレッドへの待ち行列でも古くなるためです。
 - `sequence` は状態通知ごとの連番です。同じセッションの古い連番は無視します。
   初回推論前は `observed_at/frame_id/source_timestamp` がnullになります。
@@ -260,6 +260,6 @@ uv run gesture-detection
 録画再生ではUnityへ通知しません。`diagnostics.multicam_trace` を指定すると統合結果をJSONLへ
 保存できます。統合は直近の入力時刻を使い、古いイベントの期限を新しい入力で延長しません。
 
-2カメラの責任分界は、各カメラの取得・推論を子プロセスで行い、親側で結果を統合してから
-`GestureSample` としてブリッジへ渡す構成です。詳細な通信形式、イベント期限、ACK、時計の
-扱いはこのページ上部の[通信形式](#通信形式)と[時刻と再起動](#時刻と再起動)を正本とします。
+2カメラでは、各カメラの取得・推論を子プロセスで行い、親プロセスで結果を統合してから
+`GestureSample` としてブリッジへ渡します。通信形式、イベント期限、ACK、時計の
+扱いはこのページ上部の[通信形式](#通信形式)と[時刻と再起動](#時刻と再起動)を基準とします。

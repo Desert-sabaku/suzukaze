@@ -1,8 +1,8 @@
 import struct
 
 from mcu.client import MCUClient
-from mcu.gen.comms.v1.comms_pb2 import Packet
-from mcu.gen.comms.v1.heartbeat_pb2 import HandshakeResp, VersionInfo
+from mcu.gen.micon.v1.heartbeat_pb2 import HandshakeResp, VersionInfo
+from mcu.gen.micon.v1.micon_pb2 import Packet
 
 
 def test_send_packet_writes_framed_bytes() -> None:

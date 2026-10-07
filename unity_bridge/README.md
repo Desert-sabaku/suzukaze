@@ -7,6 +7,20 @@
 ありません。旧 `src.*` のimportは `unity_bridge.*` に変更しています。
 インストール後は `unity-bridge` と `unity-gesture-probe` コマンドを使用できます。
 
+## ファン
+
+`--gesture` のWebSocket 1本で、ファンも扱います。ファンだけ使うときは、カメラを起動しない
+`uv run unity-bridge --fan` を使います(`--gesture` は不要です)。電文は `proto/bridge/v1/bridge.proto` の
+`BridgeEnvelope` です。Unityが `fan_command`(`fan.v1.Fan`)を送ると、ブリッジが記録して、
+ファン6本のいまの出力を `fan_state` で返します(最初の指示を受けてから、状態通知と同じ周期)。
+firmwareには回転数の読み出しがないので、出力は指示から推定します
+(0 から value まで、firmwareと同じガンマ2.2のカーブ)。
+
+環境変数 `FAN_PWM_PINS`(6本のGPIO番号、カンマ区切り。順は `channel` の1〜6)を設定すると、
+`mcu` ライブラリでマイコンへ `PwmFade` も送ります。ポートは `MICROCONTROLLER_SERIAL_PORT`、
+ボーレートは `MICROCONTROLLER_BAUDRATE` です。未設定ならマイコンへは送りません。
+マイコンが未接続でもブリッジは落ちず、次の指示で再接続します(落とした指示は再送しません)。
+
 ## ジェスチャー通知
 
 ```bash

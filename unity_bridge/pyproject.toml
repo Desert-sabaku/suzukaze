@@ -10,10 +10,12 @@ dependencies = [
     "pyserial>=3.5",
     "websockets>=17.1",
     "gesture_detection",
+    "mcu",
 ]
 
 [tool.uv.sources]
 gesture-detection = { workspace = true }
+mcu = { workspace = true }
 
 [project.scripts]
 unity-bridge = "unity_bridge.core:main"
@@ -42,7 +44,7 @@ pythonpath = ["../gesture_detection/src"]
 extend-exclude = ["src/unity_bridge/gen"]
 
 [tool.pyright]
-extraPaths = ["src", "../gesture_detection/src"]
+extraPaths = ["src", "src/unity_bridge/gen", "../gesture_detection/src"]
 exclude = ["src/unity_bridge/gen"]
 venvPath = "."
 venv = ".venv"

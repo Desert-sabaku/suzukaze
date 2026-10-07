@@ -1,6 +1,7 @@
 using Suzukaze.Gesture.Protocol;
 using Suzukaze.Gesture;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class RandomSceneLoader : MonoBehaviour
@@ -30,7 +31,7 @@ public class RandomSceneLoader : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space)) TryStartGame();
+        if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame) TryStartGame();
     }
 
     public bool TryStartGame()

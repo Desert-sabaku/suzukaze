@@ -1,7 +1,7 @@
 # ジェスチャー認識・カメラ録画
 
 カメラや動画から「扇ぎ」「打ち水」「夕涼み」「礼」「ラムネ開栓」を判定します。
-認識を行わず、複数のカメラを同時録画するツールも使えます。
+認識をせずに複数のカメラを同時録画するツールもあります。
 
 ## 準備
 
@@ -23,9 +23,9 @@ uv run gesture-detection
 
 ライブ入力では起動時に候補カメラの映像を表示します。数字キーで使用するカメラを選びます。
 表示された枠に胴体の中心を合わせてください。
-終了は `Esc` です。姿勢推定モデルがない場合は初回起動時に自動取得します。
-単体で起動した場合はUnityへ送信しません。Unityへ送るときは `unity_bridge/` で
-`uv run unity-bridge --gesture` を実行すると、この認識アプリも起動します（[Unity連携](docs/integration.md)）。
+`Esc` で終了します。姿勢推定モデルがない場合は初回起動時に自動取得します。
+単体で起動した場合、認識結果はUnityへ送信しません。Unityへ送るときは `unity_bridge/` で
+`uv run unity-bridge --gesture` を実行します。このコマンドで認識アプリも起動します（[Unity連携](docs/integration.md)）。
 
 主な設定は `config.toml` で変更します。ファイルがなければ既定値を使います。
 
@@ -45,15 +45,15 @@ uv run gesture-detection
 
 `config.toml` の `[multicam]` で `enabled = true` を指定します。起動時に2台を役割順に選ぶか、
 画面なしでは `[camera]` に `indices = [1, 2]` のように指定します。
-先頭のカメラで人物選択、2台目で全画面解析を行い、結果を統合します。
+先頭のカメラで人物を選択し、2台目では全画面を解析します。両方の結果を統合します。
 実カメラと録画セッションの設定は[Unity連携・OS別セットアップ・2カメラ](docs/integration.md)を参照してください。
 
 ## カメラ映像を録画する
 
 通常の `gesture-detection` はライブカメラを録画しません。`OUTPUT_DIR` と
-`VIDEO_OUTPUT_PATH` は既存動画の解析結果用です。カメラ録画には次の専用コマンドを使います。
+`VIDEO_OUTPUT_PATH` は既存動画の解析結果用です。カメラの録画には次の専用コマンドを使います。
 
-使うカメラのIDを指定します。1台から利用でき、設定はコマンド引数で渡します。
+使用するカメラのIDを指定します。1台から利用でき、設定はコマンド引数で渡します。
 
 ```bash
 uv run record-cameras --cameras 0
@@ -81,10 +81,21 @@ uv run record-cameras --cameras 0 2
 
 ## 詳しい情報
 
-- ドキュメントの入口は [docs/README.md](docs/README.md) です。
-- [ジェスチャーの仕様](docs/gestures.md)・[Unity連携](docs/integration.md)
-- [構成・設定・開発](docs/architecture.md)・[動画と関節位置の注釈](docs/annotation.md)
+- [ジェスチャー仕様](docs/gestures.md): 5種類の所作と成立条件
+- [カメラ入力・録画・トラブルシュート](docs/camera.md): 録画、入力形式、カメラの障害
+- [設定ファイル](docs/configuration.md): TOML設定と旧 `.env` からの移行
+- [実演者の選択](docs/subject-selection.md): 複数人が映る場合の対象選択
+- [実機での確認項目](docs/manual-testing.md): 起動後の確認項目
+- [Unity連携・OS別セットアップ・2カメラ](docs/integration.md): 通信仕様、Windows/Linux、2カメラ認識
+- [打ち水のUnity演出](docs/uchimizu-unity.md): 水パーティクルへの接続
+- [構成・設定・開発](docs/architecture.md): 責任範囲、時刻・入力、品質確認
+- [学習済みラムネ判定](docs/learned-ramune.md): 任意の学習済み判定器
+- [動画・関節位置の注釈](docs/annotation.md): 注釈ツールと記録基準
+- [評価記録](docs/evaluations.md): 現行実装へ反映した結論
+- [礼の動画評価](docs/bow-evaluation.md): 注釈済みの2カメラ動画による判定比較
+- [詳細な評価記録](https://github.com/Desert-sabaku/suzukaze/wiki): GitHub Wikiで管理
 
-検証動画、注釈、ランドマーク、結果ファイル、顔が写る可能性のある画像は
-`gesture_detection/shared` サブモジュールで管理します。本体リポジトリには、通常利用に
-必要な手順と、検証結果の要約だけを置きます。
+日付付きの評価レポート、JSONなどの結果ファイル、比較画像、検証動画、注釈、ランドマーク、顔が写る
+可能性のある素材は通常の利用者向け資料ではありません。検証データは
+`gesture_detection/shared` サブモジュールで管理します。本体リポジトリの公開ドキュメントには、
+通常の利用に必要な手順、検証結果の要約と再現手順へのリンクだけを置きます。

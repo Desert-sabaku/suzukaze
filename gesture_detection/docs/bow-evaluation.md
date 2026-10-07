@@ -1,7 +1,7 @@
 # 礼の動画評価
 
 注釈済みの2カメラ動画を、実際の`PoseAnalyzer`（VIDEO・multicamプロファイル・
-rules判定）と`MultiCameraFusion`で再生し、礼の判定を比較します。
+rules判定）と`MultiCameraFusion`に通し、礼の判定を比較します。
 `gesture_detection/`から実行します。
 
 ```bash
@@ -15,8 +15,8 @@ uv run python -m scripts.evaluate_bow ../shared/annotations \
 照合します。両カメラは同じFPS・総フレーム数である必要があります。
 
 モデルも比較する場合は`--pose-model lite`・`full`・`heavy`を指定できます。
-必要なモデルは初回にダウンロードされ、アプリケーションの設定ファイルは変更しません。
-省略時は設定済みのモデルを使います。比較例:
+必要なモデルは初回にダウンロードします。アプリケーションの設定ファイルは変更しません。
+省略時は設定済みのモデルを使います。比較する場合のコマンド例を示します。
 
 ```bash
 uv run python -m scripts.evaluate_bow ../shared/annotations \
@@ -67,6 +67,6 @@ uv run python -m scripts.evaluate_bow ../shared/annotations \
   --takes take_002 take_003 take_004 --disable-subject-selection
 ```
 
-これは原因の切り分け用です。両カメラの入力処理が変わるため、標準設定の評価と
+この診断は原因の切り分け用です。両カメラの入力処理が変わるため、標準設定の評価と
 区別して保存します。設定や判定を調整した後は、別の出力先を指定し、調整用の結果を
 確認してから評価用`take_001`を評価します。

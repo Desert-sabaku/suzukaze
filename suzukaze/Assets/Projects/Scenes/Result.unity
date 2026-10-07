@@ -699,6 +699,7 @@ MonoBehaviour:
   hanabi: {fileID: 1372855355}
   afterDropInterval: 1
   fadeDuration: 2
+  autoTransitionInterval: 60
 --- !u!4 &408999281
 Transform:
   m_ObjectHideFlags: 0
@@ -2831,7 +2832,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Features.Result.Scripts.SenkoHanabiController
   playOnStart: 1
-  score: 0.027
+  score: 1
   burnDuration: 10
   intensityRange: {x: 0.1, y: 1}
   shortestDropTime: 3
