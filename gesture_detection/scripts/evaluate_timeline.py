@@ -8,6 +8,7 @@ import math
 import subprocess
 import time
 from collections import Counter, defaultdict
+from importlib.metadata import version
 from pathlib import Path
 from typing import Any
 
@@ -246,10 +247,14 @@ def main() -> None:
     parser.add_argument("--profile", choices=("default", "multicam"), default="default")
     parser.add_argument("--event-tolerance", type=float, default=0.5)
     parser.add_argument("--landmark-clips-only", action="store_true")
+    parser.add_argument(
+        "--resume", action="store_true", help="Resume using the saved annotation snapshot"
+    )
     args = parser.parse_args()
     if not math.isfinite(args.event_tolerance) or args.event_tolerance < 0:
         parser.error("Event tolerance must be finite and non-negative")
-    timelines = sorted(args.annotations.rglob("timeline.json"))
+    annotation_root = args.output / "annotations" if args.resume else args.annotations
+    timelines = sorted(annotation_root.rglob("timeline.json"))
     if args.landmark_clips_only:
         timelines = [
             p
@@ -262,18 +267,29 @@ def main() -> None:
         ]
     if not timelines:
         parser.error("No matching timelines")
-    if args.output.exists():
+    if args.output.exists() and not args.resume:
         parser.error("Output already exists; use a new directory to preserve comparison results")
     if args.pose_model != "configured":
         name = f"pose_landmarker_{args.pose_model}"
         pose_module.POSE_MODEL_PATH = config.PROJECT_ROOT / f"{name}.task"
         pose_module.POSE_MODEL_URL = f"https://storage.googleapis.com/mediapipe-models/pose_landmarker/{name}/float16/1/{name}.task"
     PoseAnalyzer.ensure_model()
+    if not args.resume:
+        snapshots = []
+        for timeline in timelines:
+            snapshot = args.output / "annotations" / timeline.relative_to(annotation_root)
+            snapshot.parent.mkdir(parents=True, exist_ok=True)
+            snapshot.write_bytes(timeline.read_bytes())
+            snapshots.append(snapshot)
+        timelines = snapshots
+    annotation_root = args.output / "annotations"
     report: dict[str, Any] = {
         "revision": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
         "dirty": bool(subprocess.check_output(["git", "status", "--porcelain"], text=True).strip()),
         "protocol": "Sequential VIDEO inference, all frames, frame_id / annotated FPS, fresh analyzer per clip. Views scored independently; no assumed hardware synchronization. Unlabelled frames/phases/events are unknown, not negatives. Action coverage includes preparation, not classification accuracy. PCK uses all marked points including missing/low-confidence predictions.",
         "settings": {
+            "evaluator_sha256": sha256(Path(__file__)),
+            "packages": {name: version(name) for name in ("mediapipe", "numpy", "opencv-python")},
             "model": str(pose_module.POSE_MODEL_PATH),
             "model_sha256": sha256(pose_module.POSE_MODEL_PATH),
             "subject_selection": args.subject_selection,
@@ -282,7 +298,7 @@ def main() -> None:
             "config": {
                 name: str(value) if isinstance(value, Path) else value
                 for name, value in vars(config).items()
-                if name.isupper()
+                if name.isupper() and name != "VIDEO_OUTPUT_PATH"
             },
             "code_sha256": {
                 p.name: sha256(p) for p in sorted(Path(pose_module.__file__).parent.glob("*.py"))
@@ -290,9 +306,24 @@ def main() -> None:
         },
         "clips": {},
     }
+    summary_path = args.output / "summary.json"
+    if args.resume and summary_path.exists():
+        previous = json.loads(summary_path.read_text(encoding="utf-8"))
+        if previous["settings"] != json.loads(json.dumps(report["settings"])):
+            parser.error("Cannot resume with changed settings or inference code")
+        report["clips"] = previous["clips"]
+    report["actions"] = aggregate(report["clips"])
     for timeline in timelines:
-        relative = timeline.relative_to(args.annotations).parent
+        relative = timeline.relative_to(annotation_root).parent
         video = args.videos / relative.with_suffix(".mp4")
+        if str(relative) in report["clips"]:
+            saved = report["clips"][str(relative)]
+            if (
+                sha256(timeline) != saved["annotation_sha256"]
+                or sha256(video) != saved["source"]["sha256"]
+            ):
+                parser.error(f"Cannot resume changed inputs: {relative}")
+            continue
         print(f"Evaluating {relative}", flush=True)
         clip = evaluate(
             timeline,
@@ -304,9 +335,11 @@ def main() -> None:
         )
         report["clips"][str(relative)] = clip
         report["actions"] = aggregate(report["clips"])
-        (args.output / "summary.json").write_text(
+        temporary_summary = args.output / "summary.json.tmp"
+        temporary_summary.write_text(
             json.dumps(report, indent=2, allow_nan=False) + "\n", encoding="utf-8"
         )
+        temporary_summary.replace(summary_path)
         print(
             f"  tracking {clip['tracking_frames']}/{clip['frames']}; landmarks {clip['landmarks']}",
             flush=True,
