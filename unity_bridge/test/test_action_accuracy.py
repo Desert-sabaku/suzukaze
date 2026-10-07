@@ -3,7 +3,7 @@ import math
 import pytest
 from gesture_detection.recognition_types import GestureSample
 
-from unity_bridge.gen.gesture.v1 import gesture_pb2 as pb
+from unity_bridge.gen.bridge.v1 import bridge_pb2 as bridge_pb
 from unity_bridge.gesture_codec import decode_message, encode_message
 from unity_bridge.gesture_delivery import DeliveryOutbox
 
@@ -23,7 +23,9 @@ def test_accuracy_presence_retry_and_staleness(score):
     state, event = outbox.state(1), outbox.events(1)[0]
     for message, kind in ((state, "state"), (event, "event")):
         wire = encode_message(message)
-        payload = getattr(pb.GestureEnvelope.FromString(wire), kind)
+        envelope = bridge_pb.BridgeEnvelope.FromString(wire)
+        assert envelope.WhichOneof("payload") == "gesture"
+        payload = getattr(envelope.gesture, kind)
         assert payload.HasField("action_accuracy") == (score is not None)
         assert decode_message(wire).get("action_accuracy") == score
     outbox.publish(GestureSample("NONE", False, 1.1, ()), now=1.1)
@@ -45,8 +47,8 @@ def test_codec_rejects_invalid_accuracy(value, kind):
     with pytest.raises(ValueError):
         encode_message({**message, "action_accuracy": value})
     if type(value) is float:
-        envelope = pb.GestureEnvelope.FromString(encode_message(message))
-        getattr(envelope, kind).action_accuracy = value
+        envelope = bridge_pb.BridgeEnvelope.FromString(encode_message(message))
+        getattr(envelope.gesture, kind).action_accuracy = value
         with pytest.raises(ValueError):
             decode_message(envelope.SerializeToString())
 
