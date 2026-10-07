@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package bridge.v1;
+
+import "fan/v1/fan.proto";
+import "gesture/v1/gesture.proto";
+
+option csharp_namespace = "Suzukaze.Bridge.Protocol";
+
+// Unity と unity_bridge の間の WebSocket 1本に流す、すべての電文。
+// 1メッセージにつき BridgeEnvelope を1つ、バイナリで送る。
+message BridgeEnvelope {
+  oneof payload {
+    // 双方向: ジェスチャーの状態・イベント・ACK。
+    gesture.v1.GestureEnvelope gesture = 1;
+    // Unity -> bridge: ファンへの指示。
+    fan.v1.Fan fan_command = 2;
+    // bridge -> Unity: ファン6本のいまの出力。
+    FanState fan_state = 3;
+  }
+}
+
+message FanState {
+  // 6本ぶん。含まれないチャンネルは前回の値のまま。
+  repeated FanReading readings = 1;
+}
+
+message FanReading {
+  fan.v1.FanChannel channel = 1;
+
+  // いまの出力。0-255
+  uint32 value = 2;
+}
