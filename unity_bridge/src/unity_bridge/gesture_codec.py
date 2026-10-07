@@ -5,6 +5,7 @@ import math
 from gesture_detection.gesture_types import Gesture, Phase, valid_action_phase
 from google.protobuf.message import DecodeError
 
+from .gen.bridge.v1 import bridge_pb2 as bridge_pb
 from .gen.gesture.v1 import gesture_pb2 as pb
 
 MAX_MESSAGE_BYTES = 8192
@@ -169,26 +170,44 @@ def encode_message(message: dict) -> bytes:
                 setattr(
                     payload, field, mapping[value] if mapping is not None else value
                 )
-        data = envelope.SerializeToString(deterministic=True)
+        return _wrap(envelope)
     except (UnicodeError, TypeError, OverflowError) as exc:
         raise ValueError("Invalid protobuf value") from exc
+
+
+def _wrap(envelope: pb.GestureEnvelope) -> bytes:
+    data = bridge_pb.BridgeEnvelope(gesture=envelope).SerializeToString(
+        deterministic=True
+    )
     _check_size(len(data))
     return data
 
 
-def decode_message(data: bytes) -> dict:
-    """Decode and validate; absent optional metadata is returned as None.
-
-    Unknown protobuf fields are tolerated for forward compatibility.
-    """
+def decode_bridge(data: bytes) -> bridge_pb.BridgeEnvelope:
+    """Parse one WebSocket message; the caller dispatches on its payload."""
     if not isinstance(data, bytes):
         raise TypeError("data must be bytes")
     _check_size(len(data))
-    envelope = pb.GestureEnvelope()
+    envelope = bridge_pb.BridgeEnvelope()
     try:
         envelope.ParseFromString(data)
     except DecodeError as exc:
         raise ValueError("Malformed protobuf") from exc
+    return envelope
+
+
+def decode_message(data: bytes) -> dict:
+    """Decode and validate a gesture message; absent optional metadata is None.
+
+    Unknown protobuf fields are tolerated for forward compatibility.
+    """
+    bridge = decode_bridge(data)
+    if bridge.WhichOneof("payload") != "gesture":
+        raise ValueError("Expected a gesture message")
+    return decode_gesture(bridge.gesture)
+
+
+def decode_gesture(envelope: pb.GestureEnvelope) -> dict:
     kind = envelope.WhichOneof("payload")
     if kind is None:
         raise ValueError("Missing payload")

@@ -28,3 +28,12 @@ def test_relay_timing_comes_from_environment(monkeypatch):
 def test_probe_rejects_text_payload():
     with pytest.raises(TypeError):
         gesture_probe.decode_payload("{}")
+
+
+def test_fan_mode_serves_loopback_without_detection(monkeypatch):
+    monkeypatch.setattr(core, "load_dotenv", lambda: None)
+    monkeypatch.setattr("sys.argv", ["unity-bridge", "--fan"])
+    args = core._parse_args()
+    assert args.fan
+    assert args.gesture
+    assert args.host == "127.0.0.1"
