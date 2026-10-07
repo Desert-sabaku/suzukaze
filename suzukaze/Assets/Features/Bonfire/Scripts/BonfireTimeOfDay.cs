@@ -22,6 +22,12 @@ namespace Features.Bonfire.Scripts
         [Tooltip("ライトが点灯・消灯しきるまでの秒数")]
         [SerializeField] [Min(0f)] private float lightFadeSeconds = 1.5f;
 
+        [Tooltip("ライトの明るさを揺らす幅 (基準強度に対する割合)。0 で揺らさない")]
+        [SerializeField] [Range(0f, 1f)] private float flickerAmount = 0.45f;
+
+        [Tooltip("ライトの明るさが揺らぐ速さ")]
+        [SerializeField] [Min(0f)] private float flickerSpeed = 3f;
+
         [Tooltip("焚き火と連動させるライト")]
         [SerializeField] private Light[] lights;
 
@@ -80,11 +86,24 @@ namespace Features.Bonfire.Scripts
                 : hour >= igniteHour || hour < extinguishHour;
         }
 
+        /// <summary>
+        ///     ゆっくりした大きな揺らぎと速い細かな揺らぎを重ねた、炎らしい明るさの倍率
+        /// </summary>
+        private float FlickerMultiplier()
+        {
+            var t = Time.time * flickerSpeed;
+            var slow = Mathf.PerlinNoise(t, 0.37f);
+            var fast = Mathf.PerlinNoise(t * 3.1f, 5.71f);
+            var noise = slow * 0.7f + fast * 0.3f;
+            return Mathf.Max(0f, 1f + flickerAmount * (noise * 2f - 1f));
+        }
+
         private void ApplyLights()
         {
+            var flicker = FlickerMultiplier();
             for (var i = 0; i < lights.Length; i++)
             {
-                lights[i].intensity = _baseIntensities[i] * _lightLevel;
+                lights[i].intensity = _baseIntensities[i] * _lightLevel * flicker;
                 lights[i].enabled = _lightLevel > 0f;
             }
         }
