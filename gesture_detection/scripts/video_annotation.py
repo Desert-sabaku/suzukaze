@@ -1,4 +1,6 @@
-"""Frame-accurate video, interval, event, and landmark annotation tool."""
+"""Frame-accurate video, interval, event, and landmark annotation tool.
+Call me with `invoke annotate <video path>`
+"""
 
 from __future__ import annotations
 
@@ -111,7 +113,7 @@ def sha256(path: Path) -> str:
 
 def default_output_path(video: Path, project_directory: Path | None = None) -> Path:
     root = Path.cwd() if project_directory is None else project_directory
-    return root / "shared" / "annotations" / video.parent.name / video.stem / "timeline.json"
+    return root / "gesture_detection" / "shared" / "annotations" / video.parent.name / video.stem / "timeline.json"
 
 
 def load_annotation_defaults(config_path: Path | None = None) -> dict[str, Any]:
