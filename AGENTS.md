@@ -83,6 +83,16 @@ type hints for new or substantially changed interfaces. Each Python project
 configures Ruff and Pyright; run `uv run ruff format`, `uv run ruff check`, and
 `uv run pyright` before submitting. Generated code is excluded from both.
 
+## Documentation
+
+When writing or revising Japanese documentation, follow the `yomiyasu` skill.
+Preserve the original claims, emphasis, certainty, and purpose without adding
+unsupported details. Before creating a document or adding a section, consider
+whether it gives readers a distinct purpose that an existing document or
+section cannot serve. Prefer updating the existing location when it can cover
+the topic clearly. For `gesture_detection`, use `gesture_detection/README.md`
+as the single entry point and link to detailed pages under `docs/` from there.
+
 ## Testing Guidelines
 
 Each Python project uses pytest (`uv run python -m pytest`). On pull requests,
