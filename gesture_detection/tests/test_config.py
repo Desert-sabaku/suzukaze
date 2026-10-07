@@ -114,6 +114,8 @@ def test_example_is_valid_and_matches_defaults() -> None:
     assert config["VIDEO_OUTPUT_PATH"].parent == PROJECT_ROOT / "output"
     assert config["RAMUNE_LEARNED_MODEL_PATH"].name == "ramune_0924.npz"
     assert config["MULTICAM_SELECT_SUBJECT"] == (True, False)
+    assert config["ANNOTATION_DEFAULT_PAGE"] == "intervals"
+    assert config["ANNOTATION_NINE_POINT_ASSIST"] is False
 
 
 @pytest.mark.parametrize(

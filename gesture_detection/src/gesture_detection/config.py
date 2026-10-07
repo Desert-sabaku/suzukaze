@@ -256,6 +256,10 @@ MULTICAM_TRACE_PATH = _settings.optional_path("diagnostics", "multicam_trace")
 MULTICAM_HEADLESS = _settings.boolean("multicam", "headless", False)
 MULTICAM_WIDTH = _settings.integer("multicam", "width", 1280)
 MULTICAM_HEIGHT = _settings.integer("multicam", "height", 720)
+ANNOTATION_DEFAULT_PAGE = _settings.text("annotation", "default_page", "intervals").strip().lower()
+if ANNOTATION_DEFAULT_PAGE not in {"intervals", "landmarks"}:
+    raise ValueError("ANNOTATION_DEFAULT_PAGE must be intervals or landmarks")
+ANNOTATION_NINE_POINT_ASSIST = _settings.boolean("annotation", "nine_point_landmark_assist", False)
 if min(MULTICAM_WIDTH, MULTICAM_HEIGHT) <= 0:
     raise ValueError("MULTICAM_WIDTH and MULTICAM_HEIGHT must be positive")
 if MULTICAM_ENABLED and (POSE_RUNNING_MODE != "VIDEO" or RAMUNE_DETECTOR != "rules"):
