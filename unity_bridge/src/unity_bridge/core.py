@@ -7,6 +7,7 @@ from typing import Any
 import websockets
 from dotenv import load_dotenv
 
+from .fan import fan_controller_from_env
 from .gesture_delivery import DeliveryOutbox
 from .gesture_relay import DetectionProcess, GestureRelay
 
@@ -33,6 +34,7 @@ class UnityBridge:
         serial_port: str | None = DEFAULT_SERIAL_PORT,
         baudrate: int = DEFAULT_BAUDRATE,
         gesture_relay: GestureRelay | None = None,
+        detect: bool = True,
     ) -> None:
         self.host = host
         self.websocket_port = websocket_port
@@ -41,6 +43,7 @@ class UnityBridge:
         if gesture_relay is not None and serial_port is not None:
             raise ValueError("Gesture relay and serial relay are separate modes")
         self.gesture_relay = gesture_relay
+        self.detect = detect
         self._stop = threading.Event()
         self._serial: Any | None = None
 
@@ -53,7 +56,11 @@ class UnityBridge:
             from serial import Serial
 
             self._serial = Serial(self.serial_port, self.baudrate, timeout=0.1)
-        detection = DetectionProcess() if self.gesture_relay is not None else None
+        detection = (
+            DetectionProcess()
+            if self.gesture_relay is not None and self.detect
+            else None
+        )
         try:
             if detection is not None:
                 detection.start()
@@ -66,7 +73,11 @@ class UnityBridge:
             ):
                 print(f"Waiting for Unity on ws://{self.host}:{self.websocket_port}")
                 if self.gesture_relay is not None:
-                    print("Gesture source: gesture_detection child process")
+                    print(
+                        "Gesture source: gesture_detection child process"
+                        if self.detect
+                        else "Fan only: gesture_detection is not started"
+                    )
                 elif self.serial_port is None:
                     print("Serial disabled")
                 else:
@@ -161,7 +172,7 @@ def gesture_relay_from_env() -> GestureRelay:
         retry_interval=float(os.getenv("GESTURE_RETRY_INTERVAL", "0.1")),
         max_pending=int(os.getenv("GESTURE_MAX_PENDING", "64")),
     )
-    return GestureRelay(outbox, state_interval)
+    return GestureRelay(outbox, state_interval, fan_controller_from_env())
 
 
 def test_websocket_connection() -> bool:
@@ -202,7 +213,14 @@ def _parse_args() -> argparse.Namespace:
         action="store_true",
         help="Run gesture_detection and deliver gestures to Unity instead of serial.",
     )
+    parser.add_argument(
+        "--fan",
+        action="store_true",
+        help="Serve fan control to Unity only; do not start gesture_detection.",
+    )
     args = parser.parse_args()
+    # --fan は、ジェスチャー用の WebSocket 中継から、認識の子プロセスだけを除いたもの。
+    args.gesture = args.gesture or args.fan
     if args.gesture:
         # Gesture delivery is local-only; serial mode retains its existing default.
         if args.host == DEFAULT_HOST:
@@ -221,6 +239,7 @@ def main() -> None:
         serial_port,
         args.baudrate,
         gesture_relay_from_env() if args.gesture else None,
+        detect=not args.fan,
     )
     try:
         bridge.run()

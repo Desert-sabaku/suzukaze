@@ -1,6 +1,6 @@
 # 通信スキーマ
 
-`gesture/v1/gesture.proto`はジェスチャー認識とUnity間、`comms/v1`は
+`gesture/v1/gesture.proto`はジェスチャー認識とUnity間、`micon/v1`は
 マイコンとの通信に使用します。生成コードはコミットせず、変更後はこのディレクトリで
 `buf generate`を実行します。
 

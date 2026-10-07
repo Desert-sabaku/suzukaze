@@ -3,6 +3,8 @@ using System.IO;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Google.Protobuf;
+using Suzukaze.Bridge.Protocol;
 using Suzukaze.Gesture.Protocol;
 using GestureAction = Suzukaze.Gesture.Protocol.Action;
 
@@ -52,6 +54,10 @@ namespace Suzukaze.Gesture
             else throw new InvalidDataException("Receiver expects state or event");
         }
 
+        // GestureEnvelope を、WebSocket に流す BridgeEnvelope に包む。
+        public static byte[] Wrap(GestureEnvelope envelope) =>
+            new BridgeEnvelope { Gesture = envelope }.ToByteArray();
+
         // One protobuf envelope per binary WebSocket message; no TCP length header.
         // Timestamp is captured immediately after the final ReceiveAsync completes.
         public static async Task<ReceivedMessage> ReceiveAsync(
@@ -74,18 +80,26 @@ namespace Suzukaze.Gesture
                 if (length > MaxBytes) throw new InvalidDataException("Message exceeds 8192 bytes");
                 if (!part.EndOfMessage) continue;
                 if (length == 0) throw new InvalidDataException("Empty message");
-                var envelope = GestureEnvelope.Parser.ParseFrom(bytes, 0, length);
-                Validate(envelope);
-                return new ReceivedMessage(envelope, arrival);
+                var bridge = BridgeEnvelope.Parser.ParseFrom(bytes, 0, length);
+                if (bridge.PayloadCase == BridgeEnvelope.PayloadOneofCase.FanState)
+                    return new ReceivedMessage(bridge.FanState, arrival);
+                if (bridge.PayloadCase != BridgeEnvelope.PayloadOneofCase.Gesture)
+                    throw new InvalidDataException("Receiver expects gesture or fan state");
+                Validate(bridge.Gesture);
+                return new ReceivedMessage(bridge.Gesture, arrival);
             }
         }
     }
 
     public sealed class ReceivedMessage
     {
+        // ジェスチャーのときだけ Envelope、ファンの状態のときだけ FanState が入る。
         public GestureEnvelope Envelope { get; }
+        public FanState FanState { get; }
         public double ReceivedAt { get; }
         public ReceivedMessage(GestureEnvelope envelope, double receivedAt)
         { Envelope = envelope; ReceivedAt = receivedAt; }
+        public ReceivedMessage(FanState fanState, double receivedAt)
+        { FanState = fanState; ReceivedAt = receivedAt; }
     }
 }

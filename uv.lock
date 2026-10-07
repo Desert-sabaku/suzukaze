@@ -1649,6 +1649,7 @@ source = { editable = "unity_bridge" }
 dependencies = [
     { name = "dotenv" },
     { name = "gesture-detection" },
+    { name = "mcu" },
     { name = "protobuf" },
     { name = "pyserial" },
     { name = "websockets" },
@@ -1666,6 +1667,7 @@ dev = [
 requires-dist = [
     { name = "dotenv", specifier = ">=0.9.9" },
     { name = "gesture-detection", editable = "gesture_detection" },
+    { name = "mcu", editable = "mcu" },
     { name = "protobuf", specifier = ">=7.36.2" },
     { name = "pyserial", specifier = ">=3.5" },
     { name = "websockets", specifier = ">=17.1" },

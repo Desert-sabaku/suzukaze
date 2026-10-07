@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Google.Protobuf;
 using NUnit.Framework;
+using Suzukaze.Bridge.Protocol;
 using Suzukaze.Gesture.Protocol;
 using GestureAction = Suzukaze.Gesture.Protocol.Action;
 
@@ -42,7 +43,7 @@ namespace Suzukaze.Gesture.Tests
         [Test]
         public async Task FragmentedMessageCapturesFinalReceiveTime()
         {
-            byte[] bytes = DeliveryTests.Occurrence().Envelope.ToByteArray();
+            byte[] bytes = WireMessage.Wrap(DeliveryTests.Occurrence().Envelope);
             var fragments = new byte[bytes.Length][];
             for (int i = 0; i < bytes.Length; i++) fragments[i] = new[] { bytes[i] };
             var clock = new TestClock();
@@ -59,14 +60,14 @@ namespace Suzukaze.Gesture.Tests
         public async Task ExactBoundAndEmptyFinalFragmentAreAllowed()
         {
             var envelope = DeliveryTests.Occurrence().Envelope;
-            // Grow session until the serialized envelope is exactly the bound.
+            // Grow session until the wire message (BridgeEnvelope) is exactly the bound.
             envelope.SessionId = new string('s', 8153);
-            while (envelope.CalculateSize() < 8192) envelope.SessionId += "s";
-            while (envelope.CalculateSize() > 8192) envelope.SessionId = envelope.SessionId.Substring(1);
-            using (var socket = new FragmentSocket(envelope.ToByteArray(), new byte[0]))
+            while (WireMessage.Wrap(envelope).Length < 8192) envelope.SessionId += "s";
+            while (WireMessage.Wrap(envelope).Length > 8192) envelope.SessionId = envelope.SessionId.Substring(1);
+            using (var socket = new FragmentSocket(WireMessage.Wrap(envelope), new byte[0]))
             {
                 var result = await WireMessage.ReceiveAsync(socket, new TestClock(), CancellationToken.None);
-                Assert.That(result.Envelope.CalculateSize(), Is.EqualTo(8192));
+                Assert.That(WireMessage.Wrap(result.Envelope).Length, Is.EqualTo(8192));
             }
         }
 
@@ -77,7 +78,7 @@ namespace Suzukaze.Gesture.Tests
                 new FragmentSocket(new byte[8192], new byte[1]),
                 new FragmentSocket(new byte[8193]),
                 new FragmentSocket(new byte[0]),
-                new FragmentSocket(DeliveryTests.Occurrence().Envelope.ToByteArray()) { Type = WebSocketMessageType.Text }
+                new FragmentSocket(WireMessage.Wrap(DeliveryTests.Occurrence().Envelope)) { Type = WebSocketMessageType.Text }
             })
             using (socket)
                 Assert.ThrowsAsync<InvalidDataException>(async () =>
@@ -191,6 +192,29 @@ namespace Suzukaze.Gesture.Tests
             var result = new byte[text.Length / 2];
             for (int i = 0; i < result.Length; i++) result[i] = Convert.ToByte(text.Substring(i * 2, 2), 16);
             return result;
+        }
+
+        [Test]
+        public async Task FanStateIsReceivedWithoutAGestureEnvelope()
+        {
+            var state = new FanState();
+            state.Readings.Add(new FanReading { Channel = Suzukaze.Fan.Protocol.FanChannel.RightFront, Value = 9 });
+            var bytes = new BridgeEnvelope { FanState = state }.ToByteArray();
+            using (var socket = new FragmentSocket(bytes))
+            {
+                var result = await WireMessage.ReceiveAsync(socket, new TestClock(), CancellationToken.None);
+                Assert.That(result.Envelope, Is.Null);
+                Assert.That(result.FanState.Readings[0].Value, Is.EqualTo(9));
+            }
+        }
+
+        [Test]
+        public void FanCommandIsNotAcceptedByTheReceiver()
+        {
+            var bytes = new BridgeEnvelope { FanCommand = new Suzukaze.Fan.Protocol.Fan() }.ToByteArray();
+            using (var socket = new FragmentSocket(bytes))
+                Assert.ThrowsAsync<InvalidDataException>(async () =>
+                    await WireMessage.ReceiveAsync(socket, new TestClock(), CancellationToken.None));
         }
     }
 }

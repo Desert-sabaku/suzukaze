@@ -16,7 +16,8 @@ from gesture_detection.app import main as run_detection
 from gesture_detection.recognition_types import GestureSample
 from websockets.exceptions import ConnectionClosed
 
-from .gesture_codec import decode_message, encode_message
+from .fan import FanController
+from .gesture_codec import decode_bridge, decode_gesture, encode_message
 from .gesture_delivery import DeliveryOutbox
 
 TICK_SECONDS = 0.01
@@ -69,8 +70,14 @@ class DetectionProcess:
 
 
 class GestureRelay:
-    def __init__(self, outbox: DeliveryOutbox, state_interval: float = 0.1) -> None:
+    def __init__(
+        self,
+        outbox: DeliveryOutbox,
+        state_interval: float = 0.1,
+        fan: FanController | None = None,
+    ) -> None:
         self.outbox = outbox
+        self.fan = fan or FanController()
         self.state_interval = state_interval
         self._connected = False
 
@@ -115,20 +122,32 @@ class GestureRelay:
         while True:
             now = time.monotonic()
             messages = []
+            frames = []
             if now >= next_state:
                 messages.append(self.outbox.state(now))
+                # Unity がファンを使い始めるまでは、ファンの状態を送らない。
+                if self.fan.active:
+                    frames.append(self.fan.state())
                 next_state = now + self.state_interval
             messages.extend(self.outbox.events(now, reconnect=reconnect))
             reconnect = False
-            for message in messages:
-                await asyncio.wait_for(websocket.send(encode_message(message)), 0.5)
+            frames.extend(encode_message(message) for message in messages)
+            for frame in frames:
+                await asyncio.wait_for(websocket.send(frame), 0.5)
             await asyncio.sleep(TICK_SECONDS)
 
     async def _from_unity(self, websocket: Any) -> None:
         async for data in websocket:
             if not isinstance(data, bytes):
-                raise TypeError("Expected a binary ACK")
-            ack = decode_message(data)
-            if ack["type"] != "ack":
-                raise ValueError("Only ACKs are accepted in gesture mode")
-            self.outbox.acknowledge(ack)
+                raise TypeError("Expected a binary message")
+            envelope = decode_bridge(data)
+            kind = envelope.WhichOneof("payload")
+            if kind == "fan_command":
+                self.fan.command(envelope.fan_command)
+            elif kind == "gesture":
+                ack = decode_gesture(envelope.gesture)
+                if ack["type"] != "ack":
+                    raise ValueError("Only ACKs are accepted in gesture mode")
+                self.outbox.acknowledge(ack)
+            else:
+                raise ValueError("Unsupported message")
