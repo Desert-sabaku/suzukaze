@@ -29,7 +29,7 @@ def annotate_landmarks(c: Context):
 
 
 @task
-def annotate_video(c: Context, video_path: str):
+def annotate(c: Context, video_path: str):
     """Annotate a gesture-detection video."""
     _run_package(c, "", f"annotate-video {video_path}")
 
