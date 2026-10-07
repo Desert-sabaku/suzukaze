@@ -21,6 +21,7 @@ namespace Suzukaze.Gesture
             if (previous.SessionId != state.SessionId || previous.Gesture != state.Gesture
                 || previous.Action != state.Action || previous.Phase != state.Phase
                 || previous.BoothPresent != state.BoothPresent
+                || previous.ActionAccuracy != state.ActionAccuracy
                 || previous.Fresh != state.Fresh || previous.Tracking != state.Tracking)
                 StateChanged?.Invoke(state);
         }

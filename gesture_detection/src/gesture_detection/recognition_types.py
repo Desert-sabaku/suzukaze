@@ -1,5 +1,6 @@
 """Recognition snapshots and diagnostic data; no scene or device state."""
 
+import math
 from dataclasses import dataclass
 from typing import NotRequired, Self, TypedDict
 
@@ -48,6 +49,8 @@ class PoseResult(TypedDict):
     occurrences: NotRequired[tuple[str, ...]]
     occurrence_evidence: NotRequired[dict[str, OccurrenceEvidence]]
     occurrence_timestamps: NotRequired[dict[str, float]]
+    action_accuracy: NotRequired[float | None]
+    occurrence_accuracies: NotRequired[dict[str, float | None]]
     observed_at: NotRequired[float]
     locked_events: NotRequired[tuple[str, ...]]
     release_pending: NotRequired[tuple[str, ...]]
@@ -106,6 +109,9 @@ class GestureSample:
     action: str | None = None
     phase: str | None = None
     booth_present: bool = False
+    action_accuracy: float | None = None
+    # Parallel to occurrences, so repeated kinds cannot overwrite a score.
+    occurrence_accuracies: tuple[float | None, ...] = ()
 
     def __post_init__(self) -> None:
         """Normalize string input at the IPC boundary to the shared enums."""
@@ -117,6 +123,17 @@ class GestureSample:
             raise ValueError("Unknown occurrence")
         object.__setattr__(self, "gesture", gesture)
         object.__setattr__(self, "occurrences", occurrences)
+        scores = self.occurrence_accuracies or (None,) * len(occurrences)
+        if len(scores) != len(occurrences):
+            raise ValueError("Occurrence scores must match occurrences")
+        for score in (self.action_accuracy, *scores):
+            if score is not None and (
+                type(score) not in (int, float) or not 0 <= score <= 1 or not math.isfinite(score)
+            ):
+                raise ValueError("action_accuracy must be finite and in [0, 1]")
+        if self.action_accuracy is not None and (not self.tracking or gesture == Gesture.NONE):
+            raise ValueError("State accuracy requires a tracked gesture")
+        object.__setattr__(self, "occurrence_accuracies", tuple(scores))
         if self.action is not None:
             object.__setattr__(self, "action", Gesture(self.action))
         if self.phase is not None:
@@ -145,4 +162,11 @@ class GestureSample:
             action=action,
             phase=phase,
             booth_present=result.get("booth_present", False),
+            action_accuracy=result.get("action_accuracy")
+            if current["tracking"] and current["gesture"] in CONTINUOUS_GESTURES - {Gesture.NONE}
+            else None,
+            occurrence_accuracies=tuple(
+                result.get("occurrence_accuracies", {}).get(name)
+                for name in result.get("occurrences", ())
+            ),
         )

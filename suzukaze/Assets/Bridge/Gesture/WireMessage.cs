@@ -14,6 +14,7 @@ namespace Suzukaze.Gesture
     {
         public const int MaxBytes = 8192;
         private static bool Finite(double x) => !double.IsNaN(x) && !double.IsInfinity(x);
+        private static bool ValidAccuracy(double x) => Finite(x) && x >= 0 && x <= 1;
 
         public static bool ValidPhase(GestureAction action, Phase phase) => action switch
         {
@@ -42,6 +43,9 @@ namespace Suzukaze.Gesture
                 if (s.HasAction != s.HasPhase || (s.HasPhase &&
                     (!s.Fresh || !s.Tracking || !ValidPhase(s.Action, s.Phase))))
                     throw new InvalidDataException("Invalid phase");
+                if (s.HasActionAccuracy && (!ValidAccuracy(s.ActionAccuracy)
+                    || !s.Fresh || !s.Tracking || s.Gesture == ContinuousGesture.None))
+                    throw new InvalidDataException("Invalid state accuracy");
             }
             else if (e != null)
             {
@@ -50,6 +54,8 @@ namespace Suzukaze.Gesture
                     || !Finite(e.OccurredAt) || !Finite(e.ExpiresAt) || e.ExpiresAt <= e.OccurredAt
                     || (e.HasSourceTimestamp && !Finite(e.SourceTimestamp)))
                     throw new InvalidDataException("Invalid event");
+                if (e.HasActionAccuracy && !ValidAccuracy(e.ActionAccuracy))
+                    throw new InvalidDataException("Invalid event accuracy");
             }
             else throw new InvalidDataException("Receiver expects state or event");
         }
