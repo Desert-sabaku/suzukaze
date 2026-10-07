@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -26,7 +27,11 @@ def rescore(data: dict[str, Any], rows: list[dict[str, Any]]) -> list[dict[str, 
     annotations = {row["frame_id"]: row["points"] for row in data["landmarks"]}
     scored = []
     for frame_id, row in enumerate(rows):
-        if row["frame_id"] != frame_id or abs(row["timestamp"] - frame_id / source["fps"]) > 1e-6:
+        if (
+            row["frame_id"] != frame_id
+            or not math.isfinite(row["timestamp"])
+            or abs(row["timestamp"] - frame_id / source["fps"]) > 1e-6
+        ):
             raise ValueError("Cached frame order/timestamps differ from annotation")
         scored.append(
             {
@@ -146,6 +151,11 @@ def main() -> None:
             "clips": clips,
             "actions": aggregate(clips),
             "landmarks": summarize_landmarks(all_errors),
+            "landmarks_by_name": {
+                name: summarize_landmarks([row for row in all_errors if row["name"] == name])
+                for name in LANDMARK_NAMES
+                if any(row["name"] == name for row in all_errors)
+            },
         }
         print(run.name, comparison[str(run)]["landmarks"], flush=True)
     (args.output / "comparison.json").write_text(

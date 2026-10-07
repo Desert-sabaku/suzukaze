@@ -64,7 +64,13 @@ def test_rescore_uses_new_annotations_without_mutating_cached_predictions():
 
 
 @pytest.mark.parametrize(
-    "rows", [[], [{"frame_id": 1, "timestamp": 0}], [{"frame_id": 0, "timestamp": 1}]]
+    "rows",
+    [
+        [],
+        [{"frame_id": 1, "timestamp": 0}],
+        [{"frame_id": 0, "timestamp": 1}],
+        [{"frame_id": 0, "timestamp": float("nan")}],
+    ],
 )
 def test_rescore_rejects_missing_reordered_or_retimed_frames(rows):
     data = {"source": {"fps": 30, "total_frames": 1}, "landmarks": []}

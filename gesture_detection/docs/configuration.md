@@ -9,6 +9,11 @@
 `GESTURE_PROJECT_ROOT` を使うインストール環境ではそのディレクトリが基準になります。
 キーの誤記や型の違いは起動時にエラーとなります。
 
+姿勢推定の既定モデルは`pose_landmarker_heavy.task`です。既存の`config.toml`でLiteを指定している場合は、
+`[models]`の`pose`を変更してください。Heavyは精度を優先する設定で、Liteより推論負荷が増えます。
+`pose_landmarker_lite.task`・`pose_landmarker_full.task`・`pose_landmarker_heavy.task`は、
+指定した種類を初回起動時に取得します。それ以外の名前の独自モデルは、指定先へ事前に配置してください。
+
 ```toml
 [camera]
 indices = [] # 空配列なら実行時に映像から選択。2台の場合は役割の順番で指定

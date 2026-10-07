@@ -59,13 +59,13 @@ def landmark_errors(
             raise ValueError(f"Unsupported landmark: {name}")
         index = LANDMARK_NAMES.index(name)
         estimate = points[index] if len(points) > index else None
-        valid = estimate is not None and all(math.isfinite(v) for v in estimate)
-        error = (
-            math.hypot(estimate[0] * width - point["x_px"], estimate[1] * height - point["y_px"])
-            if valid
-            else None
-        )
-        rows.append({"name": name, "error_px": error, "visibility": estimate[2] if valid else None})
+        error = visibility = None
+        if estimate is not None and all(math.isfinite(v) for v in estimate):
+            error = math.hypot(
+                estimate[0] * width - point["x_px"], estimate[1] * height - point["y_px"]
+            )
+            visibility = estimate[2]
+        rows.append({"name": name, "error_px": error, "visibility": visibility})
     return rows
 
 
@@ -180,7 +180,7 @@ def evaluate(
             if not ok or frame.shape[:2] != (source["height"], source["width"]):
                 raise ValueError(f"Invalid frame {frame_id}: {video}")
             started = time.perf_counter()
-            result = dict(analyzer.process(frame, frame_id / fps, frame_id))
+            result: dict[str, Any] = dict(analyzer.process(frame, frame_id / fps, frame_id))
             elapsed += time.perf_counter() - started
             result.pop("display_landmarks", None)
             result["landmark_errors"] = landmark_errors(
