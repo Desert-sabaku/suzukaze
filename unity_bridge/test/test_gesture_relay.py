@@ -26,6 +26,36 @@ async def receive(client, kind: str) -> dict:
             return message
 
 
+def test_relay_continues_sending_state_after_booth_exit():
+    async def scenario():
+        outbox = DeliveryOutbox()
+        now = time.monotonic()
+        outbox.publish(
+            GestureSample("NONE", True, now, (), booth_present=True), now=now
+        )
+        relay = GestureRelay(outbox, state_interval=0.02)
+        async with serve(relay.serve, "127.0.0.1", 0, close_timeout=0.1) as ws:
+            port = ws.sockets[0].getsockname()[1]
+            async with websockets.connect(f"ws://127.0.0.1:{port}") as client:
+                present = await receive(client, "state")
+                assert present["booth_present"]
+                now = time.monotonic()
+                outbox.publish(
+                    GestureSample("NONE", False, now, (), booth_present=False), now=now
+                )
+                async with asyncio.timeout(1):
+                    while True:
+                        absent = await receive(client, "state")
+                        if not absent["booth_present"]:
+                            break
+                assert absent["fresh"] and not absent["tracking"]
+                following = await receive(client, "state")
+                assert not following["booth_present"]
+                assert following["sequence"] > absent["sequence"] > present["sequence"]
+
+    asyncio.run(scenario())
+
+
 def test_relay_sends_protobuf_and_applies_unity_ack():
     async def scenario():
         outbox = DeliveryOutbox()
