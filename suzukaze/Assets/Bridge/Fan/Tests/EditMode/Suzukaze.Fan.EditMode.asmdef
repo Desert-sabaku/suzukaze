@@ -4,11 +4,12 @@
   "references": [
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner",
-    "Suzukaze.Fan"
+    "Suzukaze.Fan",
+    "Suzukaze.Gesture.Protocol"
   ],
   "includePlatforms": ["Editor"],
   "overrideReferences": true,
-  "precompiledReferences": ["nunit.framework.dll"],
+  "precompiledReferences": ["nunit.framework.dll", "Google.Protobuf.dll"],
   "autoReferenced": false,
   "defineConstraints": ["UNITY_INCLUDE_TESTS"]
 }
