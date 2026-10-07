@@ -58,8 +58,7 @@ def test_default_path_and_video_validation(tmp_path):
 def test_annotation_defaults_are_loaded_from_toml(tmp_path):
     config = tmp_path / "config.toml"
     config.write_text(
-        '[annotation]\ndefault_page = "landmarks"\n'
-        "nine_point_landmark_assist = true\n",
+        '[annotation]\ndefault_page = "landmarks"\nnine_point_landmark_assist = true\n',
         encoding="utf-8",
     )
 

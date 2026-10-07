@@ -1801,9 +1801,7 @@ def main() -> None:
             print(f"Imported {imported} landmark records")
     elif args.import_landmarks is not None:
         raise SystemExit("--import-landmarks is only valid when creating a timeline")
-    AnnotationApp(
-        args.video, editor, args.max_width, args.max_height, annotation_defaults
-    ).run()
+    AnnotationApp(args.video, editor, args.max_width, args.max_height, annotation_defaults).run()
     print(f"Annotations: {output}")
 
 
