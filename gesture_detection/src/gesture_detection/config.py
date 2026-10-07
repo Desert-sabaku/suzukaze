@@ -123,10 +123,12 @@ RELAXING_MAX_FRAME_GAP = 0.25
 BOW_MIN_ANGLE_DEGREES = 20.0
 BOW_MAX_ANGLE_DEGREES = 75.0
 # Compare hip-to-face and hip-to-shoulder directions, not a neck angle.
-BOW_MAX_HEAD_DEVIATION_DEGREES = 35.0
+BOW_MAX_HEAD_DEVIATION_DEGREES = 40.0
 BOW_DWELL_SECONDS = 0.25
 BOW_MAX_FRAME_GAP = 0.25
 BOW_MIN_VISIBILITY = 0.5
+# The nose becomes partially occluded in an oblique bow; torso visibility stays strict.
+BOW_HEAD_MIN_VISIBILITY = 0.35
 RIGHT_WRIST_INDEX = 16
 YOLO_BOTTLE_CLASS_ID = 39
 YOLO_CONFIDENCE_THRESHOLD = 0.5
