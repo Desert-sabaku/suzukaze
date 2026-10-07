@@ -3,7 +3,7 @@
 ## 実行するコードを揃える
 
 この機能を含むブランチ／マージ後のリビジョンの Unity プロジェクトを開いてください。
-別 worktree の古いプロジェクトを開いている場合、その Editor には変更が反映されません。
+別 worktree の古いプロジェクトを開いている場合、その Editor にはこの機能が反映されません。
 
 clone 後は `proto/` で生成し、Unity Editor の NuGetForUnity による依存復元を完了させます。
 
@@ -20,8 +20,8 @@ buf generate
    uv run unity-bridge --gesture
    ```
 
-   これが認識プロセスも起動します。現在の仕様は、認識結果の `GestureSample` を
-   キューでブリッジへ渡し、ブリッジが protobuf のイベント・再送・ACK を管理する構成です。
+   このコマンドで認識プロセスも起動します。認識結果の `GestureSample` は
+   キューでブリッジへ渡し、ブリッジが protobuf のイベント・再送・ACK を管理します。
    `uv run gesture-detection` 単独では Unity に通知しません。
 
 2. 同じ PC・同じ OS 上の Unity 6000.5.8f1 で、例えば `Assets/MyScenes/Forest.unity`
@@ -45,7 +45,7 @@ Enter / テンキー Enter による手動確認も同じ処理を通ります�
 
 打ち水の購読者は水を生成できた場合に限り `true` を返します。ラムネイベント、演出が無効、
 Prefab/首位置が未設定なら `false` です。他の購読者も含め、誰かが採用すると `accepted`、
-誰も採用しなければ `ignored` になります。期限切れ・再送の重複判定は既存受信器が担当し、同じ成立で
+誰も採用しなければ `ignored` になります。期限切れと再送の重複判定は既存受信器が担当し、同じ成立で
 水を繰り返し生成しません。演出の完了を待って ACK する仕様ではありません。
 
 シーン切替で旧 `ParticleOnEnter` の購読を解除し、新しいものが購読します。受信器は同じものを
@@ -54,7 +54,7 @@ Prefab/首位置が未設定なら `false` です。他の購読者も含め、�
 後で戻っても過去のイベントを再生しません。共通 API は
 [Unity 受信器 README](../../suzukaze/Assets/Bridge/Gesture/README.md)を参照してください。
 
-自動対応する既存シーン:
+自動対応する既存シーンは次のとおりです。
 
 - `Forest`
 - `river`

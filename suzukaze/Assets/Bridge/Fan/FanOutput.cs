@@ -28,6 +28,8 @@ namespace Suzukaze.Fan
 
         public static void ResetInstance() => Instance = new FanOutput();
 
+        public FanDeviceMcu Mcu => mcu;
+
         private IFanDevice Device => mcu.Connected ? mcu : mock;
         
         public byte MinValue => Device.MinValue;

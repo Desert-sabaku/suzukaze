@@ -2,43 +2,49 @@ version: v2
 inputs:
   - directory: .
 plugins:
-  # comms: firmware (Go) <-> mcu (Python)
+  # micon: firmware (Go) <-> mcu (Python)
   - remote: buf.build/protocolbuffers/go:v1.36.12
     out: ../firmware/gen
     opt:
       - paths=source_relative
     types:
-      - comms.v1
+      - micon.v1
 
   - remote: buf.build/community/planetscale-vtprotobuf:v0.6.0
     out: ../firmware/gen
     opt:
       - paths=source_relative
     types:
-      - comms.v1
+      - micon.v1
 
   - remote: buf.build/protocolbuffers/python:v36.2
     out: ../mcu/mcu/gen
     types:
-      - comms.v1
+      - micon.v1
 
   - remote: buf.build/protocolbuffers/pyi:v36.2
     out: ../mcu/mcu/gen
     types:
-      - comms.v1
+      - micon.v1
 
   # gesture: unity_bridge (Python) <-> Unity (C#)
   - remote: buf.build/protocolbuffers/csharp:v36.2
     out: ../suzukaze/Assets/Bridge/Generated
     types:
+      - bridge.v1
+      - fan.v1
       - gesture.v1
 
   - remote: buf.build/protocolbuffers/python:v36.2
     out: ../unity_bridge/src/unity_bridge/gen
     types:
+      - bridge.v1
+      - fan.v1
       - gesture.v1
 
   - remote: buf.build/protocolbuffers/pyi:v36.2
     out: ../unity_bridge/src/unity_bridge/gen
     types:
+      - bridge.v1
+      - fan.v1
       - gesture.v1

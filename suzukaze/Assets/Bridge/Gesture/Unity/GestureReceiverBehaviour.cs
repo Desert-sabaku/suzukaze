@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Suzukaze.Core;
+using Suzukaze.Fan;
 using UnityEngine;
 
 namespace Suzukaze.Gesture
@@ -72,7 +73,11 @@ namespace Suzukaze.Gesture
                 var uri = new Uri(endpoint);
                 if (!uri.IsLoopback || (uri.Scheme != "ws" && uri.Scheme != "wss"))
                     throw new ArgumentException("Endpoint must be a loopback WebSocket URI");
-                receiver = new Transceiver(new GestureConnection(handoff, clock));
+                // ファンも同じ WebSocket に載せる。FanOutput は差し替わりうるので、都度 Instance を引く。
+                receiver = new Transceiver(new GestureConnection(handoff, clock,
+                    connected => FanOutput.Instance.Mcu.Connected = connected,
+                    state => FanOutput.Instance.Mcu.Apply(state),
+                    () => FanOutput.Instance.Mcu.TakeOutgoing()));
                 stopping = new CancellationTokenSource();
                 handoff.Resume();
                 worker = RunAfterRetirement(receiver, uri, stopping.Token);

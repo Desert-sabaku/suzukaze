@@ -8,6 +8,7 @@ import csv
 import hashlib
 import json
 import math
+import os
 import time
 import uuid
 from importlib.resources import files
@@ -19,6 +20,7 @@ import numpy as np
 
 from gesture_detection.gesture_types import Gesture
 from gesture_detection.qt_setup import configure_qt_fonts
+from gesture_detection.settings import Settings
 
 configure_qt_fonts()
 
@@ -95,6 +97,8 @@ COLORS = (
     (80, 210, 220),
     (180, 180, 80),
 )
+NINE_POINT_LANDMARK_INDICES = (0, 11, 12, 13, 14, 15, 16, 23, 24)
+DEFAULT_ANNOTATION_PAGE = "intervals"
 
 
 def sha256(path: Path) -> str:
@@ -108,6 +112,26 @@ def sha256(path: Path) -> str:
 def default_output_path(video: Path, project_directory: Path | None = None) -> Path:
     root = Path.cwd() if project_directory is None else project_directory
     return root / "shared" / "annotations" / video.parent.name / video.stem / "timeline.json"
+
+
+def load_annotation_defaults(config_path: Path | None = None) -> dict[str, Any]:
+    project_root = Path(
+        os.getenv("GESTURE_PROJECT_ROOT") or Path(__file__).resolve().parents[1]
+    ).expanduser()
+    configured_path = os.getenv("GESTURE_CONFIG_PATH")
+    filename = config_path or Path(configured_path or "config.toml")
+    if not filename.is_absolute():
+        filename = project_root / filename
+    settings = Settings(project_root, filename)
+    page = settings.text("annotation", "default_page", DEFAULT_ANNOTATION_PAGE).strip().lower()
+    if page not in {"intervals", "landmarks"}:
+        raise ValueError("annotation.default_page must be intervals or landmarks")
+    return {
+        "default_page": page,
+        "nine_point_landmark_assist": settings.boolean(
+            "annotation", "nine_point_landmark_assist", False
+        ),
+    }
 
 
 def load_label_config(path: Path | None = None) -> dict[str, Any]:
@@ -167,7 +191,15 @@ def frame_timestamp(source: dict[str, Any], frame_id: int) -> float:
     return frame_id / float(source["fps"])
 
 
-def new_timeline(video: Path, labels: dict[str, Any]) -> dict[str, Any]:
+def new_timeline(
+    video: Path,
+    labels: dict[str, Any],
+    annotation_defaults: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    defaults = annotation_defaults or {
+        "default_page": DEFAULT_ANNOTATION_PAGE,
+        "nine_point_landmark_assist": False,
+    }
     return {
         "schema_version": SCHEMA_VERSION,
         "source": inspect_video(video),
@@ -175,7 +207,11 @@ def new_timeline(video: Path, labels: dict[str, Any]) -> dict[str, Any]:
         "intervals": [],
         "events": [],
         "landmarks": [],
-        "ui": {"last_frame": 0},
+        "ui": {
+            "last_frame": 0,
+            "default_page": defaults["default_page"],
+            "nine_point_landmark_assist": defaults["nine_point_landmark_assist"],
+        },
     }
 
 
@@ -645,7 +681,12 @@ class VideoReader:
 
 class AnnotationApp:
     def __init__(
-        self, video: Path, editor: TimelineEditor, max_width: int, max_height: int
+        self,
+        video: Path,
+        editor: TimelineEditor,
+        max_width: int,
+        max_height: int,
+        annotation_defaults: dict[str, Any] | None = None,
     ) -> None:
         self.video = video
         self.editor = editor
@@ -663,7 +704,16 @@ class AnnotationApp:
         self.interval_start: int | None = None
         self.interval_parent_action_id: str | None = None
         self.selected_landmark: str | None = None
-        self.page = "intervals"
+        defaults = annotation_defaults or {
+            "default_page": DEFAULT_ANNOTATION_PAGE,
+            "nine_point_landmark_assist": False,
+        }
+        self.nine_point_landmark_assist = bool(
+            self.data["ui"].get(
+                "nine_point_landmark_assist", defaults["nine_point_landmark_assist"]
+            )
+        )
+        self.page = str(self.data["ui"].get("default_page", defaults["default_page"]))
         self.selected_annotation: str | None = None
         self.selected_action_id: str | None = None
         self._sync_action_to_frame()
@@ -742,6 +792,10 @@ class AnnotationApp:
     def _landmark_names(self) -> list[str]:
         return self.data["label_config"]["landmarks"]
 
+    def _landmark_assist_names(self) -> list[str]:
+        names = self._landmark_names()
+        return [names[index] for index in NINE_POINT_LANDMARK_INDICES if index < len(names)]
+
     def _landmark_pages(self) -> list[tuple[str, list[str]]]:
         names = self._landmark_names()
         pages: list[tuple[str, list[str]]] = []
@@ -774,9 +828,14 @@ class AnnotationApp:
 
     def _select_first_pending_landmark(self) -> None:
         points = self._point_data()
+        names = (
+            self._landmark_assist_names()
+            if self.nine_point_landmark_assist
+            else self._landmark_names()
+        )
         self.selected_landmark = next(
-            (name for name in self._landmark_names() if name not in points),
-            self._landmark_names()[0],
+            (name for name in names if name not in points),
+            names[0] if names else None,
         )
 
     def _move_landmark(self, amount: int) -> None:
@@ -786,8 +845,15 @@ class AnnotationApp:
         self.message = f"Point {names.index(self.selected_landmark) + 1}/{len(names)}: {self.selected_landmark}"
 
     def _advance_landmark(self) -> None:
-        names = self._landmark_names()
+        names = (
+            self._landmark_assist_names()
+            if self.nine_point_landmark_assist
+            else self._landmark_names()
+        )
         if self.selected_landmark is None:
+            return
+        if self.nine_point_landmark_assist and self.selected_landmark not in names:
+            self._select_first_pending_landmark()
             return
         index = names.index(self.selected_landmark)
         if index + 1 < len(names):
@@ -795,6 +861,14 @@ class AnnotationApp:
             self.message = f"Saved; next point: {self.selected_landmark}"
         else:
             self.message = "Frame complete; seek to another frame"
+
+    def _toggle_landmark_assist(self) -> None:
+        self.nine_point_landmark_assist = not self.nine_point_landmark_assist
+        self.data["ui"]["nine_point_landmark_assist"] = self.nine_point_landmark_assist
+        self.selected_landmark = None
+        self._select_first_pending_landmark()
+        state = "enabled" if self.nine_point_landmark_assist else "disabled"
+        self.message = f"9-point landmark assist {state}"
 
     def _selected_action(self) -> dict[str, Any] | None:
         return next(
@@ -1089,10 +1163,17 @@ class AnnotationApp:
         self._button(
             canvas, (panel_x + 225, 543, panel_x + 442, 573), "RESET FRAME", "reset_landmarks"
         )
+        self._button(
+            canvas,
+            (panel_x, 582, panel_x + 442, 612),
+            f"9-POINT ASSIST: {'ON' if self.nine_point_landmark_assist else 'OFF'}",
+            "toggle_landmark_assist",
+            active=self.nine_point_landmark_assist,
+        )
         cv2.putText(
             canvas,
             self.message[:62],
-            (panel_x, 613),
+            (panel_x, 640),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.45,
             (100, 220, 255),
@@ -1224,6 +1305,8 @@ class AnnotationApp:
             self._move_landmark(int(payload))
         elif action == "landmark_page":
             self._move_landmark_page(int(payload))
+        elif action == "toggle_landmark_assist":
+            self._toggle_landmark_assist()
         elif action == "step":
             self.playing = False
             self.seek(self.frame_id + cast(int, payload))
@@ -1608,6 +1691,9 @@ class AnnotationApp:
             if key == ord("a"):
                 self.handle("absent")
                 return True
+            if key == ord("9"):
+                self.handle("toggle_landmark_assist")
+                return True
         mapping = {ord("a"): -1, ord("d"): 1, ord("j"): -10, ord("l"): 10}
         if key in mapping:
             self.handle("step", mapping[key])
@@ -1686,10 +1772,15 @@ def main() -> None:
         raise SystemExit("Display dimensions must be positive")
     if not args.video.is_file():
         raise SystemExit(f"Video not found: {args.video}")
+    annotation_defaults = load_annotation_defaults()
     output = args.output or default_output_path(args.video)
     labels = load_label_config(args.labels)
     created = not output.exists()
-    data = new_timeline(args.video, labels) if created else load_timeline(output, args.video)
+    data = (
+        new_timeline(args.video, labels, annotation_defaults)
+        if created
+        else load_timeline(output, args.video)
+    )
     editor = TimelineEditor(data, output)
     if created:
         save_timeline(output, data)
@@ -1701,7 +1792,7 @@ def main() -> None:
             print(f"Imported {imported} landmark records")
     elif args.import_landmarks is not None:
         raise SystemExit("--import-landmarks is only valid when creating a timeline")
-    AnnotationApp(args.video, editor, args.max_width, args.max_height).run()
+    AnnotationApp(args.video, editor, args.max_width, args.max_height, annotation_defaults).run()
     print(f"Annotations: {output}")
 
 

@@ -5,7 +5,7 @@ import threading
 import questionary
 from prompt_toolkit.patch_stdout import patch_stdout
 
-from mcu.gen.comms.v1.log_pb2 import LogEntry
+from mcu.gen.micon.v1.log_pb2 import LogEntry
 
 from .client import MCUClient, _local_version
 

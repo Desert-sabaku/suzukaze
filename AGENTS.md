@@ -22,7 +22,7 @@ as a package.
 - `firmware/`: Raspberry Pi Pico fan-control firmware (TinyGo). See
   `firmware/README.md`.
 - `proto/`: protobuf schemas and the buf template. `buf.gen.yaml` generates
-  `comms` (firmware Go, mcu Python) and `gesture` (unity_bridge Python, Unity
+  `micon` (firmware Go, mcu Python) and `gesture` (unity_bridge Python, Unity
   C#); each plugin selects its package with `types`.
 - `suzukaze/`: Unity project (6000.5.8f1). Code that talks to `unity_bridge`
   lives in `Assets/Bridge/` (`Generated/` for buf output, `Gesture/` for the
@@ -41,7 +41,7 @@ as a package.
 - Output: Unity footage is output directly via the projector. The fan and
   speaker are driven by the microcontroller; `unity_bridge` is planned to call
   the `mcu` library in-process, which talks to `firmware/` over USB serial
-  using framed `comms` protobuf.
+  using framed `micon` protobuf.
 
 ## Build, Test, and Development Commands
 
@@ -82,6 +82,16 @@ tunable thresholds in `config.py`. Use relative imports within the package and
 type hints for new or substantially changed interfaces. Each Python project
 configures Ruff and Pyright; run `uv run ruff format`, `uv run ruff check`, and
 `uv run pyright` before submitting. Generated code is excluded from both.
+
+## Documentation
+
+When writing or revising Japanese documentation, follow the `yomiyasu` skill.
+Preserve the original claims, emphasis, certainty, and purpose without adding
+unsupported details. Before creating a document or adding a section, consider
+whether it gives readers a distinct purpose that an existing document or
+section cannot serve. Prefer updating the existing location when it can cover
+the topic clearly. For `gesture_detection`, use `gesture_detection/README.md`
+as the single entry point and link to detailed pages under `docs/` from there.
 
 ## Testing Guidelines
 

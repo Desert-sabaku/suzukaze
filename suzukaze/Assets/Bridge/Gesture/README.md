@@ -3,7 +3,7 @@
 Unity **6000.5.8f1**, Windows or 64-bit Linux Editor/standalone, **.NET Standard 2.1** API
 compatibility. Connects to the same-PC bridge at `ws://127.0.0.1:5000` by default.
 The bridge (`uv run unity-bridge --gesture` in `unity_bridge/`) serves protocol
-v1 **binary protobuf**, one `GestureEnvelope` per WebSocket message.
+v1 **binary protobuf**, one `BridgeEnvelope` (`proto/bridge/v1`) per WebSocket message. ジェスチャーは `gesture` に包み、同じ接続でファン(`fan_command` / `fan_state`)も流す。
 Generated schema/namespace: `Suzukaze.Gesture.Protocol` (`proto/gesture/v1/gesture.proto`).
 
 ## 演出から使う共通 API

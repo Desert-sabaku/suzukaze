@@ -3,11 +3,11 @@
 [READMEに戻る](../README.md)
 
 `gesture_detection/config.example.toml` を `config.toml` にコピーして編集します。
-設定ファイルは省略可能で、設定されていないキーには既定値が使われます。
+設定ファイルは省略できます。設定されていないキーには既定値が使われます。
 ファイルを分けたい場合は `GESTURE_CONFIG_PATH=profiles/live.toml` のように指定します。
-ファイル内の相対パスと設定ファイルの相対パスは、いずれもプロジェクトルート基準です。
+設定ファイル内の相対パスも、設定ファイル自体の相対パスもプロジェクトルートが基準です。
 `GESTURE_PROJECT_ROOT` を使うインストール環境ではそのディレクトリが基準になります。
-誤記したキーや型違いは起動時にエラーとなります。
+キーの誤記や型の違いは起動時にエラーとなります。
 
 ```toml
 [camera]
@@ -25,6 +25,20 @@ select_subject = false
 [output]
 record_live = true
 ```
+
+## 動画注釈の起動設定
+
+`annotate-video` の起動時に表示する注釈ページと、ランドマークの9点注釈補助を設定できます。
+
+```toml
+[annotation]
+default_page = "intervals" # intervals = 所作、landmarks = ランドマーク
+nine_point_landmark_assist = false
+```
+
+`default_page` は `intervals` または `landmarks` を指定します。
+`nine_point_landmark_assist = true` の場合、ランドマーク注釈後の選択対象は
+`1 → 12 → 13 → 14 → 15 → 16 → 17 → 24 → 25` の順になります。
 
 ## `.env` からの移行
 
@@ -65,6 +79,6 @@ TOMLでは真偽値は `true` / `false`、配列は `[0, 2]` のように記述�
 | `GESTURE_EVENT_TTL` | `events.ttl_seconds` |
 | `SUPPRESS_MEDIAPIPE_STARTUP_LOGS` | `diagnostics.suppress_mediapipe_startup_logs` |
 
-`GESTURE_PROJECT_ROOT` は実行環境のプロジェクトルートを選ぶ環境変数として残ります。
+`GESTURE_PROJECT_ROOT` は実行環境のプロジェクトルートを指定する環境変数として残ります。
 以前の `CAMERA_INDEX` / `MULTICAM_CAMERA_INDICES` を使っていた場合も
 `camera.indices` に移してください。認識を伴わない `record-cameras` コマンドの引数は従来どおりです。

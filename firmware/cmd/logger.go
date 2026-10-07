@@ -1,12 +1,12 @@
 package main
 
 import (
-	comms_v1 "firmware/gen/comms/v1"
+	micon_v1 "firmware/gen/micon/v1"
 )
 
 type FieldHolder[T any] struct {
   self   T
-  Fields []*comms_v1.LogField
+  Fields []*micon_v1.LogField
 }
 
 func NewFieldHolder[T any](self T) *FieldHolder[T] {
@@ -16,25 +16,25 @@ func NewFieldHolder[T any](self T) *FieldHolder[T] {
 }
 
 func (h *FieldHolder[T]) Bytes(key string, val []byte) T {
-  h.Fields = append(h.Fields, &comms_v1.LogField{
+  h.Fields = append(h.Fields, &micon_v1.LogField{
     Key:   key,
-    Value: &comms_v1.LogField_BytesVal{BytesVal: val},
+    Value: &micon_v1.LogField_BytesVal{BytesVal: val},
   })
   return h.self
 }
 
 func (h *FieldHolder[T]) Str(key string, val string) T {
-   h.Fields = append(h.Fields, &comms_v1.LogField{
+   h.Fields = append(h.Fields, &micon_v1.LogField{
     Key:   key,
-    Value: &comms_v1.LogField_StringVal{StringVal: val},
+    Value: &micon_v1.LogField_StringVal{StringVal: val},
   })
   return h.self
 }
 
 func (h *FieldHolder[T]) Int64(key string, val int64) T {
-	h.Fields = append(h.Fields, &comms_v1.LogField{
+	h.Fields = append(h.Fields, &micon_v1.LogField{
 		Key:   key,
-		Value: &comms_v1.LogField_IntVal{IntVal: val},
+		Value: &micon_v1.LogField_IntVal{IntVal: val},
 	})
   return h.self
 }
@@ -44,9 +44,9 @@ func (h *FieldHolder[T]) Int(key string, val int) T {
 }
 
 func (h *FieldHolder[T]) Uint64(key string, val uint64) T {
-	h.Fields = append(h.Fields, &comms_v1.LogField{
+	h.Fields = append(h.Fields, &micon_v1.LogField{
 		Key:   key,
-		Value: &comms_v1.LogField_UintVal{UintVal: val},
+		Value: &micon_v1.LogField_UintVal{UintVal: val},
 	})
   return h.self
 }
@@ -61,17 +61,17 @@ func (h *FieldHolder[T]) Uint16(key string, val uint16) T {
 }
 
 func (h *FieldHolder[T]) Float64(key string, val float64) T {
-	h.Fields = append(h.Fields, &comms_v1.LogField{
+	h.Fields = append(h.Fields, &micon_v1.LogField{
 		Key:   key,
-		Value: &comms_v1.LogField_DoubleVal{DoubleVal: val},
+		Value: &micon_v1.LogField_DoubleVal{DoubleVal: val},
 	})
   return h.self
 }
 
 func (h *FieldHolder[T]) Bool(key string, val bool) T {
-	h.Fields = append(h.Fields, &comms_v1.LogField{
+	h.Fields = append(h.Fields, &micon_v1.LogField{
 		Key:   key,
-		Value: &comms_v1.LogField_BoolVal{BoolVal: val},
+		Value: &micon_v1.LogField_BoolVal{BoolVal: val},
 	})
   return h.self
 }
@@ -110,15 +110,15 @@ func NewLogger(pt *PacketTransceiver) *Logger {
 	return &Logger{transceiver: pt}
 }
 
-func (l *Logger) Debug() *LogEvent { return l.newEvent(comms_v1.LogLevel_LOG_LEVEL_DEBUG) }
-func (l *Logger) Info() *LogEvent  { return l.newEvent(comms_v1.LogLevel_LOG_LEVEL_INFO) }
-func (l *Logger) Warn() *LogEvent  { return l.newEvent(comms_v1.LogLevel_LOG_LEVEL_WARN) }
-func (l *Logger) Error() *LogEvent { return l.newEvent(comms_v1.LogLevel_LOG_LEVEL_ERROR) }
+func (l *Logger) Debug() *LogEvent { return l.newEvent(micon_v1.LogLevel_LOG_LEVEL_DEBUG) }
+func (l *Logger) Info() *LogEvent  { return l.newEvent(micon_v1.LogLevel_LOG_LEVEL_INFO) }
+func (l *Logger) Warn() *LogEvent  { return l.newEvent(micon_v1.LogLevel_LOG_LEVEL_WARN) }
+func (l *Logger) Error() *LogEvent { return l.newEvent(micon_v1.LogLevel_LOG_LEVEL_ERROR) }
 
-func (l *Logger) newEvent(level comms_v1.LogLevel) *LogEvent {
+func (l *Logger) newEvent(level micon_v1.LogLevel) *LogEvent {
   e := &LogEvent{
 		logger: l,
-		entry: comms_v1.LogEntry{
+		entry: micon_v1.LogEntry{
 			UptimeMs: UptimeMs(),
 			Level:     level,
 		},
@@ -129,15 +129,15 @@ func (l *Logger) newEvent(level comms_v1.LogLevel) *LogEvent {
 
 type LogEvent struct {
 	logger *Logger
-	entry  comms_v1.LogEntry
+	entry  micon_v1.LogEntry
   *FieldHolder[*LogEvent]
 }
 
 func (e *LogEvent) send() {
 	e.entry.Fields = e.Fields
 
-	pkt := &comms_v1.Packet{
-		Payload: &comms_v1.Packet_LogEntry{
+	pkt := &micon_v1.Packet{
+		Payload: &micon_v1.Packet_LogEntry{
 			LogEntry: &e.entry,
 		},
 	}

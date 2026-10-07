@@ -1,7 +1,7 @@
 # mcu
 
 `firmware/`(TinyGoファンコン)とUSBシリアルで通信するPythonライブラリ。
-通信はprotobufの `Packet`(`../proto/comms/v1/`)を、ファームウェアと同じフレーミングで送受信します。
+通信はprotobufの `Packet`(`../proto/micon/v1/`)を、ファームウェアと同じフレーミングで送受信します。
 今後は `unity_bridge` からライブラリとして呼び出して使う予定です。
 
 ```python
