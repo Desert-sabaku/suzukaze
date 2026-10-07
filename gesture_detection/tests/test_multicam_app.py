@@ -45,7 +45,7 @@ def test_replay_drains_both_inputs_and_never_delivers_to_unity(tmp_path, monkeyp
     writer, asynchronous = Mock(), Mock()
     with (
         patch("gesture_detection.multicam_app.load_session", return_value=views),
-        patch("gesture_detection.multicam_app.RecordedInput", side_effect=sources),
+        patch("gesture_detection.multicam_app.RecordedInput", side_effect=sources) as recorded,
         patch("gesture_detection.multicam_app.PoseAnalyzer", side_effect=analyzers),
         patch("gesture_detection.multicam_app.cv2.VideoWriter", return_value=writer),
         patch("gesture_detection.multicam_app.AsyncVideoWriter", return_value=asynchronous),
@@ -54,6 +54,7 @@ def test_replay_drains_both_inputs_and_never_delivers_to_unity(tmp_path, monkeyp
         samples = Mock()
         MultiCameraApplication(samples).run()
     samples.put.assert_not_called()
+    assert [item.args[1] for item in recorded.call_args_list] == list(config.MULTICAM_ROTATION)
     show.assert_not_called()
     assert analyzers[0].process.call_count == 6
     assert analyzers[1].process.call_count == 1

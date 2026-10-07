@@ -153,7 +153,7 @@ class MultiCameraApplication:
         with ExitStack() as stack:
             inputs, analyzers = [], []
             for slot, view in enumerate(views):
-                source = RecordedInput(view)
+                source = RecordedInput(view, config.MULTICAM_ROTATION[slot])
                 stack.callback(source.close)
                 inputs.append(source)
                 analyzer = PoseAnalyzer(

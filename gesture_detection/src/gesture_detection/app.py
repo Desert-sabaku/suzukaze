@@ -13,6 +13,7 @@ import numpy.typing as npt
 from .config import (
     CAMERA_BACKEND,
     CAMERA_FOURCC,
+    CAMERA_ROTATION,
     FPS,
     MULTICAM_ENABLED,
     POSE_CONNECTIONS,
@@ -22,6 +23,7 @@ from .config import (
     VIDEO_SOURCE,
     WINDOW_TITLE,
 )
+from .frame_rotation import rotate_frame
 from .gesture_types import Gesture, Phase
 from .ipc import SharedLatestFrame, get_latest
 from .pose_worker import pose_worker
@@ -94,6 +96,7 @@ class GestureApplication:
             success, frame = capture.read()
             if not success:
                 return
+            frame = rotate_frame(frame, CAMERA_ROTATION)
             timestamp = frame_clock.timestamp(capture)
             frame_id = 0
             self.pose_frame_queue = SharedLatestFrame(frame.shape)
@@ -106,7 +109,7 @@ class GestureApplication:
                 self.source_fps = float(source_fps)
             self._start_workers()
             assert self.pose_process is not None
-            writer = self._open_output(capture, frame if VIDEO_SOURCE is None else None)
+            writer = self._open_output(capture, frame)
             if writer is not None:
                 try:
                     output = AsyncVideoWriter(writer, VIDEO_OUTPUT_BUFFER_FRAMES)
@@ -145,6 +148,7 @@ class GestureApplication:
                     break
                 success, frame = capture.read()
                 if success:
+                    frame = rotate_frame(frame, CAMERA_ROTATION)
                     frame_id += 1
                     timestamp = frame_clock.timestamp(capture)
         finally:
