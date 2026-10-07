@@ -8,6 +8,7 @@ import csv
 import hashlib
 import json
 import math
+import os
 import time
 import uuid
 from importlib.resources import files
@@ -19,6 +20,7 @@ import numpy as np
 
 from gesture_detection.gesture_types import Gesture
 from gesture_detection.qt_setup import configure_qt_fonts
+from gesture_detection.settings import Settings
 
 configure_qt_fonts()
 
@@ -96,6 +98,7 @@ COLORS = (
     (180, 180, 80),
 )
 NINE_POINT_LANDMARK_INDICES = (0, 11, 12, 13, 14, 15, 16, 23, 24)
+DEFAULT_ANNOTATION_PAGE = "intervals"
 
 
 def sha256(path: Path) -> str:
@@ -118,6 +121,26 @@ def default_output_path(video: Path, project_directory: Path | None = None) -> P
         / video.stem
         / "timeline.json"
     )
+
+
+def load_annotation_defaults(config_path: Path | None = None) -> dict[str, Any]:
+    project_root = Path(
+        os.getenv("GESTURE_PROJECT_ROOT") or Path(__file__).resolve().parents[1]
+    ).expanduser()
+    configured_path = os.getenv("GESTURE_CONFIG_PATH")
+    filename = config_path or Path(configured_path or "config.toml")
+    if not filename.is_absolute():
+        filename = project_root / filename
+    settings = Settings(project_root, filename)
+    page = settings.text("annotation", "default_page", DEFAULT_ANNOTATION_PAGE).strip().lower()
+    if page not in {"intervals", "landmarks"}:
+        raise ValueError("annotation.default_page must be intervals or landmarks")
+    return {
+        "default_page": page,
+        "nine_point_landmark_assist": settings.boolean(
+            "annotation", "nine_point_landmark_assist", False
+        ),
+    }
 
 
 def load_label_config(path: Path | None = None) -> dict[str, Any]:
@@ -177,7 +200,15 @@ def frame_timestamp(source: dict[str, Any], frame_id: int) -> float:
     return frame_id / float(source["fps"])
 
 
-def new_timeline(video: Path, labels: dict[str, Any]) -> dict[str, Any]:
+def new_timeline(
+    video: Path,
+    labels: dict[str, Any],
+    annotation_defaults: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    defaults = annotation_defaults or {
+        "default_page": DEFAULT_ANNOTATION_PAGE,
+        "nine_point_landmark_assist": False,
+    }
     return {
         "schema_version": SCHEMA_VERSION,
         "source": inspect_video(video),
@@ -185,7 +216,11 @@ def new_timeline(video: Path, labels: dict[str, Any]) -> dict[str, Any]:
         "intervals": [],
         "events": [],
         "landmarks": [],
-        "ui": {"last_frame": 0, "nine_point_landmark_assist": False},
+        "ui": {
+            "last_frame": 0,
+            "default_page": defaults["default_page"],
+            "nine_point_landmark_assist": defaults["nine_point_landmark_assist"],
+        },
     }
 
 
@@ -660,6 +695,7 @@ class AnnotationApp:
         editor: TimelineEditor,
         max_width: int,
         max_height: int,
+        annotation_defaults: dict[str, Any] | None = None,
     ) -> None:
         self.video = video
         self.editor = editor
@@ -677,10 +713,16 @@ class AnnotationApp:
         self.interval_start: int | None = None
         self.interval_parent_action_id: str | None = None
         self.selected_landmark: str | None = None
+        defaults = annotation_defaults or {
+            "default_page": DEFAULT_ANNOTATION_PAGE,
+            "nine_point_landmark_assist": False,
+        }
         self.nine_point_landmark_assist = bool(
-            self.data["ui"].get("nine_point_landmark_assist", False)
+            self.data["ui"].get(
+                "nine_point_landmark_assist", defaults["nine_point_landmark_assist"]
+            )
         )
-        self.page = "intervals"
+        self.page = str(self.data["ui"].get("default_page", defaults["default_page"]))
         self.selected_annotation: str | None = None
         self.selected_action_id: str | None = None
         self._sync_action_to_frame()
@@ -1739,10 +1781,15 @@ def main() -> None:
         raise SystemExit("Display dimensions must be positive")
     if not args.video.is_file():
         raise SystemExit(f"Video not found: {args.video}")
+    annotation_defaults = load_annotation_defaults()
     output = args.output or default_output_path(args.video)
     labels = load_label_config(args.labels)
     created = not output.exists()
-    data = new_timeline(args.video, labels) if created else load_timeline(output, args.video)
+    data = (
+        new_timeline(args.video, labels, annotation_defaults)
+        if created
+        else load_timeline(output, args.video)
+    )
     editor = TimelineEditor(data, output)
     if created:
         save_timeline(output, data)
@@ -1754,7 +1801,9 @@ def main() -> None:
             print(f"Imported {imported} landmark records")
     elif args.import_landmarks is not None:
         raise SystemExit("--import-landmarks is only valid when creating a timeline")
-    AnnotationApp(args.video, editor, args.max_width, args.max_height).run()
+    AnnotationApp(
+        args.video, editor, args.max_width, args.max_height, annotation_defaults
+    ).run()
     print(f"Annotations: {output}")
 
 
