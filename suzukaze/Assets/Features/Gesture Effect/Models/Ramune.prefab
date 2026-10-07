@@ -22,15 +22,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 53a508003573f4ded8d349ff048cff12, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 349.13
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 53a508003573f4ded8d349ff048cff12, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 11.272
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 53a508003573f4ded8d349ff048cff12, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 261.838
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 53a508003573f4ded8d349ff048cff12, type: 3}
       propertyPath: m_LocalRotation.w
@@ -68,6 +68,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Ramune
       objectReference: {fileID: 0}
+    - target: {fileID: 5060422838437548038, guid: 53a508003573f4ded8d349ff048cff12, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 6121590469811200223, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
+    - target: {fileID: 7733484547920326381, guid: 53a508003573f4ded8d349ff048cff12, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 3365645382605875686, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
