@@ -181,6 +181,17 @@ MonoBehaviour:
   uchimizuDuration: 1
   uchimizuPosRandomRange: 0.5
   aogiVfx: {fileID: 3414303544072579039}
+  ramune:
+    ramune: {fileID: 6309804212405893433}
+    hand: {fileID: 3102975300755473021}
+    handMat: {fileID: 2100000, guid: ce1e09a46dab2434f9373a7ee02e3ca3, type: 2}
+    bottle: {fileID: 6350284281400125841}
+    bottleUpY: 8
+    bottleDownY: -8
+    bottleDropDuration: 0.5
+    handAppearDuration: 0.2
+    handDropDuration: 0.2
+    handDropY: 0.6
 --- !u!1 &7947578788476664461
 GameObject:
   m_ObjectHideFlags: 0
@@ -694,7 +705,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4645110014341427499, guid: a85e6ed0bc0f14289bc1a6602bf66f4c, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.018081453
+      value: -0.018081455
       objectReference: {fileID: 0}
     - target: {fileID: 4645110014341427499, guid: a85e6ed0bc0f14289bc1a6602bf66f4c, type: 3}
       propertyPath: m_LocalRotation.w

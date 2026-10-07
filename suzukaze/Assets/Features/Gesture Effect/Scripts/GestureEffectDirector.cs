@@ -164,8 +164,20 @@ namespace Features.Gesture_Effect.Scripts
                 default:
                     break;
             }
-
-            ramune.SetReadyOpen(state.Action is Action.Ramune && state.Phase is Phase.Ready);
+            
+            if (state.Action is Action.Ramune)
+            {
+                ramune.SetAnimState(state.Phase switch
+                {
+                    Phase.Forming or Phase.Ready => RamuneGesturePlayer.AnimState.ReadyOpen,
+                    Phase.Opened or Phase.WaitRelease => RamuneGesturePlayer.AnimState.Open,
+                    _ => RamuneGesturePlayer.AnimState.None
+                });
+            }
+            else
+            {
+                ramune.SetAnimState(RamuneGesturePlayer.AnimState.None);
+            }
         }
 
         private bool OnGestureOccurred(string sessionId, Event events)
@@ -173,7 +185,7 @@ namespace Features.Gesture_Effect.Scripts
             switch (events.Gesture)
             {
                 case OccurrenceGesture.Ramune:
-                    ramune.PlayOpenAnimation();
+                    ramune.SetAnimState(RamuneGesturePlayer.AnimState.Open);
                     break;
                 case OccurrenceGesture.Uchimizu:
                     PlayEffect(Gestures.Uchimizu).Forget();
