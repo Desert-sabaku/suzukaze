@@ -31,9 +31,17 @@ namespace Features.Bonfire.Scripts
         [Tooltip("焚き火と連動させるライト")]
         [SerializeField] private Light[] lights;
 
+        [Tooltip("焚き火の音が鳴り始め・鳴り止むまでの秒数")]
+        [SerializeField] [Min(0f)] private float soundFadeSeconds = 3f;
+
+        [Tooltip("焚き火と連動させる音。各 AudioSource の Volume が点火中の音量になる")]
+        [SerializeField] private AudioSource[] sounds;
+
         private float[] _baseIntensities;
+        private float[] _baseVolumes;
         private bool _isLit;
         private float _lightLevel;
+        private float _soundLevel;
         private VisualEffect _vfx;
 
         private static float CurrentHour
@@ -50,6 +58,8 @@ namespace Features.Bonfire.Scripts
             _vfx = GetComponent<VisualEffect>();
             _baseIntensities = new float[lights.Length];
             for (var i = 0; i < lights.Length; i++) _baseIntensities[i] = lights[i].intensity;
+            _baseVolumes = new float[sounds.Length];
+            for (var i = 0; i < sounds.Length; i++) _baseVolumes[i] = sounds[i].volume;
         }
 
         private void Start()
@@ -58,7 +68,9 @@ namespace Features.Bonfire.Scripts
             _isLit = ShouldBeLit(CurrentHour);
             if (!_isLit) _vfx.Stop();
             _lightLevel = _isLit ? 1f : 0f;
+            _soundLevel = _lightLevel;
             ApplyLights();
+            ApplySounds();
         }
 
         private void Update()
@@ -71,9 +83,16 @@ namespace Features.Bonfire.Scripts
                 else _vfx.Stop();
             }
 
-            var step = lightFadeSeconds > 0f ? Time.deltaTime / lightFadeSeconds : 1f;
-            _lightLevel = Mathf.MoveTowards(_lightLevel, _isLit ? 1f : 0f, step);
+            var target = _isLit ? 1f : 0f;
+            _lightLevel = Mathf.MoveTowards(_lightLevel, target, FadeStep(lightFadeSeconds));
+            _soundLevel = Mathf.MoveTowards(_soundLevel, target, FadeStep(soundFadeSeconds));
             ApplyLights();
+            ApplySounds();
+        }
+
+        private static float FadeStep(float seconds)
+        {
+            return seconds > 0f ? Time.deltaTime / seconds : 1f;
         }
 
         /// <summary>
@@ -105,6 +124,18 @@ namespace Features.Bonfire.Scripts
             {
                 lights[i].intensity = _baseIntensities[i] * _lightLevel * flicker;
                 lights[i].enabled = _lightLevel > 0f;
+            }
+        }
+
+        private void ApplySounds()
+        {
+            for (var i = 0; i < sounds.Length; i++)
+            {
+                var source = sounds[i];
+                source.volume = _baseVolumes[i] * _soundLevel;
+                // 消えている間は止めておき、点火したらループの頭から鳴らし直す
+                if (_soundLevel > 0f && !source.isPlaying) source.Play();
+                else if (_soundLevel <= 0f && source.isPlaying) source.Stop();
             }
         }
     }
