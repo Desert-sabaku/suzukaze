@@ -6,6 +6,7 @@ from pathlib import Path
 
 import cv2
 
+from gesture_detection.frame_rotation import ROTATIONS
 from gesture_detection.qt_setup import configure_qt_fonts
 from gesture_detection.settings import Settings
 
@@ -25,10 +26,14 @@ CONFIG_PATH = _config_file if _config_file.is_absolute() else PROJECT_ROOT / _co
 _settings = Settings(PROJECT_ROOT, CONFIG_PATH, required=_config_override is not None)
 
 
-POSE_MODEL_PATH = _settings.path("models", "pose", "pose_landmarker_lite.task")
+POSE_MODEL_PATH = _settings.path("models", "pose", "pose_landmarker_heavy.task")
+_pose_name = POSE_MODEL_PATH.stem
 POSE_MODEL_URL = (
     "https://storage.googleapis.com/mediapipe-models/pose_landmarker/"
-    "pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
+    f"{_pose_name}/float16/1/{_pose_name}.task"
+    if POSE_MODEL_PATH.name
+    in {f"pose_landmarker_{size}.task" for size in ("lite", "full", "heavy")}
+    else None
 )
 # Use temporal tracking by default; retain IMAGE for baseline comparisons.
 POSE_RUNNING_MODE = _settings.text("pose", "running_mode", "VIDEO").strip().upper()
@@ -80,6 +85,9 @@ YOLO_MODEL_PATH = _settings.path("models", "yolo", "yolov8n.pt")
 
 CAMERA_BACKEND = _settings.integer("camera", "backend", cv2.CAP_ANY)
 CAMERA_FOURCC = _settings.text("camera", "fourcc", "MJPG")
+CAMERA_ROTATION = _settings.text("camera", "rotation", "none").strip().lower()
+if CAMERA_ROTATION not in ROTATIONS:
+    raise ValueError(f"camera.rotation must be one of: {', '.join(ROTATIONS)}")
 if len(CAMERA_FOURCC) != 4:
     raise ValueError("CAMERA_FOURCC must contain exactly four characters")
 
@@ -214,6 +222,12 @@ FANNING_EXIT_TORSO_HEIGHT = 0.75
 FANNING_REVERSAL_DISTANCE = 0.08
 FANNING_MIN_REVERSALS = 3
 
+# Motion-quality observation requirements (separate from classifier scores).
+ACCURACY_FANNING_MIN_SECONDS = 0.6
+ACCURACY_FANNING_MAX_GAP = 0.25
+ACCURACY_FANNING_MIN_HZ = 1.0
+ACCURACY_FANNING_MAX_HZ = 3.0
+
 # Let the scoop/release leave the FFT window before accepting residual fanning.
 FANNING_UCHIMIZU_GRACE_SECONDS = WINDOW_SECONDS
 
@@ -247,11 +261,21 @@ MULTICAM_SELECT_SUBJECT = (
     _settings.boolean("multicam.first", "select_subject", True),
     _settings.boolean("multicam.second", "select_subject", False),
 )
+MULTICAM_ROTATION = tuple(
+    _settings.text(f"multicam.{slot}", "rotation", "none").strip().lower()
+    for slot in ("first", "second")
+)
+if any(rotation not in ROTATIONS for rotation in MULTICAM_ROTATION):
+    raise ValueError(f"multicam rotation must be one of: {', '.join(ROTATIONS)}")
 MULTICAM_VIDEO_SESSION = _settings.optional_path("multicam.replay", "session")
 MULTICAM_TRACE_PATH = _settings.optional_path("diagnostics", "multicam_trace")
 MULTICAM_HEADLESS = _settings.boolean("multicam", "headless", False)
 MULTICAM_WIDTH = _settings.integer("multicam", "width", 1280)
 MULTICAM_HEIGHT = _settings.integer("multicam", "height", 720)
+ANNOTATION_DEFAULT_PAGE = _settings.text("annotation", "default_page", "intervals").strip().lower()
+if ANNOTATION_DEFAULT_PAGE not in {"intervals", "landmarks"}:
+    raise ValueError("ANNOTATION_DEFAULT_PAGE must be intervals or landmarks")
+ANNOTATION_NINE_POINT_ASSIST = _settings.boolean("annotation", "nine_point_landmark_assist", False)
 if min(MULTICAM_WIDTH, MULTICAM_HEIGHT) <= 0:
     raise ValueError("MULTICAM_WIDTH and MULTICAM_HEIGHT must be positive")
 if MULTICAM_ENABLED and (POSE_RUNNING_MODE != "VIDEO" or RAMUNE_DETECTOR != "rules"):

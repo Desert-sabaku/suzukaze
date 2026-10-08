@@ -9,10 +9,17 @@ scan_max_index = 9 # 選択画面で調べるカメラIDの最大値（0～9）
 backend = 0 # OpenCV: 0 = 自動、200 = Linux V4L2
 fourcc = "MJPG"
 fps = 30 # ジェスチャー処理窓の標本数にも使用
+rotation = "none" # 単眼の入力: none / clockwise / counterclockwise / 180
 
 [video]
 # 空欄ならカメラ入力。
 source = "" # 例: "sample_movies/sample.mp4"
+
+[annotation]
+# 起動時に表示する注釈: intervals = 所作、landmarks = ランドマーク
+default_page = "intervals"
+# trueなら1, 12, ..., 17, 24, 25の順にランドマークを自動選択
+nine_point_landmark_assist = false
 
 [output]
 directory = "output"
@@ -21,7 +28,7 @@ record_live = false # trueならライブ認識中の表示映像も録画
 buffer_frames = 8
 
 [models]
-pose = "pose_landmarker_lite.task"
+pose = "pose_landmarker_heavy.task"
 yolo = "yolov8n.pt"
 
 [pose]
@@ -51,9 +58,11 @@ height = 720
 
 [multicam.first]
 select_subject = true
+rotation = "none" # 1台目の入力映像の回転方向
 
 [multicam.second]
 select_subject = false
+rotation = "none" # 2台目の入力映像の回転方向
 
 [multicam.replay]
 # 録画セッション再生。空欄なら実カメラ。再生時に camera.indices が空ならセッションの先頭2台。

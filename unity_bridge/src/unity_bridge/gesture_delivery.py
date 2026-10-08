@@ -74,8 +74,11 @@ class DeliveryOutbox:
                 "action": sample.action,
                 "phase": sample.phase,
                 "booth_present": sample.booth_present,
+                "action_accuracy": sample.action_accuracy,
             }
-            for kind, occurred_at in sample.occurrences:
+            for (kind, occurred_at), accuracy in zip(
+                sample.occurrences, sample.occurrence_accuracies, strict=True
+            ):
                 if not math.isfinite(occurred_at) or occurred_at > now:
                     raise ValueError("Invalid occurrence source time")
                 if now >= occurred_at + self.event_ttl:
@@ -94,6 +97,8 @@ class DeliveryOutbox:
                     "frame_id": sample.frame_id,
                     "source_timestamp": sample.source_timestamp,
                 }
+                if accuracy is not None:
+                    self._pending[self._event_sequence]["action_accuracy"] = accuracy
 
     def state(self, now: float) -> Message:
         with self._lock:
@@ -120,6 +125,14 @@ class DeliveryOutbox:
             if fresh and latest and latest["tracking"] and latest["action"] is not None:
                 message["action"] = latest["action"]
                 message["phase"] = latest["phase"]
+            if (
+                fresh
+                and latest
+                and latest["tracking"]
+                and latest["gesture"] != Gesture.NONE
+                and latest["action_accuracy"] is not None
+            ):
+                message["action_accuracy"] = latest["action_accuracy"]
             return message
 
     def events(self, now: float, *, reconnect: bool = False) -> list[Message]:
@@ -135,6 +148,12 @@ class DeliveryOutbox:
                     events.append(dict(event))
                     self._last_sent[event_id] = now
             return events
+
+    def pending(self, now: float) -> list[Message]:
+        """Unexpired events awaiting an ACK, without marking them as sent."""
+        with self._lock:
+            self._expire(now)
+            return [dict(event) for event in self._pending.values()]
 
     def acknowledge(self, message: object) -> bool:
         if not isinstance(message, dict):

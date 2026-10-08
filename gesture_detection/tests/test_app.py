@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import MagicMock, call, patch
 
 import cv2
+import numpy as np
 
 from gesture_detection import config
 from gesture_detection.app import GestureApplication, PoseResult
@@ -201,6 +202,33 @@ class RamuneActionTests(unittest.TestCase):
 
 @patch("gesture_detection.app.VIDEO_SOURCE", None)
 class RunLifecycleTests(unittest.TestCase):
+    def test_single_camera_rotates_before_inference_display_and_output(self):
+        application = GestureApplication()
+        frame = np.repeat(np.array([[1, 2]], dtype=np.uint8)[:, :, None], 3, axis=2)
+        capture = MagicMock()
+        capture.read.return_value = True, frame
+        application.pose_process = MagicMock()
+        with (
+            patch("gesture_detection.app.CAMERA_ROTATION", "clockwise"),
+            patch.object(application, "_open_capture", return_value=capture),
+            patch.object(application, "_open_output", return_value=None) as output,
+            patch.object(application, "_start_workers"),
+            patch.object(application, "_stop_workers"),
+            patch.object(
+                application, "_annotate_frame", side_effect=lambda image, _: image
+            ) as annotate,
+            patch.object(application, "_exit_requested", return_value=True),
+            patch("gesture_detection.app.cv2.imshow"),
+            patch("gesture_detection.app.cv2.destroyAllWindows"),
+        ):
+            application.run()
+        oriented = output.call_args.args[1]
+        assert oriented.shape == (2, 1, 3)
+        assert oriented[:, :, 0].tolist() == [[1], [2]]
+        assert application.pose_frame_queue is not None
+        assert annotate.call_args.args[0] is oriented
+        application.pose_result_queue.close()
+
     def test_escape_flushes_output_and_stops_workers(self):
         import numpy as np
 

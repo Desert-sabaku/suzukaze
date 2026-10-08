@@ -66,6 +66,7 @@ From `unity_bridge/`:
 uv sync --group dev
 uv run unity-bridge --gesture   # Start recognition and serve Unity
 uv run unity-gesture-probe      # Mock Unity receiver
+uv run unity-bridge --debug-gui # Send gestures from a browser (no cameras)
 uv run python -m pytest
 ```
 

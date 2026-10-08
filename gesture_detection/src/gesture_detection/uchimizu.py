@@ -1,6 +1,7 @@
 import math
 from collections import deque
 
+from .action_accuracy import aggregate, maximum, minimum
 from .config import (
     MULTICAM_SCOOP_MIN_MOTION_SECONDS,
     READY_FACE_EXCLUSION_DISTANCE,
@@ -37,6 +38,8 @@ class UchimizuAnalyzer:
         self.ready_at = 0.0
         self.completed_at: float | None = None
         self.last_time: float | None = None
+        self.action_accuracy: float | None = None
+        self._preparation_scores: tuple[float, ...] = ()
 
     def update(self, landmarks: Landmarks, now: float) -> bool:
         shoulder_y = (landmarks[11].y + landmarks[12].y) / 2
@@ -75,6 +78,12 @@ class UchimizuAnalyzer:
                 self.ready_at = now
             # The wrist may leave the torso horizontally during the release.
             if height >= UCHIMIZU_FINISH_HEIGHT and height - self.peak >= UCHIMIZU_MIN_DROP:
+                self.action_accuracy = aggregate(
+                    *self._preparation_scores,
+                    minimum(height, UCHIMIZU_FINISH_HEIGHT),
+                    minimum(height - self.peak, UCHIMIZU_MIN_DROP),
+                    maximum(now - self.ready_at, UCHIMIZU_READY_TIMEOUT_SECONDS),
+                )
                 self.state = Phase.SWING
                 self.completed_at = now
                 self.history.clear()
@@ -96,6 +105,21 @@ class UchimizuAnalyzer:
             and previous_height - height >= UCHIMIZU_MIN_RAISE
             for _, previous_height in self.history
         ):
+            start_time, start_height = max(
+                (
+                    (t, h)
+                    for t, h in self.history
+                    if h >= UCHIMIZU_LOW_HEIGHT and h - height >= UCHIMIZU_MIN_RAISE
+                ),
+                key=lambda item: item[1],
+            )
+            self._preparation_scores = (
+                minimum(start_height, UCHIMIZU_LOW_HEIGHT),
+                minimum(start_height - height, UCHIMIZU_MIN_RAISE),
+                maximum(now - start_time, UCHIMIZU_RAISE_WINDOW_SECONDS),
+                float(within_torso),
+                float(away_from_face),
+            )
             self.state = Phase.READY
             self.setup_started_at = now
             self.ready_at = now

@@ -77,6 +77,7 @@ class MultiCameraFusion:
         events: list[str] = []
         evidence: dict[str, OccurrenceEvidence] = {}
         event_times: dict[str, float] = {}
+        event_scores: dict[str, float | None] = {}
         while self._pending and self._pending[0][0] <= now + 1e-9:
             timestamp, camera, _, result = heapq.heappop(self._pending)
             self.latest[camera] = result
@@ -96,6 +97,7 @@ class MultiCameraFusion:
                 self._last_event[label] = timestamp
                 events.append(label)
                 evidence[label], event_times[label] = item, min(timestamp, now)
+                event_scores[label] = result.get("occurrence_accuracies", {}).get(label)
         fresh = [
             r for r in self.latest.values() if now - r.get("timestamp", -math.inf) <= self.max_age
         ]
@@ -120,7 +122,19 @@ class MultiCameraFusion:
             ),
             default=(None, None, 0.0),
         )
+        score_source = max(
+            (
+                r
+                for r in fresh
+                if r.get("current", {}).get("gesture") == gesture
+                and r.get("current", {}).get("tracking")
+            ),
+            key=lambda r: r.get("timestamp", 0.0),
+            default=None,
+        )
         return {
+            "action_accuracy": score_source.get("action_accuracy") if score_source else None,
+            "occurrence_accuracies": {g: event_scores[g] for g in accepted},
             # Only the first (ROI/subject-selection) camera owns booth presence.
             "booth_present": any(
                 r is self.latest.get(0) and r.get("booth_present", False) for r in fresh

@@ -1,5 +1,6 @@
 """Per-hand temporal classification and fanning/uchimizu disambiguation."""
 
+import math
 from collections import deque
 
 import numpy as np
@@ -35,6 +36,7 @@ class HandGestureAnalyzer:
         self._reset_gesture_state()
 
     def _reset_gesture_state(self):
+        self.accuracy_history: deque[tuple[float, float]] = deque()
         self.wrist_y_history.clear()
         self.wrist_t_history.clear()
         self.wrist_dy_history.clear()
@@ -70,6 +72,25 @@ class HandGestureAnalyzer:
         shoulder_y = (landmarks[11].y + landmarks[12].y) / 2
         torso_height = (landmarks[23].y + landmarks[24].y) / 2 - shoulder_y
         height = (wrist.y - shoulder_y) / torso_height if torso_height > 1e-6 else float("inf")
+        if (
+            math.isfinite(timestamp)
+            and math.isfinite(height)
+            and all(
+                landmarks[i].visibility > 0.5
+                and 0 <= landmarks[i].x <= 1
+                and 0 <= landmarks[i].y <= 1
+                for i in (11, 12, 23, 24, self.wrist_index)
+            )
+        ):
+            if self.accuracy_history and timestamp <= self.accuracy_history[-1][0]:
+                self.accuracy_history.clear()
+            self.accuracy_history.append((timestamp, height))
+            while (
+                self.accuracy_history and timestamp - self.accuracy_history[0][0] > WINDOW_SECONDS
+            ):
+                self.accuracy_history.popleft()
+        else:
+            self.accuracy_history.clear()
         if is_fanning_position(landmarks, self.wrist_index):
             if self.fanning_position_since is None:
                 self.fanning_position_since = now

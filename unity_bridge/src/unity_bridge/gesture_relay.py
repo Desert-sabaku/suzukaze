@@ -10,7 +10,7 @@ import multiprocessing as mp
 import queue
 import time
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Protocol
 
 from gesture_detection.app import main as run_detection
 from gesture_detection.recognition_types import GestureSample
@@ -21,6 +21,10 @@ from .gesture_codec import decode_bridge, decode_gesture, encode_message
 from .gesture_delivery import DeliveryOutbox
 
 TICK_SECONDS = 0.01
+
+
+class SampleSource(Protocol):
+    def get(self, timeout: float) -> GestureSample | None: ...
 
 
 class DetectionProcess:
@@ -79,9 +83,15 @@ class GestureRelay:
         self.outbox = outbox
         self.fan = fan or FanController()
         self.state_interval = state_interval
+        # Called with each ACK before it settles the event; the debug GUI shows it.
+        self.on_ack: Callable[[dict[str, Any]], None] | None = None
         self._connected = False
 
-    async def pump(self, source: DetectionProcess) -> None:
+    @property
+    def connected(self) -> bool:
+        return self._connected
+
+    async def pump(self, source: SampleSource) -> None:
         """Feed samples into the outbox until recognition exits."""
         while True:
             try:
@@ -148,6 +158,8 @@ class GestureRelay:
                 ack = decode_gesture(envelope.gesture)
                 if ack["type"] != "ack":
                     raise ValueError("Only ACKs are accepted in gesture mode")
+                if self.on_ack is not None:
+                    self.on_ack(ack)
                 self.outbox.acknowledge(ack)
             else:
                 raise ValueError("Unsupported message")

@@ -53,6 +53,12 @@ def unity(c: Context):
 
 
 @task
+def unity_debug(c: Context):
+    """Start the Unity bridge with the browser gesture debug GUI."""
+    _run_package(c, "unity_bridge", "unity-bridge --debug-gui")
+
+
+@task
 def unity_probe(c: Context):
     """Run the Unity bridge gesture probe."""
     _run_package(c, "unity_bridge", "unity-gesture-probe")

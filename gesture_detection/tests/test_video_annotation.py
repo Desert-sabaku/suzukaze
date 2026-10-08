@@ -11,6 +11,7 @@ from scripts.video_annotation import (
     active_intervals,
     default_output_path,
     import_legacy_landmarks,
+    load_annotation_defaults,
     load_label_config,
     load_timeline,
     new_timeline,
@@ -52,6 +53,39 @@ def test_default_path_and_video_validation(tmp_path):
     assert load_timeline(output, first)["source"]["total_frames"] == 12
     with pytest.raises(ValueError, match="different video"):
         load_timeline(output, second)
+
+
+def test_annotation_defaults_are_loaded_from_toml(tmp_path):
+    config = tmp_path / "config.toml"
+    config.write_text(
+        '[annotation]\ndefault_page = "landmarks"\nnine_point_landmark_assist = true\n',
+        encoding="utf-8",
+    )
+
+    assert load_annotation_defaults(config) == {
+        "default_page": "landmarks",
+        "nine_point_landmark_assist": True,
+    }
+
+
+def test_annotation_default_page_rejects_unknown_value(tmp_path):
+    config = tmp_path / "config.toml"
+    config.write_text('[annotation]\ndefault_page = "unknown"\n', encoding="utf-8")
+
+    with pytest.raises(ValueError, match="annotation.default_page"):
+        load_annotation_defaults(config)
+
+
+def test_new_timeline_stores_annotation_defaults(timeline):
+    video, _, _ = timeline
+    data = new_timeline(
+        video,
+        load_label_config(),
+        {"default_page": "landmarks", "nine_point_landmark_assist": True},
+    )
+
+    assert data["ui"]["default_page"] == "landmarks"
+    assert data["ui"]["nine_point_landmark_assist"] is True
 
 
 def test_intervals_events_landmarks_and_history(timeline):
