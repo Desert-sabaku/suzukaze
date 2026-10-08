@@ -35,7 +35,7 @@ namespace Features.Gesture_Effect.Scripts
 
         [Title("扇ぎ")] [SerializeField] [ChildGameObjectsOnly]
         private VisualEffect aogiVfx;
-        
+
         [Title("ラムネ")] [SerializeField] private RamuneGesturePlayer ramune;
 
         private GestureReceiverBehaviour _gestureReceiver;
@@ -50,18 +50,12 @@ namespace Features.Gesture_Effect.Scripts
         private void Start()
         {
             _uchimizuRenderer = uchimizuPlayer.GetComponentInChildren<MeshRenderer>();
-            
+
             SetUchimizuEnabled(false);
             _startUchimizuPos = uchimizuPlayer.transform.position;
             _random = new Random((uint)DateTime.Now.Ticks);
             aogiVfx.Stop();
             ramune.Initialize();
-        }
-        
-        private void SetUchimizuEnabled(bool uchimizuEnable)
-        {
-            if (_uchimizuRenderer) _uchimizuRenderer.enabled = uchimizuEnable;
-            uchimizuPlayer.enabled = uchimizuEnable;
         }
 
         private void OnEnable()
@@ -80,6 +74,12 @@ namespace Features.Gesture_Effect.Scripts
             _gestureReceiver = null;
         }
 
+        private void SetUchimizuEnabled(bool uchimizuEnable)
+        {
+            if (_uchimizuRenderer) _uchimizuRenderer.enabled = uchimizuEnable;
+            uchimizuPlayer.enabled = uchimizuEnable;
+        }
+
         [Button("Play Effect")]
         public async UniTask PlayEffect(Gestures gesture, bool force = false)
         {
@@ -96,7 +96,7 @@ namespace Features.Gesture_Effect.Scripts
             {
                 case Gestures.Uchimizu:
                     await PlayUchimizu();
-                    _gestures = Gestures.Yusuzumi;
+                    _gestures = Gestures.None;
                     break;
                 case Gestures.Aogi:
                     await PlayAogi();
@@ -105,9 +105,10 @@ namespace Features.Gesture_Effect.Scripts
                 case Gestures.Rei:
                 case Gestures.Yusuzumi:
                 case Gestures.Ramune:
+                case Gestures.None:
                 default:
                     Debug.LogWarning($"Gesture {gesture} is not implemented.");
-                    _gestures = Gestures.Yusuzumi;
+                    _gestures = Gestures.None;
                     break;
             }
         }
@@ -133,7 +134,7 @@ namespace Features.Gesture_Effect.Scripts
                 Debug.LogError("Uchimizu player or material is not assigned.");
                 return;
             }
-            
+
             SetUchimizuEnabled(true);
             uchimizuPlayer.transform.position = _startUchimizuPos + _random.NextFloat3(
                 new float3(-uchimizuPosRandomRange, 0f, -uchimizuPosRandomRange),
@@ -173,20 +174,27 @@ namespace Features.Gesture_Effect.Scripts
                 default:
                     break;
             }
-            
+
             if (state.Action is Action.Ramune)
-            {
                 ramune.SetAnimState(state.Phase switch
                 {
                     Phase.Forming or Phase.Ready => RamuneGesturePlayer.AnimState.ReadyOpen,
                     Phase.Opened or Phase.WaitRelease => RamuneGesturePlayer.AnimState.Open,
                     _ => RamuneGesturePlayer.AnimState.None
                 });
-            }
             else
-            {
                 ramune.SetAnimState(RamuneGesturePlayer.AnimState.None);
-            }
+            
+            _gestures = (state.Action ?? Action.None) switch
+            {
+                Action.Fanning => Gestures.Aogi,
+                Action.Relaxing => Gestures.Yusuzumi,
+                Action.Bow => Gestures.Rei,
+                Action.Ramune => Gestures.Ramune,
+                Action.Uchimizu => Gestures.Uchimizu,
+                Action.None or Action.Unspecified => Gestures.None,
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
 
         private bool OnGestureOccurred(string sessionId, Event events)
