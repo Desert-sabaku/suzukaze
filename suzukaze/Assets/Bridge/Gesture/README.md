@@ -215,6 +215,27 @@ probeもWebSocketの受信クライアントなので、Unityで試す前にprob
 認識のみの `gesture-detection` 起動では Unity へ配送しません。確認手順は
 [打ち水接続ガイド](../../../../gesture_detection/docs/uchimizu-unity.md)を参照してください。
 
+## 夕涼みの音響演出
+
+`Assets/Features/Sound/Scripts/YusuzumiSoundDirector.cs` が `StateChanged` を購読します。
+`Fresh` と `Tracking` が true で `Gesture == Relaxing` の間、感覚が鋭くなる演出をします。
+
+- 環境音（Ambient・Cicadas・Insects・Birds）を約3秒かけて最大 +8dB 大きくします。
+- 遠くの音源の高音の減衰を弱め、遠くの音も澄んで聞こえるようにします。
+- 感覚がある程度鋭くなると、カメラの少し上の前方で風鈴が鳴り始めます。
+  風鈴の音は実行時に合成します。録音素材を使う場合は `windChimeClips` に設定します。
+- 夕涼みをやめるか追跡が切れると、約5秒かけて元の聞こえ方に戻ります。
+
+`Forest`、`Lake`、`River`、`Sea` の `Soundscape` に配置済みです。
+**Tools > Sound > Build Soundscape In Active Scene** で作り直したシーンにも自動で追加されます。
+音量や間隔はInspectorで調整できます。
+
+確認は `unity_bridge/` で `uv run unity-bridge --debug-gui` を実行し、上記のシーンを再生します。
+ブラウザ（`http://127.0.0.1:5080/`）で「夕涼み」（キー `3`）を押すと音が大きくなり風鈴が鳴り、
+「なし」（キー `1`）で元に戻ります。ブリッジなしで確かめる場合は、再生中に `Soundscape` の
+`YusuzumiSoundDirector` の「夕涼みを切り替え」ボタンを押します。
+ゲームシーンは制限時間が過ぎると `Result` へ移るため、再生直後に確認してください。
+
 ## Setup
 
 `Google.Protobuf` is installed by NuGetForUnity from `Assets/packages.config`
