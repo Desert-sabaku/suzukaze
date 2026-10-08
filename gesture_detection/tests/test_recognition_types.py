@@ -69,6 +69,8 @@ def test_unknown_occurrence_is_rejected():
         ("UCHIMIZU", {"uchimizu_state": "SWING"}, ("UCHIMIZU", "SWING")),
         ("FANNING", {"ramune_state": "WAIT_RELEASE"}, ("FANNING", "ACTIVE")),
         ("RELAXING", {}, ("RELAXING", "ACTIVE")),
+        ("RELAXING", {"ramune_state": "WAIT_RELEASE"}, ("RAMUNE", "WAIT_RELEASE")),
+        ("BOW", {"ramune_state": "WAIT_RELEASE"}, ("BOW", "HOLD")),
         ("BOW", {}, ("BOW", "HOLD")),
         ("NONE", {"ramune_state": "IDLE", "uchimizu_state": "IDLE"}, (None, None)),
     ],

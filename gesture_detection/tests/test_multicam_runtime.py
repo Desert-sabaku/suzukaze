@@ -152,6 +152,17 @@ def test_ramune_preparation_in_one_view_suppresses_fanning_in_the_other():
     assert current_gesture(fusion.advance(0.25)) == "FANNING"
 
 
+def test_stillness_in_the_other_view_does_not_take_the_ramune_action():
+    fusion = MultiCameraFusion()
+    released = sample(0.1)
+    released["ramune_state"] = "WAIT_RELEASE"
+    fusion.submit(0, released)
+    fusion.submit(1, sample(0.12, "RELAXING"))
+    result = fusion.advance(0.15)
+    assert current_gesture(result) == "RELAXING"
+    assert (result.get("action"), result.get("phase")) == ("RAMUNE", "WAIT_RELEASE")
+
+
 def test_fusion_prefers_phase_from_camera_with_selected_action():
     fusion = MultiCameraFusion()
     released = sample(0.2)

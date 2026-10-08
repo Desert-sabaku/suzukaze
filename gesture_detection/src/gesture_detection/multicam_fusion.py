@@ -124,11 +124,15 @@ class MultiCameraFusion:
         phases = [item for item in phases if item[0] is not None]
         # Prefer progress for the fused action; otherwise use action priority,
         # then the furthest phase, so independent per-camera analyzers do not
-        # alternate the output. Never combine two cameras' fields.
+        # alternate the output. Never combine two cameras' fields. As in a
+        # single view, stillness does not take the action from Ramune.
+        owner = gesture
+        if gesture == Gesture.RELAXING and any(item[0] == Gesture.RAMUNE for item in phases):
+            owner = Gesture.RAMUNE
         selected_phase = max(
             phases,
             key=lambda item: (
-                item[0] == gesture,
+                item[0] == owner,
                 PRIORITY.get(item[0] or Gesture.NONE, 0),
                 PHASE_PROGRESS.get(item[1], 0),
                 item[2],
