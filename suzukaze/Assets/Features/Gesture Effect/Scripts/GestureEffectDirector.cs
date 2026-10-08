@@ -45,14 +45,23 @@ namespace Features.Gesture_Effect.Scripts
 
         private Random _random;
         private float3 _startUchimizuPos;
+        private MeshRenderer _uchimizuRenderer;
 
         private void Start()
         {
-            uchimizuPlayer.enabled = false;
+            _uchimizuRenderer = uchimizuPlayer.GetComponentInChildren<MeshRenderer>();
+            
+            SetUchimizuEnabled(false);
             _startUchimizuPos = uchimizuPlayer.transform.position;
             _random = new Random((uint)DateTime.Now.Ticks);
             aogiVfx.Stop();
             ramune.Initialize();
+        }
+        
+        private void SetUchimizuEnabled(bool uchimizuEnable)
+        {
+            if (_uchimizuRenderer) _uchimizuRenderer.enabled = uchimizuEnable;
+            uchimizuPlayer.enabled = uchimizuEnable;
         }
 
         private void OnEnable()
@@ -124,8 +133,8 @@ namespace Features.Gesture_Effect.Scripts
                 Debug.LogError("Uchimizu player or material is not assigned.");
                 return;
             }
-
-            uchimizuPlayer.enabled = true;
+            
+            SetUchimizuEnabled(true);
             uchimizuPlayer.transform.position = _startUchimizuPos + _random.NextFloat3(
                 new float3(-uchimizuPosRandomRange, 0f, -uchimizuPosRandomRange),
                 new float3(uchimizuPosRandomRange, 0f, uchimizuPosRandomRange)
@@ -144,7 +153,7 @@ namespace Features.Gesture_Effect.Scripts
                 )
                 .Run();
 
-            uchimizuPlayer.enabled = false;
+            SetUchimizuEnabled(false);
             uchimizuMat.SetFloat(AlphaPropId, 1f);
         }
 
