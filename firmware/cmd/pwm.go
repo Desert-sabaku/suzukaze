@@ -41,7 +41,27 @@ var (
 	}
 
 	pinChans sync.Map // map[uint32]chan *micon_v1.PwmFade
+
+	// スライスごとに Configure 済みかどうか。
+	sliceMu         sync.Mutex
+	sliceConfigured [8]bool
 )
+
+// configureSlice は、スライスを最初の1回だけ Configure する。
+// RP2040 の PWM は1スライスを2ピンで共有し、Configure は両チャンネルのレベルを 0 に戻す。
+// 2本目のピンが再 Configure すると、1本目の出力が 0(反転配線ではファン全開)に戻ってしまう。
+func configureSlice(slice uint8, pwm pwmDevice) error {
+	sliceMu.Lock()
+	defer sliceMu.Unlock()
+	if sliceConfigured[slice] {
+		return nil
+	}
+	if err := pwm.Configure(machine.PWMConfig{Period: uint64(pwmPeriod)}); err != nil {
+		return err
+	}
+	sliceConfigured[slice] = true
+	return nil
+}
 
 // dispatch sends cmd to the pin's fade worker, starting the worker on first
 // use. If the worker is already fading, the in-flight fade is interrupted.
@@ -76,7 +96,7 @@ func fadeWorker(pinNum uint32, ch chan *micon_v1.PwmFade) {
 	}
 	pwm := pwmPeripherals[slice]
 
-	if err := pwm.Configure(machine.PWMConfig{Period: uint64(pwmPeriod)}); err != nil {
+	if err := configureSlice(slice, pwm); err != nil {
 		Log.Error().Err(NewAppError("PWM_CONFIGURE_FAILED", "failed to configure PWM").Wrap(err).Uint("pin", uint(pinNum)))
 		return
 	}
