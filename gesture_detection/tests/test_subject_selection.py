@@ -86,13 +86,30 @@ def test_invalid_torso_is_not_a_candidate(value):
     assert SubjectSelector.candidate(points, 1.0) is None
 
 
-def test_visibility_loss_and_area_exit_drop_immediately():
+def test_visibility_loss_and_jump_drop_immediately():
     selector = SubjectSelector()
     person = pose()
     assert acquire(selector, person) is person
     person[11].visibility = 0.2
     assert selector.select([person], 0.25, 1.0) == []
     assert selector.select([pose(0.9)], 0.3, 1.0) == []
+
+
+def test_tracked_subject_may_drift_outside_area():
+    selector = SubjectSelector()
+    assert acquire(selector, pose(0.70)) is not None
+    for t, x in [(0.25, 0.74), (0.3, 0.78), (0.35, 0.82)]:
+        drifted = pose(x)
+        assert selector.select([drifted], t, 1.0) is drifted
+    assert selector.state == "TRACKING"
+
+
+def test_acquisition_still_requires_area():
+    selector = SubjectSelector()
+    assert acquire(selector, pose(0.80)) == []
+    assert selector.state == "SEARCHING"
+    assert SubjectSelector.candidate(pose(0.80), 1.0) is None
+    assert SubjectSelector.candidate(pose(0.80), 1.0, require_area=False) is not None
 
 
 def test_moving_candidate_must_be_continuous_during_acquisition():
