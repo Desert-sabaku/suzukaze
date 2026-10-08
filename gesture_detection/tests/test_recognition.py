@@ -87,6 +87,20 @@ def test_ramune_occurrence_is_not_reissued_during_hold():
 
 
 @pytest.mark.parametrize("profile", ["default", "multicam"])
+def test_raising_both_hands_into_aligned_ramune_form_does_not_get_stuck_in_scoop(profile):
+    coordinator = RecognitionCoordinator(profile=profile)
+    points = landmarks()
+    points[15].x = points[16].x = 0.5
+    events = []
+    trajectory = [(0.8, 0.8)] * 4 + [(0.6, 0.5)] * 15 + [(0.6, 0.58)] * 5
+    for frame, (base_y, upper_y) in enumerate(trajectory):
+        points[15].y, points[16].y = base_y, upper_y
+        result = coordinator.process(points, frame / 30, frame, aspect_ratio=1.0)
+        events.extend(result.get("occurrences", ()))
+    assert events == ["RAMUNE"]
+
+
+@pytest.mark.parametrize("profile", ["default", "multicam"])
 @pytest.mark.parametrize("wrist", [15, 16])
 def test_scoop_survives_incidental_ramune_candidate(profile, wrist):
     coordinator = RecognitionCoordinator(profile=profile, ramune_detector="rules")
