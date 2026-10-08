@@ -15,6 +15,9 @@ namespace Features.Common.Scripts
         [Title("時間管理")] public float timeScale = 1f;
         public Vector3 lightAxis = new(0.3f, -1f, 0.3f);
 
+        [Title("ゲームの時間管理")] public int gameTimeLimit = 60;
+        [ValueDropdown(nameof(GetSceneNames))] public string resultScene;
+
 #if UNITY_EDITOR
         [ValueDropdown(nameof(GetSceneNames))]
 #endif
