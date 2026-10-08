@@ -60,6 +60,9 @@ func receiveLoop(pt *PacketTransceiver) {
 		if cmd := pkt.GetPwmFade(); cmd != nil {
 			dispatch(cmd)
 		}
+		if cmd := pkt.GetGpioPulse(); cmd != nil {
+			go pulse(cmd)
+		}
 	}
 }
 

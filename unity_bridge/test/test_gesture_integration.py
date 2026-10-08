@@ -6,10 +6,10 @@ import websockets
 from gesture_detection.recognition_types import GestureSample
 from websockets.asyncio.server import serve
 
+from unity_bridge.bridge_relay import BridgeRelay, DetectionProcess
 from unity_bridge.gesture_codec import encode_message
 from unity_bridge.gesture_delivery import DeliveryOutbox
 from unity_bridge.gesture_probe import GestureReceiver, decode_payload
-from unity_bridge.gesture_relay import DetectionProcess, GestureRelay
 
 
 def fake_detection(samples, stop) -> None:
@@ -71,7 +71,7 @@ def wrong_type(samples, stop) -> None:
 def test_child_process_through_bridge_to_receiver_and_back():
     async def scenario():
         outbox = DeliveryOutbox()
-        relay = GestureRelay(outbox, state_interval=0.02)
+        relay = BridgeRelay(outbox, state_interval=0.02)
         detection = DetectionProcess(fake_detection)
         detection.start()
         adopted = []

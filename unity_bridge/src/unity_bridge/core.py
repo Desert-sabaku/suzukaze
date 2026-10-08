@@ -8,10 +8,11 @@ from typing import Any
 import websockets
 from dotenv import load_dotenv
 
-from .fan import fan_controller_from_env
+from .bridge_relay import BridgeRelay, DetectionProcess, SampleSource
+from .diffuser import DiffuserController, pins_from_env
+from .fan import FanController, mcu_sender_from_env
 from .gesture_debug import DEFAULT_DEBUG_PORT, ManualGestureSource, serve_debug_gui
 from .gesture_delivery import DeliveryOutbox
-from .gesture_relay import DetectionProcess, GestureRelay, SampleSource
 
 DEFAULT_HOST = "0.0.0.0"
 DEFAULT_WEBSOCKET_PORT = 5000
@@ -35,7 +36,7 @@ class UnityBridge:
         websocket_port: int = DEFAULT_WEBSOCKET_PORT,
         serial_port: str | None = DEFAULT_SERIAL_PORT,
         baudrate: int = DEFAULT_BAUDRATE,
-        gesture_relay: GestureRelay | None = None,
+        bridge_relay: BridgeRelay | None = None,
         detect: bool = True,
         debug_port: int | None = None,
     ) -> None:
@@ -43,9 +44,9 @@ class UnityBridge:
         self.websocket_port = websocket_port
         self.serial_port = serial_port
         self.baudrate = baudrate
-        if gesture_relay is not None and serial_port is not None:
+        if bridge_relay is not None and serial_port is not None:
             raise ValueError("Gesture relay and serial relay are separate modes")
-        self.gesture_relay = gesture_relay
+        self.bridge_relay = bridge_relay
         self.detect = detect
         # With a port, the debug GUI replaces gesture_detection as the source.
         self.debug_port = debug_port
@@ -61,7 +62,7 @@ class UnityBridge:
             from serial import Serial
 
             self._serial = Serial(self.serial_port, self.baudrate, timeout=0.1)
-        relay = self.gesture_relay
+        relay = self.bridge_relay
         manual = (
             ManualGestureSource(relay.state_interval / 2)
             if relay is not None and self.debug_port is not None
@@ -186,7 +187,7 @@ def _environment_defaults() -> dict[str, str | int]:
     }
 
 
-def gesture_relay_from_env() -> GestureRelay:
+def bridge_relay_from_env() -> BridgeRelay:
     """Delivery timing; times are seconds on the host monotonic clock."""
     state_interval = float(os.getenv("GESTURE_STATE_INTERVAL", "0.1"))
     stale_timeout = float(os.getenv("GESTURE_STALE_TIMEOUT", "0.5"))
@@ -198,7 +199,13 @@ def gesture_relay_from_env() -> GestureRelay:
         retry_interval=float(os.getenv("GESTURE_RETRY_INTERVAL", "0.1")),
         max_pending=int(os.getenv("GESTURE_MAX_PENDING", "64")),
     )
-    return GestureRelay(outbox, state_interval, fan_controller_from_env())
+    sender = mcu_sender_from_env()
+    return BridgeRelay(
+        outbox,
+        state_interval,
+        FanController(send_fade=sender),
+        DiffuserController(sender.pulse if sender else None, pins_from_env()),
+    )
 
 
 def test_websocket_connection() -> bool:
@@ -277,7 +284,7 @@ def main() -> None:
         args.websocket_port,
         serial_port,
         args.baudrate,
-        gesture_relay_from_env() if args.gesture else None,
+        bridge_relay_from_env() if args.gesture else None,
         detect=not args.fan,
         debug_port=args.debug_port if args.debug_gui else None,
     )

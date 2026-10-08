@@ -1,5 +1,5 @@
 {
   "name": "Suzukaze.Gesture.Unity",
   "rootNamespace": "Suzukaze.Gesture",
-  "references": ["GUID:fecb3afcdddd54269be91c65c5c35261", "GUID:99a0ba2df56f424cb18569701627560f", "GUID:405189a5ac5948398b7a9ff98ac81c33", "GUID:d599a6164b434507bac1334808e850ed"]
+  "references": ["GUID:fecb3afcdddd54269be91c65c5c35261", "GUID:99a0ba2df56f424cb18569701627560f", "GUID:405189a5ac5948398b7a9ff98ac81c33", "GUID:d599a6164b434507bac1334808e850ed", "Suzukaze.Diffuser"]
 }
