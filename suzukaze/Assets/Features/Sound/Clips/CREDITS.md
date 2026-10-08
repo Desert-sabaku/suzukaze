@@ -18,4 +18,5 @@ https://www.springin.org/sound-stock/ — 商用利用可。クレジットは�
 https://soundeffect-lab.info/ — 商用利用可・クレジット不要。
 
 - Ambient: 海岸1さざ波 (`Ambience_Wave_Gentle`), 海岸4静かな海 (`Ambience_Wave_Calm`, 先頭 68 秒),
-  風が吹く1 (`Ambience_WindBed`, 先頭 68 秒), 風に揺れる草木1弱風 (`Ambience_PlantsSwayingBed`)
+  風が吹く1 (`Ambience_WindBed`, 先頭 68 秒), 風に揺れる草木1弱風 (`Ambience_PlantsSwayingBed`),
+  小川 (`Ambience_Stream`)

@@ -92,6 +92,7 @@ namespace Features.Sound.Scripts.Editor
                 }
 
                 if (spec.NeedsWater && !world.HasWater) continue;
+                if (spec.Scenes != null && !spec.Scenes.Contains(scene.name)) continue;
 
                 var parent = GetOrCreateChild(root.transform, spec.Group);
                 for (var i = 0; i < spec.Count; i++)
@@ -286,23 +287,30 @@ namespace Features.Sound.Scripts.Editor
             };
             yield return Bird("Bird_Umineko", new Window(5f, 6f, 17f, 18.5f)) with
             {
-                Count = 3, Rest = new Vector2(8f, 25f), NeedsWater = true,
+                Count = 3, Rest = new Vector2(8f, 25f), NeedsWater = true, Scenes = new[] { "Sea" },
                 Placement = Placement.Shore, Height = new Vector2(3f, 12f), Distance = new Vector2(20f, 90f)
             };
 
-            // 環境音: 波は岸に沿って置き、葉擦れは全体に薄く流す
+            // 環境音: 波・せせらぎは岸に沿って置き、葉擦れは全体に薄く流す
             var allDay = new Window(-1f, 0f, 24f, 25f);
             yield return new Spec("Ambience_Wave_Gentle", "Ambient", CreatureSoundProfile.PlaybackMode.Loop, new[] { allDay })
             {
                 Count = 3, Volume = 0.8f, MinDistance = 6f, MaxDistance = 120f, Spread = 120f, Priority = 32,
-                NeedsWater = true, Placement = Placement.Shore, Height = new Vector2(0.3f, 0.6f),
+                NeedsWater = true, Scenes = new[] { "Sea", "Lake" }, Placement = Placement.Shore, Height = new Vector2(0.3f, 0.6f),
                 Distance = new Vector2(0f, 60f)
             };
             yield return new Spec("Ambience_Wave_Calm", "Ambient", CreatureSoundProfile.PlaybackMode.Loop, new[] { allDay })
             {
                 Count = 2, Volume = 0.6f, MinDistance = 12f, MaxDistance = 220f, Spread = 160f, Priority = 32,
-                NeedsWater = true, Placement = Placement.Shore, Height = new Vector2(0.3f, 0.6f),
-                Distance = new Vector2(40f, 150f)
+                NeedsWater = true, Scenes = new[] { "Sea" }, Placement = Placement.Shore,
+                Height = new Vector2(0.3f, 0.6f), Distance = new Vector2(40f, 150f)
+            };
+            // 川のせせらぎは近くの岸に間隔をあけて並べ、流れに沿って聞こえるようにする
+            yield return new Spec("Ambience_Stream", "Ambient", CreatureSoundProfile.PlaybackMode.Loop, new[] { allDay })
+            {
+                Count = 4, Volume = 0.8f, MinDistance = 4f, MaxDistance = 90f, Spread = 90f, Priority = 32,
+                NeedsWater = true, Scenes = new[] { "River" }, Placement = Placement.Shore,
+                Height = new Vector2(0.2f, 0.5f), Distance = new Vector2(0f, 80f)
             };
             // 葉擦れは日中の海風でやや強くなる。風そのものの音 (Ambience_WindBed) は今は使わない
             var breeze = new[] { new Window(-1f, 0f, 24f, 25f, 0.6f), new Window(8f, 11f, 16f, 19f) };
@@ -378,6 +386,9 @@ namespace Features.Sound.Scripts.Editor
             public float ModulationDepth { get; init; }
             public float ModulationPeriod { get; init; } = 8f;
             public bool NeedsWater { get; init; }
+
+            /// <summary>置くシーン名。null ならすべてのシーンに置く</summary>
+            public string[] Scenes { get; init; }
             public Placement Placement { get; init; } = Placement.AtListener;
             public Vector2 Height { get; init; }
             public Vector2 Distance { get; init; } = new(5f, 40f);
