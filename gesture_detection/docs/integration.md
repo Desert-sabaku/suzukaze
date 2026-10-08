@@ -160,7 +160,7 @@ Unity自身の再起動では処理済み履歴が失われるため、期限内
 `recognition.py` が成立した入力にだけ `occurrences` を付けます。
 `pose_worker.py`（2カメラでは `multicam_app.py`）は表示用の最新値キューへ入れる前に
 `GestureSample` をキューへ送ります。このキューは最新値優先ではないため、イベントは落ちません。
-`unity_bridge` の `GestureRelay.pump` が受け取って `DeliveryOutbox` へ渡し、
+`unity_bridge` の `BridgeRelay.pump` が受け取って `DeliveryOutbox` へ渡し、
 WebSocketの送受信は別タスクで行います。接続待ち・遅い受信側・切断は推論を待たせません。
 未確認イベントは最大64件で、容量超過時は明示的にエラーにします。
 

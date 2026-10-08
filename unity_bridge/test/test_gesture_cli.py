@@ -17,12 +17,12 @@ def test_gesture_mode_is_loopback_only(monkeypatch):
 def test_relay_timing_comes_from_environment(monkeypatch):
     monkeypatch.setenv("GESTURE_STATE_INTERVAL", "0.05")
     monkeypatch.setenv("GESTURE_MAX_PENDING", "8")
-    relay = core.gesture_relay_from_env()
+    relay = core.bridge_relay_from_env()
     assert relay.state_interval == 0.05
     assert relay.outbox.max_pending == 8
     monkeypatch.setenv("GESTURE_STATE_INTERVAL", "0.5")
     with pytest.raises(ValueError, match="state interval"):
-        core.gesture_relay_from_env()
+        core.bridge_relay_from_env()
 
 
 def test_probe_rejects_text_payload():

@@ -73,7 +73,7 @@ class DetectionProcess:
         self.samples.cancel_join_thread()
 
 
-class GestureRelay:
+class BridgeRelay:
     def __init__(
         self,
         outbox: DeliveryOutbox,

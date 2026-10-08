@@ -9,10 +9,10 @@ import websockets
 from gesture_detection.recognition_types import GestureSample
 from websockets.asyncio.server import serve
 
+from unity_bridge.bridge_relay import BridgeRelay
 from unity_bridge.fan import FanController, McuFadeSender
 from unity_bridge.gesture_codec import decode_message, encode_message
 from unity_bridge.gesture_delivery import DeliveryOutbox
-from unity_bridge.gesture_relay import GestureRelay
 
 
 def ramune(now: float) -> GestureSample:
@@ -33,7 +33,7 @@ def test_relay_continues_sending_state_after_booth_exit():
         outbox.publish(
             GestureSample("NONE", True, now, (), booth_present=True), now=now
         )
-        relay = GestureRelay(outbox, state_interval=0.02)
+        relay = BridgeRelay(outbox, state_interval=0.02)
         async with serve(relay.serve, "127.0.0.1", 0, close_timeout=0.1) as ws:
             port = ws.sockets[0].getsockname()[1]
             async with websockets.connect(f"ws://127.0.0.1:{port}") as client:
@@ -60,7 +60,7 @@ def test_relay_sends_protobuf_and_applies_unity_ack():
     async def scenario():
         outbox = DeliveryOutbox()
         outbox.publish(ramune(time.monotonic()), now=time.monotonic())
-        relay = GestureRelay(outbox, state_interval=0.02)
+        relay = BridgeRelay(outbox, state_interval=0.02)
         async with serve(relay.serve, "127.0.0.1", 0, close_timeout=0.1) as ws:
             port = ws.sockets[0].getsockname()[1]
             async with websockets.connect(f"ws://127.0.0.1:{port}") as client:
@@ -104,7 +104,7 @@ def test_relay_sends_protobuf_and_applies_unity_ack():
 )
 def test_bad_unity_message_closes_connection(payload):
     async def scenario():
-        relay = GestureRelay(DeliveryOutbox())
+        relay = BridgeRelay(DeliveryOutbox())
         async with serve(relay.serve, "127.0.0.1", 0, close_timeout=0.1) as ws:
             port = ws.sockets[0].getsockname()[1]
             async with websockets.connect(f"ws://127.0.0.1:{port}") as client:
@@ -132,13 +132,13 @@ def test_pump_publishes_samples_and_stops_when_recognition_exits():
     now = time.monotonic()
     source = FakeSource(queue.Empty(), ramune(now), RuntimeError("exited"))
     with pytest.raises(RuntimeError, match="exited"):
-        asyncio.run(GestureRelay(outbox).pump(source))  # type: ignore[arg-type]
+        asyncio.run(BridgeRelay(outbox).pump(source))  # type: ignore[arg-type]
     assert [e["gesture"] for e in outbox.events(time.monotonic())] == ["RAMUNE"]
 
 
 def test_pump_returns_when_recognition_exits_normally():
     source = FakeSource(queue.Empty(), None)
-    asyncio.run(GestureRelay(DeliveryOutbox()).pump(source))  # type: ignore[arg-type]
+    asyncio.run(BridgeRelay(DeliveryOutbox()).pump(source))  # type: ignore[arg-type]
 
 
 def test_fan_command_is_applied_and_state_is_read_back():
@@ -155,7 +155,7 @@ def test_fan_command_is_applied_and_state_is_read_back():
 
     async def scenario():
         sent = []
-        relay = GestureRelay(
+        relay = BridgeRelay(
             DeliveryOutbox(),
             state_interval=0.02,
             fan=FanController(send_fade=lambda *args: sent.append(args)),

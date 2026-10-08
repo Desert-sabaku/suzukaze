@@ -9,10 +9,10 @@ import websockets
 from websockets.asyncio.server import serve
 
 from unity_bridge import core
+from unity_bridge.bridge_relay import BridgeRelay
 from unity_bridge.gesture_codec import decode_message, encode_message
 from unity_bridge.gesture_debug import DebugGui, ManualGestureSource, serve_debug_gui
 from unity_bridge.gesture_delivery import DeliveryOutbox
-from unity_bridge.gesture_relay import GestureRelay
 
 FANNING = {
     "gesture": "FANNING",
@@ -71,7 +71,7 @@ def test_source_drops_accuracy_without_a_tracked_gesture():
 
 def test_browser_command_reaches_unity_and_ack_returns_to_browser():
     async def scenario():
-        relay = GestureRelay(DeliveryOutbox(), state_interval=0.02)
+        relay = BridgeRelay(DeliveryOutbox(), state_interval=0.02)
         source = ManualGestureSource(refresh=0.01)
         pump = asyncio.create_task(relay.pump(source))
         try:
@@ -161,7 +161,7 @@ def test_debug_gui_mode_replaces_detection(monkeypatch):
 
 def test_unknown_page_is_not_found():
     async def scenario():
-        relay = GestureRelay(DeliveryOutbox())
+        relay = BridgeRelay(DeliveryOutbox())
         async with serve_debug_gui(ManualGestureSource(), relay, "127.0.0.1", 0) as ws:
             port = ws.sockets[0].getsockname()[1]
 
@@ -178,7 +178,7 @@ def test_unknown_page_is_not_found():
 
 
 def test_status_reports_disconnected_unity():
-    relay = GestureRelay(DeliveryOutbox())
+    relay = BridgeRelay(DeliveryOutbox())
     gui = DebugGui(ManualGestureSource(), relay)
     assert gui.handle("[]") == {"type": "error", "message": "Expected a JSON object"}
     status = gui.status()

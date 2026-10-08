@@ -32,7 +32,7 @@ from websockets.datastructures import Headers
 from websockets.exceptions import ConnectionClosed
 from websockets.http11 import Request, Response
 
-from .gesture_relay import GestureRelay
+from .bridge_relay import BridgeRelay
 
 DEFAULT_DEBUG_PORT = 5080
 STATUS_INTERVAL = 0.2
@@ -154,7 +154,7 @@ def vocabulary() -> dict[str, Any]:
 class DebugGui:
     """Browser control panel for one ManualGestureSource."""
 
-    def __init__(self, source: ManualGestureSource, relay: GestureRelay) -> None:
+    def __init__(self, source: ManualGestureSource, relay: BridgeRelay) -> None:
         self.source = source
         self.relay = relay
         self.acks: deque[dict[str, Any]] = deque(maxlen=ACK_HISTORY)
@@ -247,7 +247,7 @@ class DebugGui:
 
 @asynccontextmanager
 async def serve_debug_gui(
-    source: ManualGestureSource, relay: GestureRelay, host: str, port: int
+    source: ManualGestureSource, relay: BridgeRelay, host: str, port: int
 ) -> AsyncIterator[Any]:
     gui = DebugGui(source, relay)
     async with websockets.serve(
