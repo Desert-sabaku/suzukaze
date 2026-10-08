@@ -527,7 +527,7 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 29829373183865388, guid: cbfb1841cbc7bbc41a5ac06a3454ebe3, type: 3}
+    - target: {fileID: -6342843132673844627, guid: cbfb1841cbc7bbc41a5ac06a3454ebe3, type: 3}
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 0}
@@ -535,7 +535,7 @@ PrefabInstance:
       propertyPath: m_Name
       value: SandTimer
       objectReference: {fileID: 0}
-    - target: {fileID: 3887497562159143833, guid: cbfb1841cbc7bbc41a5ac06a3454ebe3, type: 3}
+    - target: {fileID: 4889106499242444166, guid: cbfb1841cbc7bbc41a5ac06a3454ebe3, type: 3}
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 0}
