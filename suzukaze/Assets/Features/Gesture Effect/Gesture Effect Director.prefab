@@ -399,6 +399,14 @@ MonoBehaviour:
     handAppearDuration: 0.2
     handDropDuration: 0.2
     handDropY: 0.6
+  soundOutput: {fileID: 8237309407674865079, guid: ad39a450b6ef34e4883bcabedabf317e, type: 2}
+  uchimizuClip: {fileID: 0}
+  uchimizuVolume: 0.8
+  aogiLoopClip: {fileID: 8300000, guid: 3a618a3a2aa384adbadbd34d5c594862, type: 3}
+  aogiVolume: 0.2
+  aogiFadeSeconds: 0.3
+  ramuneOpenClip: {fileID: 8300000, guid: 20072e3f4787e48b2aa59123dac2e4c9, type: 3}
+  ramuneOpenVolume: 0.8
 --- !u!1 &7947578788476664461
 GameObject:
   m_ObjectHideFlags: 0
