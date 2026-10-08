@@ -62,6 +62,28 @@ uv run unity-gesture-probe
 uv run unity-gesture-probe --ignore-events
 ```
 
+### デバッグGUI（認識なしで所作を送る）
+
+```bash
+uv run unity-bridge --debug-gui
+```
+
+カメラと `gesture_detection` を起動せずに、ブラウザから所作をUnityへ送ります。
+ブラウザで `http://127.0.0.1:5080/` を開いてください。ポートは `--debug-port` か
+環境変数 `GESTURE_DEBUG_PORT` で変更できます。Unityの接続先は通常どおり
+`ws://127.0.0.1:5000` で、ファンも `--gesture` と同じように扱います。
+
+送った値は認識結果と同じ `DeliveryOutbox` を通るので、状態の再送・イベントの再送・
+ACKの扱いは本番と同じです。画面では次の操作ができます。
+
+- 継続所作（`State.gesture`）・`tracking`・`booth_present`・`action_accuracy` の切り替え
+- 進行状態（`action / phase`）の切り替え。許容する組み合わせだけを選べます
+- ラムネ・打ち水のイベント送信と、準備のphaseを順に送ってから成立させるシーケンス
+- 未ACKのイベントと、UnityからのACKの一覧
+
+キーボードでは `1`〜`4` で継続所作、`T` で追跡、`B` で在室を切り替え、
+`R` でラムネ、`U` で打ち水を送ります。`--fan` とは併用できません。
+
 WebSocketは1メッセージに1つのProtobufペイロード（バイナリ、最大8192バイト）です。
 Pythonのバインディング `src/unity_bridge/gen/` はコミットしていません。
 clone後やスキーマ変更後に `../proto` で次を実行して生成してください。
