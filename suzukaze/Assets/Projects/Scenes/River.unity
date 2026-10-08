@@ -3382,8 +3382,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abd95382ab6e0d248af497c21e5b4f92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Features.Firefly.Scripts.FireflyTimeOfDay
-  appearHour: 12
-  disappearHour: 4
+  appearHour: 13
+  disappearHour: 0
   spawnRate: 2.5
   fadeSeconds: 17
 --- !u!73398921 &622860271
