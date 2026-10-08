@@ -51,7 +51,12 @@ class RamuneAnalyzer:
         self.action_accuracy: float | None = None
         self._preparation_scores: tuple[float, ...] = ()
 
-    def update(self, landmarks: Sequence[Landmark], now: float) -> bool:
+    def update(
+        self, landmarks: Sequence[Landmark], now: float, *, aspect_ratio: float = 1.0
+    ) -> bool:
+        if not math.isfinite(aspect_ratio) or aspect_ratio <= 0:
+            self.reset()
+            return False
         if self.last_time is not None and (
             now <= self.last_time or now - self.last_time > RAMUNE_MAX_FRAME_GAP
         ):
@@ -64,14 +69,14 @@ class RamuneAnalyzer:
         ):
             self.reset()
             return False
-        scale = abs(landmarks[11].x - landmarks[12].x)
+        scale = abs(landmarks[11].x - landmarks[12].x) * aspect_ratio
         if scale < 1e-6:
             self.reset()
             return False
         lower = max((15, 16), key=lambda i: landmarks[i].y)
         upper = 31 - lower
         gap = (landmarks[lower].y - landmarks[upper].y) / scale
-        horizontal_gap = abs(landmarks[15].x - landmarks[16].x) / scale
+        horizontal_gap = abs(landmarks[15].x - landmarks[16].x) * aspect_ratio / scale
         aligned = horizontal_gap <= RAMUNE_ALIGN_TOLERANCE
         ready_aligned = horizontal_gap <= RAMUNE_READY_ALIGN_TOLERANCE
         shoulder_y = (landmarks[11].y + landmarks[12].y) / 2
@@ -103,7 +108,7 @@ class RamuneAnalyzer:
         base = landmarks[self.base_index]
         pressing = landmarks[31 - self.base_index]
         stable = (
-            abs(base.x - self.base[0]) / self.scale <= RAMUNE_BASE_X_TOLERANCE
+            abs(base.x - self.base[0]) * aspect_ratio / self.scale <= RAMUNE_BASE_X_TOLERANCE
             and abs(base.y - self.base[1]) / self.scale <= RAMUNE_BASE_TOLERANCE
         )
         if not stable or not ready_aligned or not in_torso:

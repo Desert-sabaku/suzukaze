@@ -5,7 +5,7 @@ from typing import Any
 from .action_accuracy import bow_accuracy, fanning_accuracy, relaxing_accuracy
 from .booth_presence import BoothPresence
 from .bow import BowAnalyzer
-from .config import FPS, RAMUNE_DETECTOR, RAMUNE_LEARNED_MODEL_PATH
+from .config import FPS, RAMUNE_ALIGN_TOLERANCE, RAMUNE_DETECTOR, RAMUNE_LEARNED_MODEL_PATH
 from .gesture_types import Gesture, Phase
 from .hand_gesture import HandGestureAnalyzer
 from .learned_ramune import LearnedRamuneAnalyzer
@@ -71,7 +71,7 @@ class RecognitionCoordinator:
                 landmarks, timestamp, aspect_ratio=aspect_ratio, frame_id=frame_id
             )
         else:
-            opened = self.ramune.update(landmarks, timestamp)
+            opened = self.ramune.update(landmarks, timestamp, aspect_ratio=aspect_ratio)
         if opened or self.ramune.state == Phase.READY:
             # Keep the press from leaking into the single-hand classifiers.
             for hand in self.hands:
@@ -82,14 +82,19 @@ class RecognitionCoordinator:
             return
         for hand in self.hands:
             if landmarks[hand.wrist_index].visibility > 0.5:
-                hand._update_gesture_scores(landmarks, timestamp)
+                hand._update_gesture_scores(landmarks, timestamp, aspect_ratio=aspect_ratio)
             else:
                 hand._reset_gesture_state()
         if self.ramune.state == Phase.FORMING:
             # A loose two-hand candidate must not erase the low scoop history.
             # A completed scoop preparation wins before Ramune's dwell commits.
+            tightly_aligned = abs(landmarks[15].x - landmarks[16].x) <= (
+                abs(landmarks[11].x - landmarks[12].x) * RAMUNE_ALIGN_TOLERANCE
+            )
             if isinstance(self.ramune, RamuneAnalyzer) and any(
-                hand.uchimizu_state in (Phase.READY, Phase.SWING) for hand in self.hands
+                hand.uchimizu_state == Phase.SWING
+                or (hand.uchimizu_state == Phase.READY and not tightly_aligned)
+                for hand in self.hands
             ):
                 self.ramune.reset()
             else:

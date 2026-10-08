@@ -109,7 +109,8 @@ def geometry(result: PoseResult) -> dict[str, Any]:
             for i in (0, 11, 12, 23, 24)
             if not 0 <= points[i][0] <= 1
             or not 0 <= points[i][1] <= 1
-            or points[i][2] < config.BOW_MIN_VISIBILITY
+            or points[i][2]
+            < (config.BOW_HEAD_MIN_VISIBILITY if i == 0 else config.BOW_MIN_VISIBILITY)
         ),
         "landmarks_json": json.dumps(points),
     }

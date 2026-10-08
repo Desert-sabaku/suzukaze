@@ -62,6 +62,25 @@ def test_nod_or_shallow_lean_is_not_a_bow():
     assert analyzer.hold_seconds == 0
 
 
+def test_partial_nose_occlusion_does_not_relax_torso_visibility():
+    points = bent()
+    points[0].visibility = 0.4
+    analyzer = BowAnalyzer()
+    for frame in range(10):
+        analyzer.update(points, frame / 30, 1.0)
+    assert analyzer.state
+    points[23].visibility = 0.4
+    assert not analyzer.update(points, 10 / 30, 1.0)
+
+
+def test_occluded_nose_cannot_establish_a_bow():
+    points = bent()
+    points[0].visibility = 0.2
+    analyzer = BowAnalyzer()
+    for frame in range(10):
+        assert not analyzer.update(points, frame / 30, 1.0)
+
+
 def test_bow_requires_visible_torso_and_continuous_time():
     analyzer = BowAnalyzer()
     points = bent()

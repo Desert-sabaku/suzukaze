@@ -273,7 +273,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07bd9a9768a5408f8b1a1b5d8797da01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Features.Gesture_Effect.Scripts.GestureEffectDirector
-  overridableGestures: 0000000003000000
   uchimizuPlayer: {fileID: 4153869675044394969}
   uchimizuMat: {fileID: 2100000, guid: fbb3713c2fab645b8b9f1348fac5493d, type: 2}
   uchimizuDuration: 1
@@ -283,7 +282,7 @@ MonoBehaviour:
     ramune: {fileID: 6309804212405893433}
     hand: {fileID: 1025200785534093364}
     handMat: {fileID: 2100000, guid: ce1e09a46dab2434f9373a7ee02e3ca3, type: 2}
-    bottle: {fileID: 6350284281400125841}
+    bottle: {fileID: 4214233378580630533}
     bottleUpY: 8
     bottleDownY: -8
     bottleDropDuration: 0.5
@@ -321,7 +320,7 @@ Transform:
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 6011018266567881515}
+  m_Father: {fileID: 3544374974071756479}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!2083052967 &4265388291384877364
 VisualEffect:
@@ -439,7 +438,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 392356336517927566}
-  - {fileID: 6011018266567881515}
+  - {fileID: 3544374974071756479}
   m_Father: {fileID: 3732733162408886074}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &214861610760222053
@@ -529,77 +528,93 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2288337856998423730}
     m_Modifications:
-    - target: {fileID: 7336911882013377151, guid: 6f0d9f4aa8511406ead57321317c39e1, type: 3}
+    - target: {fileID: -8679921383154817045, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7336911882013377151, guid: 6f0d9f4aa8511406ead57321317c39e1, type: 3}
+    - target: {fileID: -8679921383154817045, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7336911882013377151, guid: 6f0d9f4aa8511406ead57321317c39e1, type: 3}
+    - target: {fileID: -8679921383154817045, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
       propertyPath: m_LocalPosition.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7336911882013377151, guid: 6f0d9f4aa8511406ead57321317c39e1, type: 3}
+    - target: {fileID: -8679921383154817045, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
       propertyPath: m_LocalRotation.w
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 7336911882013377151, guid: 6f0d9f4aa8511406ead57321317c39e1, type: 3}
+    - target: {fileID: -8679921383154817045, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
       propertyPath: m_LocalRotation.x
       value: -0
       objectReference: {fileID: 0}
-    - target: {fileID: 7336911882013377151, guid: 6f0d9f4aa8511406ead57321317c39e1, type: 3}
+    - target: {fileID: -8679921383154817045, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
       propertyPath: m_LocalRotation.y
       value: -0
       objectReference: {fileID: 0}
-    - target: {fileID: 7336911882013377151, guid: 6f0d9f4aa8511406ead57321317c39e1, type: 3}
+    - target: {fileID: -8679921383154817045, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
       propertyPath: m_LocalRotation.z
       value: -0
       objectReference: {fileID: 0}
-    - target: {fileID: 7336911882013377151, guid: 6f0d9f4aa8511406ead57321317c39e1, type: 3}
+    - target: {fileID: -8679921383154817045, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7336911882013377151, guid: 6f0d9f4aa8511406ead57321317c39e1, type: 3}
+    - target: {fileID: -8679921383154817045, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7336911882013377151, guid: 6f0d9f4aa8511406ead57321317c39e1, type: 3}
+    - target: {fileID: -8679921383154817045, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7969720799302015173, guid: 6f0d9f4aa8511406ead57321317c39e1, type: 3}
+    - target: {fileID: -8679921383154817045, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
       propertyPath: m_Name
-      value: Ramune
+      value: Ramune_Exported
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 7336911882013377151, guid: 6f0d9f4aa8511406ead57321317c39e1, type: 3}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
       insertIndex: -1
       addedObject: {fileID: 799445627670437896}
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7969720799302015173, guid: 6f0d9f4aa8511406ead57321317c39e1, type: 3}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6309804212405893433}
-    - targetCorrespondingSourceObject: {fileID: 7969720799302015173, guid: 6f0d9f4aa8511406ead57321317c39e1, type: 3}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1101517374263619197}
-  m_SourcePrefab: {fileID: 100100000, guid: 6f0d9f4aa8511406ead57321317c39e1, type: 3}
---- !u!23 &5903165582848953483 stripped
-MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 7446384146327256543, guid: 6f0d9f4aa8511406ead57321317c39e1, type: 3}
-  m_PrefabInstance: {fileID: 3943639520656339284}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &6011018266567881515 stripped
+  m_SourcePrefab: {fileID: 100100000, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
+--- !u!4 &3544374974071756479 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 7336911882013377151, guid: 6f0d9f4aa8511406ead57321317c39e1, type: 3}
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
   m_PrefabInstance: {fileID: 3943639520656339284}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &6350284281400125841 stripped
+--- !u!23 &3726459125903354143 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 364111982436210763, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
+  m_PrefabInstance: {fileID: 3943639520656339284}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &4214233378580630533 stripped
 GameObject:
-  m_CorrespondingSourceObject: {fileID: 7969720799302015173, guid: 6f0d9f4aa8511406ead57321317c39e1, type: 3}
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: ae8a5c7b7850642cfa5d0c4467325274, type: 3}
   m_PrefabInstance: {fileID: 3943639520656339284}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &6309804212405893433
@@ -608,13 +623,13 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6350284281400125841}
+  m_GameObject: {fileID: 4214233378580630533}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bf9cef4d4aafc4d01a7f773ab47b701f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Features.Gesture_Effect.Scripts.RamuneOpenEffect
-  target: {fileID: 5903165582848953483}
+  target: {fileID: 3726459125903354143}
   openVfx: {fileID: 4265388291384877364}
   closedCenter: 1.32
   openCenter: 0.56
@@ -631,7 +646,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6350284281400125841}
+  m_GameObject: {fileID: 4214233378580630533}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}

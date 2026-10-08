@@ -29,6 +29,19 @@ def prepare(analyzer, landmarks):
     assert analyzer.state == "READY"
 
 
+@pytest.mark.parametrize("aspect_ratio", [1.0, 4 / 3, 16 / 9, 9 / 16])
+def test_press_is_invariant_to_image_aspect_ratio(aspect_ratio):
+    landmarks = points()
+    for point in landmarks:
+        point.x = 0.5 + (point.x - 0.5) / aspect_ratio
+    analyzer = RamuneAnalyzer()
+    for now in (0.0, 0.1, 0.3):
+        assert not analyzer.update(landmarks, now, aspect_ratio=aspect_ratio)
+    assert analyzer.state == "READY"
+    landmarks[16].y = 0.61
+    assert analyzer.update(landmarks, 0.4, aspect_ratio=aspect_ratio)
+
+
 @pytest.mark.parametrize("base_index", [15, 16])
 def test_press_with_either_hand_and_require_release(base_index):
     analyzer = RamuneAnalyzer()

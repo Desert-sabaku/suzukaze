@@ -91,7 +91,7 @@ uv run record-cameras --cameras 0 2
 - [構成・設定・開発](docs/architecture.md): 責任範囲、時刻・入力、品質確認
 - [学習済みラムネ判定](docs/learned-ramune.md): 任意の学習済み判定器
 - [動画・関節位置の注釈](docs/annotation.md): 注釈ツールと記録基準
-- [評価記録](docs/evaluations.md): 現行実装へ反映した結論
+- [評価記録・再現手順](docs/evaluations.md): 現行実装へ反映した結論、全所作と部分的な関節注釈の評価
 - [礼の動画評価](docs/bow-evaluation.md): 注釈済みの2カメラ動画による判定比較
 - [詳細な評価記録](https://github.com/Desert-sabaku/suzukaze/wiki): GitHub Wikiで管理
 

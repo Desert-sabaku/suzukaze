@@ -40,9 +40,10 @@ def timeline(tmp_path):
 
 def test_default_path_and_video_validation(tmp_path):
     video = Path("shared/videos/group/clip.mp4")
-    assert default_output_path(video, tmp_path) == (
-        tmp_path / "shared/annotations/group/clip/timeline.json"
-    )
+    output_path = default_output_path(video, tmp_path)
+    relative = output_path.relative_to(tmp_path)
+    assert relative.parts[:3] == ("gesture_detection", "shared", "annotations")
+    assert relative.parts[-3:] == ("group", "clip", "timeline.json")
 
     first = tmp_path / "first.avi"
     second = tmp_path / "second.avi"
