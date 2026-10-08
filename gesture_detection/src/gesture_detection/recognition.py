@@ -82,7 +82,7 @@ class RecognitionCoordinator:
             return
         for hand in self.hands:
             if landmarks[hand.wrist_index].visibility > 0.5:
-                hand._update_gesture_scores(landmarks, timestamp)
+                hand._update_gesture_scores(landmarks, timestamp, aspect_ratio=aspect_ratio)
             else:
                 hand._reset_gesture_state()
         if self.ramune.state == Phase.FORMING:

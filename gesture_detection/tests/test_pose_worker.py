@@ -76,10 +76,10 @@ def test_losing_one_hand_only_resets_its_history(analyzer):
     analyzer.recognition._update_gesture_scores(points, 0.0)
     points[15].visibility = 0
     analyzer.recognition._update_gesture_scores(points, 0.0)
-    assert len(analyzer.recognition.hands[0].wrist_y_history) == 0
-    assert len(analyzer.recognition.hands[1].wrist_y_history) == 2
+    assert len(analyzer.recognition.hands[0].hand_y_history) == 0
+    assert len(analyzer.recognition.hands[1].hand_y_history) == 2
     analyzer.recognition._reset_tracking_state()
-    assert all(not hand.wrist_y_history for hand in analyzer.recognition.hands)
+    assert all(not hand.hand_y_history for hand in analyzer.recognition.hands)
     assert analyzer.recognition.selected_action == "NONE"
 
 
@@ -182,7 +182,7 @@ def test_ramune_takes_priority_and_resets_on_tracking_loss(analyzer, base_index)
     analyzer.recognition._update_gesture_scores(points, timestamp)
     assert analyzer.recognition.selected_action == "RAMUNE"
     assert analyzer.recognition.uchimizu_score == 0
-    assert all(not hand.wrist_y_history for hand in analyzer.recognition.hands)
+    assert all(not hand.hand_y_history for hand in analyzer.recognition.hands)
     analyzer.recognition._reset_tracking_state()
     assert analyzer.recognition.ramune.state == "IDLE"
     assert analyzer.recognition.selected_action == "NONE"
@@ -243,7 +243,7 @@ def test_process_passes_source_timestamp_to_all_detectors(process_analyzer):
     for detector in (left, right):
         detector.assert_called_once_with(points, 12.5)
     for hand in analyzer.recognition.hands:
-        assert list(hand.wrist_t_history) == [12.5]
+        assert list(hand.hand_t_history) == [12.5]
 
 
 def test_worker_forwards_frame_timestamp():

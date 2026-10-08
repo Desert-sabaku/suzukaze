@@ -25,7 +25,7 @@ def test_recognition_without_inference_preserves_snapshot_and_resets_on_loss():
     assert lost.get("timestamp") == 1.0
     assert lost.get("frame_id") == 30
     assert lost.get("ramune_state") == lost.get("uchimizu_state") == "IDLE"
-    assert all(not hand.wrist_y_history for hand in coordinator.hands)
+    assert all(not hand.hand_y_history for hand in coordinator.hands)
     assert result == saved
     assert "messages" not in result
 
@@ -38,7 +38,7 @@ def test_current_includes_relaxing_and_instances_do_not_share_state():
         result = first.process(points, 0.0, 0, aspect_ratio=1.5)
     assert result.get("current") == {"gesture": "RELAXING", "tracking": True}
     assert not second.relaxing_state
-    assert all(not hand.wrist_y_history for hand in second.hands)
+    assert all(not hand.hand_y_history for hand in second.hands)
     lost = first.process([], 0.1, 1, aspect_ratio=1.5)
     assert not lost["relaxing_state"]
 
@@ -135,10 +135,51 @@ def test_gentle_fanning_starts_before_three_reversals(profile, wrist):
     # cycle, using the real FFT score rather than a mocked high score.
     for frame in range(25):
         now = frame / 30
-        points[wrist].y = 0.48 + 0.02 * np.sin(2 * np.pi * 1.5 * now)
+        for index in (wrist, wrist + 2, wrist + 4):
+            points[index].y = 0.48 + 0.02 * np.sin(2 * np.pi * 1.5 * now)
         result = coordinator.process(points, now, frame, aspect_ratio=1.0)
         actions.append(result["selected_action"])
     hand = coordinator.hands[wrist - 15]
     assert not hand._has_repeated_fanning()
     assert "FANNING" in actions
     assert "UCHIMIZU" not in actions
+
+
+def fanning_actions(move, *, wrist=16, aspect_ratio=1.0, frames=45):
+    coordinator = RecognitionCoordinator(ramune_detector="rules")
+    points = landmarks()
+    points[31 - wrist].visibility = 0
+    for index in (wrist, wrist + 2, wrist + 4):
+        points[index].y = 0.3
+    actions = []
+    for frame in range(frames):
+        now = frame / 30
+        move(points, wrist, np.sin(2 * np.pi * 2 * now))
+        result = coordinator.process(points, now, frame, aspect_ratio=aspect_ratio)
+        actions.append(result["selected_action"])
+    return actions
+
+
+@pytest.mark.parametrize("wrist", [15, 16])
+def test_horizontal_fanning_in_upright_frame(wrist):
+    # An upright camera sees fanning beside the face as sideways hand motion.
+    def sideways(points, wrist, phase):
+        for index in (wrist, wrist + 2, wrist + 4):
+            points[index].x = 0.3 + 0.06 * phase
+
+    actions = fanning_actions(sideways, wrist=wrist, aspect_ratio=720 / 1280)
+    assert actions[-15:] == ["FANNING"] * 15
+
+
+def test_palm_flapping_around_a_still_wrist():
+    def flap(points, wrist, phase):
+        for index in (wrist + 2, wrist + 4):
+            points[index].y = 0.27 + 0.04 * phase
+
+    actions = fanning_actions(flap)
+    assert actions[-15:] == ["FANNING"] * 15
+
+
+def test_still_raised_hand_is_not_fanning():
+    actions = fanning_actions(lambda points, wrist, phase: None)
+    assert "FANNING" not in actions

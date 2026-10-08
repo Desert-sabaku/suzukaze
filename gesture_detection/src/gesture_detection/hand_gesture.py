@@ -29,17 +29,19 @@ class HandGestureAnalyzer:
     def __init__(self, wrist_index: int, *, anchored_scoop: bool = False):
         self.wrist_index = wrist_index
         self._uchimizu_type = AnchoredUchimizuAnalyzer if anchored_scoop else UchimizuAnalyzer
-        self.wrist_y_history = deque(maxlen=BUFFER_SIZE)
-        self.wrist_t_history = deque(maxlen=BUFFER_SIZE)
-        self.wrist_dy_history = deque(maxlen=max(3, int(FPS * 0.3)))
+        # Hand center (wrist, pinky, index): the palm can flap around a still wrist.
+        # x is scaled to image-height units so fanning in any direction counts.
+        self.hand_x_history = deque(maxlen=BUFFER_SIZE)
+        self.hand_y_history = deque(maxlen=BUFFER_SIZE)
+        self.hand_t_history = deque(maxlen=BUFFER_SIZE)
         self.relaxing_state = False
         self._reset_gesture_state()
 
     def _reset_gesture_state(self):
         self.accuracy_history: deque[tuple[float, float]] = deque()
-        self.wrist_y_history.clear()
-        self.wrist_t_history.clear()
-        self.wrist_dy_history.clear()
+        self.hand_x_history.clear()
+        self.hand_y_history.clear()
+        self.hand_t_history.clear()
         self.uchimizu_state = Phase.IDLE
         self.uchimizu = self._uchimizu_type(self.wrist_index)
         self.uchimizu_score = 0.0
@@ -51,14 +53,15 @@ class HandGestureAnalyzer:
         self.selected_action = Gesture.NONE
         self.action_hold_count = 0
 
-    def _update_gesture_scores(self, landmarks, timestamp: float) -> None:
+    def _update_gesture_scores(
+        self, landmarks, timestamp: float, *, aspect_ratio: float = 1.0
+    ) -> None:
         wrist = landmarks[self.wrist_index]
-        previous_y = self.wrist_y_history[-1] if self.wrist_y_history else None
-        self.wrist_y_history.append(wrist.y)
+        hand = [landmarks[self.wrist_index + offset] for offset in (0, 2, 4)]
+        self.hand_x_history.append(sum(p.x for p in hand) / 3 * aspect_ratio)
+        self.hand_y_history.append(sum(p.y for p in hand) / 3)
         now = timestamp
-        self.wrist_t_history.append(now)
-        if previous_y is not None:
-            self.wrist_dy_history.append(abs(wrist.y - previous_y))
+        self.hand_t_history.append(now)
 
         detected = self.uchimizu.update(landmarks, now)
         self.uchimizu_state = self.uchimizu.state
@@ -163,11 +166,11 @@ class HandGestureAnalyzer:
         return reversals >= FANNING_MIN_REVERSALS
 
     def _calculate_fanning_score(self):
-        if len(self.wrist_y_history) < 8:
+        if len(self.hand_y_history) < 8:
             return 0.0
 
-        history_signal = np.asarray(self.wrist_y_history, dtype=np.float32)
-        history_timestamps = np.asarray(self.wrist_t_history, dtype=np.float64)
+        history_timestamps = np.asarray(self.hand_t_history, dtype=np.float64)
+        history_signal = self._principal_motion(history_timestamps)
         signal, timestamps = resample_time_window(
             history_signal,
             history_timestamps,
@@ -215,6 +218,21 @@ class HandGestureAnalyzer:
         return activity_gate * (
             speed_score * 0.35 + amplitude_score * 0.35 + frequency_score * 0.30
         )
+
+    def _principal_motion(self, timestamps: np.ndarray) -> np.ndarray:
+        """Project the hand path onto its dominant axis in the latest window.
+
+        An upright camera sees fanning beside the face mostly as horizontal
+        motion; vertical fanning keeps a nearly vertical axis.
+        """
+        x = np.asarray(self.hand_x_history, dtype=np.float64)
+        y = np.asarray(self.hand_y_history, dtype=np.float64)
+        recent = timestamps >= timestamps[-1] - WINDOW_SECONDS
+        points = np.column_stack((x[recent], y[recent]))
+        points -= points.mean(axis=0)
+        _, vectors = np.linalg.eigh(points.T @ points)
+        axis = vectors[:, -1]
+        return (x * axis[0] + y * axis[1]).astype(np.float32)
 
     def _select_action(self):
         if self.uchimizu_state == Phase.SWING:

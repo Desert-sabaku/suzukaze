@@ -123,6 +123,21 @@ def test_entering_face_area_cancels_preparation():
         assert not detector.update(points(y), now)
 
 
+def test_chest_height_scoop_near_face_keeps_preparation():
+    # A close upright camera puts the scoop's peak within a shoulder width of
+    # the nose while the wrist stays below the shoulders.
+    def close(height: float) -> list[Point]:
+        result = points(height)
+        result[0].y = 0.4
+        return result
+
+    detector = UchimizuAnalyzer(16)
+    for now, y in [(0.0, 0.75), (0.2, 0.55), (0.3, 0.45)]:
+        assert not detector.update(close(y), now)
+    assert detector.state == "READY"
+    assert detector.update(close(0.62), 0.5)
+
+
 @pytest.mark.parametrize("wrist", [15, 16])
 @pytest.mark.parametrize("scale", [0.5, 1.0, 1.5])
 def test_small_scoop_near_torso_edge_and_shallow_release(wrist, scale):
