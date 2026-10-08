@@ -7,6 +7,7 @@ using Suzukaze.Gesture;
 using Suzukaze.Gesture.Protocol;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.Formats.Alembic.Importer;
 using UnityEngine.VFX;
 using Action = Suzukaze.Gesture.Protocol.Action;
@@ -22,6 +23,7 @@ namespace Features.Gesture_Effect.Scripts
     ///     継続的なエフェクト（扇ぎ・ラムネ）は受信した最新の状態から毎回導出し、
     ///     単発のエフェクト（打ち水）はイベントを受けて一度だけ再生する。
     ///     エフェクト同士は状態を共有しない。
+    ///     音はエフェクトの再生に合わせて鳴らす。
     /// </remarks>
     public class GestureEffectDirector : MonoBehaviour
     {
@@ -39,12 +41,32 @@ namespace Features.Gesture_Effect.Scripts
 
         [Title("ラムネ")] [SerializeField] private RamuneGesturePlayer ramune;
 
+        [Title("音")] [SerializeField] private AudioMixerGroup soundOutput;
+
+        [SerializeField] private AudioClip uchimizuClip;
+
+        [SerializeField] [Range(0f, 1f)] private float uchimizuVolume = 0.8f;
+
+        [Tooltip("ループして鳴らす")] [SerializeField]
+        private AudioClip aogiLoopClip;
+
+        [SerializeField] [Range(0f, 1f)] private float aogiVolume = 0.6f;
+
+        [Tooltip("扇ぎ始め・やめたときに音量を変える時間 (秒)")] [SerializeField] [Min(0.01f)]
+        private float aogiFadeSeconds = 0.3f;
+
+        [SerializeField] private AudioClip ramuneOpenClip;
+
+        [SerializeField] [Range(0f, 1f)] private float ramuneOpenVolume = 0.8f;
+
         [Title("現在の状態")] [ReadOnly] [ShowInInspector]
         private bool _isAogiPlaying;
 
         [ReadOnly] [ShowInInspector] private bool _isUchimizuPlaying;
 
+        private AudioSource _aogiSource;
         private GestureReceiverBehaviour _gestureReceiver;
+        private AudioSource _oneShotSource;
         private Random _random;
         private float3 _startUchimizuPos;
         private MeshRenderer _uchimizuRenderer;
@@ -58,6 +80,15 @@ namespace Features.Gesture_Effect.Scripts
             SetUchimizuVisible(false);
             aogiVfx.Stop();
             ramune.Initialize();
+            InitializeSound();
+        }
+
+        private void Update()
+        {
+            if (!_aogiSource) return;
+            var target = _isAogiPlaying ? aogiVolume : 0f;
+            _aogiSource.volume = Mathf.MoveTowards(_aogiSource.volume, target, aogiVolume * Time.deltaTime / aogiFadeSeconds);
+            if (_aogiSource.volume <= 0f && _aogiSource.isPlaying) _aogiSource.Stop();
         }
 
         private void OnEnable()
@@ -78,6 +109,11 @@ namespace Features.Gesture_Effect.Scripts
             }
 
             SetAogiPlaying(false);
+            if (_aogiSource)
+            {
+                _aogiSource.Stop();
+                _aogiSource.volume = 0f;
+            }
         }
 
         private void OnGestureStateChanged(StateView state)
@@ -85,7 +121,7 @@ namespace Features.Gesture_Effect.Scripts
             // 追跡が切れると Gesture は None、Action は null になるため、ここで自然に停止する
             SetAogiPlaying(state.Gesture == ContinuousGesture.Fanning);
 
-            ramune.SetAnimState(state.Action == Action.Ramune
+            SetRamuneState(state.Action == Action.Ramune
                 ? state.Phase switch
                 {
                     Phase.Forming or Phase.Ready => RamuneGesturePlayer.AnimState.ReadyOpen,
@@ -100,7 +136,7 @@ namespace Features.Gesture_Effect.Scripts
             switch (occurrence.Gesture)
             {
                 case OccurrenceGesture.Ramune:
-                    ramune.SetAnimState(RamuneGesturePlayer.AnimState.Open);
+                    SetRamuneState(RamuneGesturePlayer.AnimState.Open);
                     return true;
                 case OccurrenceGesture.Uchimizu:
                     return TryPlayUchimizu();
@@ -117,6 +153,19 @@ namespace Features.Gesture_Effect.Scripts
             _isAogiPlaying = playing;
             if (playing) aogiVfx.Play();
             else aogiVfx.Stop();
+            // 音量は Update でなめらかに変える
+            if (playing && _aogiSource && _aogiSource.clip && !_aogiSource.isPlaying) _aogiSource.Play();
+        }
+
+        /// <summary>
+        ///     ラムネの状態を切り替え、開栓した瞬間に音を鳴らす
+        /// </summary>
+        private void SetRamuneState(RamuneGesturePlayer.AnimState state)
+        {
+            var wasOpen = ramune.State == RamuneGesturePlayer.AnimState.Open;
+            ramune.SetAnimState(state);
+            if (!wasOpen && ramune.State == RamuneGesturePlayer.AnimState.Open)
+                PlayOneShot(ramuneOpenClip, ramuneOpenVolume);
         }
 
         /// <summary>
@@ -148,6 +197,7 @@ namespace Features.Gesture_Effect.Scripts
                 );
                 uchimizuMat.SetFloat(AlphaPropId, 1f);
                 SetUchimizuVisible(true);
+                PlayOneShot(uchimizuClip, uchimizuVolume);
 
                 var startTime = uchimizuPlayer.StartTime;
                 var endTime = uchimizuPlayer.EndTime;
@@ -170,6 +220,31 @@ namespace Features.Gesture_Effect.Scripts
                 if (this) SetUchimizuVisible(false);
                 _isUchimizuPlaying = false;
             }
+        }
+
+        private void InitializeSound()
+        {
+            // 所作への手応えとして確実に聞こえるよう、どちらも 2D で鳴らす
+            _oneShotSource = CreateSource();
+            _aogiSource = CreateSource();
+            _aogiSource.clip = aogiLoopClip;
+            _aogiSource.loop = true;
+            _aogiSource.volume = 0f;
+        }
+
+        private AudioSource CreateSource()
+        {
+            var source = gameObject.AddComponent<AudioSource>();
+            source.playOnAwake = false;
+            source.outputAudioMixerGroup = soundOutput;
+            source.spatialBlend = 0f;
+            source.priority = 64;
+            return source;
+        }
+
+        private void PlayOneShot(AudioClip clip, float volume)
+        {
+            if (_oneShotSource && clip) _oneShotSource.PlayOneShot(clip, volume);
         }
 
         private void SetUchimizuVisible(bool visible)
