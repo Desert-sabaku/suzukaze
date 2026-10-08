@@ -309,7 +309,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -8067726398312463513, guid: a6f0f2ee4dadd824fa1906dba442f24b, type: 3}
+  - {fileID: 2100000, guid: 59ee9cb45b5944288a8ee94c5e5d231e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -380,10 +380,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SandTimerController
   alembicPlayer: {fileID: 3359433946126751020}
-  progressImage: {fileID: 7464593114427231646}
-  progressSlider: {fileID: 0}
-  showRemainingTime: 1
-  progress: 0
 --- !u!1 &1649322925773498537
 GameObject:
   m_ObjectHideFlags: 0
@@ -690,7 +686,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -8067726398312463513, guid: a6f0f2ee4dadd824fa1906dba442f24b, type: 3}
+  - {fileID: 2100000, guid: 59ee9cb45b5944288a8ee94c5e5d231e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
