@@ -41,6 +41,8 @@ func main() {
 		dispatch(&micon_v1.PwmFade{Pin: pin})
 	}
 
+	initGpio()
+
   go heartbeat(led, time.Second)
   go receiveLoop(transceiver)
 
@@ -59,6 +61,9 @@ func receiveLoop(pt *PacketTransceiver) {
 		}
 		if cmd := pkt.GetPwmFade(); cmd != nil {
 			dispatch(cmd)
+		}
+		if cmd := pkt.GetGpioPulse(); cmd != nil {
+			go pulse(cmd)
 		}
 	}
 }

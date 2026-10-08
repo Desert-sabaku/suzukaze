@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Self
 
 import serial
 
+from mcu.gen.micon.v1.gpio_pb2 import GpioPulse
 from mcu.gen.micon.v1.heartbeat_pb2 import HandshakeReq, VersionInfo
 from mcu.gen.micon.v1.micon_pb2 import Packet
 from mcu.gen.micon.v1.pwm_pb2 import PwmFade
@@ -142,6 +143,10 @@ class MCUClient:
         self.send_packet(
             Packet(pwm_fade=PwmFade(pin=pin, value=value, duration_ms=duration_ms)),
         )
+
+    def send_pulse(self, pin: int, duration_ms: int) -> None:
+        """GpioPulseを送る. pinをduration_msだけHIGHにしてLOWに戻す(単押しボタン用)."""
+        self.send_packet(Packet(gpio_pulse=GpioPulse(pin=pin, duration_ms=duration_ms)))
 
     def start_listening(self) -> None:
         try:

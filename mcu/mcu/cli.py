@@ -38,6 +38,18 @@ def _fade_prompt(client: MCUClient) -> None:
     client.send_fade(int(pin), int(value), int(duration_ms))
 
 
+def _pulse_prompt(client: MCUClient) -> None:
+    pin = questionary.text("pin", default="8", validate=_is_uint).ask()
+    if pin is None:
+        return
+
+    duration_ms = questionary.text("duration_ms", default="200", validate=_is_uint).ask()
+    if duration_ms is None:
+        return
+
+    client.send_pulse(int(pin), int(duration_ms))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", required=True, help="Serial port, e.g. /dev/ttyACM0 or COM3")
@@ -62,11 +74,14 @@ def main() -> None:
 
         with patch_stdout():
             while True:
-                command = questionary.select("command", choices=["fade", "quit"]).ask()
+                command = questionary.select("command", choices=["fade", "pulse", "quit"]).ask()
                 if command is None or command == "quit":
                     break
 
-                _fade_prompt(client)
+                if command == "pulse":
+                    _pulse_prompt(client)
+                else:
+                    _fade_prompt(client)
 
 
 if __name__ == "__main__":

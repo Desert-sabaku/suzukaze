@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package micon.v1;
 
+import "micon/v1/gpio.proto";
 import "micon/v1/heartbeat.proto";
 import "micon/v1/log.proto";
 import "micon/v1/pwm.proto";
@@ -15,5 +16,6 @@ message Packet {
     HandshakeResp handshake_resp = 3;
     Heartbeat heartbeat = 4;
     PwmFade pwm_fade = 5;
+    GpioPulse gpio_pulse = 6;
   }
 }
