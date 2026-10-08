@@ -242,6 +242,10 @@ MULTICAM_RELEASE_MAX_GAP = 0.25
 MULTICAM_FUSION_FPS = 30.0
 MULTICAM_MAX_AGE_SECONDS = 0.2
 MULTICAM_EVENT_DEDUP_SECONDS = 0.6
+# A live camera may drop a few reads (USB bandwidth, a nudged cable). Reopen it
+# after this many consecutive failures, and give up after the larger count.
+CAMERA_REOPEN_AFTER_FAILURES = 15
+CAMERA_MAX_READ_FAILURES = 90
 
 
 MULTICAM_ENABLED = _settings.boolean("multicam", "enabled", False)

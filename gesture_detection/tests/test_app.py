@@ -229,6 +229,30 @@ class RunLifecycleTests(unittest.TestCase):
         assert annotate.call_args.args[0] is oriented
         application.pose_result_queue.close()
 
+    def test_live_camera_dropout_raises_and_releases(self):
+        application = GestureApplication()
+        capture = MagicMock()
+        capture.read.side_effect = [
+            (True, np.zeros((2, 2, 3), dtype=np.uint8)),
+            (False, None),
+        ]
+        application.pose_process = MagicMock()
+        with (
+            patch.object(application, "_open_capture", return_value=capture),
+            patch.object(application, "_open_output", return_value=None),
+            patch.object(application, "_start_workers"),
+            patch.object(application, "_stop_workers") as stop_workers,
+            patch.object(application, "_annotate_frame", side_effect=lambda image, _: image),
+            patch.object(application, "_exit_requested", return_value=False),
+            patch("gesture_detection.app.cv2.imshow"),
+            patch("gesture_detection.app.cv2.destroyAllWindows"),
+            self.assertRaisesRegex(RuntimeError, "stopped providing frames"),
+        ):
+            application.run()
+        capture.release.assert_called_once()
+        stop_workers.assert_called_once()
+        application.pose_result_queue.close()
+
     def test_escape_flushes_output_and_stops_workers(self):
         import numpy as np
 

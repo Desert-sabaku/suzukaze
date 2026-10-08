@@ -151,6 +151,10 @@ class GestureApplication:
                     frame = rotate_frame(frame, CAMERA_ROTATION)
                     frame_id += 1
                     timestamp = frame_clock.timestamp(capture)
+                elif not frame_clock.is_video:
+                    # A video ends normally; a live camera dropping out is a crash
+                    # the bridge restarts, not an Esc it should stop on.
+                    raise RuntimeError("Camera stopped providing frames")
         finally:
             capture.release()
             cv2.destroyAllWindows()
