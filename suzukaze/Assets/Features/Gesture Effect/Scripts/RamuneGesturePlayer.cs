@@ -32,7 +32,8 @@ namespace Features.Gesture_Effect.Scripts
 
         // ボトルが落下しているかどうか
         private bool _isBottleDropped;
-        private AnimState _state;
+
+        public AnimState State { get; private set; }
 
         public void Initialize()
         {
@@ -45,7 +46,7 @@ namespace Features.Gesture_Effect.Scripts
         [Button]
         public void SetAnimState(AnimState state)
         {
-            if (state != _state)
+            if (state != State)
             {
                 if (state == AnimState.Open)
                 {
@@ -62,12 +63,12 @@ namespace Features.Gesture_Effect.Scripts
                     ramune.Close();
                 }
 
-                if (_state != AnimState.ReadyOpen && state == AnimState.ReadyOpen)
+                if (State != AnimState.ReadyOpen && state == AnimState.ReadyOpen)
                 {
                     hand.SetActive(true);
                     var motion = LMotion.Create(0f, 1f, handAppearDuration)
                         .WithEase(Ease.OutSine);
-                    if (_state == AnimState.None) motion.WithDelay(bottleDropDuration * 0.8f);
+                    if (State == AnimState.None) motion.WithDelay(bottleDropDuration * 0.8f);
                     motion
                         .Bind(v =>
                         {
@@ -76,7 +77,7 @@ namespace Features.Gesture_Effect.Scripts
                             handMat.color = handCol;
                         });
                 }
-                else if (_state == AnimState.ReadyOpen && state != AnimState.ReadyOpen)
+                else if (State == AnimState.ReadyOpen && state != AnimState.ReadyOpen)
                 {
                     LMotion.Create(1f, 0f, handAppearDuration)
                         .WithEase(Ease.InSine)
@@ -92,7 +93,7 @@ namespace Features.Gesture_Effect.Scripts
                 SetBottleAppear(state is AnimState.ReadyOpen or AnimState.Open);
             }
 
-            _state = state;
+            State = state;
         }
 
         /// <summary>
