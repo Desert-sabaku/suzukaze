@@ -118,6 +118,7 @@ def default_output_path(video: Path, project_directory: Path | None = None) -> P
         / "gesture_detection"
         / "shared"
         / "annotations"
+        / "1008next"
         / video.parent.name
         / video.stem
         / "timeline.json"
