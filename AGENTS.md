@@ -70,6 +70,13 @@ uv run unity-bridge --debug-gui # Send gestures from a browser (no cameras)
 uv run python -m pytest
 ```
 
+From the repository root, build the Unity player in batch mode (close the
+project in the Editor first; `--help` lists target/output options):
+
+```bash
+uv run invoke unity-build
+```
+
 The applications need working cameras and display an OpenCV window; press
 `Esc` to exit. Keep each `uv.lock` synchronized whenever dependencies change.
 See `firmware/README.md` for TinyGo build and flashing commands.
