@@ -133,6 +133,8 @@ BOW_MAX_FRAME_GAP = 0.25
 BOW_MIN_VISIBILITY = 0.5
 # The nose becomes partially occluded in an oblique bow; torso visibility stays strict.
 BOW_HEAD_MIN_VISIBILITY = 0.35
+# A bowing head can leave the side of a close camera; MediaPipe still estimates it.
+BOW_HEAD_FRAME_MARGIN = 0.10
 RIGHT_WRIST_INDEX = 16
 YOLO_BOTTLE_CLASS_ID = 39
 YOLO_CONFIDENCE_THRESHOLD = 0.5

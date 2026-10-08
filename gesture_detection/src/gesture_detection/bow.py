@@ -4,6 +4,7 @@ import math
 
 from .config import (
     BOW_DWELL_SECONDS,
+    BOW_HEAD_FRAME_MARGIN,
     BOW_HEAD_MIN_VISIBILITY,
     BOW_MAX_ANGLE_DEGREES,
     BOW_MAX_FRAME_GAP,
@@ -31,16 +32,17 @@ class BowAnalyzer:
         if not math.isfinite(timestamp) or not math.isfinite(aspect_ratio) or aspect_ratio <= 0:
             self.reset()
             return False
-        indices = (0, 11, 12, 23, 24)
-        if len(landmarks) <= max(indices) or any(
+        # Only the nose may lie just outside the frame; the torso must stay inside.
+        limits = {0: (BOW_HEAD_FRAME_MARGIN, BOW_HEAD_MIN_VISIBILITY)}
+        limits.update((i, (0.0, BOW_MIN_VISIBILITY)) for i in (11, 12, 23, 24))
+        if len(landmarks) <= max(limits) or any(
             not math.isfinite(landmarks[i].x)
             or not math.isfinite(landmarks[i].y)
-            or not 0 <= landmarks[i].x <= 1
-            or not 0 <= landmarks[i].y <= 1
+            or not -margin <= landmarks[i].x <= 1 + margin
+            or not -margin <= landmarks[i].y <= 1 + margin
             or not math.isfinite(getattr(landmarks[i], "visibility", 1.0))
-            or getattr(landmarks[i], "visibility", 1.0)
-            < (BOW_HEAD_MIN_VISIBILITY if i == 0 else BOW_MIN_VISIBILITY)
-            for i in indices
+            or getattr(landmarks[i], "visibility", 1.0) < min_visibility
+            for i, (margin, min_visibility) in limits.items()
         ):
             self.reset()
             return False

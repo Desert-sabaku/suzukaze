@@ -41,6 +41,9 @@ namespace Features.Gesture_Effect.Scripts
 
         [Title("ラムネ")] [SerializeField] private RamuneGesturePlayer ramune;
 
+        [Tooltip("ラムネの進行状態が途切れてから表示を消すまでの猶予 (秒)。認識の一瞬の欠けで出し直さないようにする")]
+        [SerializeField] [Min(0f)] private float ramuneExitGraceSeconds = 0.3f;
+
         [Title("音")] [SerializeField] private AudioMixerGroup soundOutput;
 
         [SerializeField] private AudioClip uchimizuClip;
@@ -67,6 +70,10 @@ namespace Features.Gesture_Effect.Scripts
         private AudioSource _aogiSource;
         private GestureReceiverBehaviour _gestureReceiver;
         private AudioSource _oneShotSource;
+
+        // ラムネの表示を消す予定時刻。消す予定がないときは null
+        private float? _ramuneExitAt;
+
         private Random _random;
         private float3 _startUchimizuPos;
         private MeshRenderer _uchimizuRenderer;
@@ -85,6 +92,12 @@ namespace Features.Gesture_Effect.Scripts
 
         private void Update()
         {
+            if (_ramuneExitAt is { } exitAt && Time.unscaledTime >= exitAt)
+            {
+                _ramuneExitAt = null;
+                ramune.SetAnimState(RamuneGesturePlayer.AnimState.None);
+            }
+
             if (!_aogiSource) return;
             var target = _isAogiPlaying ? aogiVolume : 0f;
             _aogiSource.volume = Mathf.MoveTowards(_aogiSource.volume, target, aogiVolume * Time.deltaTime / aogiFadeSeconds);
@@ -109,6 +122,7 @@ namespace Features.Gesture_Effect.Scripts
             }
 
             SetAogiPlaying(false);
+            _ramuneExitAt = null;
             if (_aogiSource)
             {
                 _aogiSource.Stop();
@@ -121,7 +135,7 @@ namespace Features.Gesture_Effect.Scripts
             // 追跡が切れると Gesture は None、Action は null になるため、ここで自然に停止する
             SetAogiPlaying(state.Gesture == ContinuousGesture.Fanning);
 
-            SetRamuneState(state.Action == Action.Ramune
+            UpdateRamuneState(state.Action == Action.Ramune
                 ? state.Phase switch
                 {
                     Phase.Forming or Phase.Ready => RamuneGesturePlayer.AnimState.ReadyOpen,
@@ -136,7 +150,10 @@ namespace Features.Gesture_Effect.Scripts
             switch (occurrence.Gesture)
             {
                 case OccurrenceGesture.Ramune:
-                    SetRamuneState(RamuneGesturePlayer.AnimState.Open);
+                    // 開栓音はイベントで一度だけ鳴らす。状態の揺れで鳴り直さない
+                    _ramuneExitAt = null;
+                    ramune.SetAnimState(RamuneGesturePlayer.AnimState.Open);
+                    PlayOneShot(ramuneOpenClip, ramuneOpenVolume);
                     return true;
                 case OccurrenceGesture.Uchimizu:
                     return TryPlayUchimizu();
@@ -158,14 +175,19 @@ namespace Features.Gesture_Effect.Scripts
         }
 
         /// <summary>
-        ///     ラムネの状態を切り替え、開栓した瞬間に音を鳴らす
+        ///     受信した状態からラムネの表示を切り替える。表示を消すときだけ猶予を置く
         /// </summary>
-        private void SetRamuneState(RamuneGesturePlayer.AnimState state)
+        private void UpdateRamuneState(RamuneGesturePlayer.AnimState state)
         {
-            var wasOpen = ramune.State == RamuneGesturePlayer.AnimState.Open;
-            ramune.SetAnimState(state);
-            if (!wasOpen && ramune.State == RamuneGesturePlayer.AnimState.Open)
-                PlayOneShot(ramuneOpenClip, ramuneOpenVolume);
+            if (state != RamuneGesturePlayer.AnimState.None)
+            {
+                _ramuneExitAt = null;
+                ramune.SetAnimState(state);
+            }
+            else if (ramune.State != RamuneGesturePlayer.AnimState.None)
+            {
+                _ramuneExitAt ??= Time.unscaledTime + ramuneExitGraceSeconds;
+            }
         }
 
         /// <summary>

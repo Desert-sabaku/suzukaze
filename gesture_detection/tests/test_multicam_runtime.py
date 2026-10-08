@@ -126,11 +126,48 @@ def test_fusion_keeps_preparation_phase_and_expires_it():
     assert (stale.action, stale.phase) == (None, None)
 
 
-def test_fusion_prefers_phase_from_camera_with_selected_action():
+def test_fusion_phase_does_not_alternate_between_camera_progress():
     fusion = MultiCameraFusion()
-    ready = sample(0.2)
+    phases = []
+    for tick, (ready_time, forming_time) in enumerate([(0.10, 0.12), (0.14, 0.13)]):
+        ready, forming = sample(ready_time), sample(forming_time)
+        ready["ramune_state"], forming["ramune_state"] = "READY", "FORMING"
+        fusion.submit(0, ready)
+        fusion.submit(1, forming)
+        phases.append(fusion.advance(0.15 + tick * 0.01).get("phase"))
+    assert phases == ["READY", "READY"]
+
+
+def test_ramune_preparation_in_one_view_suppresses_fanning_in_the_other():
+    fusion = MultiCameraFusion()
+    ready = sample(0.1)
     ready["ramune_state"] = "READY"
     fusion.submit(0, ready)
+    fusion.submit(1, sample(0.12, "FANNING"))
+    result = fusion.advance(0.15)
+    assert current_gesture(result) == "NONE"
+    assert (result.get("action"), result.get("phase")) == ("RAMUNE", "READY")
+    fusion.submit(0, sample(0.2))
+    fusion.submit(1, sample(0.22, "FANNING"))
+    assert current_gesture(fusion.advance(0.25)) == "FANNING"
+
+
+def test_stillness_in_the_other_view_does_not_take_the_ramune_action():
+    fusion = MultiCameraFusion()
+    released = sample(0.1)
+    released["ramune_state"] = "WAIT_RELEASE"
+    fusion.submit(0, released)
+    fusion.submit(1, sample(0.12, "RELAXING"))
+    result = fusion.advance(0.15)
+    assert current_gesture(result) == "RELAXING"
+    assert (result.get("action"), result.get("phase")) == ("RAMUNE", "WAIT_RELEASE")
+
+
+def test_fusion_prefers_phase_from_camera_with_selected_action():
+    fusion = MultiCameraFusion()
+    released = sample(0.2)
+    released["ramune_state"] = "WAIT_RELEASE"
+    fusion.submit(0, released)
     fusion.submit(1, sample(0.1, "FANNING"))
     delivered = GestureSample.from_result(fusion.advance(0.2), 0.2)
     assert (delivered.action, delivered.phase) == ("FANNING", "ACTIVE")

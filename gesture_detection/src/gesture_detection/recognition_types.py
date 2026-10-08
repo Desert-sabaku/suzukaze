@@ -87,7 +87,8 @@ def recognition_phase(result: PoseResult) -> tuple[str | None, str | None]:
         phases[Gesture.UCHIMIZU] = water
     if action in CONTINUOUS_GESTURES - {Gesture.NONE}:
         phases[action] = Phase.HOLD if action == Gesture.BOW else Phase.ACTIVE
-    if action in phases:
+    # Holding still after opening is part of Ramune, not a new action.
+    if action in phases and not (action == Gesture.RELAXING and Gesture.RAMUNE in phases):
         return action, phases[action]
     for candidate in (Gesture.RAMUNE, Gesture.UCHIMIZU):
         if candidate in phases:
