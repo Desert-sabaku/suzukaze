@@ -73,6 +73,17 @@ def test_partial_nose_occlusion_does_not_relax_torso_visibility():
     assert not analyzer.update(points, 10 / 30, 1.0)
 
 
+def test_nose_just_outside_the_frame_keeps_a_bow():
+    points = bent()
+    points[0].x = 1.04
+    analyzer = BowAnalyzer()
+    for frame in range(10):
+        analyzer.update(points, frame / 30, 1.0)
+    assert analyzer.state
+    points[0].x = 1.2
+    assert not analyzer.update(points, 10 / 30, 1.0)
+
+
 def test_occluded_nose_cannot_establish_a_bow():
     points = bent()
     points[0].visibility = 0.2
