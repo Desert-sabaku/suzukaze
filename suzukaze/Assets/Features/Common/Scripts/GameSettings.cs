@@ -13,7 +13,12 @@ namespace Features.Common.Scripts
     {
         [Title("シーン遷移")] public float sceneTransitionDuration = 1f;
         [Title("時間管理")] public float timeScale = 1f;
-        public Vector3 lightAxis = new(0.3f, -1f, 0.3f);
+        [Tooltip("ゲーム開始時の時刻 (0〜24)")]
+        [Range(0f, 24f)]
+        public float startHour = 18f;
+
+        [Tooltip("太陽の通り道の既定値。シーンの Directional Light に SceneSunPath があればそちらを優先する")]
+        public SunPath sunPath = new(90f, 90f);
 
 #if UNITY_EDITOR
         [ValueDropdown(nameof(GetSceneNames))]
