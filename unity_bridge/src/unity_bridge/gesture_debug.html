@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>所作デバッグ送信</title>
+<style>
+  :root {
+    --bg: #f5f6f8; --card: #ffffff; --text: #1d2330; --muted: #6b7385;
+    --line: #dde1e8; --accent: #2f6fde; --accent-text: #ffffff;
+    --ok: #1f9d55; --warn: #c27c0e; --bad: #d64545; --chip: #eef1f6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14171d; --card: #1d2129; --text: #e6e9ef; --muted: #9098a9;
+      --line: #2e3440; --accent: #5b8ff0; --accent-text: #0d1117; --chip: #272c36;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.5 system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+  }
+  header {
+    display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center;
+    padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--card);
+  }
+  header h1 { font-size: 16px; margin: 0 auto 0 0; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px;
+    border-radius: 999px; background: var(--chip); font-size: 12px;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bad); }
+  .dot.on { background: var(--ok); }
+  main {
+    display: grid; gap: 16px; padding: 16px; max-width: 1100px; margin: 0 auto;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+  section {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px;
+  }
+  h2 { font-size: 13px; margin: 0 0 10px; color: var(--muted); font-weight: 600; }
+  h2 code { font-weight: 400; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+  .row:last-child { margin-bottom: 0; }
+  button {
+    font: inherit; color: var(--text); background: var(--chip);
+    border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; cursor: pointer;
+  }
+  button:hover { border-color: var(--accent); }
+  button.on { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  button.big { flex: 1; padding: 14px 12px; font-size: 16px; font-weight: 600; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  kbd {
+    font: 11px ui-monospace, monospace; padding: 0 4px; border-radius: 4px;
+    border: 1px solid var(--line); color: var(--muted); margin-left: 4px;
+  }
+  button.on kbd { color: inherit; border-color: currentColor; }
+  label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+  input[type=range] { flex: 1; min-width: 120px; }
+  .num { font-variant-numeric: tabular-nums; min-width: 3em; text-align: right; }
+  .muted { color: var(--muted); font-size: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 500; }
+  td.accepted { color: var(--ok); }
+  td.ignored, td.duplicate { color: var(--warn); }
+  td.expired { color: var(--bad); }
+  pre {
+    margin: 0; padding: 10px; background: var(--chip); border-radius: 8px;
+    font-size: 12px; overflow-x: auto;
+  }
+  #toast {
+    position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%);
+    background: var(--bad); color: #fff; padding: 8px 14px; border-radius: 8px;
+    opacity: 0; transition: opacity .2s; pointer-events: none; max-width: calc(100% - 32px);
+  }
+  #toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<header>
+  <h1>所作デバッグ送信</h1>
+  <span class="pill"><span class="dot" id="gui-dot"></span>ブリッジ</span>
+  <span class="pill"><span class="dot" id="unity-dot"></span><span id="unity-label">Unity 未接続</span></span>
+  <span class="muted" id="session"></span>
+</header>
+<main>
+  <section>
+    <h2>継続所作 <code>State.gesture</code></h2>
+    <div class="row" id="gestures"></div>
+    <div class="row">
+      <label><input type="checkbox" id="tracking"> 追跡中 <code>tracking</code><kbd>T</kbd></label>
+      <label><input type="checkbox" id="booth"> ブース在室 <code>booth_present</code><kbd>B</kbd></label>
+    </div>
+    <div class="row">
+      <label><input type="checkbox" id="acc-on"> 精度 <code>action_accuracy</code></label>
+      <input type="range" id="acc" min="0" max="1" step="0.01" value="0.8">
+      <span class="num" id="acc-val">0.80</span>
+    </div>
+    <p class="muted">精度は追跡中かつ所作がNONE以外のときだけ送られます。</p>
+  </section>
+
+  <section>
+    <h2>進行状態 <code>State.action / phase</code></h2>
+    <div class="row">
+      <label><input type="checkbox" id="link" checked> 継続所作に連動する</label>
+    </div>
+    <div class="row" id="actions"></div>
+    <div class="row" id="phases"></div>
+    <p class="muted">action と phase は一緒に送られます。追跡していないときは省略されます。</p>
+  </section>
+
+  <section>
+    <h2>成立イベント <code>Event</code></h2>
+    <div class="row" id="events"></div>
+    <div class="row">
+      <label><input type="checkbox" id="ev-acc-on"> 精度</label>
+      <input type="range" id="ev-acc" min="0" max="1" step="0.01" value="0.8">
+      <span class="num" id="ev-acc-val">0.80</span>
+    </div>
+    <div class="row" id="sequences"></div>
+    <p class="muted">シーケンスは準備のphaseを順に送り、最後にイベントを送ります。</p>
+  </section>
+
+  <section>
+    <h2>配送状況</h2>
+    <table>
+      <thead><tr><th>event_id</th><th>所作</th><th>状態</th></tr></thead>
+      <tbody id="deliveries"><tr><td colspan="3" class="muted">まだイベントはありません</td></tr></tbody>
+    </table>
+  </section>
+
+  <section style="grid-column: 1 / -1">
+    <h2>ブリッジ側の現在値</h2>
+    <pre id="preview">接続中…</pre>
+  </section>
+</main>
+<div id="toast"></div>
+
+<script>
+const LABELS = {
+  NONE: "なし", FANNING: "扇ぎ", RELAXING: "夕涼み", BOW: "礼",
+  RAMUNE: "ラムネ", UCHIMIZU: "打ち水",
+};
+const GESTURE_KEYS = ["1", "2", "3", "4"];
+const EVENT_KEYS = { RAMUNE: "R", UCHIMIZU: "U" };
+const SEQUENCE_STEP_MS = 500;
+
+const $ = (id) => document.getElementById(id);
+let socket = null;
+let vocab = null;
+const local = {
+  gesture: "NONE", tracking: true, booth_present: true,
+  action: null, phase: null, action_accuracy: null,
+};
+let lastStatus = null;
+
+function toast(message) {
+  const el = $("toast");
+  el.textContent = message;
+  el.classList.add("show");
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => el.classList.remove("show"), 3000);
+}
+
+function send(command) {
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    socket.send(JSON.stringify(command));
+  } else {
+    toast("ブリッジに接続していません");
+  }
+}
+
+function pushState() {
+  local.action_accuracy = $("acc-on").checked ? Number($("acc").value) : null;
+  send({ type: "state", ...local });
+  render();
+}
+
+function setGesture(gesture) {
+  local.gesture = gesture;
+  if ($("link").checked) {
+    const phases = vocab.action_phases[gesture];
+    local.action = phases ? gesture : null;
+    local.phase = phases ? phases[0] : null;
+  }
+  pushState();
+}
+
+function setAction(action) {
+  local.action = action;
+  local.phase = action ? vocab.action_phases[action][0] : null;
+  pushState();
+}
+
+function fire(gesture) {
+  const accuracy = $("ev-acc-on").checked ? Number($("ev-acc").value) : null;
+  send({ type: "event", gesture, action_accuracy: accuracy });
+}
+
+async function playSequence(gesture) {
+  const keep = { action: local.action, phase: local.phase };
+  for (const phase of vocab.action_phases[gesture]) {
+    local.action = gesture;
+    local.phase = phase;
+    pushState();
+    await new Promise((r) => setTimeout(r, SEQUENCE_STEP_MS));
+  }
+  fire(gesture);
+  Object.assign(local, keep);
+  pushState();
+}
+
+function button(label, onClick, key) {
+  const b = document.createElement("button");
+  b.textContent = label;
+  if (key) {
+    const k = document.createElement("kbd");
+    k.textContent = key;
+    b.append(k);
+  }
+  b.addEventListener("click", onClick);
+  return b;
+}
+
+function build() {
+  const gestures = $("gestures");
+  gestures.replaceChildren(...vocab.continuous.map((g, i) => {
+    const b = button(LABELS[g] ?? g, () => setGesture(g), GESTURE_KEYS[i]);
+    b.classList.add("big");
+    b.dataset.value = g;
+    return b;
+  }));
+  const actions = $("actions");
+  const none = button("なし", () => setAction(null));
+  none.dataset.value = "";
+  actions.replaceChildren(none, ...Object.keys(vocab.action_phases).map((a) => {
+    const b = button(LABELS[a] ?? a, () => setAction(a));
+    b.dataset.value = a;
+    return b;
+  }));
+  $("events").replaceChildren(...vocab.occurrences.map((g) => {
+    const b = button(LABELS[g] ?? g, () => fire(g), EVENT_KEYS[g]);
+    b.classList.add("big");
+    return b;
+  }));
+  $("sequences").replaceChildren(...vocab.occurrences.map((g) =>
+    button(`${LABELS[g] ?? g} シーケンス`, () => playSequence(g))));
+  render();
+}
+
+function render() {
+  if (!vocab) return;
+  for (const b of $("gestures").children) b.classList.toggle("on", b.dataset.value === local.gesture);
+  for (const b of $("actions").children) b.classList.toggle("on", b.dataset.value === (local.action ?? ""));
+  const phases = local.action ? vocab.action_phases[local.action] : [];
+  $("phases").replaceChildren(...phases.map((p) => {
+    const b = button(p, () => { local.phase = p; pushState(); });
+    b.classList.toggle("on", p === local.phase);
+    return b;
+  }));
+  $("tracking").checked = local.tracking;
+  $("booth").checked = local.booth_present;
+  $("acc-val").textContent = Number($("acc").value).toFixed(2);
+  $("ev-acc-val").textContent = Number($("ev-acc").value).toFixed(2);
+}
+
+function renderStatus(status) {
+  lastStatus = status;
+  $("unity-dot").classList.toggle("on", status.unity_connected);
+  $("unity-label").textContent = status.unity_connected ? "Unity 接続中" : "Unity 未接続";
+  $("session").textContent = `session ${status.session_id.slice(0, 8)}`;
+  $("preview").textContent = JSON.stringify(status.state, null, 2);
+  const rows = [];
+  for (const event of status.pending) {
+    rows.push([event.event_id, event.gesture, `ACK待ち (残り ${event.expires_in.toFixed(2)} 秒)`, ""]);
+  }
+  for (const ack of status.acks) {
+    rows.push([ack.event_id, ack.gesture ?? "?", ack.status, ack.status]);
+  }
+  rows.sort((a, b) => b[0] - a[0]);
+  const body = $("deliveries");
+  if (rows.length === 0) {
+    body.innerHTML = '<tr><td colspan="3" class="muted">まだイベントはありません</td></tr>';
+    return;
+  }
+  body.replaceChildren(...rows.slice(0, 20).map(([id, gesture, text, cls]) => {
+    const tr = document.createElement("tr");
+    for (const [value, c] of [[id, ""], [LABELS[gesture] ?? gesture, ""], [text, cls]]) {
+      const td = document.createElement("td");
+      td.textContent = value;
+      if (c) td.className = c;
+      tr.append(td);
+    }
+    return tr;
+  }));
+}
+
+function connect() {
+  socket = new WebSocket(`ws://${location.host}/ws`);
+  socket.addEventListener("open", () => {
+    $("gui-dot").classList.add("on");
+  });
+  socket.addEventListener("message", (e) => {
+    const message = JSON.parse(e.data);
+    if (message.type === "vocab") {
+      vocab = message;
+      build();
+      pushState(); // the page's state wins after a reload or reconnect
+    } else if (message.type === "status") {
+      renderStatus(message);
+    } else if (message.type === "error") {
+      toast(message.message);
+      if (lastStatus) Object.assign(local, lastStatus.state);
+      render();
+    }
+  });
+  socket.addEventListener("close", () => {
+    $("gui-dot").classList.remove("on");
+    $("unity-dot").classList.remove("on");
+    $("preview").textContent = "ブリッジから切断されました。再接続中…";
+    setTimeout(connect, 1000);
+  });
+}
+
+$("tracking").addEventListener("change", (e) => { local.tracking = e.target.checked; pushState(); });
+$("booth").addEventListener("change", (e) => { local.booth_present = e.target.checked; pushState(); });
+$("acc-on").addEventListener("change", pushState);
+$("acc").addEventListener("input", () => { $("acc-on").checked = true; pushState(); });
+$("ev-acc").addEventListener("input", () => { $("ev-acc-on").checked = true; render(); });
+
+document.addEventListener("keydown", (e) => {
+  if (!vocab || e.metaKey || e.ctrlKey || e.altKey || e.target.matches("input[type=range]")) return;
+  const key = e.key.toUpperCase();
+  const index = GESTURE_KEYS.indexOf(key);
+  if (index >= 0 && vocab.continuous[index]) setGesture(vocab.continuous[index]);
+  else if (key === "T") { local.tracking = !local.tracking; pushState(); }
+  else if (key === "B") { local.booth_present = !local.booth_present; pushState(); }
+  else {
+    const gesture = Object.keys(EVENT_KEYS).find((g) => EVENT_KEYS[g] === key);
+    if (gesture) fire(gesture);
+    else return;
+  }
+  e.preventDefault();
+});
+
+connect();
+</script>
+</body>
+</html>

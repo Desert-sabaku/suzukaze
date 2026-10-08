@@ -1,5 +1,6 @@
 import argparse
 import asyncio
+import contextlib
 import os
 import threading
 from typing import Any
@@ -8,8 +9,9 @@ import websockets
 from dotenv import load_dotenv
 
 from .fan import fan_controller_from_env
+from .gesture_debug import DEFAULT_DEBUG_PORT, ManualGestureSource, serve_debug_gui
 from .gesture_delivery import DeliveryOutbox
-from .gesture_relay import DetectionProcess, GestureRelay
+from .gesture_relay import DetectionProcess, GestureRelay, SampleSource
 
 DEFAULT_HOST = "0.0.0.0"
 DEFAULT_WEBSOCKET_PORT = 5000
@@ -35,6 +37,7 @@ class UnityBridge:
         baudrate: int = DEFAULT_BAUDRATE,
         gesture_relay: GestureRelay | None = None,
         detect: bool = True,
+        debug_port: int | None = None,
     ) -> None:
         self.host = host
         self.websocket_port = websocket_port
@@ -44,6 +47,8 @@ class UnityBridge:
             raise ValueError("Gesture relay and serial relay are separate modes")
         self.gesture_relay = gesture_relay
         self.detect = detect
+        # With a port, the debug GUI replaces gesture_detection as the source.
+        self.debug_port = debug_port
         self._stop = threading.Event()
         self._serial: Any | None = None
 
@@ -56,23 +61,42 @@ class UnityBridge:
             from serial import Serial
 
             self._serial = Serial(self.serial_port, self.baudrate, timeout=0.1)
-        detection = (
-            DetectionProcess()
-            if self.gesture_relay is not None and self.detect
+        relay = self.gesture_relay
+        manual = (
+            ManualGestureSource(relay.state_interval / 2)
+            if relay is not None and self.debug_port is not None
             else None
         )
+        detection = (
+            DetectionProcess()
+            if relay is not None and self.detect and manual is None
+            else None
+        )
+        source: SampleSource | None = manual or detection
         try:
             if detection is not None:
                 detection.start()
-            async with websockets.serve(
-                self.gesture_relay.serve if self.gesture_relay else self._serve_client,
-                self.host,
-                self.websocket_port,
-                max_size=8192 if self.gesture_relay else MAX_MESSAGE_BYTES,
-                close_timeout=0.5,
-            ):
+            async with contextlib.AsyncExitStack() as stack:
+                await stack.enter_async_context(
+                    websockets.serve(
+                        relay.serve if relay else self._serve_client,
+                        self.host,
+                        self.websocket_port,
+                        max_size=8192 if relay else MAX_MESSAGE_BYTES,
+                        close_timeout=0.5,
+                    )
+                )
                 print(f"Waiting for Unity on ws://{self.host}:{self.websocket_port}")
-                if self.gesture_relay is not None:
+                if relay is not None and manual is not None:
+                    assert self.debug_port is not None
+                    await stack.enter_async_context(
+                        serve_debug_gui(manual, relay, self.host, self.debug_port)
+                    )
+                    print(
+                        "Gesture source: debug GUI at "
+                        f"http://{self.host}:{self.debug_port}/"
+                    )
+                elif relay is not None:
                     print(
                         "Gesture source: gesture_detection child process"
                         if self.detect
@@ -84,11 +108,13 @@ class UnityBridge:
                     print(
                         f"Serial connected: {self.serial_port} ({self.baudrate} baud)"
                     )
-                if self.gesture_relay is not None and detection is not None:
-                    await self.gesture_relay.pump(detection)
+                if relay is not None and source is not None:
+                    await relay.pump(source)
                 else:
                     await asyncio.Future()
         finally:
+            if manual is not None:
+                manual.close()
             if detection is not None:
                 detection.close()
             self.stop()
@@ -218,9 +244,22 @@ def _parse_args() -> argparse.Namespace:
         action="store_true",
         help="Serve fan control to Unity only; do not start gesture_detection.",
     )
+    parser.add_argument(
+        "--debug-gui",
+        action="store_true",
+        help="Send gestures from a browser GUI instead of gesture_detection.",
+    )
+    parser.add_argument(
+        "--debug-port",
+        type=int,
+        default=int(os.getenv("GESTURE_DEBUG_PORT", str(DEFAULT_DEBUG_PORT))),
+    )
     args = parser.parse_args()
     # --fan は、ジェスチャー用の WebSocket 中継から、認識の子プロセスだけを除いたもの。
-    args.gesture = args.gesture or args.fan
+    # --debug-gui は、認識の子プロセスの代わりにブラウザから所作を送るもの。
+    if args.fan and args.debug_gui:
+        parser.error("--fan and --debug-gui cannot be combined")
+    args.gesture = args.gesture or args.fan or args.debug_gui
     if args.gesture:
         # Gesture delivery is local-only; serial mode retains its existing default.
         if args.host == DEFAULT_HOST:
@@ -240,6 +279,7 @@ def main() -> None:
         args.baudrate,
         gesture_relay_from_env() if args.gesture else None,
         detect=not args.fan,
+        debug_port=args.debug_port if args.debug_gui else None,
     )
     try:
         bridge.run()

@@ -149,6 +149,12 @@ class DeliveryOutbox:
                     self._last_sent[event_id] = now
             return events
 
+    def pending(self, now: float) -> list[Message]:
+        """Unexpired events awaiting an ACK, without marking them as sent."""
+        with self._lock:
+            self._expire(now)
+            return [dict(event) for event in self._pending.values()]
+
     def acknowledge(self, message: object) -> bool:
         if not isinstance(message, dict):
             return False

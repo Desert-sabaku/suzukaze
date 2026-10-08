@@ -54,6 +54,7 @@ Unity 6000.5.8f1（Unityを使う場合）、TinyGo（ファームウェアを�
 cd unity_bridge
 uv run unity-bridge --gesture   # 認識アプリも起動し、ws://127.0.0.1:5000 で待ち受ける
 uv run unity-gesture-probe      # Unityの代わりに受信を確認する（別ターミナル）
+uv run unity-bridge --debug-gui # 認識の代わりにブラウザ（http://127.0.0.1:5080/）から所作を送る
 ```
 
 > [!note]
