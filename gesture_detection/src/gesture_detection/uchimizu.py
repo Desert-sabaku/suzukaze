@@ -68,7 +68,11 @@ class UchimizuAnalyzer:
         face_distance, _ = normalized_wrist_distances(landmarks, self.wrist_index)
         away_from_face = face_distance >= READY_FACE_EXCLUSION_DISTANCE
         if self.state == Phase.READY:
-            if now - self.ready_at > UCHIMIZU_READY_TIMEOUT_SECONDS or not away_from_face:
+            # A close camera puts a chest-height scoop near the face; only a
+            # wrist raised beside the face (above the shoulders) cancels it.
+            if now - self.ready_at > UCHIMIZU_READY_TIMEOUT_SECONDS or (
+                not away_from_face and height < 0
+            ):
                 self.state = Phase.IDLE
                 self.history.clear()
                 return False
