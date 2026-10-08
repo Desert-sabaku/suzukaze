@@ -16,6 +16,7 @@ from gesture_detection.app import main as run_detection
 from gesture_detection.recognition_types import GestureSample
 from websockets.exceptions import ConnectionClosed
 
+from .diffuser import DiffuserController
 from .fan import FanController
 from .gesture_codec import decode_bridge, decode_gesture, encode_message
 from .gesture_delivery import DeliveryOutbox
@@ -79,9 +80,11 @@ class BridgeRelay:
         outbox: DeliveryOutbox,
         state_interval: float = 0.1,
         fan: FanController | None = None,
+        diffuser: DiffuserController | None = None,
     ) -> None:
         self.outbox = outbox
         self.fan = fan or FanController()
+        self.diffuser = diffuser or DiffuserController()
         self.state_interval = state_interval
         # Called with each ACK before it settles the event; the debug GUI shows it.
         self.on_ack: Callable[[dict[str, Any]], None] | None = None
@@ -154,6 +157,8 @@ class BridgeRelay:
             kind = envelope.WhichOneof("payload")
             if kind == "fan_command":
                 self.fan.command(envelope.fan_command)
+            elif kind == "diffuser_press":
+                self.diffuser.press(envelope.diffuser_press)
             elif kind == "gesture":
                 ack = decode_gesture(envelope.gesture)
                 if ack["type"] != "ack":

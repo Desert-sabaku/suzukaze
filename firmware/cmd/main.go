@@ -41,8 +41,6 @@ func main() {
 		dispatch(&micon_v1.PwmFade{Pin: pin})
 	}
 
-	initGpio()
-
   go heartbeat(led, time.Second)
   go receiveLoop(transceiver)
 

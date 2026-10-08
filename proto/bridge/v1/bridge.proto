@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package bridge.v1;
 
+import "diffuser/v1/diffuser.proto";
 import "fan/v1/fan.proto";
 import "gesture/v1/gesture.proto";
 
@@ -17,6 +18,8 @@ message BridgeEnvelope {
     fan.v1.Fan fan_command = 2;
     // bridge -> Unity: ファン6本のいまの出力。
     FanState fan_state = 3;
+    // Unity -> bridge: ディフューザーの電源ボタンを押す。
+    diffuser.v1.DiffuserPress diffuser_press = 4;
   }
 }
 

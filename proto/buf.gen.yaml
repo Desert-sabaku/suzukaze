@@ -32,6 +32,7 @@ plugins:
     out: ../suzukaze/Assets/Bridge/Generated
     types:
       - bridge.v1
+      - diffuser.v1
       - fan.v1
       - gesture.v1
 
@@ -39,6 +40,7 @@ plugins:
     out: ../unity_bridge/src/unity_bridge/gen
     types:
       - bridge.v1
+      - diffuser.v1
       - fan.v1
       - gesture.v1
 
@@ -46,5 +48,6 @@ plugins:
     out: ../unity_bridge/src/unity_bridge/gen
     types:
       - bridge.v1
+      - diffuser.v1
       - fan.v1
       - gesture.v1

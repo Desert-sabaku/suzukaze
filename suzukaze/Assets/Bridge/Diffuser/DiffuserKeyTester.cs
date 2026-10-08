@@ -1,14 +1,15 @@
+using Suzukaze.Diffuser.Protocol;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace Suzukaze.Diffuser
 {
-    // 動作確認用。D キーでディフューザー1のボタンを押す。
+    // 動作確認用。R: ラムネ、F: 森のディフューザーのボタンを押す。
     // Editor と Development Build だけで動く。起動時に作るので、シーンは編集しない。
     public sealed class DiffuserKeyTester : MonoBehaviour
     {
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetPlaySession() => DiffuserMock.ResetInstance();
+        private static void ResetPlaySession() => DiffuserOutput.ResetInstance();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Create()
@@ -22,8 +23,9 @@ namespace Suzukaze.Diffuser
         private void Update()
         {
             var keyboard = Keyboard.current;
-            if (keyboard == null || !keyboard.dKey.wasPressedThisFrame) return;
-            DiffuserMock.Instance.Press(1);
+            if (keyboard == null) return;
+            if (keyboard.rKey.wasPressedThisFrame) DiffuserOutput.Instance.Press(DiffuserChannel.Ramune);
+            if (keyboard.fKey.wasPressedThisFrame) DiffuserOutput.Instance.Press(DiffuserChannel.Forest);
         }
     }
 }

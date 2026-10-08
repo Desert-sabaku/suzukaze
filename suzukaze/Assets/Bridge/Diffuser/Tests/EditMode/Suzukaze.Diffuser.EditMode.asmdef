@@ -4,11 +4,12 @@
   "references": [
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner",
-    "Suzukaze.Diffuser"
+    "GUID:6aac6eed0c6bb9cdf922e4563f5f84aa",
+    "GUID:99a0ba2df56f424cb18569701627560f"
   ],
   "includePlatforms": ["Editor"],
   "overrideReferences": true,
-  "precompiledReferences": ["nunit.framework.dll"],
+  "precompiledReferences": ["nunit.framework.dll", "Google.Protobuf.dll"],
   "autoReferenced": false,
   "defineConstraints": ["UNITY_INCLUDE_TESTS"]
 }

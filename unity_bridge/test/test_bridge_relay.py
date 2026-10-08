@@ -234,3 +234,33 @@ def test_mcu_sender_maps_channels_to_pins_and_survives_a_missing_mcu():
     sender(6, 200, 300)  # 再接続して送られる
     assert done.wait(2)
     assert calls == [(15, 200, 300)]
+
+
+def test_mcu_sender_pulses_a_pin_on_the_shared_port():
+    pulses = []
+    done = threading.Event()
+
+    class Handshake:
+        matched = True
+
+    class Client:
+        def __init__(self, port, baudrate):
+            pass
+
+        def connect(self):
+            pass
+
+        def handshake(self):
+            return Handshake()
+
+        def send_pulse(self, pin, duration_ms):
+            pulses.append((pin, duration_ms))
+            done.set()
+
+        def close(self):
+            pass
+
+    sender = McuFadeSender("PORT", (1, 2, 3, 4, 5, 6), client_factory=Client)
+    sender.pulse(9, 300)
+    assert done.wait(2)
+    assert pulses == [(9, 300)]

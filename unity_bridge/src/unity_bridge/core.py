@@ -9,7 +9,8 @@ import websockets
 from dotenv import load_dotenv
 
 from .bridge_relay import BridgeRelay, DetectionProcess, SampleSource
-from .fan import fan_controller_from_env
+from .diffuser import DiffuserController, pins_from_env
+from .fan import FanController, mcu_sender_from_env
 from .gesture_debug import DEFAULT_DEBUG_PORT, ManualGestureSource, serve_debug_gui
 from .gesture_delivery import DeliveryOutbox
 
@@ -198,7 +199,13 @@ def bridge_relay_from_env() -> BridgeRelay:
         retry_interval=float(os.getenv("GESTURE_RETRY_INTERVAL", "0.1")),
         max_pending=int(os.getenv("GESTURE_MAX_PENDING", "64")),
     )
-    return BridgeRelay(outbox, state_interval, fan_controller_from_env())
+    sender = mcu_sender_from_env()
+    return BridgeRelay(
+        outbox,
+        state_interval,
+        FanController(send_fade=sender),
+        DiffuserController(sender.pulse if sender else None, pins_from_env()),
+    )
 
 
 def test_websocket_connection() -> bool:

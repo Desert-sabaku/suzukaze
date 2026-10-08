@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package diffuser.v1;
+
+option csharp_namespace = "Suzukaze.Diffuser.Protocol";
+
+// ピンとの対応は unity_bridge の DIFFUSER_PINS で決める(値の順 = ピンの並び)。
+enum DiffuserChannel {
+  DIFFUSER_CHANNEL_UNSPECIFIED = 0;
+  DIFFUSER_CHANNEL_RAMUNE = 1;
+  DIFFUSER_CHANNEL_FOREST = 2;
+}
+
+// 単押しで電源が入るディフューザーのボタンを、duration_ms だけ押す(トグル式)。
+message DiffuserPress {
+  DiffuserChannel channel = 1;
+
+  uint64 duration_ms = 2;
+}

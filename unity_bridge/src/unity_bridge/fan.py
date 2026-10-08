@@ -93,19 +93,24 @@ class McuFadeSender:
         self._pins = pins
         self._client_factory = lambda: client_factory(port, baudrate)
         self._client: Any | None = None
-        self._commands: queue.Queue[tuple[int, int, int]] = queue.Queue()
+        self._commands: queue.Queue[Callable[[Any], None]] = queue.Queue()
         threading.Thread(target=self._run, name="fan-mcu", daemon=True).start()
 
     def __call__(self, channel: int, value: int, duration_ms: int) -> None:
-        self._commands.put((self._pins[channel - 1], value, duration_ms))
+        pin = self._pins[channel - 1]
+        self._commands.put(lambda client: client.send_fade(pin, value, duration_ms))
+
+    def pulse(self, pin: int, duration_ms: int) -> None:
+        """Press a button wired to pin. Shares the fans' serial port and queue."""
+        self._commands.put(lambda client: client.send_pulse(pin, duration_ms))
 
     def _run(self) -> None:
         while True:
-            pin, value, duration_ms = self._commands.get()
+            command = self._commands.get()
             try:
                 client = self._client or self._connect()
                 self._client = client
-                client.send_fade(pin, value, duration_ms)
+                command(client)
             except Exception as error:  # noqa: BLE001
                 print(f"Fan MCU unavailable, dropped a command: {error}", flush=True)
                 self._close()
@@ -127,14 +132,13 @@ class McuFadeSender:
             self._client = None
 
 
-def fan_controller_from_env() -> FanController:
-    """FAN_PWM_PINS(6本、カンマ区切り)があればマイコンに送る。なければ記録だけ。"""
+def mcu_sender_from_env() -> McuFadeSender | None:
+    """FAN_PWM_PINS(6本、カンマ区切り)があればマイコンへの送信役を作る。なければ None。"""
     pins = os.getenv("FAN_PWM_PINS")
     if not pins:
-        return FanController()
-    sender = McuFadeSender(
+        return None
+    return McuFadeSender(
         os.getenv("MICROCONTROLLER_SERIAL_PORT", DEFAULT_SERIAL_PORT),
         tuple(int(pin) for pin in pins.split(",")),
         int(os.getenv("MICROCONTROLLER_BAUDRATE", str(DEFAULT_BAUDRATE))),
     )
-    return FanController(send_fade=sender)
