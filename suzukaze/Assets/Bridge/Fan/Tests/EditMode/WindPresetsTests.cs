@@ -74,12 +74,12 @@ namespace Suzukaze.Fan.Tests
             try
             {
                 controller.ReferenceCamera = controller.transform;
-                controller.PresetWindDirection = Vector3.back;
+                controller.PresetWindDirection = Vector3.right;
                 controller.PlayPreset(WindPreset.Strong);
                 Assert.IsTrue(controller.IsBlowing);
                 Assert.That(controller.CurrentPower, Is.InRange(0.8f, 1f));
-                // Wind from the front: the front fan (0 degrees) blows.
-                Assert.That(controller.CurrentOutput[0], Is.GreaterThanOrEqualTo(204));
+                // Wind from the left: the left side fan (-90 degrees) blows.
+                Assert.That(controller.CurrentOutput[1], Is.GreaterThanOrEqualTo(204));
 
                 controller.StopWind();
                 Assert.IsFalse(controller.IsBlowing);

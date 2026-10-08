@@ -6180,6 +6180,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1073586813713789459, guid: 0492b1aafa3c6448a819b12e0ebfb44e, type: 3}
+      propertyPath: calmSeconds.x
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1073586813713789459, guid: 0492b1aafa3c6448a819b12e0ebfb44e, type: 3}
+      propertyPath: calmSeconds.y
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 1152202473389417796, guid: 0492b1aafa3c6448a819b12e0ebfb44e, type: 3}
       propertyPath: 'overridableGestures.Array.data[1]'
       value: 4

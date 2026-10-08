@@ -87,8 +87,9 @@ namespace Suzukaze.Fan.Editor
             var wind = (WindFanController)target;
             if (!wind.IsBlowing) return;
             EditorGUILayout.LabelField("Blowing", EditorStyles.boldLabel);
-            using (new EditorGUI.DisabledScope(true))
-                EditorGUILayout.EnumPopup("Preset", wind.ActivePreset); // Shows the InspectorName.
+            if (wind.IsPlayingPreset)
+                using (new EditorGUI.DisabledScope(true))
+                    EditorGUILayout.EnumPopup("Preset", wind.ActivePreset); // Shows the InspectorName.
             EditorGUILayout.LabelField("Power", wind.CurrentPower.ToString("0.00"));
             for (int i = 0; i < wind.CurrentOutput.Count; i++)
                 EditorGUILayout.LabelField($"Fan {i}", wind.CurrentOutput[i].ToString());
