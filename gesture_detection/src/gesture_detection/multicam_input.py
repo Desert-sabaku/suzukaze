@@ -14,6 +14,7 @@ import numpy as np
 import numpy.typing as npt
 
 from . import config
+from .frame_rotation import rotate_frame
 from .ipc import get_latest, put_latest
 from .pose_worker import PoseAnalyzer
 from .recognition_types import PoseResult
@@ -67,8 +68,9 @@ def load_session(path: Path, camera_indices: tuple[int, ...]) -> tuple[RecordedV
 
 
 class RecordedInput:
-    def __init__(self, view: RecordedView) -> None:
+    def __init__(self, view: RecordedView, rotation: str = "none") -> None:
         self.view = view
+        self.rotation = rotation
         self.capture = cv2.VideoCapture(str(view.path))
         self.index = 0
         try:
@@ -95,7 +97,11 @@ class RecordedInput:
             raise ValueError(f"Expected a uint8 BGR video: {self.view.path}")
         index = self.index
         self.index += 1
-        return np.asarray(frame, dtype=np.uint8), index / self.view.fps, index
+        return (
+            rotate_frame(np.asarray(frame, dtype=np.uint8), self.rotation),
+            index / self.view.fps,
+            index,
+        )
 
     def close(self) -> None:
         self.capture.release()
@@ -145,6 +151,7 @@ def camera_worker(
             timestamp = time.monotonic()
             if not ok:
                 raise RuntimeError(f"Camera {index} stopped providing frames")
+            frame = rotate_frame(frame, config.MULTICAM_ROTATION[slot])
             result = analyzer.process(frame, timestamp, frame_id)
             while not stop.is_set():
                 try:

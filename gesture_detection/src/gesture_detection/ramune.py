@@ -4,6 +4,7 @@ import math
 from collections.abc import Sequence
 from typing import Protocol
 
+from .action_accuracy import aggregate, interval, maximum, minimum
 from .config import (
     RAMUNE_ALIGN_TOLERANCE,
     RAMUNE_BASE_TOLERANCE,
@@ -47,6 +48,8 @@ class RamuneAnalyzer:
         self.since = 0.0
         self.last_time: float | None = None
         self.windup_since: float | None = None
+        self.action_accuracy: float | None = None
+        self._preparation_scores: tuple[float, ...] = ()
 
     def update(
         self, landmarks: Sequence[Landmark], now: float, *, aspect_ratio: float = 1.0
@@ -115,6 +118,12 @@ class RamuneAnalyzer:
             if not ready or lower != self.base_index:
                 self.reset()
             elif now - self.since >= RAMUNE_DWELL_SECONDS:
+                self._preparation_scores = (
+                    minimum(now - self.since, RAMUNE_DWELL_SECONDS),
+                    interval(gap, RAMUNE_MIN_READY_GAP, RAMUNE_MAX_READY_GAP),
+                    maximum(horizontal_gap, RAMUNE_READY_ALIGN_TOLERANCE),
+                    float(in_torso),
+                )
                 self.state = Phase.READY
                 self.upper_y = pressing.y
                 self.ready_gap = (base.y - pressing.y) / self.scale
@@ -159,6 +168,16 @@ class RamuneAnalyzer:
             and closing >= RAMUNE_MIN_PRESS
             and abs(remaining) <= RAMUNE_CONTACT_GAP
         ):
+            self.action_accuracy = aggregate(
+                *self._preparation_scores,
+                minimum(press, RAMUNE_MIN_PRESS),
+                minimum(closing, RAMUNE_MIN_PRESS),
+                maximum(abs(remaining), RAMUNE_CONTACT_GAP),
+                maximum(horizontal_gap, RAMUNE_ALIGN_TOLERANCE),
+                maximum(abs(base.x - self.base[0]) / self.scale, RAMUNE_BASE_X_TOLERANCE),
+                maximum(abs(base.y - self.base[1]) / self.scale, RAMUNE_BASE_TOLERANCE),
+                maximum(now - self.since, RAMUNE_PRESS_TIMEOUT),
+            )
             self.state = Phase.OPENED
             self.since = now
             return True

@@ -122,6 +122,38 @@ namespace Suzukaze.Gesture.Tests
             Assert.DoesNotThrow(() => WireMessage.Validate(message));
         }
 
+        [TestCase(0)]
+        [TestCase(.5)]
+        [TestCase(1)]
+        public void AccuracyPreservesPresence(double accuracy)
+        {
+            var message = DeliveryTests.State().Envelope;
+            message.State.Gesture = ContinuousGesture.Bow;
+            Assert.That(message.State.HasActionAccuracy, Is.False);
+            message.State.ActionAccuracy = accuracy;
+            var restored = GestureEnvelope.Parser.ParseFrom(message.ToByteArray());
+            WireMessage.Validate(restored);
+            Assert.That(restored.State.HasActionAccuracy, Is.True);
+            Assert.That(restored.State.ActionAccuracy, Is.EqualTo(accuracy));
+            restored.State.Gesture = ContinuousGesture.None;
+            Assert.Throws<InvalidDataException>(() => WireMessage.Validate(restored));
+        }
+
+        [TestCase(-.1)]
+        [TestCase(1.1)]
+        [TestCase(double.NaN)]
+        [TestCase(double.PositiveInfinity)]
+        public void InvalidAccuracyIsRejected(double accuracy)
+        {
+            var message = DeliveryTests.State().Envelope;
+            message.State.Gesture = ContinuousGesture.Bow;
+            message.State.ActionAccuracy = accuracy;
+            Assert.Throws<InvalidDataException>(() => WireMessage.Validate(message));
+            message = DeliveryTests.Occurrence().Envelope;
+            message.Event.ActionAccuracy = accuracy;
+            Assert.Throws<InvalidDataException>(() => WireMessage.Validate(message));
+        }
+
         [Test]
         public void PhaseRequiresBothFieldsAndFreshTracking()
         {

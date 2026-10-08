@@ -2,6 +2,7 @@
 
 from typing import Any
 
+from .action_accuracy import bow_accuracy, fanning_accuracy, relaxing_accuracy
 from .booth_presence import BoothPresence
 from .bow import BowAnalyzer
 from .config import FPS, RAMUNE_ALIGN_TOLERANCE, RAMUNE_DETECTOR, RAMUNE_LEARNED_MODEL_PATH
@@ -161,6 +162,7 @@ class RecognitionCoordinator:
                 current = Gesture.RELAXING
         occurrences: tuple[str, ...] = ()
         evidence: dict[str, OccurrenceEvidence] = {}
+        event_scores: dict[str, float | None] = {}
         ramune_event = (
             self.ramune.just_opened
             if isinstance(self.ramune, LearnedRamuneAnalyzer)
@@ -168,6 +170,9 @@ class RecognitionCoordinator:
         )
         if self.selected_action == Gesture.RAMUNE and ramune_event:
             occurrences = (Gesture.RAMUNE,)
+            event_scores[Gesture.RAMUNE] = (
+                self.ramune.action_accuracy if isinstance(self.ramune, RamuneAnalyzer) else None
+            )
             if (
                 isinstance(self.ramune, RamuneAnalyzer)
                 and self.ramune.base_index is not None
@@ -189,11 +194,31 @@ class RecognitionCoordinator:
                     and hand.uchimizu.completed_at != previous
                     and hand.uchimizu.setup_started_at is not None
                 ):
+                    event_scores[Gesture.UCHIMIZU] = hand.uchimizu.action_accuracy
                     evidence[Gesture.UCHIMIZU] = {
                         "wrist_index": hand.wrist_index,
                         "setup_timestamp": hand.uchimizu.setup_started_at,
                     }
+        accuracy = None
+        if current == Gesture.BOW:
+            accuracy = bow_accuracy(
+                self.bow.torso_angle,
+                self.bow.head_deviation,
+                self.bow.head_aligned,
+                self.bow.hold_seconds,
+            )
+        elif current == Gesture.RELAXING:
+            accuracy = relaxing_accuracy(
+                self.relaxing.motion_speed,
+                self.relaxing.drift,
+                self.relaxing.still_seconds,
+            )
+        elif current == Gesture.FANNING:
+            hand = next(h for h in self.hands if h.selected_action == Gesture.FANNING)
+            accuracy = fanning_accuracy(list(hand.accuracy_history))
         return {
+            "action_accuracy": accuracy,
+            "occurrence_accuracies": event_scores,
             "booth_present": self.booth.update(landmarks, timestamp, aspect_ratio),
             "landmarks": [(p.x, p.y, p.visibility) for p in landmarks],
             "frame_id": frame_id,

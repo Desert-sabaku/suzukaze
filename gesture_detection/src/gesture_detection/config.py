@@ -6,6 +6,7 @@ from pathlib import Path
 
 import cv2
 
+from gesture_detection.frame_rotation import ROTATIONS
 from gesture_detection.qt_setup import configure_qt_fonts
 from gesture_detection.settings import Settings
 
@@ -84,6 +85,9 @@ YOLO_MODEL_PATH = _settings.path("models", "yolo", "yolov8n.pt")
 
 CAMERA_BACKEND = _settings.integer("camera", "backend", cv2.CAP_ANY)
 CAMERA_FOURCC = _settings.text("camera", "fourcc", "MJPG")
+CAMERA_ROTATION = _settings.text("camera", "rotation", "none").strip().lower()
+if CAMERA_ROTATION not in ROTATIONS:
+    raise ValueError(f"camera.rotation must be one of: {', '.join(ROTATIONS)}")
 if len(CAMERA_FOURCC) != 4:
     raise ValueError("CAMERA_FOURCC must contain exactly four characters")
 
@@ -220,6 +224,12 @@ FANNING_EXIT_TORSO_HEIGHT = 0.75
 FANNING_REVERSAL_DISTANCE = 0.08
 FANNING_MIN_REVERSALS = 3
 
+# Motion-quality observation requirements (separate from classifier scores).
+ACCURACY_FANNING_MIN_SECONDS = 0.6
+ACCURACY_FANNING_MAX_GAP = 0.25
+ACCURACY_FANNING_MIN_HZ = 1.0
+ACCURACY_FANNING_MAX_HZ = 3.0
+
 # Let the scoop/release leave the FFT window before accepting residual fanning.
 FANNING_UCHIMIZU_GRACE_SECONDS = WINDOW_SECONDS
 
@@ -253,6 +263,12 @@ MULTICAM_SELECT_SUBJECT = (
     _settings.boolean("multicam.first", "select_subject", True),
     _settings.boolean("multicam.second", "select_subject", False),
 )
+MULTICAM_ROTATION = tuple(
+    _settings.text(f"multicam.{slot}", "rotation", "none").strip().lower()
+    for slot in ("first", "second")
+)
+if any(rotation not in ROTATIONS for rotation in MULTICAM_ROTATION):
+    raise ValueError(f"multicam rotation must be one of: {', '.join(ROTATIONS)}")
 MULTICAM_VIDEO_SESSION = _settings.optional_path("multicam.replay", "session")
 MULTICAM_TRACE_PATH = _settings.optional_path("diagnostics", "multicam_trace")
 MULTICAM_HEADLESS = _settings.boolean("multicam", "headless", False)
