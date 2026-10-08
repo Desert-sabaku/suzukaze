@@ -73,7 +73,8 @@ LANDMARK_GROUPS = (
             "right_index",
             "left_thumb",
             "right_thumb",
-        ),
+(stack #123)
+ℹ Branch "fix/vertical-fanning-uchimizu        ),
     ),
     (
         "HIPS & LEGS",
