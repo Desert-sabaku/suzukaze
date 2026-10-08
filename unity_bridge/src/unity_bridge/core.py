@@ -8,7 +8,7 @@ from typing import Any
 import websockets
 from dotenv import load_dotenv
 
-from .bridge_relay import BridgeRelay, DetectionProcess, SampleSource
+from .bridge_relay import BridgeRelay, RestartingDetection, SampleSource
 from .diffuser import DiffuserController, pins_from_env
 from .fan import FanController, mcu_sender_from_env
 from .gesture_debug import DEFAULT_DEBUG_PORT, ManualGestureSource, serve_debug_gui
@@ -69,7 +69,9 @@ class UnityBridge:
             else None
         )
         detection = (
-            DetectionProcess()
+            RestartingDetection(
+                restart_delay=float(os.getenv("GESTURE_RESTART_DELAY", "2.0"))
+            )
             if relay is not None and self.detect and manual is None
             else None
         )
