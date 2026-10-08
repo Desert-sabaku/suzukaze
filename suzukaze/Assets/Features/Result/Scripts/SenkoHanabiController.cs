@@ -22,7 +22,9 @@ namespace Features.Result.Scripts
 
         [Header("Playback")] [SerializeField] private bool playOnStart = true;
 
-        [Tooltip("playOnStart で使うスコア (0-1)．")] [Range(0f, 1f)] [SerializeField]
+        [Tooltip("playOnStart で使うスコア (0-1)．ゲームシーンから来たときはプレイ全体の正確性を使う．")]
+        [Range(0f, 1f)]
+        [SerializeField]
         private float score = 1f;
 
         [Header("Score Mapping")]
@@ -82,7 +84,8 @@ namespace Features.Result.Scripts
 
         private void Start()
         {
-            if (playOnStart) Play(score);
+            // ゲームシーンから来たときはプレイ全体の正確性を使う
+            if (playOnStart) Play(PlayScore.TryTake(out var playScore) ? playScore : score);
             else _vfx.SetFloat(ElapsedId, 0f);
         }
 
