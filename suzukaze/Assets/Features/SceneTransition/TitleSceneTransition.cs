@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using Features.Common.Scripts;
 using Features.Gesture_Movie.Scripts;
@@ -14,6 +16,13 @@ namespace Features.SceneTransition
         [SerializeField] private CanvasGroup gestureCanvasGroup;
         [SerializeField] private GestureMoviePlayer gestureMoviePlayer;
         [SerializeField] private float gestureDisplayDuration = 2f;
+
+        /// <summary>
+        ///     まだ遷移していないゲームシーン。空になったらシャッフルして補充する
+        /// </summary>
+        private static readonly Queue<string> RemainingScenes = new();
+
+        private static string _lastScene;
 
         private GestureReceiverBehaviour _gestureReceiver;
         private GameInputs _input;
@@ -73,9 +82,57 @@ namespace Features.SceneTransition
             }
         }
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics()
+        {
+            RemainingScenes.Clear();
+            _lastScene = null;
+        }
+
         private static void OnTransition(InputAction.CallbackContext ctx)
         {
-            SceneTransitionManager.Instance.LoadSceneAsync("Sea").Forget();
+            TransitionToRandomSceneAsync().Forget();
+        }
+
+        private static async UniTaskVoid TransitionToRandomSceneAsync()
+        {
+            var settings = await GameSettings.GetInstanceAsync();
+            var scene = PickNextScene(settings.gameScenes);
+            if (scene == null)
+            {
+                Debug.LogError("GameSettings.gameScenes にシーンが設定されていません");
+                return;
+            }
+
+            SceneTransitionManager.Instance.LoadSceneAsync(scene).Forget();
+        }
+
+        /// <summary>
+        ///     全シーンを一巡するまで同じシーンを選ばないようにランダムに選ぶ
+        /// </summary>
+        private static string PickNextScene(string[] scenes)
+        {
+            if (RemainingScenes.Count == 0)
+            {
+                var candidates = scenes?.Where(s => !string.IsNullOrEmpty(s)).Distinct().ToList() ?? new List<string>();
+                if (candidates.Count == 0) return null;
+
+                // Fisher–Yates でシャッフルする
+                for (var i = candidates.Count - 1; i > 0; i--)
+                {
+                    var j = Random.Range(0, i + 1);
+                    (candidates[i], candidates[j]) = (candidates[j], candidates[i]);
+                }
+
+                // 一巡の境目で直前と同じシーンが続かないようにする
+                if (candidates.Count > 1 && candidates[0] == _lastScene)
+                    (candidates[0], candidates[^1]) = (candidates[^1], candidates[0]);
+
+                foreach (var candidate in candidates) RemainingScenes.Enqueue(candidate);
+            }
+
+            _lastScene = RemainingScenes.Dequeue();
+            return _lastScene;
         }
     }
 }
