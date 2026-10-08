@@ -25,8 +25,8 @@ func (serialReader) Read(p []byte) (n int, err error) {
 }
 
 func init() {
-  transceiver = NewPacketTransceiver(serialReader{}, machine.Serial)
-  Log = NewLogger(transceiver)
+	transceiver = NewPacketTransceiver(serialReader{}, machine.Serial)
+	Log = NewLogger(transceiver)
 }
 
 func main() {
@@ -34,15 +34,15 @@ func main() {
 	led := machine.LED
 	led.Configure(machine.PinConfig{Mode: machine.PinOutput})
 
-  Log.Info().Msg("System is starting up")
+	Log.Info().Msg("System is starting up")
 
 	// ファンはデフォルトで OFF。ホストの指示を待たずに、全ピンを最小にする。
 	for _, pin := range fanPins {
 		dispatch(&micon_v1.PwmFade{Pin: pin})
 	}
 
-  go heartbeat(led, time.Second)
-  go receiveLoop(transceiver)
+	go heartbeat(led, time.Second)
+	go receiveLoop(transceiver)
 
 	select {}
 }
@@ -65,4 +65,3 @@ func receiveLoop(pt *PacketTransceiver) {
 		}
 	}
 }
-
