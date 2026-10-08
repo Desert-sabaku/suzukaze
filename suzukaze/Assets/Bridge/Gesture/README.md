@@ -68,6 +68,9 @@ void OnStateChanged(StateView state)
 型は `Suzukaze.Gesture.Protocol.Action?` と `Suzukaze.Gesture.Protocol.Phase?` です。
 ラムネや打ち水の準備中は `Gesture == None` でも取得できます。
 準備状態は成立イベントではなく、`Occurred` は成立時だけ通知します。
+ラムネの進行中（`Forming`〜`WaitRelease`）に体験者が静止して `Gesture == Relaxing` になっても、
+`Action` は `Ramune` のままです。カメラ由来の一瞬の欠けは残るため、表示を消す側で短い猶予を設けます。
+開栓音など1回だけの演出は、`Phase` の変化ではなく `Occurred` で再生します。
 
 | `Action` | `Phase` |
 |---|---|
