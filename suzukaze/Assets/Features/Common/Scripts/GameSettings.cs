@@ -21,7 +21,10 @@ namespace Features.Common.Scripts
         public SunPath sunPath = new(90f, 90f);
 
         [Title("ゲームの時間管理")] public int gameTimeLimit = 60;
-        [ValueDropdown(nameof(GetSceneNames))] public string resultScene;
+#if UNITY_EDITOR
+        [ValueDropdown(nameof(GetSceneNames))]
+#endif
+        public string resultScene;
 
 #if UNITY_EDITOR
         [ValueDropdown(nameof(GetSceneNames))]
