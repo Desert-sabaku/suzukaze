@@ -12,28 +12,26 @@ namespace Features.SandTimer.Scripts
         private float _progress;
 
         [Header("Progress")]
-        [ShowInInspector]
         [Range(0f, 1f)]
+        [ShowInInspector]
         public float Progress
         {
             get => _progress;
             set
             {
-                _progress = Mathf.Clamp01(value);
-                SetProgress(_progress);
+                _progress = value;
+                ApplyProgress(_progress);
             }
         }
 
         private void Start()
         {
-            SetProgress(Progress);
+            Progress = 0;
         }
 
-        private void SetProgress(float value)
+        private void ApplyProgress(float value)
         {
             if (float.IsNaN(value) || float.IsInfinity(value)) return;
-
-            Progress = Mathf.Clamp01(value);
 
             if (alembicPlayer)
                 // CurrentTime is relative to StartTime, not an absolute timestamp.

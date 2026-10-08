@@ -5153,6 +5153,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1762771615}
   - component: {fileID: 1762771618}
+  - component: {fileID: 1762771617}
   - component: {fileID: 1762771616}
   m_Layer: 0
   m_Name: Sand Timer Camera
@@ -5160,7 +5161,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1762771615
 Transform:
   m_ObjectHideFlags: 0
@@ -5220,6 +5221,14 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!81 &1762771617
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1762771614}
+  m_Enabled: 1
 --- !u!20 &1762771618
 Camera:
   m_ObjectHideFlags: 0
