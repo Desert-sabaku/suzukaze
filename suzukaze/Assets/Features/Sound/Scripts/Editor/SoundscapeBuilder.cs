@@ -79,6 +79,9 @@ namespace Features.Sound.Scripts.Editor
             var directorSo = new SerializedObject(director);
             directorSo.FindProperty("mixer").objectReferenceValue = mixer;
             directorSo.ApplyModifiedPropertiesWithoutUndo();
+            var yusuzumiSo = new SerializedObject(root.AddComponent<YusuzumiSoundDirector>());
+            yusuzumiSo.FindProperty("mixer").objectReferenceValue = mixer;
+            yusuzumiSo.ApplyModifiedPropertiesWithoutUndo();
 
             var world = new World(listener.position, new Random(scene.name.GetHashCode()));
             var counts = new Dictionary<string, int>();

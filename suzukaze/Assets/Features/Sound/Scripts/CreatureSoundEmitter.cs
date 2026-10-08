@@ -11,6 +11,11 @@ namespace Features.Sound.Scripts
         private const float SilentGain = 0.001f;
         private const float MaxCutoffHz = 22000f;
 
+        /// <summary>
+        ///     感覚が最も鋭いときに、高音の減衰を計算する距離に掛ける倍率
+        /// </summary>
+        private const float SharpenedDistanceScale = 0.35f;
+
         private static AudioListener _listener;
 
         [SerializeField] private CreatureSoundProfile profile;
@@ -195,7 +200,9 @@ namespace Features.Sound.Scripts
             if (!_listener) _listener = FindAnyObjectByType<AudioListener>();
             if (!_listener) return;
 
-            var distance = Vector3.Distance(transform.position, _listener.transform.position);
+            // 感覚が鋭いときは遠くの音も近くにあるように澄んで聞こえる
+            var distance = Vector3.Distance(transform.position, _listener.transform.position) *
+                           Mathf.Lerp(1f, SharpenedDistanceScale, SoundSensitivity.Level);
             _lowPass.cutoffFrequency = MaxCutoffHz * _airAbsorption.Evaluate(distance);
         }
 
