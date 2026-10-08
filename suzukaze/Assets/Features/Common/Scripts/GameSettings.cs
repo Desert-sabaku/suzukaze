@@ -20,6 +20,12 @@ namespace Features.Common.Scripts
         [Tooltip("太陽の通り道の既定値。シーンの Directional Light に SceneSunPath があればそちらを優先する")]
         public SunPath sunPath = new(90f, 90f);
 
+        [Title("ゲームの時間管理")] public int gameTimeLimit = 60;
+#if UNITY_EDITOR
+        [ValueDropdown(nameof(GetSceneNames))]
+#endif
+        public string resultScene;
+
 #if UNITY_EDITOR
         [ValueDropdown(nameof(GetSceneNames))]
 #endif
