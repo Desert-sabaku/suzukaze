@@ -4369,6 +4369,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Features.Common.Scripts.SunHorizonFade
   fadeDegrees: 10
+--- !u!114 &1785956595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1785956587}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a8083aadb5f0904dac9c90eeac00bfa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Features.Common.Scripts.SceneSunPath
+  sunPath:
+    noonAzimuth: 62
+    noonElevation: 75.9
+  previewHour: 12
 --- !u!1001 &1832955442
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4907,6 +4923,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1901108134305341599, guid: d52abfc05749c4eeb92e7e9896a576c8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1785956591}
+    - targetCorrespondingSourceObject: {fileID: 1901108134305341599, guid: d52abfc05749c4eeb92e7e9896a576c8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1785956595}
   m_SourcePrefab: {fileID: 100100000, guid: d52abfc05749c4eeb92e7e9896a576c8, type: 3}
 --- !u!1 &1999082075
 GameObject:

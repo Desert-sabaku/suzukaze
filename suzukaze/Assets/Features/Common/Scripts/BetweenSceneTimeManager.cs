@@ -12,37 +12,40 @@ namespace Features.Common.Scripts
     /// </summary>
     public class BetweenSceneTimeManager : SingletonMonoBehaviour<BetweenSceneTimeManager>
     {
-        private float _currentTime;
+        private float _currentHour = 12f;
         private Transform _directionalLight;
+        private SceneSunPath _sceneSunPath;
         private GameSettings _gameSettings;
         private bool _isActive = true;
 
         /// <summary>
         ///     現在の時刻 (0〜24)。太陽 (Directional Light) が最も高くなる角度を 12 時とする
         /// </summary>
-        public float CurrentHour
-        {
-            get
-            {
-                if (!_gameSettings) return 12f;
-                var angle = _currentTime * 360f / 24f - NoonAngle(_gameSettings.lightAxis);
-                return Mathf.Repeat(12f + angle * 24f / 360f, 24f);
-            }
-        }
+        public float CurrentHour => Mathf.Repeat(_currentHour, 24f);
+
+        /// <summary>
+        ///     太陽の通り道。シーンの Directional Light に SceneSunPath があればそれ、なければ GameSettings のものを使う
+        /// </summary>
+        private SunPath SunPath => _sceneSunPath ? _sceneSunPath.sunPath : _gameSettings.sunPath;
 
         private void Start()
         {
             var currentScene = SceneManager.GetActiveScene();
-            _directionalLight = FindDirectionalLight(currentScene);
+            SetDirectionalLight(FindDirectionalLight(currentScene));
             Debug.Assert(_directionalLight != null, "Directional light not found in the scene.");
 
             SceneManager.activeSceneChanged += OnActiveSceneChanged;
             UniTask.Create(async () =>
             {
                 _gameSettings = await GameSettings.GetInstanceAsync();
+                _currentHour = _gameSettings.startHour;
                 _isActive = _gameSettings.ignoreTimeManageScenes.All(ignoreScene => ignoreScene != currentScene.name);
 #if UNITY_EDITOR
-                if (_isActive) _isActive = EditorBuildSettings.scenes.Any(scene => scene.path == currentScene.path);
+                if (_isActive && EditorBuildSettings.scenes.All(scene => scene.path != currentScene.path))
+                {
+                    _isActive = false;
+                    Debug.Log($"{currentScene.name} は Build Settings に含まれていないため、時間と太陽を動かしません");
+                }
 #endif
             }).Forget();
         }
@@ -51,11 +54,8 @@ namespace Features.Common.Scripts
         {
             if (!_gameSettings || !_isActive) return;
 
-            _currentTime += Time.deltaTime * _gameSettings.timeScale;
-            _directionalLight.rotation = Quaternion.AngleAxis(
-                _currentTime * 360f / 24f,
-                _gameSettings.lightAxis
-            );
+            _currentHour += Time.deltaTime * _gameSettings.timeScale;
+            _directionalLight.rotation = SunPath.RotationAt(_currentHour);
         }
 
         private void OnDrawGizmos()
@@ -63,10 +63,8 @@ namespace Features.Common.Scripts
             if (!_gameSettings || !_isActive) return;
 
             Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(Vector3.zero, _gameSettings.lightAxis.normalized * 5);
-            // 回転する軸を描画
-            Gizmos.DrawLine(Vector3.zero,
-                Quaternion.AngleAxis(_currentTime * 360f / 24f, _gameSettings.lightAxis) * Vector3.forward * 5);
+            // 現在の太陽の方向を描画
+            Gizmos.DrawLine(Vector3.zero, SunPath.SunDirectionAt(_currentHour) * 5);
         }
 
         private void OnActiveSceneChanged(
@@ -75,19 +73,14 @@ namespace Features.Common.Scripts
         )
         {
             _isActive = _gameSettings.ignoreTimeManageScenes.All(ignoreScene => ignoreScene != newScene.name);
-            _directionalLight = FindDirectionalLight(newScene);
+            SetDirectionalLight(FindDirectionalLight(newScene));
             Debug.Assert(_directionalLight != null, "Directional light not found in the new scene.");
         }
 
-        /// <summary>
-        ///     ライトは AngleAxis(angle, axis) * forward を向くので、その y 成分は
-        ///     -a.x * sin(angle) + a.y * a.z * (1 - cos(angle)) になる。これが最も小さく
-        ///     (ライトが最も下向きに) なる角度を正午とする
-        /// </summary>
-        private static float NoonAngle(Vector3 axis)
+        private void SetDirectionalLight(Transform directionalLight)
         {
-            var a = axis.normalized;
-            return Mathf.Atan2(a.x, a.y * a.z) * Mathf.Rad2Deg;
+            _directionalLight = directionalLight;
+            _sceneSunPath = directionalLight ? directionalLight.GetComponent<SceneSunPath>() : null;
         }
 
         private static Transform FindDirectionalLight(UnityEngine.SceneManagement.Scene scene)

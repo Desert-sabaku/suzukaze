@@ -1260,6 +1260,7 @@ GameObject:
   - component: {fileID: 451762744}
   - component: {fileID: 451762743}
   - component: {fileID: 451762745}
+  - component: {fileID: 451762746}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -1376,6 +1377,22 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+--- !u!114 &451762746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 451762742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a8083aadb5f0904dac9c90eeac00bfa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Features.Common.Scripts.SceneSunAxis
+  sunPath:
+    noonAzimuth: 0
+    noonElevation: 60
+  previewHour: 12
 --- !u!1 &456347353
 GameObject:
   m_ObjectHideFlags: 0
