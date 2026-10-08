@@ -5,7 +5,7 @@ import math
 
 from .config import GESTURE_EVENT_TTL, MULTICAM_EVENT_DEDUP_SECONDS, MULTICAM_MAX_AGE_SECONDS
 from .event_rearm import EVENT_GESTURES, EventRearmGate
-from .gesture_types import Gesture
+from .gesture_types import Gesture, Phase
 from .recognition_types import OccurrenceEvidence, PoseResult, recognition_phase
 
 PRIORITY: dict[str, int] = {
@@ -15,6 +15,13 @@ PRIORITY: dict[str, int] = {
     Gesture.FANNING: 3,
     Gesture.UCHIMIZU: 4,
     Gesture.RAMUNE: 5,
+}
+# WAIT_RELEASE ends an occurrence, so another camera's new preparation wins.
+PHASE_PROGRESS: dict[str | None, int] = {
+    Phase.FORMING: 1,
+    Phase.READY: 2,
+    Phase.SWING: 3,
+    Phase.OPENED: 3,
 }
 
 
@@ -104,6 +111,10 @@ class MultiCameraFusion:
         candidates = {
             r.get("current", {"gesture": Gesture.NONE, "tracking": False})["gesture"] for r in fresh
         }
+        # As in a single view, Ramune preparation suppresses fanning. Another
+        # angle often reads the stacked hands' small motion as fanning.
+        if any(r.get("ramune_state") in {Phase.FORMING, Phase.READY} for r in fresh):
+            candidates.discard(Gesture.FANNING)
         candidates.update(events)
         gesture = max(candidates, key=PRIORITY.__getitem__) if candidates else Gesture.NONE
         gesture, accepted = self.gate.update(
@@ -111,13 +122,15 @@ class MultiCameraFusion:
         )
         phases = [(*recognition_phase(r), r.get("timestamp", 0.0)) for r in fresh]
         phases = [item for item in phases if item[0] is not None]
-        # Prefer progress for the fused action; otherwise use action priority
-        # and the newest camera observation. Never combine two cameras' fields.
+        # Prefer progress for the fused action; otherwise use action priority,
+        # then the furthest phase, so independent per-camera analyzers do not
+        # alternate the output. Never combine two cameras' fields.
         selected_phase = max(
             phases,
             key=lambda item: (
                 item[0] == gesture,
                 PRIORITY.get(item[0] or Gesture.NONE, 0),
+                PHASE_PROGRESS.get(item[1], 0),
                 item[2],
             ),
             default=(None, None, 0.0),
