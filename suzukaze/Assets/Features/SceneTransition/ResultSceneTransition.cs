@@ -29,6 +29,11 @@ namespace Features.SceneTransition
         private GestureReceiverBehaviour _gestureReceiver;
         private GameInputs _input;
 
+        /// <summary>
+        ///     前のシーンから礼が継続している間は遷移しないよう、礼以外の姿勢を一度確認してから礼を受け付ける
+        /// </summary>
+        private bool _isBowReleased;
+
         private void OnEnable()
         {
             hanabi.OnDropped.AddListener(OnDropped);
@@ -40,6 +45,8 @@ namespace Features.SceneTransition
 
             if (_gestureReceiver) return;
             _gestureReceiver = GestureReceiverBehaviour.GetOrCreate();
+            _isBowReleased = false;
+            UpdateBowReleased(_gestureReceiver.Events.CurrentState);
             _gestureReceiver.Events.StateChanged += OnGestureStateChanged;
         }
 
@@ -74,10 +81,16 @@ namespace Features.SceneTransition
         {
             if (!state.Tracking) return;
 
-            if (state.Gesture != ContinuousGesture.Bow) return;
+            UpdateBowReleased(state);
+            if (!_isBowReleased || state.Gesture != ContinuousGesture.Bow) return;
             SceneTransitionManager.Instance.LoadSceneAsync("Title").Forget();
             _gestureReceiver.Events.StateChanged -= OnGestureStateChanged;
             _gestureReceiver = null;
+        }
+
+        private void UpdateBowReleased(StateView state)
+        {
+            if (state.Tracking && state.Gesture != ContinuousGesture.Bow) _isBowReleased = true;
         }
 
         private void OnDropped()

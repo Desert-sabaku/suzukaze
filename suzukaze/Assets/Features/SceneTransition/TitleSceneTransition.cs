@@ -29,6 +29,11 @@ namespace Features.SceneTransition
 
         [ShowInInspector] private bool _isShowingGesture;
 
+        /// <summary>
+        ///     前のシーンから礼が継続している間は遷移しないよう、礼以外の姿勢を一度確認してから礼を受け付ける
+        /// </summary>
+        [ShowInInspector] private bool _isBowReleased;
+
         private void Start()
         {
             _input = new GameInputs();
@@ -50,6 +55,8 @@ namespace Features.SceneTransition
         {
             if (_gestureReceiver) return;
             _gestureReceiver = GestureReceiverBehaviour.GetOrCreate();
+            _isBowReleased = false;
+            UpdateBowReleased(_gestureReceiver.Events.CurrentState);
             _gestureReceiver.Events.StateChanged += OnGestureStateChanged;
         }
 
@@ -74,12 +81,18 @@ namespace Features.SceneTransition
 
             _isShowingGesture = state.BoothPresent;
 
-            if (state.Tracking && state.Gesture == ContinuousGesture.Bow)
+            UpdateBowReleased(state);
+            if (_isBowReleased && state.Tracking && state.Gesture == ContinuousGesture.Bow)
             {
                 OnTransition(default);
                 _gestureReceiver.Events.StateChanged -= OnGestureStateChanged;
                 _gestureReceiver = null;
             }
+        }
+
+        private void UpdateBowReleased(StateView state)
+        {
+            if (state.Tracking && state.Gesture != ContinuousGesture.Bow) _isBowReleased = true;
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
