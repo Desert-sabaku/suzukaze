@@ -239,7 +239,8 @@ def test_process_passes_source_timestamp_to_all_detectors(process_analyzer):
         patch.object(analyzer.recognition.hands[1].uchimizu, "update", return_value=False) as right,
     ):
         analyzer.process(np.zeros((4, 5, 3), dtype=np.uint8), 12.5, 375)
-    for detector in (ramune, left, right):
+    ramune.assert_called_once_with(points, 12.5, aspect_ratio=1.25)
+    for detector in (left, right):
         detector.assert_called_once_with(points, 12.5)
     for hand in analyzer.recognition.hands:
         assert list(hand.wrist_t_history) == [12.5]

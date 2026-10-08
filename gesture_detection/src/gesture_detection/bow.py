@@ -4,6 +4,7 @@ import math
 
 from .config import (
     BOW_DWELL_SECONDS,
+    BOW_HEAD_MIN_VISIBILITY,
     BOW_MAX_ANGLE_DEGREES,
     BOW_MAX_FRAME_GAP,
     BOW_MAX_HEAD_DEVIATION_DEGREES,
@@ -37,7 +38,8 @@ class BowAnalyzer:
             or not 0 <= landmarks[i].x <= 1
             or not 0 <= landmarks[i].y <= 1
             or not math.isfinite(getattr(landmarks[i], "visibility", 1.0))
-            or getattr(landmarks[i], "visibility", 1.0) < BOW_MIN_VISIBILITY
+            or getattr(landmarks[i], "visibility", 1.0)
+            < (BOW_HEAD_MIN_VISIBILITY if i == 0 else BOW_MIN_VISIBILITY)
             for i in indices
         ):
             self.reset()
