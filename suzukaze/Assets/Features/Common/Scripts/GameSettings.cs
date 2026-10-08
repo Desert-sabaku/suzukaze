@@ -13,27 +13,22 @@ namespace Features.Common.Scripts
     {
         [Title("シーン遷移")] public float sceneTransitionDuration = 1f;
         [Title("時間管理")] public float timeScale = 1f;
-        [Tooltip("ゲーム開始時の時刻 (0〜24)")]
-        [Range(0f, 24f)]
+
+        [Tooltip("ゲーム開始時の時刻 (0〜24)")] [Range(0f, 24f)]
         public float startHour = 18f;
 
         [Tooltip("太陽の通り道の既定値。シーンの Directional Light に SceneSunPath があればそちらを優先する")]
         public SunPath sunPath = new(90f, 90f);
 
         [Title("ゲームの時間管理")] public int gameTimeLimit = 60;
-#if UNITY_EDITOR
-        [ValueDropdown(nameof(GetSceneNames))]
-#endif
-        public string resultScene;
 
-#if UNITY_EDITOR
-        [ValueDropdown(nameof(GetSceneNames))]
-#endif
-        public string[] ignoreTimeManageScenes;
+        [ValueDropdown(nameof(GetSceneNames))] public string resultScene;
+        [ValueDropdown(nameof(GetSceneNames))] public string[] ignoreTimeManageScenes;
+        [ValueDropdown(nameof(GetSceneNames))] public string[] gameScenes;
 
-#if UNITY_EDITOR
         private static IEnumerable<string> GetSceneNames()
         {
+#if UNITY_EDITOR
             // 登録されているシーンの名前を取得する
             return from t in EditorBuildSettings.scenes
                 select t.path
@@ -41,7 +36,9 @@ namespace Features.Common.Scripts
                 let sceneName = Path.GetFileNameWithoutExtension(scenePath)
                 where !string.IsNullOrEmpty(sceneName)
                 select sceneName;
-        }
+#else
+            return new List<string>();
 #endif
+        }
     }
 }

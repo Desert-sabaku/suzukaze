@@ -64,7 +64,6 @@ namespace Features.SceneTransition
                 gestureMoviePlayer.SetAnimation(Gestures.Rei);
 
             _isShowingGesture = state.BoothPresent;
-            Debug.Log(state.BoothPresent ? "Gesture detected" : "Gesture lost");
 
             if (state.Tracking && state.Gesture == ContinuousGesture.Bow)
             {
