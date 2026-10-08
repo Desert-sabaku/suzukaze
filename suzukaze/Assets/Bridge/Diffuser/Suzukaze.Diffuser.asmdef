@@ -1,0 +1,5 @@
+{
+  "name": "Suzukaze.Diffuser",
+  "rootNamespace": "Suzukaze.Diffuser",
+  "references": ["Unity.InputSystem"]
+}
