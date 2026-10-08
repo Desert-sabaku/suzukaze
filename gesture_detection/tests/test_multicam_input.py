@@ -7,6 +7,7 @@ from unittest.mock import Mock, patch
 import numpy as np
 import pytest
 
+from gesture_detection import config
 from gesture_detection.multicam_input import (
     LiveInputs,
     RecordedInput,
@@ -44,6 +45,30 @@ def test_session_uses_capture_duration_not_nominal_video_fps(tmp_path):
         assert second[1:] == (0.1, 1)
         source.close()
     capture.release.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    "rotation, expected",
+    [
+        ("clockwise", [[3, 1], [4, 2]]),
+        ("counterclockwise", [[2, 4], [1, 3]]),
+        ("180", [[4, 3], [2, 1]]),
+    ],
+)
+def test_recorded_input_rotates_before_returning_frame(tmp_path, rotation, expected):
+    view = RecordedView(0, tmp_path / "a.mp4", 1, 2, 2, 1)
+    frame = np.repeat(np.array([[1, 2], [3, 4]], dtype=np.uint8)[:, :, None], 3, axis=2)
+    capture = Mock()
+    capture.get.return_value = 1
+    capture.read.return_value = True, frame
+    with patch("gesture_detection.multicam_input.cv2.VideoCapture", return_value=capture):
+        source = RecordedInput(view, rotation)
+        sample = source.read()
+        source.close()
+    assert sample is not None
+    rotated, timestamp, frame_id = sample
+    assert rotated[:, :, 0].tolist() == expected
+    assert (timestamp, frame_id) == (0.0, 0)
 
 
 @pytest.mark.parametrize("change", ["duration", "duplicate", "escape", "frames"])
@@ -115,6 +140,29 @@ def test_live_worker_retries_full_event_queue_and_closes_resources():
     capture.release.assert_called_once()
     analyzer.close.assert_called_once()
     errors.put.assert_not_called()
+
+
+def test_live_worker_rotates_frame_before_inference_and_preview(monkeypatch):
+    monkeypatch.setattr(config, "MULTICAM_ROTATION", ("clockwise", "counterclockwise"))
+    frame = np.repeat(np.array([[1, 2]], dtype=np.uint8)[:, :, None], 3, axis=2)
+    capture = Mock()
+    capture.get.return_value = 30
+    capture.read.return_value = True, frame
+    analyzer = Mock()
+    analyzer.process.return_value = {}
+    stop = threading.Event()
+    results, preview, errors = Mock(), Mock(), Mock()
+    with (
+        patch("gesture_detection.multicam_input.open_camera", return_value=capture),
+        patch("gesture_detection.multicam_input.PoseAnalyzer", return_value=analyzer),
+        patch("gesture_detection.multicam_input.put_latest") as put_latest,
+    ):
+        put_latest.side_effect = lambda *_args: stop.set()
+        camera_worker(1, 2, False, results, preview, errors, stop)
+    rotated = analyzer.process.call_args.args[0]
+    assert rotated.shape == (2, 1, 3)
+    assert rotated[:, :, 0].tolist() == [[2], [1]]
+    assert put_latest.call_args.args[1][0] is rotated
 
 
 def test_partial_worker_start_failure_stops_started_worker_and_closes_queues():

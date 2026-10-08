@@ -28,6 +28,8 @@ def test_defaults_select_camera_without_creating_output() -> None:
     assert config["VIDEO_SOURCE"] is None
     assert config["CAMERA_INDICES"] is None
     assert config["CAMERA_BACKEND"] == 0
+    assert config["CAMERA_ROTATION"] == "none"
+    assert config["MULTICAM_ROTATION"] == ("none", "none")
     assert config["VIDEO_OUTPUT_PATH"].parent == PROJECT_ROOT / "output"
     assert config["RAMUNE_LEARNED_MODEL_PATH"].name == "ramune_0924.npz"
     mkdir.assert_not_called()
@@ -150,6 +152,8 @@ def test_example_is_valid_and_matches_defaults() -> None:
         "[pose.subject]\narea = [true, 0, 1, 1]\n",
         "[camera]\nindices = [1, 1]\n",
         '[camera]\nfps = "30"\n',
+        '[camera]\nrotation = "sideways"\n',
+        '[multicam.first]\nrotation = "left"\n',
     ],
 )
 def test_invalid_settings(value: str) -> None:
@@ -168,6 +172,16 @@ def test_subject_area_and_opt_out_are_configurable() -> None:
     )
     assert config["SUBJECT_AREA"] == (0.2, 0.1, 0.8, 0.9)
     assert not config["POSE_SELECT_SUBJECT"]
+
+
+def test_rotations_are_independent_per_input() -> None:
+    config = read_config(
+        '[camera]\nrotation = "180"\n'
+        '[multicam.first]\nrotation = "clockwise"\n'
+        '[multicam.second]\nrotation = "counterclockwise"\n'
+    )
+    assert config["CAMERA_ROTATION"] == "180"
+    assert config["MULTICAM_ROTATION"] == ("clockwise", "counterclockwise")
 
 
 def test_multicam_is_opt_in_with_independent_subject_selection() -> None:

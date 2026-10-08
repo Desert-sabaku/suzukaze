@@ -9,6 +9,7 @@ scan_max_index = 9 # 選択画面で調べるカメラIDの最大値（0～9）
 backend = 0 # OpenCV: 0 = 自動、200 = Linux V4L2
 fourcc = "MJPG"
 fps = 30 # ジェスチャー処理窓の標本数にも使用
+rotation = "none" # 単眼の入力: none / clockwise / counterclockwise / 180
 
 [video]
 # 空欄ならカメラ入力。
@@ -57,9 +58,11 @@ height = 720
 
 [multicam.first]
 select_subject = true
+rotation = "none" # 1台目の入力映像の回転方向
 
 [multicam.second]
 select_subject = false
+rotation = "none" # 2台目の入力映像の回転方向
 
 [multicam.replay]
 # 録画セッション再生。空欄なら実カメラ。再生時に camera.indices が空ならセッションの先頭2台。

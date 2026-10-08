@@ -9,6 +9,35 @@
 `GESTURE_PROJECT_ROOT` を使うインストール環境ではそのディレクトリが基準になります。
 キーの誤記や型の違いは起動時にエラーとなります。
 
+## 縦向きカメラの回転
+
+横倒しで記録された映像は、認識前に回転できます。`rotation` には `none`、
+`clockwise`（時計回り90度）、`counterclockwise`（反時計回り90度）、`180` を指定します。
+既定値は `none` です。単眼のライブ入力と `video.source` では `camera.rotation`、
+2カメラのライブ入力と `multicam.replay.session` では各カメラの役割に対応する
+`multicam.first.rotation` / `multicam.second.rotation` を使います。
+回転後の映像を認識・プレビュー・認識結果の録画に使います。元の録画ファイルは変更しません。
+
+1008の録画セッションを正立させる設定例です。録画時のカメラ番号と再生時の役割の順番を
+そろえてください。
+
+```toml
+[multicam]
+enabled = true
+
+[camera]
+indices = [0, 1]
+
+[multicam.first]
+rotation = "clockwise"
+
+[multicam.second]
+rotation = "counterclockwise"
+
+[multicam.replay]
+session = "shared/videos/1008/20261008_070736/session.json"
+```
+
 ```toml
 [camera]
 indices = [] # 空配列なら実行時に映像から選択。2台の場合は役割の順番で指定
