@@ -68,6 +68,28 @@ invoke unity
 invoke unity-tests
 ```
 
+## Unityをビルドする
+
+プロジェクトルートで次を実行します。Unityエディタで `suzukaze/` を開いている場合は、先に閉じてください。
+
+```bash
+invoke unity-build
+```
+
+Build Settings で有効なシーンを含むプレイヤーが `suzukaze/Builds/<ビルドターゲット>/` に出力されます。
+ターゲットは既定で実行中のOSに合わせます。主なオプションは次のとおりです（一覧は `invoke --help unity-build`）。
+
+| オプション | 内容 |
+| --- | --- |
+| `--target win64` / `linux64` / `osx` | ビルドターゲットを指定する |
+| `--output <パス>` | 出力先の実行ファイルのパスを指定する |
+| `--development` | Development Build にする |
+| `--log <ファイル>` | Unityのログの保存先を指定する（既定は `suzukaze/Logs/build.log`。内容はターミナルにも表示されます） |
+
+Unityは `ProjectVersion.txt` のバージョンを Unity Hub の既定のインストール先から探します。
+別の場所にある場合は、環境変数 `UNITY_EDITOR` にエディタの実行ファイルのパスを設定してください。
+エディタからは、メニューの **Suzukaze > Build Player** で現在のターゲット向けに同じビルドができます。
+
 2カメラで認識する設定は [2カメラ認識ガイド](gesture_detection/docs/multicam-runtime.md)、
 メッセージ仕様は [Unityへのジェスチャー通知](gesture_detection/docs/unity-delivery.md) を参照してください。
 開発の約束事は [AGENTS.md](AGENTS.md) にまとめています。

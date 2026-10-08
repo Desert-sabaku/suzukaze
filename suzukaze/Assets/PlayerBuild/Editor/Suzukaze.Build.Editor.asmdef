@@ -1,0 +1,12 @@
+{
+    "name": "Suzukaze.Build.Editor",
+    "rootNamespace": "Suzukaze.Build.Editor",
+    "references": [
+        "Unity.Addressables",
+        "Unity.Addressables.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "autoReferenced": false
+}
