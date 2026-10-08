@@ -220,7 +220,7 @@ probeもWebSocketの受信クライアントなので、Unityで試す前にprob
 `Assets/Features/Sound/Scripts/YusuzumiSoundDirector.cs` が `StateChanged` を購読します。
 `Fresh` と `Tracking` が true で `Gesture == Relaxing` の間、感覚が鋭くなる演出をします。
 
-- 環境音（Ambient・Cicadas・Insects・Birds）を約3秒かけて最大 +6dB 大きくします。
+- 環境音（Ambient・Cicadas・Insects・Birds）を約3秒かけて最大 +8dB 大きくします。
 - 遠くの音源の高音の減衰を弱め、遠くの音も澄んで聞こえるようにします。
 - 感覚がある程度鋭くなると、カメラの少し上の前方で風鈴が鳴り始めます。
   風鈴の音は実行時に合成します。録音素材を使う場合は `windChimeClips` に設定します。

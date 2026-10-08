@@ -26,7 +26,7 @@ namespace Features.Sound.Scripts
         private AudioMixer mixer;
 
         [Tooltip("感覚が最も鋭くなったときに環境音を持ち上げる量 (dB)")] [SerializeField] [Range(0f, 12f)]
-        private float boostDb = 6f;
+        private float boostDb = 8f;
 
         [Title("感覚の変化")] [Tooltip("夕涼みを始めてから感覚が最も鋭くなるまでの時間 (秒)")] [SerializeField] [Min(0.01f)]
         private float attackSeconds = 3f;

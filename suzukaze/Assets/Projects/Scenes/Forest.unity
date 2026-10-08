@@ -3692,7 +3692,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Features.Sound.Scripts.YusuzumiSoundDirector
   mixer: {fileID: 24100000, guid: ad39a450b6ef34e4883bcabedabf317e, type: 2}
-  boostDb: 6
+  boostDb: 8
   attackSeconds: 3
   releaseSeconds: 5
   windChimeClips: []
