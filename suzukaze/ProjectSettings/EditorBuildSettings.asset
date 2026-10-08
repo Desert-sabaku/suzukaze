@@ -15,29 +15,14 @@ EditorBuildSettings:
     path: Assets/Projects/Scenes/Forest.unity
     guid: d01447fb97346074a8cfd0abd01e007a
   - enabled: 1
+    path: Assets/Projects/Scenes/Lake.unity
+    guid: ef286cc31cd764e4b8256ecc622f3cbe
+  - enabled: 1
     path: Assets/Projects/Scenes/River.unity
     guid: 11bdfe2d78509c84788346d0a33ddb23
   - enabled: 1
     path: Assets/Projects/Scenes/Result.unity
     guid: 6aeb7fb2022be4f52976ec5b27cc485e
-  - enabled: 0
-    path: Assets/MyScenes/Scene_ch.unity
-    guid: e3a4fe038aae95c42acbb98c9d3ba237
-  - enabled: 0
-    path: Assets/MyScenes/Forest_old.unity
-    guid: 88cbe6f490b5e524ab853841b7320c21
-  - enabled: 0
-    path: Assets/Projects/Scenes/Lake.unity
-    guid: ef286cc31cd764e4b8256ecc622f3cbe
-  - enabled: 0
-    path: "Assets/MyScenes/river(\u4E2D\u6D41).unity"
-    guid: 6ed539b3d5e64614e8460c45f280a2b9
-  - enabled: 0
-    path: Assets/MyScenes/river_old.unity
-    guid: a6555817f02e5a446aa75173434a9e82
-  - enabled: 0
-    path: Assets/MyScenes/sea_old.unity
-    guid: a5ed8fee366e2d643ac89f10181b0d7b
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: e6912ddea8dc64b80a8784ebd6c572dd, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
