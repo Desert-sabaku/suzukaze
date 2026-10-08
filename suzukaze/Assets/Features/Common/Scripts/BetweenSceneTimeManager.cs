@@ -41,7 +41,11 @@ namespace Features.Common.Scripts
                 _currentHour = _gameSettings.startHour;
                 _isActive = _gameSettings.ignoreTimeManageScenes.All(ignoreScene => ignoreScene != currentScene.name);
 #if UNITY_EDITOR
-                if (_isActive) _isActive = EditorBuildSettings.scenes.Any(scene => scene.path == currentScene.path);
+                if (_isActive && EditorBuildSettings.scenes.All(scene => scene.path != currentScene.path))
+                {
+                    _isActive = false;
+                    Debug.Log($"{currentScene.name} は Build Settings に含まれていないため、時間と太陽を動かしません");
+                }
 #endif
             }).Forget();
         }
