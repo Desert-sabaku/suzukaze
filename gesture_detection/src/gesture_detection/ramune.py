@@ -19,6 +19,7 @@ from .config import (
     RAMUNE_MIN_READY_GAP,
     RAMUNE_PRESS_TIMEOUT,
     RAMUNE_READY_ALIGN_TOLERANCE,
+    RAMUNE_READY_MAX_SLOPE,
     RAMUNE_UPPER_RAISE_TOLERANCE,
     RAMUNE_WINDUP_SECONDS,
 )
@@ -82,7 +83,15 @@ class RamuneAnalyzer:
         shoulder_y = (landmarks[11].y + landmarks[12].y) / 2
         hip_y = (landmarks[23].y + landmarks[24].y) / 2
         in_torso = shoulder_y <= landmarks[lower].y <= hip_y
-        ready = ready_aligned and in_torso and RAMUNE_MIN_READY_GAP <= gap <= RAMUNE_MAX_READY_GAP
+        # A wide diagonal pair (e.g. one hand resting at the waist while the
+        # other scoops water) is not a stacked bottle preparation.
+        stacked = horizontal_gap <= gap * RAMUNE_READY_MAX_SLOPE
+        ready = (
+            ready_aligned
+            and stacked
+            and in_torso
+            and RAMUNE_MIN_READY_GAP <= gap <= RAMUNE_MAX_READY_GAP
+        )
 
         if self.state == Phase.OPENED:
             if now - self.since < RAMUNE_HOLD_SECONDS:
