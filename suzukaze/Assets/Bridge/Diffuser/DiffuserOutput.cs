@@ -5,8 +5,8 @@ using Suzukaze.Diffuser.Protocol;
 
 namespace Suzukaze.Diffuser
 {
-    // ディフューザーへの指示の窓口。bridge と mcu に接続している間は bridge へ送り、
-    // それ以外は DiffuserMock に記録する。ピンは bridge が DiffuserChannel から決める。
+    // ディフューザーへの指示の窓口。押したことは常に DiffuserMock に記録し(実機の状態は読めない)、
+    // bridge と mcu に接続している間は bridge へも送る。ピンは bridge が DiffuserChannel から決める。
     public sealed class DiffuserOutput
     {
         public static DiffuserOutput Instance { get; private set; } = new();
@@ -25,11 +25,8 @@ namespace Suzukaze.Diffuser
         /// </summary>
         public void Press(DiffuserChannel channel, ulong durationMs = 200)
         {
-            if (!Connected)
-            {
-                Mock.Press(channel);
-                return;
-            }
+            Mock.Press(channel);
+            if (!Connected) return;
             outgoing.Enqueue(new BridgeEnvelope
             {
                 DiffuserPress = new DiffuserPress { Channel = channel, DurationMs = durationMs }
