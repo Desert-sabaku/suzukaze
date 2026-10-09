@@ -5,8 +5,8 @@ import (
 )
 
 var (
-  CommitHash = "dev" // makeで挿入
-  SchemaHash = "dev"
+	CommitHash = "dev" // makeで挿入
+	SchemaHash = "dev"
 )
 
 // handleHandshake は HandshakeReq を受け取ったら自分の VersionInfo を積んだ
