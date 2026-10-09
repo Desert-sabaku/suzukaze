@@ -94,8 +94,6 @@ namespace Features.SceneTransition
             UpdateBowReleased(state);
             if (!_isBowReleased || state.Gesture != ContinuousGesture.Bow) return;
             SceneTransitionManager.Instance.LoadSceneAsync("Title").Forget();
-            _gestureReceiver.Events.StateChanged -= OnGestureStateChanged;
-            _gestureReceiver = null;
             enabled = false;
         }
 
@@ -119,6 +117,7 @@ namespace Features.SceneTransition
                     .ToUniTask(cancellationToken: token);
                 await UniTask.Delay(TimeSpan.FromSeconds(autoTransitionInterval - afterDropInterval - fadeDuration),
                     cancellationToken: token);
+                enabled = false;
                 SceneTransitionManager.Instance.LoadSceneAsync("Title").Forget();
             }, _cts.Token).Forget();
         }
