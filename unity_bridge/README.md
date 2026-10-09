@@ -12,16 +12,20 @@ Pythonのバインディング `src/unity_bridge/gen/` はコミットしてい�
 buf generate
 ```
 
+リポジトリ直下から `invoke proto` でも生成できます。
+
 パッケージは `src/unity_bridge/` にあります。`src` 自体はパッケージではありません。旧 `src.*` のimportは `unity_bridge.*` に変更しています。インストール後は `unity-bridge` と `unity-gesture-probe` コマンドを使用できます。
 
 ## 起動
 
-| コマンド | 内容 |
-|---|---|
-| `uv run unity-bridge --gesture` | 認識を子プロセスとして起動し、ジェスチャーとファンをUnityへ中継する |
-| `uv run unity-bridge --fan` | カメラを起動せず、ファンだけを扱う(`--gesture` は不要) |
-| `uv run unity-bridge --debug-gui` | カメラと認識を起動せず、ブラウザから所作を送る |
-| `uv run unity-gesture-probe` | 模擬Unity(実機出力なし) |
+| コマンド(`unity_bridge/` で実行) | `invoke`(リポジトリ直下で実行) | 内容 |
+|---|---|---|
+| `uv run unity-bridge --gesture` | `uv run invoke unity` | 認識を子プロセスとして起動し、ジェスチャーとファンをUnityへ中継する |
+| `uv run unity-bridge --fan` | なし | カメラを起動せず、ファンだけを扱う(`--gesture` は不要) |
+| `uv run unity-bridge --debug-gui` | `uv run invoke unity-debug` | カメラと認識を起動せず、ブラウザから所作を送る |
+| `uv run unity-gesture-probe` | `uv run invoke unity-probe` | 模擬Unity(実機出力なし) |
+
+`invoke` のタスクは、`unity_bridge/` に移動して同じコマンドを実行します。仮想環境を有効にしていれば、`uv run` を省いて `invoke unity` と書けます。タスクの一覧は、リポジトリ直下で `invoke --list` を実行すると確認できます。
 
 `uv run python -m unity_bridge` でも起動できます。シリアル中継の従来モードは「既存のシリアル中継」を参照してください。
 
@@ -140,4 +144,4 @@ uv run ruff check src test
 uv run ruff format --check src test
 ```
 
-統合テストは、実際の子プロセス・キュー・WebSocket・プローブ受信処理を検証し、カメラは不要です。
+pytestは、リポジトリ直下から `invoke unity-tests` でも実行できます。統合テストは、実際の子プロセス・キュー・WebSocket・プローブ受信処理を検証し、カメラは不要です。
