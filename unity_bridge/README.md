@@ -30,6 +30,12 @@ firmwareには回転数の読み出しがないので、出力は指示から推
 - yamlのキーは `suzukaze.yaml` を見てください。環境変数名は、キーの大文字です
   (`fan_pwm_pins` なら `FAN_PWM_PINS`)。
 - ピンの一覧は、yamlでは配列、環境変数ではカンマ区切りで書きます。
+- `microcontroller_serial_port` は、`suzukaze.yaml` では Windows の `COM3` です。Linux は `/dev/ttyACM0` など
+  になるので、`suzukaze.local.yaml` に書きます。
+- `fan_pwm_pins` は、`channel` の1〜6の順に6本のGPIO番号を書きます。firmwareの `fanPins`(GP2〜GP7)と
+  同じにします。6本でないときと、重複があるときは、起動時にエラーになります。
+- `diffuser_pins` は、`DiffuserChannel` の値の順(ラムネ、森)に2本のGPIO番号を書きます。
+  2本でないときと、重複があるときは、起動時にエラーになります。
 - `suzukaze.yaml` は共有する設定、`suzukaze.local.yaml` はマシンごとの違い(シリアルポートなど)に使います。
   `suzukaze.local.yaml` はコミットしません。
 
