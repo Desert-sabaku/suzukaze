@@ -89,8 +89,13 @@ namespace Suzukaze.Gesture
                 var bridge = BridgeEnvelope.Parser.ParseFrom(bytes, 0, length);
                 if (bridge.PayloadCase == BridgeEnvelope.PayloadOneofCase.FanState)
                     return new ReceivedMessage(bridge.FanState, arrival);
+                if (bridge.PayloadCase == BridgeEnvelope.PayloadOneofCase.RuntimeSettings)
+                {
+                    RuntimeControl.Validate(bridge.RuntimeSettings);
+                    return new ReceivedMessage(bridge.RuntimeSettings, arrival);
+                }
                 if (bridge.PayloadCase != BridgeEnvelope.PayloadOneofCase.Gesture)
-                    throw new InvalidDataException("Receiver expects gesture or fan state");
+                    throw new InvalidDataException("Receiver expects gesture, fan state or settings");
                 Validate(bridge.Gesture);
                 return new ReceivedMessage(bridge.Gesture, arrival);
             }
@@ -99,13 +104,16 @@ namespace Suzukaze.Gesture
 
     public sealed class ReceivedMessage
     {
-        // ジェスチャーのときだけ Envelope、ファンの状態のときだけ FanState が入る。
+        // ジェスチャーのときだけ Envelope、ファンの状態のときだけ FanState、設定のときだけ RuntimeSettings が入る。
         public GestureEnvelope Envelope { get; }
         public FanState FanState { get; }
+        public RuntimeSettings RuntimeSettings { get; }
         public double ReceivedAt { get; }
         public ReceivedMessage(GestureEnvelope envelope, double receivedAt)
         { Envelope = envelope; ReceivedAt = receivedAt; }
         public ReceivedMessage(FanState fanState, double receivedAt)
         { FanState = fanState; ReceivedAt = receivedAt; }
+        public ReceivedMessage(RuntimeSettings settings, double receivedAt)
+        { RuntimeSettings = settings; ReceivedAt = receivedAt; }
     }
 }

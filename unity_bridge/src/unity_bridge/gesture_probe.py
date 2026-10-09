@@ -15,7 +15,12 @@ from gesture_detection.gesture_types import (
     Gesture,
 )
 
-from .gesture_codec import MAX_MESSAGE_BYTES, decode_message, encode_message
+from .gesture_codec import (
+    MAX_MESSAGE_BYTES,
+    decode_bridge,
+    decode_gesture,
+    encode_message,
+)
 
 
 def finite_number(value: object) -> float:
@@ -146,10 +151,14 @@ class GestureReceiver:
         }
 
 
-def decode_payload(raw: str | bytes) -> dict[str, Any]:
+def decode_payload(raw: str | bytes) -> dict[str, Any] | None:
+    """Decode a gesture message; None for the fan and settings messages."""
     if not isinstance(raw, bytes):
         raise TypeError("Expected binary gesture payload")
-    return decode_message(raw)
+    envelope = decode_bridge(raw)
+    if envelope.WhichOneof("payload") != "gesture":
+        return None
+    return decode_gesture(envelope.gesture)
 
 
 def log_snapshot(
@@ -190,6 +199,8 @@ async def run(url: str, ignore_events: bool = False) -> None:
                         receiver.poll(time.monotonic())
                         continue
                     message = decode_payload(raw)
+                    if message is None:
+                        continue
                     ack = receiver.receive(
                         message, time.monotonic(), lambda _: not ignore_events
                     )

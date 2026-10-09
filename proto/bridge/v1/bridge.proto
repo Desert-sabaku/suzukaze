@@ -20,6 +20,12 @@ message BridgeEnvelope {
     FanState fan_state = 3;
     // Unity -> bridge: ディフューザーの電源ボタンを押す。
     diffuser.v1.DiffuserPress diffuser_press = 4;
+    // bridge -> Unity: 設定画面で変えた設定。接続時と変更時に送る。
+    RuntimeSettings runtime_settings = 5;
+    // Unity -> bridge: Unity のいまの動作状況。定期的に送る。
+    RuntimeStatus runtime_status = 6;
+    // Unity -> bridge: Unity で出たエラーのログ。1件ずつ送る。
+    UnityLog unity_log = 7;
   }
 }
 
@@ -33,4 +39,44 @@ message FanReading {
 
   // いまの出力。0-255
   uint32 value = 2;
+}
+
+// 会場で変えられる設定。正本は Unity が持ち、反映した値を RuntimeStatus で返す。
+message RuntimeSettings {
+  // false の間は香りを出さない(出している香りは止める)。
+  bool diffuser_enabled = 1;
+
+  // GameSettings.timeScale に掛ける倍率。0 以上。
+  double time_scale_multiplier = 2;
+}
+
+message RuntimeStatus {
+  // Unity が反映している設定。
+  RuntimeSettings settings = 1;
+
+  string scene = 2;
+
+  // ゲーム内の時刻(0-24)。時間を動かさないシーンでは省略する。
+  optional double current_hour = 3;
+
+  // 反映後の時間の速さ(ゲーム内の時間/実時間の秒)。
+  double effective_time_scale = 4;
+
+  double fps = 5;
+}
+
+enum UnityLogLevel {
+  UNITY_LOG_LEVEL_UNSPECIFIED = 0;
+  // Debug.LogError と Debug.Assert の失敗。
+  UNITY_LOG_LEVEL_ERROR = 1;
+  UNITY_LOG_LEVEL_EXCEPTION = 2;
+}
+
+message UnityLog {
+  UnityLogLevel level = 1;
+
+  // 1メッセージが 8192 バイトに収まるよう、Unity が切り詰める。
+  string message = 2;
+
+  string stack_trace = 3;
 }

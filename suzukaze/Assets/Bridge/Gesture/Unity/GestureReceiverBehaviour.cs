@@ -1,10 +1,12 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Suzukaze.Bridge.Protocol;
 using Suzukaze.Core;
 using Suzukaze.Diffuser;
 using Suzukaze.Fan;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Suzukaze.Gesture
 {
@@ -12,6 +14,9 @@ namespace Suzukaze.Gesture
     public sealed class GestureReceiverBehaviour : MonoBehaviour
     {
         [SerializeField] private string endpoint = "ws://127.0.0.1:5000";
+
+        // 設定画面へ状態を送る間隔(秒)。
+        private const float StatusInterval = 0.5f;
 
         private static GestureReceiverBehaviour _owner;
         private static Task _retiring = Task.CompletedTask;
@@ -21,6 +26,8 @@ namespace Suzukaze.Gesture
         private Transceiver receiver;
         private CancellationTokenSource stopping;
         private Task worker;
+        private float lastStatusAt;
+        private int framesSinceStatus;
         public bool IsOwner => _owner == this;
         public string LastError => receiver?.LastError;
         public GestureEvents Events { get; } = new GestureEvents();
@@ -43,6 +50,7 @@ namespace Suzukaze.Gesture
             if (_owner) _owner.RetireWorker();
             _owner = null;
             _history = new DeliveryPolicy();
+            RuntimeControl.ResetInstance();
         }
 
         private void Awake()
@@ -50,6 +58,8 @@ namespace Suzukaze.Gesture
             if (_owner && _owner != this) { Destroy(gameObject); return; }
             _owner = this;
             DontDestroyOnLoad(gameObject);
+            Application.logMessageReceivedThreaded -= ForwardLog;
+            Application.logMessageReceivedThreaded += ForwardLog;
             _history.Disconnected();
             handoff = new ReceiverHandoff(_history);
         }
@@ -74,11 +84,14 @@ namespace Suzukaze.Gesture
                 var uri = new Uri(endpoint);
                 if (!uri.IsLoopback || (uri.Scheme != "ws" && uri.Scheme != "wss"))
                     throw new ArgumentException("Endpoint must be a loopback WebSocket URI");
-                // ファンも同じ WebSocket に載せる。FanOutput は差し替わりうるので、都度 Instance を引く。
+                // ファンと設定画面(設定、Unity の状態・エラー)も同じ WebSocket に載せる。
+                // FanOutput などは差し替わりうるので、都度 Instance を引く。
                 receiver = new Transceiver(new GestureConnection(handoff, clock,
                     connected => FanOutput.Instance.Mcu.Connected = DiffuserOutput.Instance.Connected = connected,
                     state => FanOutput.Instance.Mcu.Apply(state),
-                    () => FanOutput.Instance.Mcu.TakeOutgoing() ?? DiffuserOutput.Instance.TakeOutgoing()));
+                    () => FanOutput.Instance.Mcu.TakeOutgoing() ?? DiffuserOutput.Instance.TakeOutgoing()
+                        ?? RuntimeControl.Instance.TakeOutgoing(),
+                    settings => RuntimeControl.Instance.Apply(settings)));
                 stopping = new CancellationTokenSource();
                 handoff.Resume();
                 worker = RunAfterRetirement(receiver, uri, stopping.Token);
@@ -109,6 +122,7 @@ namespace Suzukaze.Gesture
                 stopping = null;
             }
             if (worker == null) StartWorker();
+            ReportStatus();
             if (clock == null) return;
             try { handoff.Tick(clock, Events); }
             catch (Exception error) { Debug.LogException(error, this); }
@@ -125,9 +139,33 @@ namespace Suzukaze.Gesture
             catch (Exception error) { Debug.LogException(error, this); }
         }
 
+        private void ReportStatus()
+        {
+            framesSinceStatus++;
+            var now = Time.unscaledTime;
+            var elapsed = now - lastStatusAt;
+            if (elapsed < StatusInterval) return;
+            RuntimeControl.Instance.ReportStatus(SceneManager.GetActiveScene().name, framesSinceStatus / elapsed);
+            framesSinceStatus = 0;
+            lastStatusAt = now;
+        }
+
+        // どのスレッドからも呼ばれる。Unity API は使わない。
+        private static void ForwardLog(string message, string stackTrace, LogType type)
+        {
+            var level = type switch
+            {
+                LogType.Exception => UnityLogLevel.Exception,
+                LogType.Error or LogType.Assert => UnityLogLevel.Error,
+                _ => UnityLogLevel.Unspecified
+            };
+            if (level != UnityLogLevel.Unspecified) RuntimeControl.Instance.ReportLog(level, message, stackTrace);
+        }
+
         private void OnDestroy()
         {
             if (!IsOwner) return;
+            Application.logMessageReceivedThreaded -= ForwardLog;
             RetireWorker();
             _owner = null;
         }

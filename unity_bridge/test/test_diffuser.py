@@ -35,3 +35,21 @@ def test_pins_come_from_the_env(monkeypatch):
     assert pins_from_env() == (8, 9)
     monkeypatch.setenv("DIFFUSER_PINS", "4,5")
     assert pins_from_env() == (4, 5)
+
+
+def test_on_off_is_estimated_from_the_number_of_presses():
+    diffuser = DiffuserController(clock=lambda: 100.0)
+    assert not diffuser.wired
+    for _ in range(3):
+        diffuser.press(press(diffuser_pb2.DIFFUSER_CHANNEL_RAMUNE))
+    ramune, forest = diffuser.channels()
+    assert (ramune["on"], ramune["presses"], ramune["last_press_at"]) == (
+        True,
+        3,
+        100.0,
+    )
+    assert (forest["on"], forest["presses"], forest["last_press_at"]) == (
+        False,
+        0,
+        None,
+    )

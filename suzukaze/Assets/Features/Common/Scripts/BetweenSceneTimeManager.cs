@@ -1,5 +1,6 @@
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using Suzukaze.Gesture;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -52,9 +53,14 @@ namespace Features.Common.Scripts
 
         private void Update()
         {
+            // 設定画面 (unity_bridge) から変えられる倍率を掛け、反映後の値を設定画面へ返す
+            var control = RuntimeControl.Instance;
+            var timeScale = _gameSettings ? _gameSettings.timeScale * (float)control.TimeScaleMultiplier : 0f;
+            control.EffectiveTimeScale = _isActive ? timeScale : 0;
+            control.CurrentHour = _gameSettings && _isActive ? CurrentHour : (double?)null;
             if (!_gameSettings || !_isActive) return;
 
-            _currentHour += Time.deltaTime * _gameSettings.timeScale;
+            _currentHour += Time.deltaTime * timeScale;
             _directionalLight.rotation = SunPath.RotationAt(_currentHour);
         }
 

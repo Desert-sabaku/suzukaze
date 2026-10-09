@@ -36,7 +36,9 @@ as a package.
   `multiprocessing.Queue`.
 - Control: Unity manages the whole experience. It connects to `unity_bridge`
   over WebSocket (`ws://127.0.0.1:5000`), receives gesture state/events as
-  protobuf, and returns ACKs. Delivery state (retries, expiry, ACKs) is owned by
+  protobuf, and returns ACKs. `unity_bridge` also serves a LAN admin page
+  (`admin.py`, port 5081) that shows Unity/fan/diffuser status and errors and
+  sends runtime settings to Unity over the same socket. Delivery state (retries, expiry, ACKs) is owned by
   `unity_bridge`'s `DeliveryOutbox`.
 - Output: Unity footage is output directly via the projector. The fan and
   speaker are driven by the microcontroller; `unity_bridge` is planned to call
@@ -64,7 +66,7 @@ From `unity_bridge/`:
 
 ```bash
 uv sync --group dev
-uv run unity-bridge --gesture   # Start recognition and serve Unity
+uv run unity-bridge --gesture   # Start recognition and serve Unity (admin page on :5081)
 uv run unity-gesture-probe      # Mock Unity receiver
 uv run unity-bridge --debug-gui # Send gestures from a browser (no cameras)
 uv run python -m pytest

@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>鈴風 設定</title>
+<style>
+  :root {
+    --bg: #f5f6f8; --card: #ffffff; --text: #1d2330; --muted: #6b7385;
+    --line: #dde1e8; --accent: #2f6fde; --accent-text: #ffffff;
+    --ok: #1f9d55; --warn: #c27c0e; --bad: #d64545; --chip: #eef1f6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14171d; --card: #1d2129; --text: #e6e9ef; --muted: #9098a9;
+      --line: #2e3440; --accent: #5b8ff0; --accent-text: #0d1117; --chip: #272c36;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.5 system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+  }
+  header {
+    position: sticky; top: 0; z-index: 1;
+    display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center;
+    padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--card);
+  }
+  header h1 { font-size: 16px; margin: 0 auto 0 0; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px;
+    border-radius: 999px; background: var(--chip); font-size: 12px; white-space: nowrap;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bad); flex: none; }
+  .dot.on { background: var(--ok); }
+  .dot.warn { background: var(--warn); }
+  main {
+    display: grid; gap: 12px; padding: 12px 16px 32px; max-width: 1100px; margin: 0 auto;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+  section {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 12px 14px; min-width: 0;
+  }
+  h2 {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; margin: 0 0 10px; color: var(--muted); font-weight: 600;
+  }
+  h2 .pill { margin-left: auto; font-weight: 400; }
+  dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; }
+  dt { color: var(--muted); }
+  dd { margin: 0; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .muted { color: var(--muted); }
+  .note { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
+  .warn-text { color: var(--warn); }
+  .bad-text { color: var(--bad); }
+  button {
+    font: inherit; color: var(--text); background: var(--chip);
+    border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; cursor: pointer;
+    min-height: 40px;
+  }
+  button.on { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .setting { padding: 10px 0; border-top: 1px solid var(--line); }
+  .setting:first-of-type { border-top: 0; padding-top: 0; }
+  .setting-head { display: flex; align-items: center; gap: 12px; }
+  .setting-head strong { margin-right: auto; font-weight: 600; }
+  .switch {
+    position: relative; width: 56px; height: 32px; flex: none; padding: 0;
+    border-radius: 999px; background: var(--line); border: 0; min-height: 0;
+  }
+  .switch::after {
+    content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px;
+    border-radius: 50%; background: #fff; transition: transform .15s;
+    box-shadow: 0 1px 3px rgba(0,0,0,.3);
+  }
+  .switch.on { background: var(--ok); }
+  .switch.on::after { transform: translateX(24px); }
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .presets button { flex: 1 0 52px; }
+  .custom { display: flex; gap: 6px; margin-top: 8px; }
+  .custom input {
+    flex: 1; min-width: 0; font: inherit; color: var(--text); background: var(--bg);
+    border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
+  }
+  .fans { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
+  .fan-label { display: flex; justify-content: space-between; font-size: 13px; }
+  .bar { height: 8px; border-radius: 4px; background: var(--chip); overflow: hidden; }
+  .bar > span { display: block; height: 100%; background: var(--accent); width: 0; }
+  ul.list { list-style: none; margin: 0; padding: 0; }
+  ul.list li { padding: 6px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  ul.list li:first-child { border-top: 0; }
+  .errors li { display: grid; gap: 2px; }
+  .errors .meta { display: flex; gap: 8px; color: var(--muted); font-size: 12px; }
+  .errors .msg { overflow-wrap: anywhere; }
+  .errors details pre {
+    margin: 4px 0 0; padding: 6px 8px; background: var(--bg); border-radius: 6px;
+    font-size: 11px; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 200px; overflow: auto;
+  }
+  .tag { padding: 0 6px; border-radius: 4px; background: var(--chip); font-size: 11px; }
+  .tag.unity { color: var(--accent); }
+  .tag.mcu { color: var(--warn); }
+  #toast {
+    position: fixed; left: 16px; right: 16px; bottom: 16px; margin: 0 auto; max-width: 480px;
+    padding: 10px 14px; border-radius: 8px; background: var(--bad); color: #fff;
+    display: none;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>鈴風 設定</h1>
+  <span class="pill"><span class="dot" id="page-dot"></span><span id="page-text">接続中…</span></span>
+  <span class="pill"><span class="dot" id="unity-dot"></span><span id="unity-text">Unity</span></span>
+</header>
+<main>
+  <section>
+    <h2>設定</h2>
+    <div class="setting">
+      <div class="setting-head">
+        <strong>ディフューザーを使う</strong>
+        <button class="switch" id="diffuser-switch" role="switch" aria-checked="false"
+                aria-label="ディフューザーを使う"></button>
+      </div>
+      <p class="note" id="diffuser-applied"></p>
+    </div>
+    <div class="setting">
+      <div class="setting-head">
+        <strong>時間の速さ</strong>
+        <span id="time-current">×1</span>
+      </div>
+      <div class="presets" id="time-presets"></div>
+      <form class="custom" id="time-form">
+        <input id="time-input" type="number" inputmode="decimal" min="0" max="100" step="0.1"
+               placeholder="倍率 (0〜100)" aria-label="時間の速さの倍率">
+        <button type="submit">設定</button>
+      </form>
+      <p class="note" id="time-applied"></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Unity</h2>
+    <dl>
+      <dt>接続</dt><dd id="u-connected">-</dd>
+      <dt>シーン</dt><dd id="u-scene">-</dd>
+      <dt>ゲーム内時刻</dt><dd id="u-hour">-</dd>
+      <dt>FPS</dt><dd id="u-fps">-</dd>
+      <dt>bridge 稼働</dt><dd id="b-uptime">-</dd>
+    </dl>
+  </section>
+
+  <section>
+    <h2>所作解析 <span class="pill" id="g-source">-</span></h2>
+    <dl>
+      <dt>継続所作</dt><dd id="g-gesture">-</dd>
+      <dt>進行</dt><dd id="g-progress">-</dd>
+      <dt>精度</dt><dd id="g-accuracy">-</dd>
+      <dt>追跡 / 在室</dt><dd id="g-tracking">-</dd>
+      <dt>最終受信</dt><dd id="g-age">-</dd>
+      <dt>未ACK</dt><dd id="g-pending">-</dd>
+    </dl>
+    <p class="note">最近成立した所作</p>
+    <ul class="list" id="g-occurrences"><li class="muted">なし</li></ul>
+  </section>
+
+  <section>
+    <h2>ファン <span class="pill"><span class="dot" id="mcu-dot"></span><span id="mcu-text">-</span></span></h2>
+    <div class="fans" id="fans"></div>
+    <p class="note" id="fan-note"></p>
+  </section>
+
+  <section>
+    <h2>ディフューザー <span class="pill" id="d-wired">-</span></h2>
+    <ul class="list" id="diffusers"></ul>
+    <p class="note">ボタンを押すたびに ON/OFF が切り替わる機種なので、bridge 起動後に押した回数から推定しています。</p>
+  </section>
+
+  <section>
+    <h2>エラー <button id="clear-errors" style="margin-left:auto;min-height:32px;padding:4px 10px">消去</button></h2>
+    <ul class="list errors" id="errors"><li class="muted">なし</li></ul>
+  </section>
+</main>
+<div id="toast" role="alert"></div>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const GESTURES = {
+  NONE: "なし", FANNING: "扇ぐ", RELAXING: "夕涼み", BOW: "礼", RAMUNE: "ラムネ", UCHIMIZU: "打ち水",
+};
+const FAN_NAMES = {
+  LEFT_BACK: "左 奥", LEFT_SIDE: "左 横", LEFT_FRONT: "左 前",
+  RIGHT_BACK: "右 奥", RIGHT_SIDE: "右 横", RIGHT_FRONT: "右 前",
+};
+const DIFFUSER_NAMES = { RAMUNE: "ラムネ", FOREST: "森" };
+const PRESETS = [0, 0.5, 1, 2, 5, 10];
+const token = new URLSearchParams(location.search).get("token");
+let socket = null;
+let last = null;
+
+function send(command) {
+  if (socket && socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify(command));
+  else toast("bridge に接続していません");
+}
+
+function toast(message) {
+  const el = $("toast");
+  el.textContent = message;
+  el.style.display = "block";
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => { el.style.display = "none"; }, 4000);
+}
+
+const fmtNum = (x, digits = 2) => (x == null ? "-" : Number(x).toFixed(digits).replace(/\.?0+$/, ""));
+const fmtAge = (s) => (s == null ? "-" : s < 1 ? "たった今" : s < 60 ? `${Math.round(s)} 秒前` : `${Math.round(s / 60)} 分前`);
+const fmtClock = (unix) => new Date(unix * 1000).toLocaleTimeString("ja-JP", { hour12: false });
+function fmtDuration(s) {
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
+  return h ? `${h} 時間 ${m} 分` : `${m} 分 ${Math.floor(s % 60)} 秒`;
+}
+function fmtHour(hour) {
+  if (hour == null) return "動かさないシーン";
+  const minutes = Math.floor(hour * 60) % (24 * 60);
+  return `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
+}
+function setDot(id, state) {
+  $(id).className = "dot" + (state === true ? " on" : state === "warn" ? " warn" : "");
+}
+function li(text, cls) {
+  const el = document.createElement("li");
+  el.textContent = text;
+  if (cls) el.className = cls;
+  return el;
+}
+
+for (const value of PRESETS) {
+  const button = document.createElement("button");
+  button.textContent = "×" + value;
+  button.dataset.value = value;
+  button.addEventListener("click", () => send({ type: "settings", time_scale_multiplier: value }));
+  $("time-presets").append(button);
+}
+$("time-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const value = Number($("time-input").value);
+  if ($("time-input").value === "" || !Number.isFinite(value)) return toast("数値を入れてください");
+  send({ type: "settings", time_scale_multiplier: value });
+  $("time-input").value = "";
+  $("time-input").blur();
+});
+$("diffuser-switch").addEventListener("click", () => {
+  if (last) send({ type: "settings", diffuser_enabled: !last.settings.diffuser_enabled });
+});
+$("clear-errors").addEventListener("click", () => send({ type: "clear_errors" }));
+
+function render(s) {
+  last = s;
+  const unity = s.unity, applied = unity.status;
+
+  // 設定。要求した値と、Unity が反映した値を並べる。
+  const wanted = s.settings;
+  $("diffuser-switch").classList.toggle("on", wanted.diffuser_enabled);
+  $("diffuser-switch").setAttribute("aria-checked", String(wanted.diffuser_enabled));
+  $("time-current").textContent = "×" + fmtNum(wanted.time_scale_multiplier);
+  for (const button of $("time-presets").children)
+    button.classList.toggle("on", Number(button.dataset.value) === wanted.time_scale_multiplier);
+  if (!applied) {
+    const text = unity.connected ? "Unity からの状態を待っています" : "Unity 未接続。接続したら反映します";
+    $("diffuser-applied").textContent = $("time-applied").textContent = text;
+    $("diffuser-applied").className = $("time-applied").className = "note warn-text";
+  } else {
+    const diffuserOk = applied.settings.diffuser_enabled === wanted.diffuser_enabled;
+    $("diffuser-applied").textContent = diffuserOk
+      ? `Unity に反映済み (${wanted.diffuser_enabled ? "使う" : "止める"})`
+      : "Unity に反映待ち";
+    $("diffuser-applied").className = "note" + (diffuserOk ? "" : " warn-text");
+    const timeOk = applied.settings.time_scale_multiplier === wanted.time_scale_multiplier;
+    $("time-applied").textContent = (timeOk ? "Unity に反映済み" : "Unity に反映待ち") +
+      ` · 実際の速さ ${fmtNum(applied.effective_time_scale, 3)} 時間/秒`;
+    $("time-applied").className = "note" + (timeOk ? "" : " warn-text");
+  }
+
+  // Unity
+  setDot("unity-dot", unity.connected ? (applied ? true : "warn") : false);
+  $("unity-text").textContent = unity.connected ? "Unity 接続中" : "Unity 未接続";
+  $("u-connected").textContent = unity.connected
+    ? (applied ? `接続中 (状態 ${fmtAge(unity.status_age)})` : "接続中 (状態未受信)")
+    : "未接続";
+  $("u-connected").className = unity.connected ? "" : "bad-text";
+  $("u-scene").textContent = applied ? applied.scene || "-" : "-";
+  $("u-hour").textContent = applied ? fmtHour(applied.current_hour) : "-";
+  $("u-fps").textContent = applied ? fmtNum(applied.fps, 0) : "-";
+  $("b-uptime").textContent = fmtDuration(s.uptime);
+
+  // 所作解析
+  const g = s.gesture, sample = g.sample;
+  $("g-source").textContent = { gesture_detection: "カメラ", "debug GUI": "デバッグGUI", none: "認識なし" }[g.source] || g.source;
+  $("g-gesture").textContent = sample ? GESTURES[sample.gesture] || sample.gesture : "-";
+  $("g-progress").textContent = sample && sample.action
+    ? `${GESTURES[sample.action] || sample.action} / ${sample.phase}` : "-";
+  $("g-accuracy").textContent = sample && sample.action_accuracy != null
+    ? Math.round(sample.action_accuracy * 100) + "%" : "-";
+  $("g-tracking").textContent = sample
+    ? `${sample.tracking ? "追跡中" : "追跡なし"} / ${sample.booth_present ? "在室" : "不在"}` : "-";
+  $("g-age").textContent = fmtAge(g.sample_age);
+  $("g-age").className = g.sample_age != null && g.sample_age > 2 ? "warn-text" : "";
+  $("g-pending").textContent = g.pending_events;
+  const occurrences = $("g-occurrences");
+  occurrences.replaceChildren(...(g.occurrences.length
+    ? g.occurrences.slice(0, 8).map((o) => li(
+      `${fmtClock(o.at)}  ${GESTURES[o.gesture] || o.gesture}` +
+      (o.action_accuracy != null ? `  (${Math.round(o.action_accuracy * 100)}%)` : "")))
+    : [li("なし", "muted")]));
+
+  // ファン
+  const mcu = s.fan.mcu;
+  if (!mcu.configured) {
+    setDot("mcu-dot", "warn");
+    $("mcu-text").textContent = "マイコンなし";
+    $("fan-note").textContent = "FAN_PWM_PINS が未設定なので、Unity の指示から推定した値です。";
+  } else if (mcu.connected) {
+    setDot("mcu-dot", true);
+    $("mcu-text").textContent = "マイコン接続中";
+    $("fan-note").textContent = `${mcu.port} · ファンの回転は読めないため、指示から推定した値です。`;
+  } else {
+    setDot("mcu-dot", mcu.last_error ? false : "warn");
+    $("mcu-text").textContent = mcu.last_error ? "マイコン送信失敗" : "マイコン未送信";
+    $("fan-note").textContent = mcu.last_error
+      ? `${mcu.port}: ${mcu.last_error}` : `${mcu.port} · まだ指示を送っていません。`;
+  }
+  if (!s.fan.active) $("fan-note").textContent += " Unity からの指示はまだありません。";
+  // 左右 2 列に、奥・横・前の順で並べる。
+  const order = [0, 3, 1, 4, 2, 5];
+  $("fans").replaceChildren(...order.map((i) => {
+    const fan = s.fan.channels[i];
+    const cell = document.createElement("div");
+    cell.innerHTML = '<div class="fan-label"><span></span><span></span></div><div class="bar"><span></span></div>';
+    cell.querySelector(".fan-label span").textContent = FAN_NAMES[fan.name] || fan.name;
+    cell.querySelector(".fan-label span:last-child").textContent = Math.round(fan.value / 255 * 100) + "%";
+    cell.querySelector(".bar span").style.width = (fan.value / 255 * 100) + "%";
+    return cell;
+  }));
+
+  // ディフューザー
+  $("d-wired").textContent = s.diffuser.wired ? "マイコンへ送信" : "記録のみ (マイコンなし)";
+  $("diffusers").replaceChildren(...s.diffuser.channels.map((d) => {
+    const item = li("");
+    item.innerHTML = '<span class="pill"><span class="dot"></span><span></span></span> <span></span>';
+    item.querySelector(".dot").className = "dot" + (d.on ? " on" : "");
+    item.querySelector(".pill span:last-child").textContent =
+      `${DIFFUSER_NAMES[d.name] || d.name} ${d.on ? "ON" : "OFF"}`;
+    item.lastElementChild.textContent = d.presses
+      ? `押下 ${d.presses} 回 · 最後 ${fmtClock(d.last_press_at)}` : "まだ押していません";
+    item.lastElementChild.className = "muted";
+    return item;
+  }));
+
+  // エラー
+  $("errors").replaceChildren(...(s.errors.length ? s.errors.map((e) => {
+    const item = document.createElement("li");
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    const tag = document.createElement("span");
+    tag.className = "tag " + e.source;
+    tag.textContent = e.source;
+    const time = document.createElement("span");
+    time.textContent = fmtClock(e.at);
+    meta.append(tag, time);
+    const msg = document.createElement("div");
+    msg.className = "msg" + (e.level === "warning" ? "" : " bad-text");
+    msg.textContent = e.message;
+    item.append(meta, msg);
+    if (e.detail) {
+      const details = document.createElement("details");
+      details.innerHTML = "<summary class='muted'>詳細</summary><pre></pre>";
+      details.querySelector("pre").textContent = e.detail;
+      details.open = openDetails.has(e.id);
+      details.addEventListener("toggle", () => {
+        details.open ? openDetails.add(e.id) : openDetails.delete(e.id);
+      });
+      item.append(details);
+    }
+    return item;
+  }) : [li("なし", "muted")]));
+}
+const openDetails = new Set();
+
+function connect() {
+  const url = new URL("ws", location.href);
+  url.protocol = location.protocol === "https:" ? "wss:" : "ws:";
+  url.search = token ? "?token=" + encodeURIComponent(token) : "";
+  socket = new WebSocket(url);
+  socket.onopen = () => { setDot("page-dot", true); $("page-text").textContent = "bridge 接続中"; };
+  socket.onmessage = (event) => {
+    const message = JSON.parse(event.data);
+    if (message.type === "status") render(message);
+    else if (message.type === "error") toast(message.message);
+  };
+  socket.onclose = () => {
+    setDot("page-dot", false);
+    $("page-text").textContent = "bridge 切断。再接続中…";
+    setDot("unity-dot", false);
+    setTimeout(connect, 1000);
+  };
+}
+connect();
+</script>
+</body>
+</html>

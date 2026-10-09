@@ -3,21 +3,32 @@ import asyncio
 import contextlib
 import os
 import threading
+from pathlib import Path
 from typing import Any
 
 import websockets
 from dotenv import load_dotenv
 
+from .admin import (
+    DEFAULT_ADMIN_HOST,
+    DEFAULT_ADMIN_PORT,
+    AdminPanel,
+    lan_addresses,
+    serve_admin,
+)
 from .bridge_relay import BridgeRelay, DetectionProcess, SampleSource
 from .diffuser import DiffuserController, pins_from_env
+from .error_log import ErrorLog
 from .fan import FanController, mcu_sender_from_env
 from .gesture_debug import DEFAULT_DEBUG_PORT, ManualGestureSource, serve_debug_gui
 from .gesture_delivery import DeliveryOutbox
+from .runtime_settings import SettingsStore
 
 DEFAULT_HOST = "0.0.0.0"
 DEFAULT_WEBSOCKET_PORT = 5000
 DEFAULT_SERIAL_PORT = "COM3"
 DEFAULT_BAUDRATE = 115200
+DEFAULT_SETTINGS_PATH = "runtime_settings.json"
 MAX_MESSAGE_BYTES = 64 * 1024
 
 
@@ -39,6 +50,9 @@ class UnityBridge:
         bridge_relay: BridgeRelay | None = None,
         detect: bool = True,
         debug_port: int | None = None,
+        admin_host: str = DEFAULT_ADMIN_HOST,
+        admin_port: int | None = None,
+        admin_token: str | None = None,
     ) -> None:
         self.host = host
         self.websocket_port = websocket_port
@@ -50,6 +64,10 @@ class UnityBridge:
         self.detect = detect
         # With a port, the debug GUI replaces gesture_detection as the source.
         self.debug_port = debug_port
+        # With a port, the admin page is served on the LAN beside Unity's socket.
+        self.admin_host = admin_host
+        self.admin_port = admin_port
+        self.admin_token = admin_token
         self._stop = threading.Event()
         self._serial: Any | None = None
 
@@ -109,6 +127,8 @@ class UnityBridge:
                     print(
                         f"Serial connected: {self.serial_port} ({self.baudrate} baud)"
                     )
+                if relay is not None and self.admin_port is not None:
+                    await self._start_admin(stack, relay, manual, detection)
                 if relay is not None and source is not None:
                     await relay.pump(source)
                 else:
@@ -119,6 +139,41 @@ class UnityBridge:
             if detection is not None:
                 detection.close()
             self.stop()
+
+    async def _start_admin(
+        self,
+        stack: contextlib.AsyncExitStack,
+        relay: BridgeRelay,
+        manual: ManualGestureSource | None,
+        detection: DetectionProcess | None,
+    ) -> None:
+        """Serve the admin page; a failure must not stop delivery to Unity."""
+        assert self.admin_port is not None
+        source = (
+            "debug GUI"
+            if manual is not None
+            else "gesture_detection"
+            if detection is not None
+            else "none"
+        )
+        panel = AdminPanel(relay, source, self.admin_token)
+        try:
+            await stack.enter_async_context(
+                serve_admin(panel, self.admin_host, self.admin_port)
+            )
+        except OSError as error:
+            message = f"設定画面を開けませんでした ({self.admin_host}:{self.admin_port}): {error}"
+            print(message, flush=True)
+            relay.errors.record("bridge", "error", message)
+            return
+        query = "?token=..." if self.admin_token else ""
+        hosts = (
+            lan_addresses() or ["127.0.0.1"]
+            if self.admin_host in {"0.0.0.0", "::", ""}
+            else [self.admin_host]
+        )
+        for host in hosts:
+            print(f"Admin page: http://{host}:{self.admin_port}/{query}")
 
     def stop(self) -> None:
         self._stop.set()
@@ -199,12 +254,16 @@ def bridge_relay_from_env() -> BridgeRelay:
         retry_interval=float(os.getenv("GESTURE_RETRY_INTERVAL", "0.1")),
         max_pending=int(os.getenv("GESTURE_MAX_PENDING", "64")),
     )
-    sender = mcu_sender_from_env()
+    errors = ErrorLog()
+    sender = mcu_sender_from_env(lambda message: errors.record("mcu", "error", message))
     return BridgeRelay(
         outbox,
         state_interval,
         FanController(send_fade=sender),
         DiffuserController(sender.pulse if sender else None, pins_from_env()),
+        SettingsStore(Path(os.getenv("RUNTIME_SETTINGS_PATH", DEFAULT_SETTINGS_PATH))),
+        errors,
+        sender,
     )
 
 
@@ -261,6 +320,21 @@ def _parse_args() -> argparse.Namespace:
         type=int,
         default=int(os.getenv("GESTURE_DEBUG_PORT", str(DEFAULT_DEBUG_PORT))),
     )
+    parser.add_argument(
+        "--admin-host",
+        default=os.getenv("ADMIN_HOST", DEFAULT_ADMIN_HOST),
+        help="Address for the admin page; the default serves the LAN.",
+    )
+    parser.add_argument(
+        "--admin-port",
+        type=int,
+        default=int(os.getenv("ADMIN_PORT", str(DEFAULT_ADMIN_PORT))),
+    )
+    parser.add_argument(
+        "--no-admin",
+        action="store_true",
+        help="Do not serve the admin page in gesture mode.",
+    )
     args = parser.parse_args()
     # --fan は、ジェスチャー用の WebSocket 中継から、認識の子プロセスだけを除いたもの。
     # --debug-gui は、認識の子プロセスの代わりにブラウザから所作を送るもの。
@@ -287,6 +361,9 @@ def main() -> None:
         bridge_relay_from_env() if args.gesture else None,
         detect=not args.fan,
         debug_port=args.debug_port if args.debug_gui else None,
+        admin_host=args.admin_host,
+        admin_port=None if args.no_admin else args.admin_port,
+        admin_token=os.getenv("ADMIN_TOKEN") or None,
     )
     try:
         bridge.run()

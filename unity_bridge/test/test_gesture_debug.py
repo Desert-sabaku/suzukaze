@@ -10,9 +10,10 @@ from websockets.asyncio.server import serve
 
 from unity_bridge import core
 from unity_bridge.bridge_relay import BridgeRelay
-from unity_bridge.gesture_codec import decode_message, encode_message
+from unity_bridge.gesture_codec import encode_message
 from unity_bridge.gesture_debug import DebugGui, ManualGestureSource, serve_debug_gui
 from unity_bridge.gesture_delivery import DeliveryOutbox
+from unity_bridge.gesture_probe import decode_payload
 
 FANNING = {
     "gesture": "FANNING",
@@ -101,7 +102,9 @@ def test_browser_command_reaches_unity_and_ack_returns_to_browser():
                     while state is None or event is None:
                         data = await asyncio.wait_for(unity.recv(), 2)
                         assert isinstance(data, bytes)
-                        message = decode_message(data)
+                        message = decode_payload(data)
+                        if message is None:
+                            continue
                         if (
                             message["type"] == "state"
                             and message["gesture"] == "FANNING"

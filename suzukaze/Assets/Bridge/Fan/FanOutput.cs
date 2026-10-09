@@ -73,9 +73,6 @@ namespace Suzukaze.Fan
         /// </summary>
         public byte Get(FanSide side, FanPosition position) => Device.Get(side, position);
 
-        public int DutyPercent(FanSide side, FanPosition position) =>
-            Percent(Get(side, position));
-
         public int Percent(byte value) => (value * 100 + MaxValue / 2) / MaxValue;
 
         internal static int Index(FanSide side, FanPosition position)
