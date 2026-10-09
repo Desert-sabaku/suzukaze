@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Features.Common.Scripts;
 using Features.Gesture_Movie.Scripts;
@@ -25,6 +26,8 @@ namespace Features.SceneTransition
         [ValidateInput(nameof(ValidateAutoTransitionInterval), "自動遷移のインターバルはドロップ後のインターバルより長くする必要があります")]
         [SerializeField]
         private float autoTransitionInterval = 60f;
+
+        private CancellationTokenSource _cts;
 
         private GestureReceiverBehaviour _gestureReceiver;
         private GameInputs _input;
@@ -53,8 +56,14 @@ namespace Features.SceneTransition
         private void OnDisable()
         {
             hanabi.OnDropped.RemoveListener(OnDropped);
-            
+
             _input.Debug.NextStep.performed -= OnDebugNextStep;
+            
+            if (_cts is { } cts)
+            {
+                cts.Cancel();
+                _cts = null;
+            }
 
             if (!_gestureReceiver) return;
             _gestureReceiver.Events.StateChanged -= OnGestureStateChanged;
@@ -75,6 +84,7 @@ namespace Features.SceneTransition
         private void OnDebugNextStep(InputAction.CallbackContext ctx)
         {
             SceneTransitionManager.Instance.LoadSceneAsync("Title").Forget();
+            enabled = false;
         }
 
         private void OnGestureStateChanged(StateView state)
@@ -86,6 +96,7 @@ namespace Features.SceneTransition
             SceneTransitionManager.Instance.LoadSceneAsync("Title").Forget();
             _gestureReceiver.Events.StateChanged -= OnGestureStateChanged;
             _gestureReceiver = null;
+            enabled = false;
         }
 
         private void UpdateBowReleased(StateView state)
@@ -98,19 +109,18 @@ namespace Features.SceneTransition
             var gestureMovie = FindAnyObjectByType<GestureMoviePlayer>();
             if (!gestureMovie) return;
 
-            LSequence.Create()
-                .AppendInterval(afterDropInterval)
-                .Append(
-                    LMotion.Create(0f, 1f, fadeDuration)
-                        .WithOnComplete(() => gestureMovie.SetAnimation(Gestures.Rei))
-                        .Bind(v => resultUI.alpha = v)
-                )
-                .Run();
-            UniTask.Create(async () =>
+            _cts = new CancellationTokenSource();
+            UniTask.Create(async token =>
             {
-                await UniTask.Delay(TimeSpan.FromSeconds(autoTransitionInterval));
+                await UniTask.Delay(TimeSpan.FromSeconds(afterDropInterval), cancellationToken: token);
+                await LMotion.Create(0f, 1f, fadeDuration)
+                    .WithOnComplete(() => gestureMovie.SetAnimation(Gestures.Rei))
+                    .Bind(v => resultUI.alpha = v)
+                    .ToUniTask(cancellationToken: token);
+                await UniTask.Delay(TimeSpan.FromSeconds(autoTransitionInterval - afterDropInterval - fadeDuration),
+                    cancellationToken: token);
                 SceneTransitionManager.Instance.LoadSceneAsync("Title").Forget();
-            }).Forget();
+            }, _cts.Token).Forget();
         }
     }
 }
