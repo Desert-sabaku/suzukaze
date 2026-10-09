@@ -1,18 +1,19 @@
-using System.Linq;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Sirenix.OdinInspector;
 using Suzukaze.Fan;
 using UnityEngine;
 using UnityEngine.Audio;
+using Random = UnityEngine.Random;
 
 namespace Features.Sound.Scripts
 {
     [RequireComponent(typeof(AudioSource))]
     public class WindChimeSoundEmitter : MonoBehaviour
     {
-        [Title("風鈴")] [Tooltip("未設定なら同じシーンの WindFanController を使う")]
-        [SerializeField]
+        [Title("風鈴")] [Tooltip("未設定なら同じシーンの WindFanController を使う")] [SerializeField]
         private WindFanController wind;
 
         [Tooltip("空なら合成した風鈴の音を使う")] [SerializeField]
@@ -23,8 +24,7 @@ namespace Features.Sound.Scripts
         [SerializeField] private AudioMixerGroup windChimeOutput;
         [SerializeField] [Range(0f, 1f)] private float windChimeVolume = 0.6f;
 
-        [Tooltip("WindFanController.CurrentPower がこの値を超えると鳴る。夕涼みの所作には依存しない")]
-        [SerializeField] [Range(0f, 1f)]
+        [Tooltip("WindFanController.CurrentPower がこの値を超えると鳴る。夕涼みの所作には依存しない")] [SerializeField] [Range(0f, 1f)]
         private float windChimeThreshold = 0.35f;
 
         [Tooltip("風が吹いて風鈴が鳴る間隔 (秒)")] [SerializeField] [MinMaxSlider(0.5f, 20f, true)]
@@ -36,82 +36,80 @@ namespace Features.Sound.Scripts
         [SerializeField] [MinMaxSlider(0.05f, 1f, true)]
         private Vector2 gapBetweenStrikesSeconds = new(0.12f, 0.4f);
 
-        [SerializeField, Range(0.1f, 1f)] private float strongWindIntervalScale = 0.45f;
-        [SerializeField, Min(0)] private int strongWindExtraStrikes = 3;
+        [SerializeField] [Range(0.1f, 1f)] private float strongWindIntervalScale = 0.45f;
+        [SerializeField] [Min(0)] private int strongWindExtraStrikes = 3;
         [SerializeField] private Vector2 playbackSpeedRange = new(0.94f, 1.06f);
         [SerializeField] private Vector2 strongRecordingSpeedRange = new(1.02f, 1.18f);
 
         [Tooltip("聞き手から見た風鈴の位置。軒先に吊るした風鈴を想定し、少し上の前方に置く")] [SerializeField]
         private Vector3 windChimeOffset = new(0.8f, 1.2f, 1.5f);
 
-        private AudioClip[] _clips;
-        private AudioClip _lastClip;
-        private AudioSource _windChime;
-        private AudioListener _listener;
-        private float _nextGustTime;
-        private float _nextStrikeTime;
-        private int _strikesRemaining;
-        private float _strikeGain;
-        private bool _ownsClips;
-        private sealed class ClipData
-        {
-            public float[] Samples;
-            public int Channels;
-            public int Frequency;
-        }
-
-        private sealed class PendingStrike
-        {
-            public Task<float[]> Samples;
-            public ClipData Original;
-            public string Name;
-            public float Gain;
-        }
+        private readonly List<(AudioClip clip, float releaseTime)> _liveClips = new();
 
         private readonly Dictionary<AudioClip, ClipData> _pcmClips = new();
         private readonly List<PendingStrike> _pendingStrikes = new();
-        private readonly List<(AudioClip clip, float releaseTime)> _liveClips = new();
-        [ShowInInspector, ReadOnly] public float CurrentPlaybackSpeed { get; private set; } = 1f;
+
+        private AudioClip[] _clips;
+        private AudioClip _lastClip;
+        private AudioListener _listener;
+        private float _nextGustTime;
+        private float _nextStrikeTime;
+        private bool _ownsClips;
+        private float _strikeGain;
+        private int _strikesRemaining;
+        private AudioSource _windChime;
+        [ShowInInspector] [ReadOnly] public float CurrentPlaybackSpeed { get; private set; } = 1f;
 
         private void Awake()
         {
             _windChime = GetComponent<AudioSource>();
             if (!wind)
-                wind = FindObjectsByType<WindFanController>(FindObjectsSortMode.None)
+                wind = FindObjectsByType<WindFanController>()
                     .FirstOrDefault(candidate => candidate.gameObject.scene == gameObject.scene);
-            _listener = FindObjectsByType<AudioListener>(FindObjectsSortMode.None)
-                .FirstOrDefault(candidate => candidate.isActiveAndEnabled && candidate.gameObject.scene == gameObject.scene);
-            _clips = recordings ? recordings.shortStrikes.Where(clip => clip).ToArray()
+            _listener = FindObjectsByType<AudioListener>()
+                .FirstOrDefault(candidate =>
+                    candidate.isActiveAndEnabled && candidate.gameObject.scene == gameObject.scene);
+            _clips = recordings
+                ? recordings.shortStrikes.Where(clip => clip).ToArray()
                 : windChimeClips?.Where(clip => clip).ToArray();
             _ownsClips = _clips == null || _clips.Length == 0;
             if (_ownsClips) _clips = WindChimeSynth.CreateClips();
-            var allClips = recordings ? _clips.Concat(recordings.longStrikes) : _clips;
-            foreach (var clip in allClips.Where(clip => clip).Distinct())
-            {
-                var samples = new float[clip.samples * clip.channels];
-                if (clip.GetData(samples, 0))
-                    _pcmClips.Add(clip, new ClipData { Samples = samples, Channels = clip.channels, Frequency = clip.frequency });
-                else Debug.LogWarning($"[Sound] {clip.name} requires Decompress On Load for pitch-preserving playback.", clip);
-            }
+            var allClips = recordings ? (_clips ?? Array.Empty<AudioClip>()).Concat(recordings.longStrikes) : _clips;
+            if (allClips != null)
+                foreach (var clip in allClips.Where(clip => clip).Distinct())
+                {
+                    var samples = new float[clip.samples * clip.channels];
+                    if (clip.GetData(samples, 0))
+                        _pcmClips.Add(clip,
+                            new ClipData { Samples = samples, Channels = clip.channels, Frequency = clip.frequency });
+                    else
+                        Debug.LogWarning(
+                            $"[Sound] {clip.name} requires Decompress On Load for pitch-preserving playback.", clip);
+                }
+
             _windChime.playOnAwake = false;
             _windChime.loop = false;
             if (windChimeOutput) _windChime.outputAudioMixerGroup = windChimeOutput;
         }
 
-        private void OnEnable() => _nextGustTime = Time.time;
-
         private void LateUpdate()
         {
             CompletePendingStrikes();
-            for (int i = _liveClips.Count - 1; i >= 0; i--)
+            for (var i = _liveClips.Count - 1; i >= 0; i--)
                 if (Time.unscaledTime >= _liveClips[i].releaseTime)
                 {
                     Destroy(_liveClips[i].clip);
                     _liveClips.RemoveAt(i);
                 }
+
             // Keep the emitter under Soundscape while retaining its listener-relative placement.
             if (_listener) transform.position = _listener.transform.TransformPoint(windChimeOffset);
             UpdateWindChime(wind && wind.isActiveAndEnabled ? wind.CurrentPower : 0f);
+        }
+
+        private void OnEnable()
+        {
+            _nextGustTime = Time.time;
         }
 
         private void OnDisable()
@@ -119,14 +117,27 @@ namespace Features.Sound.Scripts
             _strikesRemaining = 0;
             if (_windChime) _windChime.Stop();
             _pendingStrikes.Clear();
-            foreach (var entry in _liveClips) if (entry.clip) Destroy(entry.clip);
+            foreach (var entry in _liveClips.Where(entry => entry.clip))
+                Destroy(entry.clip);
             _liveClips.Clear();
         }
 
         private void OnDestroy()
         {
             if (!_ownsClips || _clips == null) return;
-            foreach (var clip in _clips) if (clip) Destroy(clip);
+            foreach (var clip in _clips)
+                if (clip)
+                    Destroy(clip);
+        }
+
+        private void OnValidate()
+        {
+            playbackSpeedRange.x = Mathf.Clamp(playbackSpeedRange.x, 0.9f, 1.1f);
+            playbackSpeedRange.y = Mathf.Clamp(playbackSpeedRange.y, playbackSpeedRange.x, 1.1f);
+            strongRecordingSpeedRange.x = Mathf.Clamp(strongRecordingSpeedRange.x, 0.9f, 1.3f);
+            strongRecordingSpeedRange.y = Mathf.Clamp(strongRecordingSpeedRange.y, strongRecordingSpeedRange.x, 1.3f);
+            strikesPerGust.x = Mathf.Max(1, strikesPerGust.x);
+            strikesPerGust.y = Mathf.Max(strikesPerGust.x, strikesPerGust.y);
         }
 
         private void UpdateWindChime(float power)
@@ -178,34 +189,44 @@ namespace Features.Sound.Scripts
             var audibility = Mathf.Lerp(0.4f, 1f, WindLevel(power));
             CurrentPlaybackSpeed = SelectPlaybackSpeed(WindLevel(power), recordedPool != null);
             source.pitch = 1f;
-            float gain = windChimeVolume * audibility * _strikeGain;
+            var gain = windChimeVolume * audibility * _strikeGain;
             if (_pcmClips.TryGetValue(clip, out var original))
             {
-                float speed = CurrentPlaybackSpeed;
+                var speed = CurrentPlaybackSpeed;
                 _pendingStrikes.Add(new PendingStrike
                 {
-                    Samples = Task.Run(() => PitchPreservingTimeStretch.Stretch(original.Samples, original.Channels, original.Frequency, speed)),
+                    Samples = Task.Run(() =>
+                        PitchPreservingTimeStretch.Stretch(original.Samples, original.Channels, original.Frequency,
+                            speed)),
                     Original = original, Name = $"{clip.name}_RuntimeSpeed_{speed:F3}", Gain = gain
                 });
             }
-            else source.PlayOneShot(clip, gain);
+            else
+            {
+                source.PlayOneShot(clip, gain);
+            }
+
             _strikeGain *= Random.Range(0.5f, 0.8f);
         }
 
-        private float WindLevel(float power) => Mathf.InverseLerp(windChimeThreshold, 1f, power);
+        private float WindLevel(float power)
+        {
+            return Mathf.InverseLerp(windChimeThreshold, 1f, power);
+        }
 
         private AudioClip[] SelectRecordedPool(float level)
         {
             if (!recordings || Random.value >= Mathf.Lerp(0.1f, 0.85f, level)) return null;
             var pool = recordings.longStrikes;
-            return pool != null && pool.Length > 0 ? pool : null;
+            return pool is { Length: > 0 } ? pool : null;
         }
 
         private float SelectPlaybackSpeed(float level, bool longRecording)
         {
             if (!longRecording) return Random.Range(playbackSpeedRange.x, playbackSpeedRange.y);
-            float target = Mathf.Lerp(strongRecordingSpeedRange.x, strongRecordingSpeedRange.y, level);
-            return Mathf.Clamp(target + Random.Range(-0.04f, 0.04f), strongRecordingSpeedRange.x, strongRecordingSpeedRange.y);
+            var target = Mathf.Lerp(strongRecordingSpeedRange.x, strongRecordingSpeedRange.y, level);
+            return Mathf.Clamp(target + Random.Range(-0.04f, 0.04f), strongRecordingSpeedRange.x,
+                strongRecordingSpeedRange.y);
         }
 
         private void CompletePendingStrikes()
@@ -215,12 +236,23 @@ namespace Features.Sound.Scripts
                 _pendingStrikes.Clear();
                 return;
             }
-            for (int i = 0; i < _pendingStrikes.Count;)
+
+            for (var i = 0; i < _pendingStrikes.Count;)
             {
                 var pending = _pendingStrikes[i];
-                if (!pending.Samples.IsCompleted) { i++; continue; }
+                if (!pending.Samples.IsCompleted)
+                {
+                    i++;
+                    continue;
+                }
+
                 _pendingStrikes.RemoveAt(i);
-                if (pending.Samples.IsFaulted) { Debug.LogException(pending.Samples.Exception, this); continue; }
+                if (pending.Samples.IsFaulted)
+                {
+                    Debug.LogException(pending.Samples.Exception, this);
+                    continue;
+                }
+
                 var samples = pending.Samples.Result;
                 var clip = AudioClip.Create(pending.Name, samples.Length / pending.Original.Channels,
                     pending.Original.Channels, pending.Original.Frequency, false);
@@ -230,14 +262,19 @@ namespace Features.Sound.Scripts
             }
         }
 
-        private void OnValidate()
+        private sealed class ClipData
         {
-            playbackSpeedRange.x = Mathf.Clamp(playbackSpeedRange.x, 0.9f, 1.1f);
-            playbackSpeedRange.y = Mathf.Clamp(playbackSpeedRange.y, playbackSpeedRange.x, 1.1f);
-            strongRecordingSpeedRange.x = Mathf.Clamp(strongRecordingSpeedRange.x, 0.9f, 1.3f);
-            strongRecordingSpeedRange.y = Mathf.Clamp(strongRecordingSpeedRange.y, strongRecordingSpeedRange.x, 1.3f);
-            strikesPerGust.x = Mathf.Max(1, strikesPerGust.x);
-            strikesPerGust.y = Mathf.Max(strikesPerGust.x, strikesPerGust.y);
+            public int Channels;
+            public int Frequency;
+            public float[] Samples;
+        }
+
+        private sealed class PendingStrike
+        {
+            public float Gain;
+            public string Name;
+            public ClipData Original;
+            public Task<float[]> Samples;
         }
     }
 }
