@@ -52,27 +52,47 @@ def test_unknown_key_is_an_error(tmp_path, monkeypatch):
         load_settings()
 
 
-def test_pins_are_a_list_in_yaml(tmp_path, monkeypatch):
-    _use(monkeypatch, tmp_path, local={"fan_pwm_pins": [1, 2, 3, 4, 5, 6]})
-    assert load_settings().fan_pwm_pins == [1, 2, 3, 4, 5, 6]
+def test_pins_are_named_and_ordered_by_channel(tmp_path, monkeypatch):
+    fan = {**BASE["fan_pwm_pins"], "left_back": 20}
+    _use(monkeypatch, tmp_path, local={"fan_pwm_pins": fan})
+
+    loaded = load_settings()
+
+    assert loaded.fan_pwm_pins.ordered() == (20, 3, 4, 5, 6, 7)
+    assert loaded.diffuser_pins.ordered() == (8, 9)
 
 
 @pytest.mark.parametrize(
-    ("key", "pins"),
+    ("key", "name", "pin"),
     [
-        ("fan_pwm_pins", []),  # 空でも落ちる(マイコンへ送らない設定はない)
-        ("fan_pwm_pins", [2, 3, 4, 5, 6]),
-        ("fan_pwm_pins", [2, 3, 4, 5, 6, 7, 8]),
-        ("fan_pwm_pins", [2, 3, 4, 5, 6, 6]),
-        ("diffuser_pins", [8]),
-        ("diffuser_pins", [8, 9, 10]),
-        ("diffuser_pins", [8, 8]),
+        ("fan_pwm_pins", "left_back", 3),  # left_side と重複
+        ("fan_pwm_pins", "left_back", 7),  # right_front と重複
+        ("diffuser_pins", "ramune", 9),  # forest と重複
     ],
 )
-def test_wrong_pin_count_or_duplicate_is_an_error(tmp_path, monkeypatch, key, pins):
+def test_duplicate_pin_is_an_error(tmp_path, monkeypatch, key, name, pin):
+    _use(monkeypatch, tmp_path, local={key: {**BASE[key], name: pin}})
+
+    with pytest.raises(ValidationError, match="duplicate pins"):
+        load_settings()
+
+
+@pytest.mark.parametrize(
+    ("key", "name"), [("fan_pwm_pins", "left_back"), ("diffuser_pins", "forest")]
+)
+def test_missing_pin_name_is_an_error(tmp_path, monkeypatch, key, name):
+    pins = {k: v for k, v in BASE[key].items() if k != name}
     _use(monkeypatch, tmp_path, local={key: pins})
 
-    with pytest.raises(ValidationError, match=key):
+    with pytest.raises(ValidationError, match=f"{key}.{name}"):
+        load_settings()
+
+
+@pytest.mark.parametrize("key", ["fan_pwm_pins", "diffuser_pins"])
+def test_unknown_pin_name_is_an_error(tmp_path, monkeypatch, key):
+    _use(monkeypatch, tmp_path, local={key: {**BASE[key], "center": 1}})
+
+    with pytest.raises(ValidationError, match=f"{key}.center"):
         load_settings()
 
 

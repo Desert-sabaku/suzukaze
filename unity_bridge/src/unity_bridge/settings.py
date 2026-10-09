@@ -1,13 +1,13 @@
 """設定。suzukaze.local.yaml > suzukaze.yaml の順。既定値はない。
 
 どれにも書かれていないキーや、yaml にある未知のキーは ValidationError になる。
-yaml のキーはフィールド名。ピンの一覧は、yaml の配列で書く。
-fan_pwm_pins は 6本、diffuser_pins は 2本で、ピンの重複があると ValidationError になる。
+yaml のキーはフィールド名。ピンは、機器の名前(left_back など)をキーにして書く。
+ピンのキーが足りないときと、ピンが重複するときも ValidationError になる。
 """
 
 from pathlib import Path
 
-from pydantic import model_validator
+from pydantic import BaseModel, ConfigDict, model_validator
 from pydantic_settings import (
     BaseSettings,
     PydanticBaseSettingsSource,
@@ -19,9 +19,36 @@ _ROOT = Path(__file__).resolve().parents[3]
 # 後ろのファイルが前のファイルを上書きする。local はマシンごとの違い用(コミットしない)。
 CONFIG_FILES = (_ROOT / "suzukaze.yaml", _ROOT / "suzukaze.local.yaml")
 
-# ファン(channel 1〜6)とディフューザー(DiffuserChannel の値の数)の本数。
-FAN_COUNT = 6
-DIFFUSER_COUNT = 2
+
+class _Pins(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    def ordered(self) -> tuple[int, ...]:
+        """フィールドの宣言順(= channel の1から順)のピン番号。"""
+        return tuple(self.model_dump().values())
+
+    @model_validator(mode="after")
+    def _check_unique(self) -> _Pins:
+        pins = self.ordered()
+        if len(set(pins)) != len(pins):
+            raise ValueError(f"duplicate pins: {pins}")
+        return self
+
+
+class FanPins(_Pins):
+    # FanChannel の1〜6の順。
+    left_back: int
+    left_side: int
+    left_front: int
+    right_back: int
+    right_side: int
+    right_front: int
+
+
+class DiffuserPins(_Pins):
+    # DiffuserChannel の1〜2の順。
+    ramune: int
+    forest: int
 
 
 class Settings(BaseSettings):
@@ -34,8 +61,8 @@ class Settings(BaseSettings):
     microcontroller_serial_port: str
     microcontroller_baudrate: int
 
-    fan_pwm_pins: list[int]
-    diffuser_pins: list[int]
+    fan_pwm_pins: FanPins
+    diffuser_pins: DiffuserPins
 
     gesture_state_interval: float
     gesture_stale_timeout: float
@@ -43,19 +70,6 @@ class Settings(BaseSettings):
     gesture_retry_interval: float
     gesture_max_pending: int
     gesture_debug_port: int
-
-    @model_validator(mode="after")
-    def _check_pins(self) -> Settings:
-        for name, count in (
-            ("fan_pwm_pins", FAN_COUNT),
-            ("diffuser_pins", DIFFUSER_COUNT),
-        ):
-            pins = getattr(self, name)
-            if len(pins) != count:
-                raise ValueError(f"{name} must have {count} pins, got {len(pins)}")
-            if len(set(pins)) != len(pins):
-                raise ValueError(f"{name} has duplicate pins: {pins}")
-        return self
 
     @classmethod
     def settings_customise_sources(

@@ -200,9 +200,7 @@ def bridge_relay_from_env() -> BridgeRelay:
         outbox,
         state_interval,
         FanController(send_fade=sender),
-        DiffuserController(
-            sender.pulse if sender else None, tuple(settings.diffuser_pins)
-        ),
+        DiffuserController(sender.pulse, settings.diffuser_pins.ordered()),
     )
 
 

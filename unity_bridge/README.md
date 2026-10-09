@@ -35,15 +35,26 @@ buf generate
 
 - `suzukaze.yaml` は共有する設定です。`suzukaze.local.yaml` はマシンごとの違い(シリアルポートなど)に使い、コミットしません。
 - yamlのキーは `suzukaze.yaml` を見てください。
-- ピンの一覧は、yamlの配列で書きます。
 - `microcontroller_serial_port` は、`suzukaze.yaml` では Windows の `COM3` です。Linux は `/dev/ttyACM0` などになるので、`suzukaze.local.yaml` に書きます。
 
-ピンのキーは次のとおりです。本数が違うときと、重複があるときは、どちらも起動時にエラーになります。
+### ピン
 
-| キー | 本数 | 並び順 |
+ファンとディフューザーのピンは、機器の名前をキーにして、GPIO番号(GP2なら2)を書きます。`suzukaze.yaml` の値は次のとおりです。
+
+| キー | 値 | チャンネル |
 |---|---|---|
-| `fan_pwm_pins` | 6本 | `channel` の1〜6の順。firmwareの `fanPins`(GP2〜GP7)と同じにする |
-| `diffuser_pins` | 2本 | `DiffuserChannel` の値の順(ラムネ、森) |
+| `fan_pwm_pins.left_back` | 2 | `FanChannel` の1 |
+| `fan_pwm_pins.left_side` | 3 | `FanChannel` の2 |
+| `fan_pwm_pins.left_front` | 4 | `FanChannel` の3 |
+| `fan_pwm_pins.right_back` | 5 | `FanChannel` の4 |
+| `fan_pwm_pins.right_side` | 6 | `FanChannel` の5 |
+| `fan_pwm_pins.right_front` | 7 | `FanChannel` の6 |
+| `diffuser_pins.ramune` | 8 | `DiffuserChannel` の1 |
+| `diffuser_pins.forest` | 9 | `DiffuserChannel` の2 |
+
+- `fan_pwm_pins` は、firmwareの `fanPins`(GP2〜GP7)と同じにします。
+- キーが足りないとき、知らないキーがあるとき、ピンが重複するときは、起動時にエラーになります。
+- `suzukaze.local.yaml` に書くときは、`fan_pwm_pins` や `diffuser_pins` の全キーを書きます。一部だけを書くと、そのキーの設定が丸ごと置き換わり、足りないキーのエラーになります。
 
 ## ファン
 
@@ -51,7 +62,7 @@ buf generate
 
 Unityが `fan_command`(`fan.v1.Fan`)を送ると、ブリッジが記録して、ファン6本のいまの出力を `fan_state` で返します(最初の指示を受けてから、状態通知と同じ周期)。firmwareには回転数の読み出しがないので、出力は指示から推定します(0 から value まで、firmwareと同じガンマ2.2のカーブ)。
 
-`fan_pwm_pins` を設定すると、`mcu` ライブラリでマイコンへ `PwmFade` も送ります。ポートは `microcontroller_serial_port`、ボーレートは `microcontroller_baudrate` です。マイコンが未接続でもブリッジは落ちず、次の指示で再接続します(落とした指示は再送しません)。
+ファンの指示は、`mcu` ライブラリでマイコンへ `PwmFade` としても送ります。送り先のピンは `fan_pwm_pins` です。ポートは `microcontroller_serial_port`、ボーレートは `microcontroller_baudrate` です。マイコンが未接続でもブリッジは落ちず、次の指示で再接続します(落とした指示は再送しません)。
 
 ## ジェスチャー通知
 

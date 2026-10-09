@@ -5,8 +5,16 @@ unity_websocket_test_host: 127.0.0.1
 microcontroller_serial_port: COM3
 microcontroller_baudrate: 115200
 
-fan_pwm_pins: [2, 3, 4, 5, 6, 7]
-diffuser_pins: [8, 9]
+fan_pwm_pins:
+  left_back: 2
+  left_side: 3
+  left_front: 4
+  right_back: 5
+  right_side: 6
+  right_front: 7
+diffuser_pins:
+  ramune: 8
+  forest: 9
 
 gesture_state_interval: 0.1
 gesture_stale_timeout: 0.5

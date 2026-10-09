@@ -32,4 +32,4 @@ def test_bad_presses_are_rejected():
 
 
 def test_pins_come_from_the_settings():
-    assert load_settings().diffuser_pins == [8, 9]
+    assert load_settings().diffuser_pins.ordered() == (8, 9)
