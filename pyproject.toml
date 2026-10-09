@@ -6,6 +6,17 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "invoke>=3.0.3",
+    "unity-bridge",
+    "gesture-detection",
+    "mcu",
+]
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1",
+    "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.13.0",
 ]
 
 [tool.uv.workspace]
@@ -17,3 +28,8 @@ members = [
 
 [tool.uv]
 package = false
+
+[tool.uv.sources]
+unity-bridge = { workspace = true }
+gesture-detection = { workspace = true }
+mcu = { workspace = true }
