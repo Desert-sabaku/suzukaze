@@ -20,15 +20,33 @@ namespace Features.SceneTransition
         private float[] _openPivotX;
 
         /// <summary>
-        ///     遷移中に別の遷移が始まると、同じ障子を 2 つのモーションが動かして途中で止まるため、遷移中の呼び出しは無視する
+        ///     遷移中に別の遷移が始まると、同じ障子を 2 つのモーションが動かして途中で止まるため、遷移は 1 つずつ行う
         /// </summary>
         private bool _isTransitioning;
 
+        /// <summary>
+        ///     遷移を始めたときのアクティブシーンの handle。遷移中の要求がどのシーンから来たかの判定に使う
+        /// </summary>
+        private SceneHandle _sourceSceneHandle;
+
+        /// <summary>
+        ///     障子が開いている間に新しいシーンから要求された遷移先。開き終わってから遷移する
+        /// </summary>
+        private string _pendingScene;
+
+        /// <summary>
+        ///     シーンを遷移する。遷移中に呼ばれた場合、遷移元のシーンからの要求は重複として無視し、
+        ///     遷移先のシーンからの要求は障子が開き終わってから実行する。後者の場合は要求を受け付けた時点で完了する
+        /// </summary>
         public async UniTask LoadSceneAsync(string sceneName)
         {
             if (_isTransitioning)
             {
-                Debug.LogWarning($"シーン遷移中のため {sceneName} への遷移を無視しました");
+                // 呼び出し側は遷移を要求したら自身を無効化するため、新しいシーンからの要求を捨てると遷移しなくなる
+                if (SceneManager.GetActiveScene().handle != _sourceSceneHandle && _pendingScene == null)
+                    _pendingScene = sceneName;
+                else
+                    Debug.LogWarning($"シーン遷移中のため {sceneName} への遷移を無視しました");
                 return;
             }
 
@@ -45,21 +63,34 @@ namespace Features.SceneTransition
 
                 _gameSettings ??= await GameSettings.GetInstanceAsync();
 
-                // 障子が閉じるのに合わせて環境音を絞る。次のシーンでは SoundscapeDirector がフェードインする
-                await UniTask.WhenAll(
-                    MoveShojiAsync(false),
-                    SoundscapeDirector.FadeOutAsync(_gameSettings.sceneTransitionDuration));
+                while (sceneName != null)
+                {
+                    _sourceSceneHandle = SceneManager.GetActiveScene().handle;
+                    await TransitionAsync(sceneName);
 
-                await UniTask.WaitForSeconds(0.05f);
-                await SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
-                await UniTask.WaitForSeconds(0.05f);
-
-                await MoveShojiAsync(true);
+                    sceneName = _pendingScene;
+                    _pendingScene = null;
+                }
             }
             finally
             {
                 _isTransitioning = false;
+                _pendingScene = null;
             }
+        }
+
+        private async UniTask TransitionAsync(string sceneName)
+        {
+            // 障子が閉じるのに合わせて環境音を絞る。次のシーンでは SoundscapeDirector がフェードインする
+            await UniTask.WhenAll(
+                MoveShojiAsync(false),
+                SoundscapeDirector.FadeOutAsync(_gameSettings.sceneTransitionDuration));
+
+            await UniTask.WaitForSeconds(0.05f);
+            await SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+            await UniTask.WaitForSeconds(0.05f);
+
+            await MoveShojiAsync(true);
         }
 
         /// <summary>
