@@ -27,7 +27,7 @@ buf generate
 
 ## 設定
 
-設定は、環境変数、リポジトリ直下の `suzukaze.local.yaml`、`suzukaze.yaml` の順に探します。既定値はありません。どれにも書かれていないキーがあるときと、`suzukaze.yaml` などに知らないキーがあるときは、起動時にエラーになります。
+設定は、環境変数、リポジトリ直下の `suzukaze.local.yaml`、`suzukaze.yaml` の順に探します。既定値はありません。どれにも書かれていないキーがあるときと、yamlに知らないキーがあるときは、起動時にエラーになります。
 
 - `suzukaze.yaml` は共有する設定です。`suzukaze.local.yaml` はマシンごとの違い(シリアルポートなど)に使い、コミットしません。
 - yamlのキーは `suzukaze.yaml` を見てください。環境変数名は、キーの大文字です(`fan_pwm_pins` なら `FAN_PWM_PINS`)。
