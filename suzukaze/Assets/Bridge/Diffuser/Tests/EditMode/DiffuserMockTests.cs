@@ -36,7 +36,7 @@ namespace Suzukaze.Diffuser.Tests
             var press = BridgeEnvelope.Parser.ParseFrom(output.TakeOutgoing()).DiffuserPress;
             Assert.AreEqual(DiffuserChannel.Forest, press.Channel);
             Assert.AreEqual(300UL, press.DurationMs);
-            Assert.IsFalse(output.Mock.IsOn(DiffuserChannel.Forest));
+            Assert.IsTrue(output.Mock.IsOn(DiffuserChannel.Forest));
         }
     }
 }
