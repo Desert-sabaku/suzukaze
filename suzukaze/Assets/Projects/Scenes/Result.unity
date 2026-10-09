@@ -2715,6 +2715,7 @@ GameObject:
   - component: {fileID: 1372855352}
   - component: {fileID: 1372855355}
   - component: {fileID: 1372855357}
+  - component: {fileID: 1372855358}
   m_Layer: 0
   m_Name: Senko Hanabi VFX
   m_TagString: Untagged
@@ -2871,6 +2872,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Features.Result.Scripts.SenkoHanabiGauge
   gauge: {fileID: 1635189648}
+--- !u!114 &1372855358
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1372855351}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96801469bad0443a8d84ee6ba1a47ca7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Features.Result.Scripts.SenkoHanabiSound
+  clip: {fileID: 8300000, guid: 8b4ee2e996d2d4542a2c66dc37a53f51, type: 3}
+  output: {fileID: 8237309407674865079, guid: ad39a450b6ef34e4883bcabedabf317e, type: 2}
+  volume: 1
+  fadeOutDuration: 0.3
 --- !u!1001 &1395899585
 PrefabInstance:
   m_ObjectHideFlags: 0
