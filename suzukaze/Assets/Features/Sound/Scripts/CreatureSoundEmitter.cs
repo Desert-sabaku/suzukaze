@@ -35,12 +35,13 @@ namespace Features.Sound.Scripts
         private float _pitch = 1f;
         private bool _singing;
         private AudioSource _source;
-        private WindFanController _wind;
 
         /// <summary>
         ///     ループの個体が鳴き始める活動度。個体ごとにずらし、夕方に少しずつ鳴き出すようにする
         /// </summary>
         private float _threshold;
+
+        private WindFanController _wind;
 
         public CreatureSoundProfile Profile => profile;
 
@@ -59,7 +60,7 @@ namespace Features.Sound.Scripts
             _noiseSeed = Random.Range(0f, 1000f);
             Configure(_source, profile);
             if (profile.windDrivenLoop)
-                _wind = FindObjectsByType<WindFanController>(FindObjectsSortMode.None)
+                _wind = FindObjectsByType<WindFanController>()
                     .FirstOrDefault(candidate => candidate.gameObject.scene == gameObject.scene);
 
             _lowPass = GetComponent<AudioLowPassFilter>();
@@ -80,7 +81,10 @@ namespace Features.Sound.Scripts
             {
                 if (!profile.windDrivenLoop) UpdateLoop();
             }
-            else UpdateCall();
+            else
+            {
+                UpdateCall();
+            }
 
             if (_airAbsorption != null) UpdateAirAbsorption();
         }
@@ -196,15 +200,16 @@ namespace Features.Sound.Scripts
 
             // 聞こえないあいだは止めておき、ボイスを他の音源に譲る
             var silent = _loopGain <= SilentGain;
-            if (silent && !_isPaused)
+            switch (silent)
             {
-                _source.Pause();
-                _isPaused = true;
-            }
-            else if (!silent && _isPaused)
-            {
-                _source.UnPause();
-                _isPaused = false;
+                case true when !_isPaused:
+                    _source.Pause();
+                    _isPaused = true;
+                    break;
+                case false when _isPaused:
+                    _source.UnPause();
+                    _isPaused = false;
+                    break;
             }
         }
 
@@ -227,7 +232,7 @@ namespace Features.Sound.Scripts
             if (!_singing) return 0f;
             var activity = Mathf.InverseLerp(_threshold, 1f, _activity);
             var noise = Mathf.PerlinNoise(Time.time / profile.modulationPeriod, _noiseSeed);
-            float windPower = _wind && _wind.isActiveAndEnabled ? _wind.CurrentPower : 0f;
+            var windPower = _wind && _wind.isActiveAndEnabled ? _wind.CurrentPower : 0f;
             return activity * (1f - profile.modulationDepth * noise) * profile.WindGain(windPower);
         }
 
