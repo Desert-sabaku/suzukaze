@@ -1,5 +1,6 @@
 using System;
 using NUnit.Framework;
+using Suzukaze.Bridge.Protocol;
 
 namespace Suzukaze.Fan.Tests
 {
@@ -54,6 +55,45 @@ namespace Suzukaze.Fan.Tests
             Assert.AreEqual(mock.MinValue, output.MinValue);
             Assert.AreEqual(mock.MaxValue, output.MaxValue);
         }
+
+        [Test]
+        public void FloorKeepsTheFanTurningUntilCleared()
+        {
+            var mock = new FanDeviceMock(() => 0);
+            var output = new FanOutput(new FanDeviceMcu(), mock);
+            var reference = new FanDeviceMock(() => 0);
+            reference.SetDuration(FanSide.Left, FanPosition.Back, 100, 0);
+            var floor = reference.Get(FanSide.Left, FanPosition.Back);
+
+            output.SetFloor(FanSide.Left, FanPosition.Back, 100);
+            Assert.AreEqual(floor, output.Get(FanSide.Left, FanPosition.Back));
+            output.Set(FanSide.Left, FanPosition.Back, 0);
+            Assert.AreEqual(floor, output.Get(FanSide.Left, FanPosition.Back));
+            output.Set(FanSide.Left, FanPosition.Back, mock.MaxValue);
+            Assert.AreEqual(mock.MaxValue, output.Get(FanSide.Left, FanPosition.Back));
+
+            output.SetFloor(FanSide.Left, FanPosition.Back, 0);
+            Assert.AreEqual(mock.MaxValue, output.Get(FanSide.Left, FanPosition.Back));
+            output.Set(FanSide.Left, FanPosition.Back, 0);
+            Assert.AreEqual(mock.MinValue, output.Get(FanSide.Left, FanPosition.Back));
+        }
+
+        [Test]
+        public void ClearingTheFloorRestoresTheRequestedValue()
+        {
+            var mcu = new FanDeviceMcu { Connected = true };
+            var output = new FanOutput(mcu, new FanDeviceMock(() => 0));
+            output.Set(FanSide.Right, FanPosition.Side, 50);
+            output.SetFloor(FanSide.Right, FanPosition.Side, 120);
+            output.SetFloor(FanSide.Right, FanPosition.Side, 0);
+            mcu.TakeOutgoing();
+            Assert.AreEqual(120u, NextValue(mcu));
+            Assert.AreEqual(50u, NextValue(mcu));
+            Assert.IsNull(mcu.TakeOutgoing());
+        }
+
+        private static uint NextValue(FanDeviceMcu mcu) =>
+            BridgeEnvelope.Parser.ParseFrom(mcu.TakeOutgoing()).FanCommand.Value;
 
         [Test]
         public void UnknownFanIsRejected() =>

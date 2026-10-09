@@ -345,6 +345,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3732733162408886074}
   - component: {fileID: 1152202473389417796}
+  - component: {fileID: 6403128855719264310}
   m_Layer: 0
   m_Name: Gesture Effect Director
   m_TagString: Untagged
@@ -407,6 +408,18 @@ MonoBehaviour:
   aogiFadeSeconds: 0.3
   ramuneOpenClip: {fileID: 8300000, guid: 20072e3f4787e48b2aa59123dac2e4c9, type: 3}
   ramuneOpenVolume: 0.8
+--- !u!114 &6403128855719264310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5868928329490262040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3ab163eebf843adab5ecb366f558e72, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Features.Gesture_Effect.Scripts.ScentDirector
 --- !u!1 &7947578788476664461
 GameObject:
   m_ObjectHideFlags: 0
