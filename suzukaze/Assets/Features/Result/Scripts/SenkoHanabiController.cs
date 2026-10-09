@@ -66,6 +66,11 @@ namespace Features.Result.Scripts
         private float _noiseSeed;
         private VisualEffect _vfx;
 
+        public float BurnDuration => burnDuration;
+
+        /// <summary>最後に Play(float) で使ったスコア (0-1)．</summary>
+        public float Score { get; private set; }
+
         public float Intensity { get; private set; }
         public float DropTime { get; private set; }
         public float Elapsed { get; private set; }
@@ -116,6 +121,7 @@ namespace Features.Result.Scripts
         public void Play(float normalizedScore)
         {
             var s = Mathf.Clamp01(normalizedScore);
+            Score = s;
             var intensity = Mathf.Lerp(intensityRange.x, intensityRange.y, s);
             var dropTime = Mathf.Lerp(shortestDropTime, burnDuration + dropDelayAfterBurnOut, s);
             Play(intensity, dropTime);
