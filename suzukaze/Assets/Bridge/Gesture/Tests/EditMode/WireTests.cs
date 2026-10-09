@@ -241,6 +241,22 @@ namespace Suzukaze.Gesture.Tests
         }
 
         [Test]
+        public async Task RuntimeSettingsAreReceivedAndValidated()
+        {
+            var settings = new RuntimeSettings { DiffuserEnabled = false, TimeScaleMultiplier = 3 };
+            using (var socket = new FragmentSocket(new BridgeEnvelope { RuntimeSettings = settings }.ToByteArray()))
+            {
+                var result = await WireMessage.ReceiveAsync(socket, new TestClock(), CancellationToken.None);
+                Assert.That(result.Envelope, Is.Null);
+                Assert.That(result.RuntimeSettings.TimeScaleMultiplier, Is.EqualTo(3));
+            }
+            settings.TimeScaleMultiplier = -1;
+            using (var socket = new FragmentSocket(new BridgeEnvelope { RuntimeSettings = settings }.ToByteArray()))
+                Assert.ThrowsAsync<InvalidDataException>(async () =>
+                    await WireMessage.ReceiveAsync(socket, new TestClock(), CancellationToken.None));
+        }
+
+        [Test]
         public void FanCommandIsNotAcceptedByTheReceiver()
         {
             var bytes = new BridgeEnvelope { FanCommand = new Suzukaze.Fan.Protocol.Fan() }.ToByteArray();

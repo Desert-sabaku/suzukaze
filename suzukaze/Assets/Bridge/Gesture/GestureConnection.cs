@@ -14,18 +14,20 @@ namespace Suzukaze.Gesture
         private readonly ReceiverHandoff handoff;
         private readonly IMonotonicClock clock;
 
-        // ファンは同じ WebSocket に載る。ファンの出入りは、呼び出し側が渡す関数で受け渡す。
+        // ファンと設定画面も同じ WebSocket に載る。その出入りは、呼び出し側が渡す関数で受け渡す。
         private readonly Action<bool> onConnected;
         private readonly Action<FanState> onFanState;
         private readonly Func<byte[]> takeFanOutgoing;
+        private readonly Action<RuntimeSettings> onRuntimeSettings;
 
         public GestureConnection(ReceiverHandoff handoff, IMonotonicClock clock,
             Action<bool> onConnected = null, Action<FanState> onFanState = null,
-            Func<byte[]> takeFanOutgoing = null)
+            Func<byte[]> takeFanOutgoing = null, Action<RuntimeSettings> onRuntimeSettings = null)
         {
             this.handoff = handoff; this.clock = clock;
             this.onConnected = onConnected; this.onFanState = onFanState;
             this.takeFanOutgoing = takeFanOutgoing;
+            this.onRuntimeSettings = onRuntimeSettings;
         }
 
         public long Begin()
@@ -52,6 +54,11 @@ namespace Suzukaze.Gesture
             if (message.FanState != null)
             {
                 onFanState?.Invoke(message.FanState);
+                return true;
+            }
+            if (message.RuntimeSettings != null)
+            {
+                onRuntimeSettings?.Invoke(message.RuntimeSettings);
                 return true;
             }
             return handoff.Publish(token, message);

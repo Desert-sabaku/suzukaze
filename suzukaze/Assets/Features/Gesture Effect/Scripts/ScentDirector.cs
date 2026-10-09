@@ -18,7 +18,7 @@ namespace Features.Gesture_Effect.Scripts
     /// <remarks>
     ///     ラムネを開けたらラムネの香りを一定時間、扇いでいる間は森の香りを出す (GameSettings で除いたシーンを除く)。
     ///     ディフューザーはファンの裏にあるので、香りを出している間はそのファンを軽く回して香りを届ける。
-    ///     設定はすべて GameSettings にある。
+    ///     設定はすべて GameSettings にある。設定画面 (unity_bridge) でディフューザーを止めると、香りを止めて出さなくなる。
     /// </remarks>
     public class ScentDirector : MonoBehaviour
     {
@@ -56,6 +56,13 @@ namespace Features.Gesture_Effect.Scripts
         private void Update()
         {
             if (!_settings) return;
+            if (!RuntimeControl.Instance.DiffuserEnabled)
+            {
+                _scents.StopAll();
+                UpdateFans();
+                return;
+            }
+
             var now = Time.unscaledTimeAsDouble;
             if (_isFanning && _fanningScentScene)
                 _scents.Emit(DiffuserChannel.Forest, now, _settings.fanningScentGraceSeconds);
