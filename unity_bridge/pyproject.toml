@@ -7,7 +7,9 @@ requires-python = ">=3.14"
 dependencies = [
     "dotenv>=0.9.9",
     "protobuf>=7.36.2",
+    "pydantic-settings>=2.10",
     "pyserial>=3.5",
+    "pyyaml>=6",
     "websockets>=17.1",
     "gesture_detection",
     "mcu",
@@ -49,5 +51,3 @@ extend-exclude = ["src/unity_bridge/gen"]
 [tool.pyright]
 extraPaths = ["src", "src/unity_bridge/gen", "../gesture_detection/src"]
 exclude = ["src/unity_bridge/gen"]
-venvPath = "."
-venv = ".venv"

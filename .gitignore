@@ -16,3 +16,6 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Machine-local overrides for suzukaze.yaml
+/suzukaze.local.yaml

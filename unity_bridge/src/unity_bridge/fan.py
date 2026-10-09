@@ -1,6 +1,5 @@
 """Fan commands from Unity and the fan output that Unity reads back."""
 
-import os
 import queue
 import threading
 import time
@@ -9,6 +8,8 @@ from typing import Any, cast
 
 from bridge.v1 import bridge_pb2
 from fan.v1 import fan_pb2
+
+from .settings import Settings
 
 CHANNELS = tuple(range(1, 7))
 MAX_VALUE = 255
@@ -132,13 +133,12 @@ class McuFadeSender:
             self._client = None
 
 
-def mcu_sender_from_env() -> McuFadeSender | None:
-    """FAN_PWM_PINS(6本、カンマ区切り)があればマイコンへの送信役を作る。なければ None。"""
-    pins = os.getenv("FAN_PWM_PINS")
-    if not pins:
+def mcu_sender_from_env(settings: Settings) -> McuFadeSender | None:
+    """fan_pwm_pins(6本)が空でなければマイコンへの送信役を作る。空なら None。"""
+    if not settings.fan_pwm_pins:
         return None
     return McuFadeSender(
-        os.getenv("MICROCONTROLLER_SERIAL_PORT", DEFAULT_SERIAL_PORT),
-        tuple(int(pin) for pin in pins.split(",")),
-        int(os.getenv("MICROCONTROLLER_BAUDRATE", str(DEFAULT_BAUDRATE))),
+        settings.microcontroller_serial_port,
+        tuple(settings.fan_pwm_pins),
+        settings.microcontroller_baudrate,
     )
