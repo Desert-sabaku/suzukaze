@@ -48,7 +48,9 @@ class SubjectSelector:
         self.state = "SEARCHING"
 
     @staticmethod
-    def candidate(points: Pose, aspect_ratio: float) -> Candidate | None:
+    def candidate(
+        points: Pose, aspect_ratio: float, *, require_area: bool = True
+    ) -> Candidate | None:
         if len(points) < 25:
             return None
         torso = [points[i] for i in (11, 12, 23, 24)]
@@ -65,7 +67,7 @@ class SubjectSelector:
         hip_y = (torso[2].y + torso[3].y) / 2
         x, y = (shoulder_x + hip_x) / 2, (shoulder_y + hip_y) / 2
         left, top, right, bottom = SUBJECT_AREA
-        if not (left <= x <= right and top <= y <= bottom):
+        if require_area and not (left <= x <= right and top <= y <= bottom):
             return None
         if abs(torso[0].x - torso[1].x) < SUBJECT_MIN_SHOULDER_WIDTH:
             return None
@@ -92,13 +94,15 @@ class SubjectSelector:
         ):
             self.active = self.pending = None
         self.last_time = timestamp
-        candidates = [
-            candidate
-            for points in poses
-            if (candidate := self.candidate(points, aspect_ratio)) is not None
-        ]
         if self.active is not None:
-            matches = [c for c in candidates if self.matches(c, self.active)]
+            # The area only gates acquisition; continuity alone keeps the subject.
+            matches = [
+                candidate
+                for points in poses
+                if (candidate := self.candidate(points, aspect_ratio, require_area=False))
+                is not None
+                and self.matches(candidate, self.active)
+            ]
             if len(matches) == 1:
                 self.active = matches[0]
                 self.last_seen = timestamp
@@ -109,6 +113,11 @@ class SubjectSelector:
             if timestamp - self.last_seen < SUBJECT_RELEASE_SECONDS:
                 return []
             self.active = None
+        candidates = [
+            candidate
+            for points in poses
+            if (candidate := self.candidate(points, aspect_ratio)) is not None
+        ]
         # Wait for a sole eligible foreground person; never use result order as identity.
         if len(candidates) != 1:
             self.pending = None
