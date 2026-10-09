@@ -9,8 +9,8 @@ unity_websocket_test_host: 127.0.0.1
 microcontroller_serial_port: COM3 # Linux は /dev/ttyACM0 など
 microcontroller_baudrate: 115200
 
-fan_pwm_pins: [] # 6本のGPIO番号(channel 1〜6の順)。空のときは、マイコンへ何も送らない
-diffuser_pins: [8, 9] # DiffuserChannel の値の順(ラムネ, 森)
+fan_pwm_pins: [2, 3, 4, 5, 6, 7] # 6本のGPIO番号(channel 1〜6の順)。firmware の fanPins と同じにする。6本でないか、重複があると起動時にエラー
+diffuser_pins: [8, 9] # DiffuserChannel の値の順(ラムネ, 森)。2本でないか、重複があると起動時にエラー
 
 gesture_state_interval: 0.1
 gesture_stale_timeout: 0.5

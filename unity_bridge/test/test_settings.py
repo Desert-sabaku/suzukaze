@@ -55,11 +55,27 @@ def test_pins_are_a_list_in_yaml_and_comma_separated_in_env(tmp_path, monkeypatc
     _use(monkeypatch, tmp_path, local={"fan_pwm_pins": [1, 2, 3, 4, 5, 6]})
     assert load_settings().fan_pwm_pins == [1, 2, 3, 4, 5, 6]
 
-    monkeypatch.setenv("FAN_PWM_PINS", "7,8")
-    assert load_settings().fan_pwm_pins == [7, 8]
+    monkeypatch.setenv("FAN_PWM_PINS", "7,8,9,10,11,12")
+    assert load_settings().fan_pwm_pins == [7, 8, 9, 10, 11, 12]
 
-    monkeypatch.setenv("FAN_PWM_PINS", "")
-    assert load_settings().fan_pwm_pins == []
+
+@pytest.mark.parametrize(
+    ("key", "pins"),
+    [
+        ("fan_pwm_pins", []),  # 空でも落ちる(マイコンへ送らない設定はない)
+        ("fan_pwm_pins", [2, 3, 4, 5, 6]),
+        ("fan_pwm_pins", [2, 3, 4, 5, 6, 7, 8]),
+        ("fan_pwm_pins", [2, 3, 4, 5, 6, 6]),
+        ("diffuser_pins", [8]),
+        ("diffuser_pins", [8, 9, 10]),
+        ("diffuser_pins", [8, 8]),
+    ],
+)
+def test_wrong_pin_count_or_duplicate_is_an_error(tmp_path, monkeypatch, key, pins):
+    _use(monkeypatch, tmp_path, local={key: pins})
+
+    with pytest.raises(ValidationError, match=key):
+        load_settings()
 
 
 def test_shared_suzukaze_yaml_is_complete():

@@ -18,7 +18,7 @@ firmwareには回転数の読み出しがないので、出力は指示から推
 
 `fan_pwm_pins`(6本のGPIO番号。順は `channel` の1〜6)を設定すると、
 `mcu` ライブラリでマイコンへ `PwmFade` も送ります。ポートは `microcontroller_serial_port`、
-ボーレートは `microcontroller_baudrate` です。`fan_pwm_pins` が空ならマイコンへは送りません。
+ボーレートは `microcontroller_baudrate` です。`fan_pwm_pins` は6本ちょうどで、重複があると起動時にエラーになります。
 マイコンが未接続でもブリッジは落ちず、次の指示で再接続します(落とした指示は再送しません)。
 
 ## 設定
@@ -29,7 +29,7 @@ firmwareには回転数の読み出しがないので、出力は指示から推
 
 - yamlのキーは `suzukaze.yaml` を見てください。環境変数名は、キーの大文字です
   (`fan_pwm_pins` なら `FAN_PWM_PINS`)。
-- ピンの一覧は、yamlでは配列、環境変数ではカンマ区切りで書きます(空なら空の一覧)。
+- ピンの一覧は、yamlでは配列、環境変数ではカンマ区切りで書きます。
 - `suzukaze.yaml` は共有する設定、`suzukaze.local.yaml` はマシンごとの違い(シリアルポートなど)に使います。
   `suzukaze.local.yaml` はコミットしません。
 
