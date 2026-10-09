@@ -5,7 +5,6 @@ import threading
 from typing import Any
 
 import websockets
-from dotenv import load_dotenv
 from pydantic import ValidationError
 
 from .bridge_relay import BridgeRelay, DetectionProcess, SampleSource
@@ -226,7 +225,6 @@ def test_websocket_connection() -> bool:
 
 
 def _parse_args() -> argparse.Namespace:
-    load_dotenv()
     settings = load_settings()
     defaults = _environment_defaults(settings)
     parser = argparse.ArgumentParser(

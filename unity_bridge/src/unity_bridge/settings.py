@@ -1,18 +1,15 @@
-"""設定。環境変数 > suzukaze.local.yaml > suzukaze.yaml の順。既定値はない。
+"""設定。suzukaze.local.yaml > suzukaze.yaml の順。既定値はない。
 
 どれにも書かれていないキーや、yaml にある未知のキーは ValidationError になる。
-yaml のキーはフィールド名、環境変数名はその大文字(例: fan_pwm_pins / FAN_PWM_PINS)。
-ピンの一覧は、yaml では配列、環境変数ではカンマ区切りで書く。
+yaml のキーはフィールド名。ピンの一覧は、yaml の配列で書く。
 fan_pwm_pins は 6本、diffuser_pins は 2本で、ピンの重複があると ValidationError になる。
 """
 
 from pathlib import Path
-from typing import Annotated
 
-from pydantic import field_validator, model_validator
+from pydantic import model_validator
 from pydantic_settings import (
     BaseSettings,
-    NoDecode,
     PydanticBaseSettingsSource,
     SettingsConfigDict,
     YamlConfigSettingsSource,
@@ -37,8 +34,8 @@ class Settings(BaseSettings):
     microcontroller_serial_port: str
     microcontroller_baudrate: int
 
-    fan_pwm_pins: Annotated[list[int], NoDecode]
-    diffuser_pins: Annotated[list[int], NoDecode]
+    fan_pwm_pins: list[int]
+    diffuser_pins: list[int]
 
     gesture_state_interval: float
     gesture_stale_timeout: float
@@ -46,13 +43,6 @@ class Settings(BaseSettings):
     gesture_retry_interval: float
     gesture_max_pending: int
     gesture_debug_port: int
-
-    @field_validator("fan_pwm_pins", "diffuser_pins", mode="before")
-    @classmethod
-    def _split_pins(cls, value: object) -> object:
-        if isinstance(value, str):
-            return [int(pin) for pin in value.split(",") if pin.strip()]
-        return value
 
     @model_validator(mode="after")
     def _check_pins(self) -> Settings:
@@ -77,9 +67,9 @@ class Settings(BaseSettings):
         file_secret_settings: PydanticBaseSettingsSource,
     ) -> tuple[PydanticBaseSettingsSource, ...]:
         # 先のものが優先。CONFIG_FILES は呼び出し時に読む(テストで差し替える)。
+        # 環境変数は読まない(env_settings などは捨てる)。
         return (
             init_settings,
-            env_settings,
             YamlConfigSettingsSource(settings_cls, yaml_file=CONFIG_FILES),
         )
 

@@ -31,11 +31,11 @@ buf generate
 
 ## 設定
 
-設定は、環境変数、リポジトリ直下の `suzukaze.local.yaml`、`suzukaze.yaml` の順に探します。既定値はありません。どれにも書かれていないキーがあるときと、yamlに知らないキーがあるときは、起動時にエラーになります。
+設定は、リポジトリ直下の `suzukaze.local.yaml`、`suzukaze.yaml` の順に探します。既定値はありません。どれにも書かれていないキーがあるときと、yamlに知らないキーがあるときは、起動時にエラーになります。
 
 - `suzukaze.yaml` は共有する設定です。`suzukaze.local.yaml` はマシンごとの違い(シリアルポートなど)に使い、コミットしません。
-- yamlのキーは `suzukaze.yaml` を見てください。環境変数名は、キーの大文字です(`fan_pwm_pins` なら `FAN_PWM_PINS`)。
-- ピンの一覧は、yamlでは配列、環境変数ではカンマ区切りで書きます。
+- yamlのキーは `suzukaze.yaml` を見てください。
+- ピンの一覧は、yamlの配列で書きます。
 - `microcontroller_serial_port` は、`suzukaze.yaml` では Windows の `COM3` です。Linux は `/dev/ttyACM0` などになるので、`suzukaze.local.yaml` に書きます。
 
 ピンのキーは次のとおりです。本数が違うときと、重複があるときは、どちらも起動時にエラーになります。
@@ -101,7 +101,7 @@ uv run unity-gesture-probe --ignore-events
 uv run unity-bridge --debug-gui
 ```
 
-ブラウザで `http://127.0.0.1:5080/` を開いてください。ポートは `--debug-port` か環境変数 `GESTURE_DEBUG_PORT` で変更できます。Unityの接続先は通常どおり `ws://127.0.0.1:5000` で、ファンも `--gesture` と同じように扱います。`--fan` とは併用できません。
+ブラウザで `http://127.0.0.1:5080/` を開いてください。ポートは `--debug-port` か、yamlの `gesture_debug_port` で変更できます。Unityの接続先は通常どおり `ws://127.0.0.1:5000` で、ファンも `--gesture` と同じように扱います。`--fan` とは併用できません。
 
 送った値は認識結果と同じ `DeliveryOutbox` を通るので、状態の再送・イベントの再送・ACKの扱いは本番と同じです。画面では次の操作ができます。
 

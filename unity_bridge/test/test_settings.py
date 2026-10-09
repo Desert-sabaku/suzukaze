@@ -18,19 +18,20 @@ def _use(monkeypatch, tmp_path, base=BASE, local=None):
     monkeypatch.setattr(settings, "CONFIG_FILES", tuple(files))
 
 
-def test_priority_env_then_local_then_base(tmp_path, monkeypatch):
-    _use(
-        monkeypatch,
-        tmp_path,
-        local={"unity_websocket_port": 6000, "gesture_debug_port": 6001},
-    )
-    monkeypatch.setenv("GESTURE_DEBUG_PORT", "7000")
+def test_priority_local_then_base(tmp_path, monkeypatch):
+    _use(monkeypatch, tmp_path, local={"unity_websocket_port": 6000})
 
     loaded = load_settings()
 
-    assert loaded.gesture_debug_port == 7000  # 環境変数
     assert loaded.unity_websocket_port == 6000  # local
     assert loaded.microcontroller_baudrate == BASE["microcontroller_baudrate"]  # base
+
+
+def test_environment_variables_are_ignored(tmp_path, monkeypatch):
+    _use(monkeypatch, tmp_path)
+    monkeypatch.setenv("GESTURE_DEBUG_PORT", "7000")
+
+    assert load_settings().gesture_debug_port == BASE["gesture_debug_port"]
 
 
 def test_missing_key_is_an_error_naming_the_key(tmp_path, monkeypatch):
@@ -51,12 +52,9 @@ def test_unknown_key_is_an_error(tmp_path, monkeypatch):
         load_settings()
 
 
-def test_pins_are_a_list_in_yaml_and_comma_separated_in_env(tmp_path, monkeypatch):
+def test_pins_are_a_list_in_yaml(tmp_path, monkeypatch):
     _use(monkeypatch, tmp_path, local={"fan_pwm_pins": [1, 2, 3, 4, 5, 6]})
     assert load_settings().fan_pwm_pins == [1, 2, 3, 4, 5, 6]
-
-    monkeypatch.setenv("FAN_PWM_PINS", "7,8,9,10,11,12")
-    assert load_settings().fan_pwm_pins == [7, 8, 9, 10, 11, 12]
 
 
 @pytest.mark.parametrize(

@@ -31,8 +31,5 @@ def test_bad_presses_are_rejected():
     assert sent == []
 
 
-def test_pins_come_from_the_settings(monkeypatch):
-    monkeypatch.delenv("DIFFUSER_PINS", raising=False)
+def test_pins_come_from_the_settings():
     assert load_settings().diffuser_pins == [8, 9]
-    monkeypatch.setenv("DIFFUSER_PINS", "4,5")
-    assert load_settings().diffuser_pins == [4, 5]
