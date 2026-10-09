@@ -1,3 +1,5 @@
+using System.Linq;
+using Suzukaze.Fan;
 using UnityEngine;
 
 namespace Features.Sound.Scripts
@@ -33,6 +35,7 @@ namespace Features.Sound.Scripts
         private float _pitch = 1f;
         private bool _singing;
         private AudioSource _source;
+        private WindFanController _wind;
 
         /// <summary>
         ///     ループの個体が鳴き始める活動度。個体ごとにずらし、夕方に少しずつ鳴き出すようにする
@@ -55,6 +58,9 @@ namespace Features.Sound.Scripts
             _threshold = Random.Range(0f, 0.5f);
             _noiseSeed = Random.Range(0f, 1000f);
             Configure(_source, profile);
+            if (profile.windDrivenLoop)
+                _wind = FindObjectsByType<WindFanController>(FindObjectsSortMode.None)
+                    .FirstOrDefault(candidate => candidate.gameObject.scene == gameObject.scene);
 
             _lowPass = GetComponent<AudioLowPassFilter>();
             var absorbs = profile.airAbsorption && profile.spatialBlend > 0f;
@@ -70,10 +76,20 @@ namespace Features.Sound.Scripts
             var target = profile.Activity(SoundTimeOfDay.CurrentHour);
             _activity += (target - _activity) * (1f - Mathf.Exp(-Time.deltaTime / profile.activitySmoothing));
 
-            if (profile.mode == CreatureSoundProfile.PlaybackMode.Loop) UpdateLoop();
+            if (profile.mode == CreatureSoundProfile.PlaybackMode.Loop)
+            {
+                if (!profile.windDrivenLoop) UpdateLoop();
+            }
             else UpdateCall();
 
             if (_airAbsorption != null) UpdateAirAbsorption();
+        }
+
+        private void LateUpdate()
+        {
+            // SceneWindDirector writes this frame's wind in Update.
+            if (profile && profile.HasClips && profile.windDrivenLoop
+                && profile.mode == CreatureSoundProfile.PlaybackMode.Loop) UpdateLoop();
         }
 
         private void OnEnable()
@@ -93,7 +109,7 @@ namespace Features.Sound.Scripts
                 _singing = true;
                 _nextActionTime = Time.time + RandomRange(profile.singSeconds);
                 _loopGain = LoopTargetGain();
-                _source.volume = profile.volume * volumeScale * _loopGain;
+                _source.volume = profile.volume * volumeScale * _loopGain * profile.WindVolumeScale;
                 _source.Play();
                 _isPaused = false;
             }
@@ -176,7 +192,7 @@ namespace Features.Sound.Scripts
             }
 
             _loopGain = Mathf.MoveTowards(_loopGain, LoopTargetGain(), Time.deltaTime / profile.fadeSeconds);
-            _source.volume = profile.volume * volumeScale * _loopGain;
+            _source.volume = profile.volume * volumeScale * _loopGain * profile.WindVolumeScale;
 
             // 聞こえないあいだは止めておき、ボイスを他の音源に譲る
             var silent = _loopGain <= SilentGain;
@@ -211,7 +227,8 @@ namespace Features.Sound.Scripts
             if (!_singing) return 0f;
             var activity = Mathf.InverseLerp(_threshold, 1f, _activity);
             var noise = Mathf.PerlinNoise(Time.time / profile.modulationPeriod, _noiseSeed);
-            return activity * (1f - profile.modulationDepth * noise);
+            float windPower = _wind && _wind.isActiveAndEnabled ? _wind.CurrentPower : 0f;
+            return activity * (1f - profile.modulationDepth * noise) * profile.WindGain(windPower);
         }
 
         private Color GizmoColor()

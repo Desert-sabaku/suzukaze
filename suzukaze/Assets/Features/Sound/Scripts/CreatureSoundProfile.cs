@@ -62,6 +62,15 @@ namespace Features.Sound.Scripts
         [ShowIf(nameof(mode), PlaybackMode.Loop)] [Min(0.01f)]
         public float fadeSeconds = 1.5f;
 
+        [Title("風への追従")] public bool windDrivenLoop;
+        [ShowIf(nameof(windDrivenLoop))] [Range(0f, 0.99f)]
+        public float windThreshold = 0.5f;
+        [ShowIf(nameof(windDrivenLoop))] [Min(0f)]
+        public float windVolumeMultiplier = 1f;
+
+        public float WindGain(float power) => windDrivenLoop ? Mathf.InverseLerp(windThreshold, 1f, power) : 1f;
+        public float WindVolumeScale => windDrivenLoop ? windVolumeMultiplier : 1f;
+
         [Title("立体音響")] [Tooltip("0 で 2D (どこにいても同じ聞こえ方)、1 で完全な 3D")] [Range(0f, 1f)]
         public float spatialBlend = 1f;
 

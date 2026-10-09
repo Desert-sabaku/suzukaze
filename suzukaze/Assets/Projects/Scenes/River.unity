@@ -4484,6 +4484,7 @@ Transform:
   - {fileID: 1020630285}
   - {fileID: 838110024}
   - {fileID: 445507599}
+  - {fileID: 1714546918}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &724868739
@@ -4502,14 +4503,6 @@ MonoBehaviour:
   boostDb: 8
   attackSeconds: 3
   releaseSeconds: 5
-  windChimeClips: []
-  windChimeOutput: {fileID: 0}
-  windChimeVolume: 0.6
-  windChimeThreshold: 0.35
-  windChimeIntervalSeconds: {x: 2.5, y: 7}
-  strikesPerGust: {x: 1, y: 3}
-  gapBetweenStrikesSeconds: {x: 0.12, y: 0.4}
-  windChimeOffset: {x: 0.8, y: 1.2, z: 1.5}
   forceYusuzumi: 0
 --- !u!1001 &803914311
 PrefabInstance:
@@ -8452,6 +8445,68 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 8137216114699825504, guid: 2d9ecddc22eaa4900a5527b41cbb28b1, type: 3}
   m_PrefabInstance: {fileID: 1714404837}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1714546917
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 724868738}
+    m_Modifications:
+    - target: {fileID: 575366845946999345, guid: 57898ce7cbbf0a24382d56d9f66f9eb1, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 575366845946999345, guid: 57898ce7cbbf0a24382d56d9f66f9eb1, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 575366845946999345, guid: 57898ce7cbbf0a24382d56d9f66f9eb1, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 575366845946999345, guid: 57898ce7cbbf0a24382d56d9f66f9eb1, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 575366845946999345, guid: 57898ce7cbbf0a24382d56d9f66f9eb1, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 575366845946999345, guid: 57898ce7cbbf0a24382d56d9f66f9eb1, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 575366845946999345, guid: 57898ce7cbbf0a24382d56d9f66f9eb1, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 575366845946999345, guid: 57898ce7cbbf0a24382d56d9f66f9eb1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 575366845946999345, guid: 57898ce7cbbf0a24382d56d9f66f9eb1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 575366845946999345, guid: 57898ce7cbbf0a24382d56d9f66f9eb1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7521698238316882401, guid: 57898ce7cbbf0a24382d56d9f66f9eb1, type: 3}
+      propertyPath: m_Name
+      value: Wind Chime
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 57898ce7cbbf0a24382d56d9f66f9eb1, type: 3}
+--- !u!4 &1714546918 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 575366845946999345, guid: 57898ce7cbbf0a24382d56d9f66f9eb1, type: 3}
+  m_PrefabInstance: {fileID: 1714546917}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1741567418
 PrefabInstance:
