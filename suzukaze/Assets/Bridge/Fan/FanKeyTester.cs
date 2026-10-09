@@ -16,6 +16,10 @@ namespace Suzukaze.Fan
         // 押したあとの目標値。FanOutput.Get は途中の値なので、切り替えには使わない。
         private readonly bool[] on = new bool[FanOutput.FanCount];
 
+        // Play のたびに作り直す。Domain Reload を切っていても、前の Play の値を残さない。
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetPlaySession() => FanOutput.ResetInstance();
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Create()
         {
