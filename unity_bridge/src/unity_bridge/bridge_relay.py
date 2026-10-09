@@ -9,19 +9,24 @@ import asyncio
 import multiprocessing as mp
 import queue
 import time
+from collections import deque
 from collections.abc import Callable
 from typing import Any, Protocol
 
+from bridge.v1 import bridge_pb2
 from gesture_detection.app import main as run_detection
 from gesture_detection.recognition_types import GestureSample
 from websockets.exceptions import ConnectionClosed
 
 from .diffuser import DiffuserController
-from .fan import FanController
+from .error_log import ErrorLog
+from .fan import FanController, McuFadeSender
 from .gesture_codec import decode_bridge, decode_gesture, encode_message
 from .gesture_delivery import DeliveryOutbox
+from .runtime_settings import SettingsStore
 
 TICK_SECONDS = 0.01
+RECENT_OCCURRENCES = 20
 
 
 class SampleSource(Protocol):
@@ -81,13 +86,28 @@ class BridgeRelay:
         state_interval: float = 0.1,
         fan: FanController | None = None,
         diffuser: DiffuserController | None = None,
+        settings: SettingsStore | None = None,
+        errors: ErrorLog | None = None,
+        mcu: McuFadeSender | None = None,
     ) -> None:
         self.outbox = outbox
         self.fan = fan or FanController()
         self.diffuser = diffuser or DiffuserController()
+        self.settings = settings or SettingsStore()
+        self.errors = errors or ErrorLog()
+        # fan と diffuser が共有するマイコンへの送信役。設定画面で接続状態を出すだけに使う。
+        self.mcu = mcu
         self.state_interval = state_interval
         # Called with each ACK before it settles the event; the debug GUI shows it.
         self.on_ack: Callable[[dict[str, Any]], None] | None = None
+        # 設定画面に出す、最新の認識結果と、最近成立した所作(新しい順)。
+        self.latest_sample: GestureSample | None = None
+        self.recent_occurrences: deque[dict[str, Any]] = deque(
+            maxlen=RECENT_OCCURRENCES
+        )
+        # Unity が最後に送った RuntimeStatus と、受け取った時刻(monotonic)。
+        self.unity_status: bridge_pb2.RuntimeStatus | None = None
+        self.unity_status_at: float | None = None
         self._connected = False
 
     @property
@@ -103,7 +123,21 @@ class BridgeRelay:
                 continue
             if sample is None:
                 return
+            self._remember(sample)
             self.outbox.publish(sample, now=time.monotonic())
+
+    def _remember(self, sample: GestureSample) -> None:
+        self.latest_sample = sample
+        for (gesture, _), accuracy in zip(
+            sample.occurrences, sample.occurrence_accuracies, strict=True
+        ):
+            self.recent_occurrences.appendleft(
+                {
+                    "gesture": str(gesture),
+                    "at": time.time(),
+                    "action_accuracy": accuracy,
+                }
+            )
 
     async def serve(self, websocket: Any) -> None:
         if self._connected:
@@ -120,22 +154,39 @@ class BridgeRelay:
             done, _ = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
             for task in done:
                 task.result()
-        except ValueError, TypeError, TimeoutError, ConnectionClosed:
+        except ConnectionClosed:
             pass
+        except (ValueError, TypeError, TimeoutError) as error:
+            self.errors.record(
+                "bridge",
+                "error",
+                f"Unity との接続を切りました: {type(error).__name__}: {error}",
+            )
         finally:
             for task in tasks:
                 task.cancel()
             await asyncio.gather(*tasks, return_exceptions=True)
             await websocket.close(code=1011, reason="Gesture connection closed")
             self._connected = False
+            self.unity_status = None
+            self.unity_status_at = None
 
     async def _to_unity(self, websocket: Any) -> None:
         next_state = 0.0
         reconnect = True
+        settings_version = 0
         while True:
             now = time.monotonic()
             messages = []
             frames = []
+            # 接続直後と、設定画面で変えたときに送る。
+            if settings_version != self.settings.version:
+                settings_version = self.settings.version
+                frames.append(
+                    bridge_pb2.BridgeEnvelope(
+                        runtime_settings=self.settings.current.to_proto()
+                    ).SerializeToString()
+                )
             if now >= next_state:
                 messages.append(self.outbox.state(now))
                 # Unity がファンを使い始めるまでは、ファンの状態を送らない。
@@ -159,6 +210,19 @@ class BridgeRelay:
                 self.fan.command(envelope.fan_command)
             elif kind == "diffuser_press":
                 self.diffuser.press(envelope.diffuser_press)
+            elif kind == "runtime_status":
+                self.unity_status = envelope.runtime_status
+                self.unity_status_at = time.monotonic()
+            elif kind == "unity_log":
+                log = envelope.unity_log
+                self.errors.record(
+                    "unity",
+                    "exception"
+                    if log.level == bridge_pb2.UNITY_LOG_LEVEL_EXCEPTION
+                    else "error",
+                    log.message,
+                    log.stack_trace,
+                )
             elif kind == "gesture":
                 ack = decode_gesture(envelope.gesture)
                 if ack["type"] != "ack":

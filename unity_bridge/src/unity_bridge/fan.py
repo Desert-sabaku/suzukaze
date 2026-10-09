@@ -55,15 +55,19 @@ class FanController:
         t = 1.0 if duration <= 0 else min(1.0, (now - started) / duration)
         return round(MAX_VALUE * (t * target / MAX_VALUE) ** GAMMA)
 
-    def state(self) -> bytes:
+    def values(self) -> list[int]:
+        """The current output of channels 1-6, in channel order."""
         now = self._clock()
+        return [self._value(c, now) for c in CHANNELS]
+
+    def state(self) -> bytes:
         state = bridge_pb2.FanState(
             readings=[
                 bridge_pb2.FanReading(
                     channel=cast("fan_pb2.FanChannel", c),
-                    value=self._value(c, now),
+                    value=value,
                 )
-                for c in CHANNELS
+                for c, value in zip(CHANNELS, self.values(), strict=True)
             ]
         )
         return bridge_pb2.BridgeEnvelope(fan_state=state).SerializeToString()
@@ -83,6 +87,7 @@ class McuFadeSender:
         pins: tuple[int, ...],
         baudrate: int = DEFAULT_BAUDRATE,
         client_factory: Callable[[str, int], Any] | None = None,
+        on_error: Callable[[str], None] | None = None,
     ) -> None:
         if len(pins) != len(CHANNELS):
             raise ValueError(f"Expected {len(CHANNELS)} fan pins")
@@ -91,6 +96,11 @@ class McuFadeSender:
 
             client_factory = MCUClient
         self._pins = pins
+        self.port = port
+        # 設定画面に出す。最後の送信が成功したか、失敗したならその理由。
+        self.connected = False
+        self.last_error: str | None = None
+        self._on_error = on_error
         self._client_factory = lambda: client_factory(port, baudrate)
         self._client: Any | None = None
         self._commands: queue.Queue[Callable[[Any], None]] = queue.Queue()
@@ -111,8 +121,14 @@ class McuFadeSender:
                 client = self._client or self._connect()
                 self._client = client
                 command(client)
+                self.connected = True
+                self.last_error = None
             except Exception as error:  # noqa: BLE001
                 print(f"Fan MCU unavailable, dropped a command: {error}", flush=True)
+                self.connected = False
+                self.last_error = str(error)
+                if self._on_error is not None:
+                    self._on_error(f"マイコンに送れませんでした: {error}")
                 self._close()
 
     def _connect(self) -> Any:
@@ -132,7 +148,9 @@ class McuFadeSender:
             self._client = None
 
 
-def mcu_sender_from_env() -> McuFadeSender | None:
+def mcu_sender_from_env(
+    on_error: Callable[[str], None] | None = None,
+) -> McuFadeSender | None:
     """FAN_PWM_PINS(6本、カンマ区切り)があればマイコンへの送信役を作る。なければ None。"""
     pins = os.getenv("FAN_PWM_PINS")
     if not pins:
@@ -141,4 +159,5 @@ def mcu_sender_from_env() -> McuFadeSender | None:
         os.getenv("MICROCONTROLLER_SERIAL_PORT", DEFAULT_SERIAL_PORT),
         tuple(int(pin) for pin in pins.split(",")),
         int(os.getenv("MICROCONTROLLER_BAUDRATE", str(DEFAULT_BAUDRATE))),
+        on_error=on_error,
     )

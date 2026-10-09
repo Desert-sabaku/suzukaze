@@ -11,8 +11,9 @@ from websockets.asyncio.server import serve
 
 from unity_bridge.bridge_relay import BridgeRelay
 from unity_bridge.fan import FanController, McuFadeSender
-from unity_bridge.gesture_codec import decode_message, encode_message
+from unity_bridge.gesture_codec import encode_message
 from unity_bridge.gesture_delivery import DeliveryOutbox
+from unity_bridge.gesture_probe import decode_payload
 
 
 def ramune(now: float) -> GestureSample:
@@ -21,8 +22,8 @@ def ramune(now: float) -> GestureSample:
 
 async def receive(client, kind: str) -> dict:
     while True:
-        message = decode_message(await asyncio.wait_for(client.recv(), 1))
-        if message["type"] == kind:
+        message = decode_payload(await asyncio.wait_for(client.recv(), 1))
+        if message is not None and message["type"] == kind:
             return message
 
 
@@ -229,11 +230,19 @@ def test_mcu_sender_maps_channels_to_pins_and_survives_a_missing_mcu():
         def close(self):
             pass
 
-    sender = McuFadeSender("PORT", (10, 11, 12, 13, 14, 15), client_factory=Client)
+    errors = []
+    sender = McuFadeSender(
+        "PORT", (10, 11, 12, 13, 14, 15), client_factory=Client, on_error=errors.append
+    )
     sender(1, 50, 0)  # MCU がなくて落とされる
     sender(6, 200, 300)  # 再接続して送られる
     assert done.wait(2)
     assert calls == [(15, 200, 300)]
+    assert len(errors) == 1 and "no such device" in errors[0]
+    deadline = time.monotonic() + 1
+    while not sender.connected and time.monotonic() < deadline:
+        time.sleep(0.01)
+    assert sender.connected and sender.last_error is None
 
 
 def test_mcu_sender_pulses_a_pin_on_the_shared_port():

@@ -85,6 +85,8 @@ def test_child_process_through_bridge_to_receiver_and_back():
                         message = decode_payload(
                             await asyncio.wait_for(client.recv(), 5)
                         )
+                        if message is None:
+                            continue
                         ack = receiver.receive(
                             message,
                             time.monotonic(),
@@ -98,6 +100,8 @@ def test_child_process_through_bridge_to_receiver_and_back():
                         message = decode_payload(
                             await asyncio.wait_for(client.recv(), 1)
                         )
+                        if message is None:
+                            continue
                         receiver.receive(message, time.monotonic(), lambda _: True)
                         if (
                             message["type"] == "state"
