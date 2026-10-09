@@ -1,3 +1,4 @@
+using Features.senkoUI;
 using UnityEngine;
 
 public class SparklerGaugeSample : MonoBehaviour
