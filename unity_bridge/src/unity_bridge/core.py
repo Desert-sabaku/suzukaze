@@ -1,18 +1,19 @@
 import argparse
 import asyncio
 import contextlib
-import os
 import threading
 from typing import Any
 
 import websockets
 from dotenv import load_dotenv
+from pydantic import ValidationError
 
 from .bridge_relay import BridgeRelay, DetectionProcess, SampleSource
-from .diffuser import DiffuserController, pins_from_env
+from .diffuser import DiffuserController
 from .fan import FanController, mcu_sender_from_env
-from .gesture_debug import DEFAULT_DEBUG_PORT, ManualGestureSource, serve_debug_gui
+from .gesture_debug import ManualGestureSource, serve_debug_gui
 from .gesture_delivery import DeliveryOutbox
+from .settings import Settings, load_settings
 
 DEFAULT_HOST = "0.0.0.0"
 DEFAULT_WEBSOCKET_PORT = 5000
@@ -173,44 +174,43 @@ class UnityBridge:
         self._serial.flush()
 
 
-def _environment_defaults() -> dict[str, str | int]:
-    load_dotenv()
+def _environment_defaults(settings: Settings) -> dict[str, str | int]:
     return {
-        "host": os.getenv(
-            "UNITY_WEBSOCKET_HOST", os.getenv("UNITY_TCP_HOST", DEFAULT_HOST)
-        ),
-        "websocket_port": int(
-            os.getenv("UNITY_WEBSOCKET_PORT", str(DEFAULT_WEBSOCKET_PORT))
-        ),
-        "serial_port": os.getenv("MICROCONTROLLER_SERIAL_PORT", DEFAULT_SERIAL_PORT),
-        "baudrate": int(os.getenv("MICROCONTROLLER_BAUDRATE", str(DEFAULT_BAUDRATE))),
+        "host": settings.unity_websocket_host,
+        "websocket_port": settings.unity_websocket_port,
+        "serial_port": settings.microcontroller_serial_port,
+        "baudrate": settings.microcontroller_baudrate,
     }
 
 
 def bridge_relay_from_env() -> BridgeRelay:
     """Delivery timing; times are seconds on the host monotonic clock."""
-    state_interval = float(os.getenv("GESTURE_STATE_INTERVAL", "0.1"))
-    stale_timeout = float(os.getenv("GESTURE_STALE_TIMEOUT", "0.5"))
+    settings = load_settings()
+    state_interval = settings.gesture_state_interval
+    stale_timeout = settings.gesture_stale_timeout
     if not 0 < state_interval < stale_timeout:
         raise ValueError("Gesture state interval must be shorter than stale timeout")
     outbox = DeliveryOutbox(
-        event_ttl=float(os.getenv("GESTURE_EVENT_TTL", "1.0")),
+        event_ttl=settings.gesture_event_ttl,
         stale_timeout=stale_timeout,
-        retry_interval=float(os.getenv("GESTURE_RETRY_INTERVAL", "0.1")),
-        max_pending=int(os.getenv("GESTURE_MAX_PENDING", "64")),
+        retry_interval=settings.gesture_retry_interval,
+        max_pending=settings.gesture_max_pending,
     )
-    sender = mcu_sender_from_env()
+    sender = mcu_sender_from_env(settings)
     return BridgeRelay(
         outbox,
         state_interval,
         FanController(send_fade=sender),
-        DiffuserController(sender.pulse if sender else None, pins_from_env()),
+        DiffuserController(
+            sender.pulse if sender else None, tuple(settings.diffuser_pins)
+        ),
     )
 
 
 def test_websocket_connection() -> bool:
-    host = os.getenv("UNITY_WEBSOCKET_TEST_HOST", "127.0.0.1")
-    port = int(os.getenv("UNITY_WEBSOCKET_PORT", str(DEFAULT_WEBSOCKET_PORT)))
+    settings = load_settings()
+    host = settings.unity_websocket_test_host
+    port = settings.unity_websocket_port
 
     async def connect() -> None:
         async with websockets.connect(f"ws://{host}:{port}"):
@@ -226,7 +226,9 @@ def test_websocket_connection() -> bool:
 
 
 def _parse_args() -> argparse.Namespace:
-    defaults = _environment_defaults()
+    load_dotenv()
+    settings = load_settings()
+    defaults = _environment_defaults(settings)
     parser = argparse.ArgumentParser(
         description="Bridge Unity WebSocket and microcontroller serial I/O."
     )
@@ -259,7 +261,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--debug-port",
         type=int,
-        default=int(os.getenv("GESTURE_DEBUG_PORT", str(DEFAULT_DEBUG_PORT))),
+        default=settings.gesture_debug_port,
     )
     args = parser.parse_args()
     # --fan は、ジェスチャー用の WebSocket 中継から、認識の子プロセスだけを除いたもの。
@@ -277,17 +279,20 @@ def _parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
-    args = _parse_args()
-    serial_port = None if args.no_serial or args.gesture else args.serial_port
-    bridge = UnityBridge(
-        args.host,
-        args.websocket_port,
-        serial_port,
-        args.baudrate,
-        bridge_relay_from_env() if args.gesture else None,
-        detect=not args.fan,
-        debug_port=args.debug_port if args.debug_gui else None,
-    )
+    try:
+        args = _parse_args()
+        serial_port = None if args.no_serial or args.gesture else args.serial_port
+        bridge = UnityBridge(
+            args.host,
+            args.websocket_port,
+            serial_port,
+            args.baudrate,
+            bridge_relay_from_env() if args.gesture else None,
+            detect=not args.fan,
+            debug_port=args.debug_port if args.debug_gui else None,
+        )
+    except ValidationError as error:
+        raise SystemExit(f"設定エラー:\n{error}") from error
     try:
         bridge.run()
     except KeyboardInterrupt:

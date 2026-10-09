@@ -16,10 +16,22 @@
 firmwareには回転数の読み出しがないので、出力は指示から推定します
 (0 から value まで、firmwareと同じガンマ2.2のカーブ)。
 
-環境変数 `FAN_PWM_PINS`(6本のGPIO番号、カンマ区切り。順は `channel` の1〜6)を設定すると、
-`mcu` ライブラリでマイコンへ `PwmFade` も送ります。ポートは `MICROCONTROLLER_SERIAL_PORT`、
-ボーレートは `MICROCONTROLLER_BAUDRATE` です。未設定ならマイコンへは送りません。
+`fan_pwm_pins`(6本のGPIO番号。順は `channel` の1〜6)を設定すると、
+`mcu` ライブラリでマイコンへ `PwmFade` も送ります。ポートは `microcontroller_serial_port`、
+ボーレートは `microcontroller_baudrate` です。`fan_pwm_pins` が空ならマイコンへは送りません。
 マイコンが未接続でもブリッジは落ちず、次の指示で再接続します(落とした指示は再送しません)。
+
+## 設定
+
+設定は、環境変数、リポジトリ直下の `suzukaze.local.yaml`、`suzukaze.yaml` の順に探します。
+既定値はありません。どれにも書かれていないキーがあるとき、`suzukaze.yaml` などに知らないキーがあるときは、
+起動時にエラーになります。
+
+- yamlのキーは `suzukaze.yaml` を見てください。環境変数名は、キーの大文字です
+  (`fan_pwm_pins` なら `FAN_PWM_PINS`)。
+- ピンの一覧は、yamlでは配列、環境変数ではカンマ区切りで書きます(空なら空の一覧)。
+- `suzukaze.yaml` は共有する設定、`suzukaze.local.yaml` はマシンごとの違い(シリアルポートなど)に使います。
+  `suzukaze.local.yaml` はコミットしません。
 
 ## ジェスチャー通知
 

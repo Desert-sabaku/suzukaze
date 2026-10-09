@@ -1,7 +1,8 @@
 import pytest
 from diffuser.v1 import diffuser_pb2
 
-from unity_bridge.diffuser import DiffuserController, pins_from_env
+from unity_bridge.diffuser import DiffuserController
+from unity_bridge.settings import load_settings
 
 
 def press(channel, duration_ms=200):
@@ -30,8 +31,8 @@ def test_bad_presses_are_rejected():
     assert sent == []
 
 
-def test_pins_come_from_the_env(monkeypatch):
+def test_pins_come_from_the_settings(monkeypatch):
     monkeypatch.delenv("DIFFUSER_PINS", raising=False)
-    assert pins_from_env() == (8, 9)
+    assert load_settings().diffuser_pins == [8, 9]
     monkeypatch.setenv("DIFFUSER_PINS", "4,5")
-    assert pins_from_env() == (4, 5)
+    assert load_settings().diffuser_pins == [4, 5]

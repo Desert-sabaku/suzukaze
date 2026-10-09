@@ -1,6 +1,5 @@
 """Diffuser button presses from Unity."""
 
-import os
 from collections.abc import Callable
 
 from diffuser.v1 import diffuser_pb2
@@ -29,9 +28,3 @@ class DiffuserController:
             raise ValueError("Invalid diffuser press")
         if self._send_pulse is not None:
             self._send_pulse(self._pins[press.channel - 1], press.duration_ms)
-
-
-def pins_from_env() -> tuple[int, ...]:
-    """DIFFUSER_PINS(カンマ区切り、DiffuserChannel の値の順)。なければ DEFAULT_PINS。"""
-    pins = os.getenv("DIFFUSER_PINS")
-    return tuple(int(pin) for pin in pins.split(",")) if pins else DEFAULT_PINS

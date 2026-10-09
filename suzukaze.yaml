@@ -1,0 +1,20 @@
+# unity_bridge の設定。優先順は 環境変数 > suzukaze.local.yaml > このファイル。
+# 既定値はなく、どれにも書かれていないキーがあると、起動時にエラーになる。
+# キーは環境変数名の小文字。マシンごとの違い(シリアルポートなど)は suzukaze.local.yaml に書く。
+
+unity_websocket_host: 0.0.0.0
+unity_websocket_port: 5000
+unity_websocket_test_host: 127.0.0.1
+
+microcontroller_serial_port: COM3 # Linux は /dev/ttyACM0 など
+microcontroller_baudrate: 115200
+
+fan_pwm_pins: [] # 6本のGPIO番号(channel 1〜6の順)。空のときは、マイコンへ何も送らない
+diffuser_pins: [8, 9] # DiffuserChannel の値の順(ラムネ, 森)
+
+gesture_state_interval: 0.1
+gesture_stale_timeout: 0.5
+gesture_event_ttl: 1.0
+gesture_retry_interval: 0.1
+gesture_max_pending: 64
+gesture_debug_port: 5080
