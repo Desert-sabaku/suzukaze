@@ -57,8 +57,8 @@ include = ["mcu", "tests"]
 exclude = ["**/__pycache__", ".venv", "build", "dist"]
 typeCheckingMode = "standard"
 pythonVersion = "3.12"
-venvPath = "."
-venv = ".venv"
+# Generated code imports its siblings absolutely (`from micon.v1 import ...`).
+extraPaths = ["mcu/gen"]
 
 [build-system]
 build-backend = "hatchling.build"
