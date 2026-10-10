@@ -146,6 +146,7 @@ def test_browser_command_reaches_unity_and_ack_returns_to_browser():
 
 
 def test_debug_gui_mode_replaces_detection(monkeypatch):
+    monkeypatch.setattr(core, "load_dotenv", lambda: None)
     monkeypatch.setattr(
         "sys.argv", ["unity-bridge", "--debug-gui", "--debug-port", "5090"]
     )

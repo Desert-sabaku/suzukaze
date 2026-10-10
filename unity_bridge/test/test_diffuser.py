@@ -1,8 +1,7 @@
 import pytest
 from diffuser.v1 import diffuser_pb2
 
-from unity_bridge.diffuser import DiffuserController
-from unity_bridge.settings import load_settings
+from unity_bridge.diffuser import DiffuserController, pins_from_env
 
 
 def press(channel, duration_ms=200):
@@ -11,7 +10,7 @@ def press(channel, duration_ms=200):
 
 def test_press_is_sent_to_the_pin_of_the_channel():
     sent = []
-    diffuser = DiffuserController(lambda *args: sent.append(args), (8, 9))
+    diffuser = DiffuserController(lambda *args: sent.append(args))
     diffuser.press(press(diffuser_pb2.DIFFUSER_CHANNEL_RAMUNE))
     diffuser.press(press(diffuser_pb2.DIFFUSER_CHANNEL_FOREST, 300))
     assert sent == [(8, 200), (9, 300)]
@@ -19,7 +18,7 @@ def test_press_is_sent_to_the_pin_of_the_channel():
 
 def test_bad_presses_are_rejected():
     sent = []
-    diffuser = DiffuserController(lambda *args: sent.append(args), (8, 9))
+    diffuser = DiffuserController(lambda *args: sent.append(args))
     for channel, duration_ms in (
         (diffuser_pb2.DIFFUSER_CHANNEL_UNSPECIFIED, 200),
         (3, 200),
@@ -31,5 +30,8 @@ def test_bad_presses_are_rejected():
     assert sent == []
 
 
-def test_pins_come_from_the_settings():
-    assert load_settings().diffuser_pins.ordered() == (8, 9)
+def test_pins_come_from_the_env(monkeypatch):
+    monkeypatch.delenv("DIFFUSER_PINS", raising=False)
+    assert pins_from_env() == (8, 9)
+    monkeypatch.setenv("DIFFUSER_PINS", "4,5")
+    assert pins_from_env() == (4, 5)

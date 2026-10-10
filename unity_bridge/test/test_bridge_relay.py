@@ -229,9 +229,7 @@ def test_mcu_sender_maps_channels_to_pins_and_survives_a_missing_mcu():
         def close(self):
             pass
 
-    sender = McuFadeSender(
-        "PORT", (10, 11, 12, 13, 14, 15), 115200, client_factory=Client
-    )
+    sender = McuFadeSender("PORT", (10, 11, 12, 13, 14, 15), client_factory=Client)
     sender(1, 50, 0)  # MCU がなくて落とされる
     sender(6, 200, 300)  # 再接続して送られる
     assert done.wait(2)
@@ -262,7 +260,7 @@ def test_mcu_sender_pulses_a_pin_on_the_shared_port():
         def close(self):
             pass
 
-    sender = McuFadeSender("PORT", (1, 2, 3, 4, 5, 6), 115200, client_factory=Client)
+    sender = McuFadeSender("PORT", (1, 2, 3, 4, 5, 6), client_factory=Client)
     sender.pulse(9, 300)
     assert done.wait(2)
     assert pulses == [(9, 300)]
