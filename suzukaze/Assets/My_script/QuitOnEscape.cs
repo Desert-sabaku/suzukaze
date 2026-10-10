@@ -7,6 +7,7 @@ public class QuitOnEscape : MonoBehaviour
     {
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
+            if (GameFlowManager.Instance != null) return;
             Quit();
         }
     }

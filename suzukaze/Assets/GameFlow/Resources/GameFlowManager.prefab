@@ -49,7 +49,7 @@ MonoBehaviour:
   - river
   - sea
   - "\u26061\u6E56"
-  playSeconds: 60
+  playSeconds: 210
   resultSeconds: 10
   startKey: 1
   font: {fileID: 11400000, guid: 44f6fc9f880430e4e806dfeb38370040, type: 2}
