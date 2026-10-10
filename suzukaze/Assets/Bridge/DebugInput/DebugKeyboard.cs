@@ -35,6 +35,8 @@ namespace Suzukaze.DebugInput
         private volatile uint threadId;
         private string filter;
         private Keyboard device;
+        private InputSettings.BackgroundBehavior savedBackground;
+        private bool receivedLogged;
         private KeyboardState state;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -52,6 +54,9 @@ namespace Suzukaze.DebugInput
             if (string.IsNullOrWhiteSpace(filter)) filter = DeviceId;
             filter = filter.Trim();
 
+            // 既定ではフォーカスを失うと、バックグラウンドで動けないデバイス(キーボード)を無効にして入力を捨てる。
+            savedBackground = InputSystem.settings.backgroundBehavior;
+            InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
 #if UNITY_EDITOR
             // エディターは既定で Game ビューにフォーカスがないと入力を捨てる。
             InputSystem.settings.editorInputBehaviorInPlayMode =
@@ -76,6 +81,7 @@ namespace Suzukaze.DebugInput
             if (device != null && device.added) InputSystem.RemoveDevice(device);
             device = null;
             state = default;
+            InputSystem.settings.backgroundBehavior = savedBackground;
         }
 
         private void Update()
@@ -86,6 +92,11 @@ namespace Suzukaze.DebugInput
                 if (device == null || !device.added) continue;
                 var key = ToKey(e.VKey, e.Extended);
                 if (key == Key.None) continue;
+                if (!receivedLogged)
+                {
+                    receivedLogged = true;
+                    Debug.Log($"DebugKeyboard: 入力を受信しました ({key}, focus={Application.isFocused})");
+                }
                 state.Set(key, e.Down);
                 InputSystem.QueueStateEvent(device, state);
             }
