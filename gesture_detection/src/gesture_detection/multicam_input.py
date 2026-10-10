@@ -146,11 +146,20 @@ def camera_worker(
             recognition_profile="multicam",
         )
         frame_id = 0
+        failures = 0
         while not stop.is_set():
             ok, frame = capture.read()
             timestamp = time.monotonic()
             if not ok:
-                raise RuntimeError(f"Camera {index} stopped providing frames")
+                failures += 1
+                if failures >= config.CAMERA_MAX_READ_FAILURES:
+                    raise RuntimeError(f"Camera {index} stopped providing frames")
+                if failures % config.CAMERA_REOPEN_AFTER_FAILURES == 0:
+                    capture.release()
+                    capture = open_camera(index)
+                time.sleep(1 / fps)
+                continue
+            failures = 0
             frame = rotate_frame(frame, config.MULTICAM_ROTATION[slot])
             result = analyzer.process(frame, timestamp, frame_id)
             while not stop.is_set():

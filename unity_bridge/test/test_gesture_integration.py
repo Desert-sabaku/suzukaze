@@ -1,4 +1,6 @@
 import asyncio
+import concurrent.futures
+import queue
 import time
 
 import pytest
@@ -6,7 +8,11 @@ import websockets
 from gesture_detection.recognition_types import GestureSample
 from websockets.asyncio.server import serve
 
-from unity_bridge.bridge_relay import BridgeRelay, DetectionProcess
+from unity_bridge.bridge_relay import (
+    BridgeRelay,
+    DetectionProcess,
+    RestartingDetection,
+)
 from unity_bridge.gesture_codec import encode_message
 from unity_bridge.gesture_delivery import DeliveryOutbox
 from unity_bridge.gesture_probe import GestureReceiver, decode_payload
@@ -61,6 +67,58 @@ def test_child_exit_is_reported(target, expected):
                 detection.get(timeout=0.1)
     finally:
         detection.close()
+
+
+def test_crashed_child_is_restarted_and_delivers_again():
+    targets = iter([crashes, fake_detection])
+    detection = RestartingDetection(
+        lambda: DetectionProcess(next(targets)), restart_delay=0.01
+    )
+    detection.start()
+    try:
+        with pytest.raises(queue.Empty):
+            detection.get(timeout=5)
+        assert detection.restarts == 1
+        assert isinstance(detection.get(timeout=5), GestureSample)
+    finally:
+        detection.close()
+
+
+def test_normal_exit_is_not_restarted():
+    detection = RestartingDetection(lambda: DetectionProcess(quits))
+    detection.start()
+    try:
+        assert detection.get(timeout=5) is None
+        assert detection.restarts == 0
+    finally:
+        detection.close()
+
+
+def test_close_during_restart_delay_does_not_start_a_new_child():
+    created = []
+
+    def factory():
+        created.append(DetectionProcess(crashes))
+        return created[-1]
+
+    detection = RestartingDetection(factory, restart_delay=5)
+    detection.start()
+
+    def pump():
+        # Like BridgeRelay.pump: keep polling until a sample or the end.
+        while True:
+            try:
+                return detection.get(0.1)
+            except queue.Empty:
+                continue
+
+    with concurrent.futures.ThreadPoolExecutor(1) as pool:
+        waiting = pool.submit(pump)
+        created[0].process.join(5)
+        time.sleep(0.5)  # get() has seen the crash and is in the restart delay
+        detection.close()
+        assert waiting.result(timeout=1) is None
+    assert len(created) == 1
 
 
 def wrong_type(samples, stop) -> None:

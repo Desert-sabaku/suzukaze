@@ -142,6 +142,52 @@ def test_live_worker_retries_full_event_queue_and_closes_resources():
     errors.put.assert_not_called()
 
 
+def test_live_worker_reopens_camera_after_consecutive_read_failures(monkeypatch):
+    monkeypatch.setattr(config, "CAMERA_REOPEN_AFTER_FAILURES", 2)
+    monkeypatch.setattr(config, "CAMERA_MAX_READ_FAILURES", 5)
+    monkeypatch.setattr("gesture_detection.multicam_input.time.sleep", lambda _s: None)
+    frame = np.zeros((3, 4, 3), dtype=np.uint8)
+    first, second = Mock(), Mock()
+    first.get.return_value = 30
+    first.read.return_value = False, None
+    second.read.return_value = True, frame
+    analyzer = Mock()
+    analyzer.process.return_value = {}
+    stop = threading.Event()
+    results, preview, errors = Mock(), Mock(), Mock()
+    with (
+        patch(
+            "gesture_detection.multicam_input.open_camera", side_effect=[first, second]
+        ) as open_camera,
+        patch("gesture_detection.multicam_input.PoseAnalyzer", return_value=analyzer),
+        patch("gesture_detection.multicam_input.put_latest") as put_latest,
+    ):
+        put_latest.side_effect = lambda *_args: stop.set()
+        camera_worker(1, 2, False, results, preview, errors, stop)
+    assert open_camera.call_count == 2
+    assert first.read.call_count == 2
+    first.release.assert_called_once()
+    analyzer.process.assert_called_once()
+    errors.put.assert_not_called()
+
+
+def test_live_worker_reports_camera_that_keeps_failing(monkeypatch):
+    monkeypatch.setattr(config, "CAMERA_REOPEN_AFTER_FAILURES", 2)
+    monkeypatch.setattr(config, "CAMERA_MAX_READ_FAILURES", 5)
+    monkeypatch.setattr("gesture_detection.multicam_input.time.sleep", lambda _s: None)
+    capture = Mock()
+    capture.get.return_value = 30
+    capture.read.return_value = False, None
+    results, preview, errors = Mock(), Mock(), Mock()
+    with (
+        patch("gesture_detection.multicam_input.open_camera", return_value=capture),
+        patch("gesture_detection.multicam_input.PoseAnalyzer", return_value=Mock()),
+    ):
+        camera_worker(1, 2, False, results, preview, errors, threading.Event())
+    assert capture.read.call_count == 5
+    errors.put.assert_called_once_with((2, "RuntimeError: Camera 2 stopped providing frames"))
+
+
 def test_live_worker_rotates_frame_before_inference_and_preview(monkeypatch):
     monkeypatch.setattr(config, "MULTICAM_ROTATION", ("clockwise", "counterclockwise"))
     frame = np.repeat(np.array([[1, 2]], dtype=np.uint8)[:, :, None], 3, axis=2)

@@ -8,6 +8,7 @@ over a multiprocessing queue and never sees the WebSocket.
 import asyncio
 import multiprocessing as mp
 import queue
+import threading
 import time
 from collections.abc import Callable
 from typing import Any, Protocol
@@ -72,6 +73,56 @@ class DetectionProcess:
                 self.process.join()
         self.samples.close()
         self.samples.cancel_join_thread()
+
+
+class RestartingDetection:
+    """DetectionProcess that is started again after a crash.
+
+    A crash (camera dropout, a dead pose worker) only pauses gestures for
+    restart_delay; the WebSocket and the MCU stay up. A normal exit (Esc) still
+    ends the bridge.
+    """
+
+    def __init__(
+        self,
+        factory: Callable[[], DetectionProcess] = DetectionProcess,
+        restart_delay: float = 2.0,
+    ) -> None:
+        self._factory = factory
+        self._restart_delay = restart_delay
+        # pump() calls get() from a worker thread while close() runs on the loop.
+        self._lock = threading.Lock()
+        self._closed = threading.Event()
+        self._current = factory()
+        self.restarts = 0
+
+    def start(self) -> None:
+        self._current.start()
+
+    def get(self, timeout: float) -> GestureSample | None:
+        try:
+            return self._current.get(timeout)
+        except RuntimeError as error:
+            print(
+                f"{error}; restarting in {self._restart_delay:g}s",
+                flush=True,
+            )
+        with self._lock:
+            self._current.close()
+        if self._closed.wait(self._restart_delay):
+            return None
+        with self._lock:
+            if self._closed.is_set():
+                return None
+            self._current = self._factory()
+            self._current.start()
+            self.restarts += 1
+        raise queue.Empty
+
+    def close(self) -> None:
+        self._closed.set()
+        with self._lock:
+            self._current.close()
 
 
 class BridgeRelay:
