@@ -1,6 +1,5 @@
 """Fan commands from Unity and the fan output that Unity reads back."""
 
-import os
 import queue
 import threading
 import time
@@ -10,11 +9,11 @@ from typing import Any, cast
 from bridge.v1 import bridge_pb2
 from fan.v1 import fan_pb2
 
+from .settings import Settings
+
 CHANNELS = tuple(range(1, 7))
 MAX_VALUE = 255
 GAMMA = 2.2  # firmware/cmd/pwm.go の fadeGamma と同じ
-DEFAULT_SERIAL_PORT = "COM3"
-DEFAULT_BAUDRATE = 115200
 
 
 class FanController:
@@ -81,7 +80,7 @@ class McuFadeSender:
         self,
         port: str,
         pins: tuple[int, ...],
-        baudrate: int = DEFAULT_BAUDRATE,
+        baudrate: int,
         client_factory: Callable[[str, int], Any] | None = None,
     ) -> None:
         if len(pins) != len(CHANNELS):
@@ -132,13 +131,10 @@ class McuFadeSender:
             self._client = None
 
 
-def mcu_sender_from_env() -> McuFadeSender | None:
-    """FAN_PWM_PINS(6本、カンマ区切り)があればマイコンへの送信役を作る。なければ None。"""
-    pins = os.getenv("FAN_PWM_PINS")
-    if not pins:
-        return None
+def mcu_sender_from_env(settings: Settings) -> McuFadeSender:
+    """設定のシリアルポートとファンのピンから、マイコンへの送信役を作る。"""
     return McuFadeSender(
-        os.getenv("MICROCONTROLLER_SERIAL_PORT", DEFAULT_SERIAL_PORT),
-        tuple(int(pin) for pin in pins.split(",")),
-        int(os.getenv("MICROCONTROLLER_BAUDRATE", str(DEFAULT_BAUDRATE))),
+        settings.microcontroller_serial_port,
+        settings.fan_pwm_pins.ordered(),
+        settings.microcontroller_baudrate,
     )

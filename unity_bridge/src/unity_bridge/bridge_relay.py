@@ -84,7 +84,9 @@ class BridgeRelay:
     ) -> None:
         self.outbox = outbox
         self.fan = fan or FanController()
-        self.diffuser = diffuser or DiffuserController()
+        self.diffuser = diffuser or DiffuserController(
+            None, (0, 0)
+        )  # 送信先がないので、ピン番号は使われない
         self.state_interval = state_interval
         # Called with each ACK before it settles the event; the debug GUI shows it.
         self.on_ack: Callable[[dict[str, Any]], None] | None = None
