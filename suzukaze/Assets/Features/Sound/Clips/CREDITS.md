@@ -20,3 +20,10 @@ https://soundeffect-lab.info/ — 商用利用可・クレジット不要。
 - Ambient: 海岸1さざ波 (`Ambience_Wave_Gentle`), 海岸4静かな海 (`Ambience_Wave_Calm`, 先頭 68 秒),
   風が吹く1 (`Ambience_WindBed`, 先頭 68 秒), 風に揺れる草木1弱風 (`Ambience_PlantsSwayingBed`),
   小川 (`Ambience_Stream`)
+
+## ポケットサウンド
+
+https://pocket-se.info/ ([利用規約](https://pocket-se.info/rules/)) — 商用利用・加工可。クレジットを表記すれば無料で、表記できない場合は有償利用になります。
+素材そのものの再配布・販売は禁止されています。
+
+- Yusuzumi: 物音 スコン (`ShishiOdoshi`)。夕涼みのししおどしに使う。モノラル化し、先頭の無音を詰めて 1.6 秒で切っています (音量は原音のまま)
