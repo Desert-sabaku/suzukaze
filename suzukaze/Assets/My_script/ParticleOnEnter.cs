@@ -51,7 +51,8 @@ public class ParticleOnEnter : MonoBehaviour
         if (Keyboard.current == null) return;
 
         if (Keyboard.current.enterKey.wasPressedThisFrame ||
-            Keyboard.current.numpadEnterKey.wasPressedThisFrame)
+            Keyboard.current.numpadEnterKey.wasPressedThisFrame ||
+            Keyboard.current.tKey.wasPressedThisFrame)
         {
             TryPlay();
         }

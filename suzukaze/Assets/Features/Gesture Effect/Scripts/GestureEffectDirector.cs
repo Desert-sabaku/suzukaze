@@ -8,6 +8,7 @@ using Suzukaze.Gesture.Protocol;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.InputSystem;
 using UnityEngine.Formats.Alembic.Importer;
 using UnityEngine.VFX;
 using Action = Suzukaze.Gesture.Protocol.Action;
@@ -73,6 +74,7 @@ namespace Features.Gesture_Effect.Scripts
 
         // ラムネの表示を消す予定時刻。消す予定がないときは null
         private float? _ramuneExitAt;
+        private bool _keyboardRamune;
 
         private Random _random;
         private float3 _startUchimizuPos;
@@ -92,6 +94,30 @@ namespace Features.Gesture_Effect.Scripts
 
         private void Update()
         {
+            var keyboard = Keyboard.current;
+            if (keyboard != null)
+            {
+                if (keyboard.tKey.wasPressedThisFrame) TryPlayUchimizu();
+                if (keyboard.yKey.wasPressedThisFrame)
+                {
+                    _keyboardRamune = !_keyboardRamune;
+                    _ramuneExitAt = null;
+                    ramune.SetAnimState(_keyboardRamune
+                        ? RamuneGesturePlayer.AnimState.ReadyOpen
+                        : RamuneGesturePlayer.AnimState.None);
+                    if (!_keyboardRamune) OnGestureStateChanged(_gestureReceiver.Events.CurrentState);
+                }
+                if (keyboard.uKey.wasPressedThisFrame && ramune.State == RamuneGesturePlayer.AnimState.ReadyOpen)
+                {
+                    _keyboardRamune = true;
+                    _ramuneExitAt = null;
+                    ramune.SetAnimState(RamuneGesturePlayer.AnimState.Open);
+                    PlayOneShot(ramuneOpenClip, ramuneOpenVolume);
+                }
+            }
+            SetAogiPlaying((keyboard != null && keyboard.rKey.isPressed)
+                || _gestureReceiver.Events.CurrentState.Gesture == ContinuousGesture.Fanning);
+
             if (_ramuneExitAt is { } exitAt && Time.unscaledTime >= exitAt)
             {
                 _ramuneExitAt = null;
@@ -122,6 +148,7 @@ namespace Features.Gesture_Effect.Scripts
             }
 
             SetAogiPlaying(false);
+            _keyboardRamune = false;
             _ramuneExitAt = null;
             if (_aogiSource)
             {
@@ -133,8 +160,10 @@ namespace Features.Gesture_Effect.Scripts
         private void OnGestureStateChanged(StateView state)
         {
             // 追跡が切れると Gesture は None、Action は null になるため、ここで自然に停止する
-            SetAogiPlaying(state.Gesture == ContinuousGesture.Fanning);
+            SetAogiPlaying(state.Gesture == ContinuousGesture.Fanning
+                || (Keyboard.current != null && Keyboard.current.rKey.isPressed));
 
+            if (_keyboardRamune) return;
             UpdateRamuneState(state.Action == Action.Ramune
                 ? state.Phase switch
                 {

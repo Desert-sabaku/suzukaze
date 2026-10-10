@@ -72,6 +72,13 @@ namespace Features.SceneTransition
             return autoTransitionInterval > afterDropInterval;
         }
 
+        private void Update()
+        {
+            if (Keyboard.current == null || !Keyboard.current.eKey.wasPressedThisFrame) return;
+            OnDebugNextStep(default);
+            enabled = false;
+        }
+
         private void OnDebugNextStep(InputAction.CallbackContext ctx)
         {
             SceneTransitionManager.Instance.LoadSceneAsync("Title").Forget();

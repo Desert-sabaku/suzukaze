@@ -8,6 +8,7 @@ using Suzukaze.Gesture;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using GestureEvent = Suzukaze.Gesture.Protocol.Event;
 
 namespace Features.SceneTransition
@@ -25,6 +26,13 @@ namespace Features.SceneTransition
         private GameInputs _input;
         private GestureReceiverBehaviour _gestureReceiver;
         private readonly AccuracyTally _accuracy = new();
+        private static bool _isCycling;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetSceneCycle()
+        {
+            _isCycling = false;
+        }
 
         private void Start()
         {
@@ -55,8 +63,32 @@ namespace Features.SceneTransition
         
         private void OnNextStep(InputAction.CallbackContext context)
         {
-            // デバッグ用: ゲームの時間を経過させる
-            _elapsedTime = _gameSettings.gameTimeLimit;
+            if (_isCycling) return;
+            CycleSceneAsync().Forget();
+        }
+
+        private async UniTask CycleSceneAsync()
+        {
+            _isCycling = true;
+            try
+            {
+                _gameSettings ??= await GameSettings.GetInstanceAsync();
+                var scenes = _gameSettings.gameScenes;
+                if (scenes == null || scenes.Length == 0) return;
+                var current = Array.IndexOf(scenes, SceneManager.GetActiveScene().name);
+                var next = scenes[(current + 1) % scenes.Length];
+                if (string.IsNullOrEmpty(next) || !Application.CanStreamedLevelBeLoaded(next))
+                {
+                    Debug.LogError($"Cannot cycle to game scene: {next}");
+                    return;
+                }
+
+                await SceneTransitionManager.Instance.LoadSceneAsync(next);
+            }
+            finally
+            {
+                _isCycling = false;
+            }
         }
 
         // 正確性を集計するだけの観測者なので，演出の採用には関与しない
@@ -78,9 +110,12 @@ namespace Features.SceneTransition
 
             _elapsedTime += Time.deltaTime;
             _sandTimerController.Progress = math.unlerp(0f, _gameSettings.gameTimeLimit, _elapsedTime);
-            if (_elapsedTime < _gameSettings.gameTimeLimit) return;
+            // シーン遷移の重複を防ぐ。遷移中も時間の更新は続ける。
+            if (_isCycling) return;
+            var forceEnd = Keyboard.current != null && Keyboard.current.bKey.wasPressedThisFrame;
+            if (!forceEnd && _elapsedTime < _gameSettings.gameTimeLimit) return;
 
-            // ゲームの時間が経過したら結果シーンに遷移する．評価できた所作がなければ 0
+            // 時間切れ、または B キーで結果シーンへ進む。評価できた所作がなければ 0。
             PlayScore.Submit((float)(_accuracy.Overall ?? 0));
             SceneTransitionManager.Instance.LoadSceneAsync(_gameSettings.resultScene).Forget();
             enabled = false;

@@ -45,6 +45,12 @@ namespace Features.SceneTransition
 
         private void Update()
         {
+            if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
+            {
+                OnTransition(default);
+                enabled = false;
+                return;
+            }
             gestureCanvasGroup.alpha = Mathf.MoveTowards(
                 gestureCanvasGroup.alpha, _isShowingGesture ? 1f : 0f,
                 Time.deltaTime * gestureDisplayDuration

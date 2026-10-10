@@ -3,6 +3,7 @@ using Suzukaze.Fan;
 using Suzukaze.Gesture;
 using Suzukaze.Gesture.Protocol;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.VFX;
 
 namespace Features.Wind.Scripts
@@ -100,6 +101,8 @@ namespace Features.Wind.Scripts
 
         private void Update()
         {
+            SetFanning((Keyboard.current != null && Keyboard.current.rKey.isPressed)
+                || _gestureReceiver.Events.CurrentState.Gesture == ContinuousGesture.Fanning);
             UpdateGust();
 
             _naturalLevel = Mathf.MoveTowards(_naturalLevel, _isGusting && !_isFanning ? 1f : 0f,
@@ -153,7 +156,8 @@ namespace Features.Wind.Scripts
         private void OnGestureStateChanged(StateView state)
         {
             // 追跡が切れると Gesture は None になるため、ここで自然に止まる
-            SetFanning(state.Gesture == ContinuousGesture.Fanning);
+            SetFanning(state.Gesture == ContinuousGesture.Fanning
+                || (Keyboard.current != null && Keyboard.current.rKey.isPressed));
         }
 
         [Button("扇ぎの風を切り替え")]
