@@ -1,0 +1,5 @@
+{
+  "name": "Suzukaze.DebugInput",
+  "rootNamespace": "Suzukaze.DebugInput",
+  "references": ["Unity.InputSystem"]
+}
