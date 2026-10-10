@@ -120,17 +120,17 @@ namespace Suzukaze.Gesture
             catch (Exception error) { Debug.LogException(error, this); }
         }
 
-        // C: 打ち水、V(長押し): ラムネを構える、B: ラムネを開栓(長押しで開栓後の状態を保つ)、X(長押し): 扇ぎ、Z: 一礼
+        // ↓: 打ち水、↑(長押し): ラムネを構える、Enter: ラムネを開栓(長押しで開栓後の状態を保つ)、→(長押し): 扇ぎ、Z: 一礼
         private static KeyboardGestureInput ReadKeys()
         {
             var keys = Keyboard.current;
             if (keys == null) return default;
             return new KeyboardGestureInput {
-                UchimizuPressed = keys.cKey.wasPressedThisFrame,
-                RamuneHeld = keys.vKey.isPressed,
-                RamuneOpenPressed = keys.bKey.wasPressedThisFrame,
-                RamuneOpenHeld = keys.bKey.isPressed,
-                FanningHeld = keys.xKey.isPressed,
+                UchimizuPressed = keys.downArrowKey.wasPressedThisFrame,
+                RamuneHeld = keys.upArrowKey.isPressed,
+                RamuneOpenPressed = keys.enterKey.wasPressedThisFrame,
+                RamuneOpenHeld = keys.enterKey.isPressed,
+                FanningHeld = keys.rightArrowKey.isPressed,
                 BowPressed = keys.zKey.wasPressedThisFrame
             };
         }
