@@ -18,19 +18,20 @@ def _use(monkeypatch, tmp_path, base=BASE, local=None):
     monkeypatch.setattr(settings, "CONFIG_FILES", tuple(files))
 
 
-def test_priority_env_then_local_then_base(tmp_path, monkeypatch):
-    _use(
-        monkeypatch,
-        tmp_path,
-        local={"unity_websocket_port": 6000, "gesture_debug_port": 6001},
-    )
-    monkeypatch.setenv("GESTURE_DEBUG_PORT", "7000")
+def test_priority_local_then_base(tmp_path, monkeypatch):
+    _use(monkeypatch, tmp_path, local={"unity_websocket_port": 6000})
 
     loaded = load_settings()
 
-    assert loaded.gesture_debug_port == 7000  # 環境変数
     assert loaded.unity_websocket_port == 6000  # local
     assert loaded.microcontroller_baudrate == BASE["microcontroller_baudrate"]  # base
+
+
+def test_environment_variables_are_ignored(tmp_path, monkeypatch):
+    _use(monkeypatch, tmp_path)
+    monkeypatch.setenv("GESTURE_DEBUG_PORT", "7000")
+
+    assert load_settings().gesture_debug_port == BASE["gesture_debug_port"]
 
 
 def test_missing_key_is_an_error_naming_the_key(tmp_path, monkeypatch):
@@ -41,28 +42,76 @@ def test_missing_key_is_an_error_naming_the_key(tmp_path, monkeypatch):
     )
 
     with pytest.raises(ValidationError, match="fan_pwm_pins"):
-        load_settings()
+        Settings()  # pyright: ignore[reportCallIssue]
 
 
 def test_unknown_key_is_an_error(tmp_path, monkeypatch):
     _use(monkeypatch, tmp_path, local={"fan_pwm_pinz": [1]})
 
     with pytest.raises(ValidationError, match="fan_pwm_pinz"):
-        load_settings()
+        Settings()  # pyright: ignore[reportCallIssue]
 
 
-def test_pins_are_a_list_in_yaml_and_comma_separated_in_env(tmp_path, monkeypatch):
-    _use(monkeypatch, tmp_path, local={"fan_pwm_pins": [1, 2, 3, 4, 5, 6]})
-    assert load_settings().fan_pwm_pins == [1, 2, 3, 4, 5, 6]
+def test_pins_are_named_and_ordered_by_channel(tmp_path, monkeypatch):
+    fan = {**BASE["fan_pwm_pins"], "left_back": 20}
+    _use(monkeypatch, tmp_path, local={"fan_pwm_pins": fan})
 
-    monkeypatch.setenv("FAN_PWM_PINS", "7,8")
-    assert load_settings().fan_pwm_pins == [7, 8]
+    loaded = load_settings()
 
-    monkeypatch.setenv("FAN_PWM_PINS", "")
-    assert load_settings().fan_pwm_pins == []
+    assert loaded.fan_pwm_pins.ordered() == (20, 3, 4, 5, 6, 7)
+    assert loaded.diffuser_pins.ordered() == (8, 9)
+
+
+@pytest.mark.parametrize(
+    ("key", "name", "pin"),
+    [
+        ("fan_pwm_pins", "left_back", 3),  # left_side と重複
+        ("fan_pwm_pins", "left_back", 7),  # right_front と重複
+        ("diffuser_pins", "ramune", 9),  # forest と重複
+    ],
+)
+def test_duplicate_pin_is_an_error(tmp_path, monkeypatch, key, name, pin):
+    _use(monkeypatch, tmp_path, local={key: {**BASE[key], name: pin}})
+
+    with pytest.raises(ValidationError, match="duplicate pins"):
+        Settings()  # pyright: ignore[reportCallIssue]
+
+
+@pytest.mark.parametrize(
+    ("key", "name"), [("fan_pwm_pins", "left_back"), ("diffuser_pins", "forest")]
+)
+def test_missing_pin_name_is_an_error(tmp_path, monkeypatch, key, name):
+    pins = {k: v for k, v in BASE[key].items() if k != name}
+    _use(monkeypatch, tmp_path, local={key: pins})
+
+    with pytest.raises(ValidationError, match=f"{key}.{name}"):
+        Settings()  # pyright: ignore[reportCallIssue]
+
+
+@pytest.mark.parametrize("key", ["fan_pwm_pins", "diffuser_pins"])
+def test_unknown_pin_name_is_an_error(tmp_path, monkeypatch, key):
+    _use(monkeypatch, tmp_path, local={key: {**BASE[key], "center": 1}})
+
+    with pytest.raises(ValidationError, match=f"{key}.center"):
+        Settings()  # pyright: ignore[reportCallIssue]
 
 
 def test_shared_suzukaze_yaml_is_complete():
     # 共有の suzukaze.yaml だけで、全キーが埋まる(= コードが読むキーがすべて書かれている)。
     assert set(BASE) == set(Settings.model_fields)
     load_settings()
+
+
+def test_fan_and_diffuser_sharing_a_pin_is_an_error(tmp_path, monkeypatch):
+    base = {**BASE, "diffuser_pins": {**BASE["diffuser_pins"], "ramune": 2}}
+    _use(monkeypatch, tmp_path, base=base)
+
+    with pytest.raises(ValidationError, match="share pins"):
+        Settings()  # pyright: ignore[reportCallIssue]
+
+
+def test_load_settings_exits_with_a_message_on_error(tmp_path, monkeypatch, capsys):
+    _use(monkeypatch, tmp_path, base={**BASE, "fan_pwm_pinz": 1})
+
+    with pytest.raises(SystemExit, match="設定エラー"):
+        load_settings()

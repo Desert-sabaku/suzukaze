@@ -14,8 +14,6 @@ from .settings import Settings
 CHANNELS = tuple(range(1, 7))
 MAX_VALUE = 255
 GAMMA = 2.2  # firmware/cmd/pwm.go の fadeGamma と同じ
-DEFAULT_SERIAL_PORT = "COM3"
-DEFAULT_BAUDRATE = 115200
 
 
 class FanController:
@@ -82,7 +80,7 @@ class McuFadeSender:
         self,
         port: str,
         pins: tuple[int, ...],
-        baudrate: int = DEFAULT_BAUDRATE,
+        baudrate: int,
         client_factory: Callable[[str, int], Any] | None = None,
     ) -> None:
         if len(pins) != len(CHANNELS):
@@ -133,12 +131,10 @@ class McuFadeSender:
             self._client = None
 
 
-def mcu_sender_from_env(settings: Settings) -> McuFadeSender | None:
-    """fan_pwm_pins(6本)が空でなければマイコンへの送信役を作る。空なら None。"""
-    if not settings.fan_pwm_pins:
-        return None
+def mcu_sender_from_env(settings: Settings) -> McuFadeSender:
+    """設定のシリアルポートとファンのピンから、マイコンへの送信役を作る。"""
     return McuFadeSender(
         settings.microcontroller_serial_port,
-        tuple(settings.fan_pwm_pins),
+        settings.fan_pwm_pins.ordered(),
         settings.microcontroller_baudrate,
     )

@@ -5,8 +5,6 @@ import threading
 from typing import Any
 
 import websockets
-from dotenv import load_dotenv
-from pydantic import ValidationError
 
 from .bridge_relay import BridgeRelay, DetectionProcess, SampleSource
 from .diffuser import DiffuserController
@@ -15,10 +13,6 @@ from .gesture_debug import ManualGestureSource, serve_debug_gui
 from .gesture_delivery import DeliveryOutbox
 from .settings import Settings, load_settings
 
-DEFAULT_HOST = "0.0.0.0"
-DEFAULT_WEBSOCKET_PORT = 5000
-DEFAULT_SERIAL_PORT = "COM3"
-DEFAULT_BAUDRATE = 115200
 MAX_MESSAGE_BYTES = 64 * 1024
 
 
@@ -33,10 +27,10 @@ class UnityBridge:
 
     def __init__(
         self,
-        host: str = DEFAULT_HOST,
-        websocket_port: int = DEFAULT_WEBSOCKET_PORT,
-        serial_port: str | None = DEFAULT_SERIAL_PORT,
-        baudrate: int = DEFAULT_BAUDRATE,
+        host: str,
+        websocket_port: int,
+        serial_port: str | None,
+        baudrate: int,
         bridge_relay: BridgeRelay | None = None,
         detect: bool = True,
         debug_port: int | None = None,
@@ -201,9 +195,7 @@ def bridge_relay_from_env() -> BridgeRelay:
         outbox,
         state_interval,
         FanController(send_fade=sender),
-        DiffuserController(
-            sender.pulse if sender else None, tuple(settings.diffuser_pins)
-        ),
+        DiffuserController(sender.pulse, settings.diffuser_pins.ordered()),
     )
 
 
@@ -226,13 +218,12 @@ def test_websocket_connection() -> bool:
 
 
 def _parse_args() -> argparse.Namespace:
-    load_dotenv()
     settings = load_settings()
     defaults = _environment_defaults(settings)
     parser = argparse.ArgumentParser(
         description="Bridge Unity WebSocket and microcontroller serial I/O."
     )
-    parser.add_argument("--host", default=defaults["host"])
+    parser.add_argument("--host", default=None)
     parser.add_argument(
         "--websocket-port", type=int, default=defaults["websocket_port"]
     )
@@ -270,29 +261,28 @@ def _parse_args() -> argparse.Namespace:
         parser.error("--fan and --debug-gui cannot be combined")
     args.gesture = args.gesture or args.fan or args.debug_gui
     if args.gesture:
-        # Gesture delivery is local-only; serial mode retains its existing default.
-        if args.host == DEFAULT_HOST:
+        # Gesture delivery is local-only unless --host is given explicitly.
+        if args.host is None:
             args.host = "127.0.0.1"
         if args.host not in {"127.0.0.1", "localhost", "::1"}:
             parser.error("Gesture mode requires a loopback --host")
+    if args.host is None:
+        args.host = defaults["host"]
     return args
 
 
 def main() -> None:
-    try:
-        args = _parse_args()
-        serial_port = None if args.no_serial or args.gesture else args.serial_port
-        bridge = UnityBridge(
-            args.host,
-            args.websocket_port,
-            serial_port,
-            args.baudrate,
-            bridge_relay_from_env() if args.gesture else None,
-            detect=not args.fan,
-            debug_port=args.debug_port if args.debug_gui else None,
-        )
-    except ValidationError as error:
-        raise SystemExit(f"設定エラー:\n{error}") from error
+    args = _parse_args()
+    serial_port = None if args.no_serial or args.gesture else args.serial_port
+    bridge = UnityBridge(
+        args.host,
+        args.websocket_port,
+        serial_port,
+        args.baudrate,
+        bridge_relay_from_env() if args.gesture else None,
+        detect=not args.fan,
+        debug_port=args.debug_port if args.debug_gui else None,
+    )
     try:
         bridge.run()
     except KeyboardInterrupt:

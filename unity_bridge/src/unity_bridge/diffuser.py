@@ -4,8 +4,6 @@ from collections.abc import Callable
 
 from diffuser.v1 import diffuser_pb2
 
-# DiffuserChannel の値の順(ラムネ, 森)
-DEFAULT_PINS = (8, 9)
 MAX_PRESS_MS = 5000
 
 
@@ -14,8 +12,8 @@ class DiffuserController:
 
     def __init__(
         self,
-        send_pulse: Callable[[int, int], None] | None = None,
-        pins: tuple[int, ...] = DEFAULT_PINS,
+        send_pulse: Callable[[int, int], None] | None,
+        pins: tuple[int, ...],
     ) -> None:
         self._send_pulse = send_pulse
         self._pins = pins
