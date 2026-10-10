@@ -17,8 +17,8 @@ from .multicam_fusion import MultiCameraFusion
 from .multicam_input import Frame, LiveInputs, Preview, RecordedInput, load_session
 from .pose_worker import PoseAnalyzer
 from .recognition_types import GestureSample, PoseResult
-from .rendering import draw_landmarks, draw_subject_area
-from .video_output import AsyncVideoWriter
+from .rendering import draw_landmarks, draw_subject_area, escape_or_closed
+from .video_output import AsyncVideoWriter, open_video_writer
 
 WINDOW = "Gesture Recognition - two cameras"
 PANEL_WIDTH, PANEL_HEIGHT, HEADER_HEIGHT = 640, 360, 72
@@ -92,14 +92,7 @@ class MultiCameraApplication:
             return True
         if config.MULTICAM_HEADLESS:
             return False
-        if cv2.waitKey(1) & 0xFF == 27:
-            return True
-        if not self._window_created:
-            return False
-        try:
-            return cv2.getWindowProperty(WINDOW, cv2.WND_PROP_VISIBLE) < 1
-        except cv2.error:
-            return True
+        return escape_or_closed(WINDOW, self._window_created)
 
     def _show(self, image: Frame) -> None:
         if not config.MULTICAM_HEADLESS:
@@ -113,6 +106,22 @@ class MultiCameraApplication:
             return None
         path.parent.mkdir(parents=True, exist_ok=True)
         return stack.enter_context(path.open("w", encoding="utf-8"))
+
+    @staticmethod
+    def _output(stack: ExitStack) -> AsyncVideoWriter:
+        """Record the composed preview; the stack drains and closes it."""
+        writer = open_video_writer(
+            config.VIDEO_OUTPUT_PATH,
+            config.MULTICAM_FUSION_FPS,
+            (PANEL_WIDTH * 2, PANEL_HEIGHT + HEADER_HEIGHT),
+        )
+        try:
+            output = AsyncVideoWriter(writer, config.VIDEO_OUTPUT_BUFFER_FRAMES)
+        except BaseException:
+            writer.release()
+            raise
+        stack.callback(output.release)
+        return output
 
     @staticmethod
     def _write_trace(
@@ -167,22 +176,7 @@ class MultiCameraApplication:
                 analyzers.append(analyzer)
             pending = [source.read() for source in inputs]
             trace = self._trace(stack)
-            config.VIDEO_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-            writer = cv2.VideoWriter(
-                str(config.VIDEO_OUTPUT_PATH),
-                cv2.VideoWriter.fourcc(*"mp4v"),
-                config.MULTICAM_FUSION_FPS,
-                (PANEL_WIDTH * 2, PANEL_HEIGHT + HEADER_HEIGHT),
-            )
-            if not writer.isOpened():
-                writer.release()
-                raise RuntimeError(f"Unable to open output {config.VIDEO_OUTPUT_PATH}")
-            try:
-                output = AsyncVideoWriter(writer, config.VIDEO_OUTPUT_BUFFER_FRAMES)
-            except BaseException:
-                writer.release()
-                raise
-            stack.callback(output.release)
+            output = self._output(stack)
             # Include an EOF tick so inputs faster than the output grid are
             # drained too; no trailing native frame/event is silently skipped.
             for tick in range(math.ceil(views[0].duration * config.MULTICAM_FUSION_FPS) + 1):
@@ -215,24 +209,7 @@ class MultiCameraApplication:
             inputs.start()
             stack.callback(inputs.close)
             trace = self._trace(stack)
-            output: AsyncVideoWriter | None = None
-            if config.RECORD_LIVE_VIDEO:
-                config.VIDEO_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-                writer = cv2.VideoWriter(
-                    str(config.VIDEO_OUTPUT_PATH),
-                    cv2.VideoWriter.fourcc(*"mp4v"),
-                    config.MULTICAM_FUSION_FPS,
-                    (PANEL_WIDTH * 2, PANEL_HEIGHT + HEADER_HEIGHT),
-                )
-                if not writer.isOpened():
-                    writer.release()
-                    raise RuntimeError(f"Unable to open output {config.VIDEO_OUTPUT_PATH}")
-                try:
-                    output = AsyncVideoWriter(writer, config.VIDEO_OUTPUT_BUFFER_FRAMES)
-                except BaseException:
-                    writer.release()
-                    raise
-                stack.callback(output.release)
+            output = self._output(stack) if config.RECORD_LIVE_VIDEO else None
             next_tick = time.monotonic()
             while True:
                 now = time.monotonic()

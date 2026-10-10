@@ -18,6 +18,20 @@ type PixelPoint = tuple[int, int]
 type Message = tuple[str, PixelPoint, tuple[int, int, int], float]
 
 
+def escape_or_closed(window: str, window_created: bool) -> bool:
+    """Return true for Escape or a HighGUI window the user has closed."""
+    if cv2.waitKey(1) & 0xFF == 27:
+        return True
+    if not window_created:
+        return False
+    try:
+        return cv2.getWindowProperty(window, cv2.WND_PROP_VISIBLE) < 1
+    except cv2.error:
+        # Some HighGUI backends remove the native window before reporting
+        # its visibility. Treat the missing-window error as a close event.
+        return True
+
+
 def draw_landmarks(
     image: npt.NDArray[np.uint8],
     landmarks: list[Landmark],

@@ -18,6 +18,7 @@ from .frame_rotation import rotate_frame
 from .ipc import get_latest, put_latest
 from .pose_worker import PoseAnalyzer
 from .recognition_types import PoseResult
+from .video_output import usable_fps
 
 type Frame = npt.NDArray[np.uint8]
 type Preview = tuple[Frame, PoseResult]
@@ -135,9 +136,7 @@ def camera_worker(
     capture, analyzer = None, None
     try:
         capture = open_camera(index)
-        fps = capture.get(cv2.CAP_PROP_FPS)
-        if not math.isfinite(fps) or fps <= 0:
-            fps = float(config.FPS)
+        fps = usable_fps(capture.get(cv2.CAP_PROP_FPS), float(config.FPS))
         analyzer = PoseAnalyzer(
             running_mode="VIDEO",
             select_subject=select_subject,
