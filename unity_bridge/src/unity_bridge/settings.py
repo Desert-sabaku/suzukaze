@@ -7,7 +7,7 @@ yaml のキーはフィールド名。ピンは、機器の名前(left_back な�
 
 from pathlib import Path
 
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, ValidationError, model_validator
 from pydantic_settings import (
     BaseSettings,
     PydanticBaseSettingsSource,
@@ -98,4 +98,8 @@ class Settings(BaseSettings):
 
 
 def load_settings() -> Settings:
-    return Settings()  # pyright: ignore[reportCallIssue]
+    """設定を読む。不足や間違いがあれば、メッセージを出して終了する。"""
+    try:
+        return Settings()  # pyright: ignore[reportCallIssue]
+    except ValidationError as error:
+        raise SystemExit(f"設定エラー:\n{error}") from error

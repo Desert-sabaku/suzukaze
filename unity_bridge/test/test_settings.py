@@ -42,14 +42,14 @@ def test_missing_key_is_an_error_naming_the_key(tmp_path, monkeypatch):
     )
 
     with pytest.raises(ValidationError, match="fan_pwm_pins"):
-        load_settings()
+        Settings()  # pyright: ignore[reportCallIssue]
 
 
 def test_unknown_key_is_an_error(tmp_path, monkeypatch):
     _use(monkeypatch, tmp_path, local={"fan_pwm_pinz": [1]})
 
     with pytest.raises(ValidationError, match="fan_pwm_pinz"):
-        load_settings()
+        Settings()  # pyright: ignore[reportCallIssue]
 
 
 def test_pins_are_named_and_ordered_by_channel(tmp_path, monkeypatch):
@@ -74,7 +74,7 @@ def test_duplicate_pin_is_an_error(tmp_path, monkeypatch, key, name, pin):
     _use(monkeypatch, tmp_path, local={key: {**BASE[key], name: pin}})
 
     with pytest.raises(ValidationError, match="duplicate pins"):
-        load_settings()
+        Settings()  # pyright: ignore[reportCallIssue]
 
 
 @pytest.mark.parametrize(
@@ -85,7 +85,7 @@ def test_missing_pin_name_is_an_error(tmp_path, monkeypatch, key, name):
     _use(monkeypatch, tmp_path, local={key: pins})
 
     with pytest.raises(ValidationError, match=f"{key}.{name}"):
-        load_settings()
+        Settings()  # pyright: ignore[reportCallIssue]
 
 
 @pytest.mark.parametrize("key", ["fan_pwm_pins", "diffuser_pins"])
@@ -93,7 +93,7 @@ def test_unknown_pin_name_is_an_error(tmp_path, monkeypatch, key):
     _use(monkeypatch, tmp_path, local={key: {**BASE[key], "center": 1}})
 
     with pytest.raises(ValidationError, match=f"{key}.center"):
-        load_settings()
+        Settings()  # pyright: ignore[reportCallIssue]
 
 
 def test_shared_suzukaze_yaml_is_complete():
@@ -107,4 +107,11 @@ def test_fan_and_diffuser_sharing_a_pin_is_an_error(tmp_path, monkeypatch):
     _use(monkeypatch, tmp_path, base=base)
 
     with pytest.raises(ValidationError, match="share pins"):
+        Settings()  # pyright: ignore[reportCallIssue]
+
+
+def test_load_settings_exits_with_a_message_on_error(tmp_path, monkeypatch, capsys):
+    _use(monkeypatch, tmp_path, base={**BASE, "fan_pwm_pinz": 1})
+
+    with pytest.raises(SystemExit, match="設定エラー"):
         load_settings()

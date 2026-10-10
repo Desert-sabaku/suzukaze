@@ -5,7 +5,6 @@ import threading
 from typing import Any
 
 import websockets
-from pydantic import ValidationError
 
 from .bridge_relay import BridgeRelay, DetectionProcess, SampleSource
 from .diffuser import DiffuserController
@@ -273,20 +272,17 @@ def _parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
-    try:
-        args = _parse_args()
-        serial_port = None if args.no_serial or args.gesture else args.serial_port
-        bridge = UnityBridge(
-            args.host,
-            args.websocket_port,
-            serial_port,
-            args.baudrate,
-            bridge_relay_from_env() if args.gesture else None,
-            detect=not args.fan,
-            debug_port=args.debug_port if args.debug_gui else None,
-        )
-    except ValidationError as error:
-        raise SystemExit(f"設定エラー:\n{error}") from error
+    args = _parse_args()
+    serial_port = None if args.no_serial or args.gesture else args.serial_port
+    bridge = UnityBridge(
+        args.host,
+        args.websocket_port,
+        serial_port,
+        args.baudrate,
+        bridge_relay_from_env() if args.gesture else None,
+        detect=not args.fan,
+        debug_port=args.debug_port if args.debug_gui else None,
+    )
     try:
         bridge.run()
     except KeyboardInterrupt:
