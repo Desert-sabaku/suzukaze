@@ -30,7 +30,10 @@ namespace Suzukaze.Gesture
         private readonly IGestureSink target;
         // [0, 1) の一様乱数
         private readonly Func<double> random;
+        // 合成に使う受信状態。長押し中は押し始めの値のまま更新しない
         private StateView network = new StateView();
+        // 最後に受信した状態。長押しを離したときに network へ反映する
+        private StateView latest = new StateView();
         private double now;
         private bool fanningHeld;
         private bool ramuneHeld;
@@ -48,14 +51,19 @@ namespace Suzukaze.Gesture
             this.random = random ?? new Random().NextDouble;
         }
 
+        // 長押しキーを押している間は、受信した状態と成立イベントを購読側へ渡さない
+        private bool LongPressHeld => fanningHeld || ramuneHeld || ramuneOpenHeld;
+
         public void DeliverState(StateView state)
         {
+            latest = state;
+            if (LongPressHeld) return;
             network = state;
             target.DeliverState(Compose(now < bowUntil, false));
         }
 
         public bool TryAcceptEvent(string sessionId, Event occurrence) =>
-            target.TryAcceptEvent(sessionId, occurrence);
+            !LongPressHeld && target.TryAcceptEvent(sessionId, occurrence);
 
         public void Reset()
         {
@@ -71,6 +79,7 @@ namespace Suzukaze.Gesture
             ramuneHeld = input.RamuneHeld;
             // 同じフレームで押して離しても、そのフレームは開栓後の状態にする
             ramuneOpenHeld = input.RamuneOpenHeld || input.RamuneOpenPressed;
+            if (!LongPressHeld) network = latest;
             if (input.BowPressed)
             {
                 // 礼による画面遷移は、礼でない追跡状態を見てから礼を受け付ける。
