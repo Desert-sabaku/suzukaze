@@ -45,6 +45,12 @@ namespace Features.SceneTransition
 
         private void Update()
         {
+            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+            {
+                Quit();
+                return;
+            }
+
             gestureCanvasGroup.alpha = Mathf.MoveTowards(
                 gestureCanvasGroup.alpha, _isShowingGesture ? 1f : 0f,
                 Time.deltaTime * gestureDisplayDuration
@@ -100,6 +106,15 @@ namespace Features.SceneTransition
         {
             RemainingScenes.Clear();
             _lastScene = null;
+        }
+
+        private static void Quit()
+        {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
         }
 
         private static void OnTransition(InputAction.CallbackContext ctx)
