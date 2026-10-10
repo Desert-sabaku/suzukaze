@@ -22,7 +22,7 @@ public class GameFlowManager : MonoBehaviour
     public string[] mapScenes = { "Forest", "river", "sea", "☆1湖" };
 
     [Header("Timing")]
-    public float playSeconds = 60f;
+    public float playSeconds = 210f;
     public float resultSeconds = 10f;
 
     [Header("Input")]
@@ -119,14 +119,20 @@ public class GameFlowManager : MonoBehaviour
 
         var keyboard = Keyboard.current;
         bool startPressed = keyboard != null && keyboard[startKey].wasPressedThisFrame;
+        bool escapePressed = keyboard != null && keyboard.escapeKey.wasPressedThisFrame;
 
         switch (State)
         {
             case FlowState.Title:
-                if (startPressed) RequestStart();
+                if (startPressed || escapePressed) RequestStart();
                 break;
 
             case FlowState.Playing:
+                if (escapePressed)
+                {
+                    EnterResult();
+                    break;
+                }
                 // Enter による手動の打ち水(ParticleOnEnter)も所作として数える
                 if (keyboard != null && (keyboard.enterKey.wasPressedThisFrame
                     || keyboard.numpadEnterKey.wasPressedThisFrame))
@@ -137,7 +143,7 @@ public class GameFlowManager : MonoBehaviour
 
             case FlowState.Result:
                 Remaining -= Time.unscaledDeltaTime;
-                if (Remaining <= 0f || startPressed) ReturnToStart();
+                if (Remaining <= 0f || startPressed || escapePressed) ReturnToStart();
                 break;
         }
 
