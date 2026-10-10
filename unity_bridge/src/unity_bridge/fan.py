@@ -14,8 +14,6 @@ from .settings import Settings
 CHANNELS = tuple(range(1, 7))
 MAX_VALUE = 255
 GAMMA = 2.2  # firmware/cmd/pwm.go の fadeGamma と同じ
-DEFAULT_SERIAL_PORT = "COM3"
-DEFAULT_BAUDRATE = 115200
 
 
 class FanController:
@@ -82,7 +80,7 @@ class McuFadeSender:
         self,
         port: str,
         pins: tuple[int, ...],
-        baudrate: int = DEFAULT_BAUDRATE,
+        baudrate: int,
         client_factory: Callable[[str, int], Any] | None = None,
     ) -> None:
         if len(pins) != len(CHANNELS):

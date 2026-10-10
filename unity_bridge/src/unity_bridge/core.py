@@ -14,10 +14,6 @@ from .gesture_debug import ManualGestureSource, serve_debug_gui
 from .gesture_delivery import DeliveryOutbox
 from .settings import Settings, load_settings
 
-DEFAULT_HOST = "0.0.0.0"
-DEFAULT_WEBSOCKET_PORT = 5000
-DEFAULT_SERIAL_PORT = "COM3"
-DEFAULT_BAUDRATE = 115200
 MAX_MESSAGE_BYTES = 64 * 1024
 
 
@@ -32,10 +28,10 @@ class UnityBridge:
 
     def __init__(
         self,
-        host: str = DEFAULT_HOST,
-        websocket_port: int = DEFAULT_WEBSOCKET_PORT,
-        serial_port: str | None = DEFAULT_SERIAL_PORT,
-        baudrate: int = DEFAULT_BAUDRATE,
+        host: str,
+        websocket_port: int,
+        serial_port: str | None,
+        baudrate: int,
         bridge_relay: BridgeRelay | None = None,
         detect: bool = True,
         debug_port: int | None = None,
@@ -228,7 +224,7 @@ def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Bridge Unity WebSocket and microcontroller serial I/O."
     )
-    parser.add_argument("--host", default=defaults["host"])
+    parser.add_argument("--host", default=None)
     parser.add_argument(
         "--websocket-port", type=int, default=defaults["websocket_port"]
     )
@@ -266,11 +262,13 @@ def _parse_args() -> argparse.Namespace:
         parser.error("--fan and --debug-gui cannot be combined")
     args.gesture = args.gesture or args.fan or args.debug_gui
     if args.gesture:
-        # Gesture delivery is local-only; serial mode retains its existing default.
-        if args.host == DEFAULT_HOST:
+        # Gesture delivery is local-only unless --host is given explicitly.
+        if args.host is None:
             args.host = "127.0.0.1"
         if args.host not in {"127.0.0.1", "localhost", "::1"}:
             parser.error("Gesture mode requires a loopback --host")
+    if args.host is None:
+        args.host = defaults["host"]
     return args
 
 

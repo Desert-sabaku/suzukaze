@@ -34,7 +34,6 @@ from websockets.http11 import Request, Response
 
 from .bridge_relay import BridgeRelay
 
-DEFAULT_DEBUG_PORT = 5080
 STATUS_INTERVAL = 0.2
 ACK_HISTORY = 20
 
