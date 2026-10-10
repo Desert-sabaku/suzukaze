@@ -239,6 +239,26 @@ probeもWebSocketの受信クライアントなので、Unityで試す前にprob
 `YusuzumiSoundDirector` の「夕涼みを切り替え」ボタンを押します。
 ゲームシーンは制限時間が過ぎると `Result` へ移るため、再生直後に確認してください。
 
+## キーボードでの所作
+
+カメラやブリッジがなくても、キーボードで所作を入力できます。
+受信器 (`GestureReceiverBehaviour`) が入力を受信結果に重ねるため、購読側の変更は不要です。
+
+| キー | 所作 |
+|---|---|
+| `C` | 打ち水（`Occurred` の `Uchimizu`） |
+| `V`（長押し） | 押している間、ラムネを構える（`Action == Ramune`、`Phase == Ready`） |
+| `B` | ラムネを開栓（`Occurred` の `Ramune`）。押している間は `Phase == WaitRelease`。離したとき `V` を押していれば `Ready` に戻り、もう一度 `B` で再び開栓する |
+| `X`（長押し） | 押している間、扇ぐ（`Gesture == Fanning`） |
+| `Z` | 一礼（`Gesture == Bow` を1秒間） |
+
+キー入力中は `Fresh` と `Tracking` が true になり、認識結果より優先されます。
+キーを離すと受信した状態に戻ります。`Z` の直前には礼でない追跡状態を挟むため、
+礼を戻す必要がある画面遷移もキーだけで進められます。
+キー入力の所作の精度は1（満点）として扱います。扇ぎ・礼の状態と成立イベントの `ActionAccuracy` が1になります。
+成立イベントのセッションIDは `keyboard` で、ACK は送りません。
+処理は `KeyboardGestures.cs` にあります。
+
 ## Setup
 
 `Google.Protobuf` is installed by NuGetForUnity from `Assets/packages.config`
