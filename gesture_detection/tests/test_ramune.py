@@ -70,7 +70,8 @@ def test_invalid_press(failure):
     if failure == "both_down":
         landmarks[15].y += 0.16
     elif failure == "sideways":
-        landmarks[16].x += 0.3
+        # Outside the press alignment, inside the preparation tolerance.
+        landmarks[16].x += 0.26
     elif failure == "lost":
         landmarks[15].visibility = 0.0
     elif failure == "gap":
@@ -168,9 +169,9 @@ def test_wider_upper_hand_preparation_requires_alignment_before_opening(
     analyzer = analyzer_type()
     landmarks = points(base_index)
     upper_index = 31 - base_index
-    # 0.9 shoulder widths is outside the old preparation band of 0.6.
-    landmarks[upper_index].x += direction * 0.36
     prepare(analyzer, landmarks)
+    # 0.65 shoulder widths is outside the press alignment of 0.6.
+    landmarks[upper_index].x += direction * 0.26
     assert not analyzer.update(landmarks, 0.4)
     assert analyzer.state == "READY"
     landmarks[upper_index].y = 0.61
@@ -184,17 +185,44 @@ def test_wider_upper_hand_preparation_requires_alignment_before_opening(
 def test_preparation_outside_wider_band_is_rejected(analyzer_type):
     analyzer = analyzer_type()
     landmarks = points()
-    landmarks[16].x += 0.41  # More than one shoulder width.
+    landmarks[16].x += 0.29  # More than the 0.7 shoulder-width tolerance.
     for now in (0.0, 0.1, 0.3):
         assert not analyzer.update(landmarks, now)
     assert analyzer.state == "IDLE"
 
 
+@pytest.mark.parametrize("analyzer_type", [RamuneAnalyzer, FollowingRamuneAnalyzer])
+@pytest.mark.parametrize("base_index", [15, 16])
+@pytest.mark.parametrize("offset,forms", [(0.1, True), (0.13, True), (0.15, False)])
+def test_preparation_requires_roughly_stacked_hands(analyzer_type, base_index, offset, forms):
+    # Gap 0.5 shoulder widths; the slope limit allows 0.35 horizontally,
+    # which is tighter than the 0.7 alignment tolerance.
+    analyzer = analyzer_type()
+    landmarks = points(base_index)
+    landmarks[31 - base_index].x += offset
+    for now in (0.0, 0.1, 0.3):
+        assert not analyzer.update(landmarks, now)
+    assert analyzer.state == ("READY" if forms else "IDLE")
+
+
+@pytest.mark.parametrize("analyzer_type", [RamuneAnalyzer, FollowingRamuneAnalyzer])
+def test_diagonal_pair_with_hand_at_waist_does_not_form(analyzer_type):
+    # One hand rests near the hip while the other moves diagonally above it.
+    analyzer = analyzer_type()
+    landmarks = points()
+    landmarks[15].x, landmarks[15].y = 0.66, 0.83
+    landmarks[16].x = 0.46
+    for now, y in enumerate((0.70, 0.66, 0.62, 0.58, 0.62, 0.70, 0.78)):
+        landmarks[16].y = y
+        assert not analyzer.update(landmarks, now / 10)
+        assert analyzer.state == "IDLE"
+
+
 def test_multicam_reference_follows_raised_hand_inside_wider_preparation_band():
     analyzer = FollowingRamuneAnalyzer()
     landmarks = points()
-    landmarks[16].x += 0.36
     prepare(analyzer, landmarks)
+    landmarks[16].x += 0.26
     landmarks[16].y -= 0.05
     assert not analyzer.update(landmarks, 0.4)
     assert analyzer.upper_y == pytest.approx(landmarks[16].y)

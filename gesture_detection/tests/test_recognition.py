@@ -102,6 +102,26 @@ def test_raising_both_hands_into_aligned_ramune_form_does_not_get_stuck_in_scoop
 
 @pytest.mark.parametrize("profile", ["default", "multicam"])
 @pytest.mark.parametrize("wrist", [15, 16])
+def test_scoop_beside_hand_resting_at_waist_is_not_ramune(profile, wrist):
+    coordinator = RecognitionCoordinator(profile=profile, ramune_detector="rules")
+    points = landmarks()
+    # The resting hand stays low; the scooping hand moves diagonally above it,
+    # inside the press alignment but not stacked like a bottle.
+    points[31 - wrist].x, points[31 - wrist].y = 0.61, 0.68
+    points[wrist].x = 0.5
+    events = []
+    actions = []
+    for frame, y in enumerate([0.62] * 4 + [0.58, 0.54, 0.62, 0.66]):
+        points[wrist].y = y
+        result = coordinator.process(points, frame / 10, frame, aspect_ratio=1.0)
+        events.extend(result.get("occurrences", ()))
+        actions.append(result["selected_action"])
+    assert events == ["UCHIMIZU"]
+    assert "RAMUNE" not in actions
+
+
+@pytest.mark.parametrize("profile", ["default", "multicam"])
+@pytest.mark.parametrize("wrist", [15, 16])
 def test_scoop_survives_incidental_ramune_candidate(profile, wrist):
     coordinator = RecognitionCoordinator(profile=profile, ramune_detector="rules")
     points = landmarks()
