@@ -30,13 +30,8 @@ class DeliveryOutbox:
         retry_interval: float = 0.1,
         max_pending: int = 64,
     ) -> None:
-        if (
-            any(
-                not math.isfinite(v) or v <= 0
-                for v in (event_ttl, stale_timeout, retry_interval)
-            )
-            or max_pending <= 0
-        ):
+        durations = (event_ttl, stale_timeout, retry_interval)
+        if not all(math.isfinite(v) and v > 0 for v in durations) or max_pending <= 0:
             raise ValueError("Delivery limits must be positive and finite")
         self.session_id = str(uuid.uuid4())
         self.event_ttl = event_ttl
@@ -108,6 +103,9 @@ class DeliveryOutbox:
             fresh = (
                 latest is not None and now < latest["observed_at"] + self.stale_timeout
             )
+            # Only a fresh sample describes the person who is there now.
+            current = latest if fresh else None
+            tracked = current if current is not None and current["tracking"] else None
             message = {
                 "version": PROTOCOL_VERSION,
                 "type": "state",
@@ -116,24 +114,23 @@ class DeliveryOutbox:
                 "sent_at": now,
                 "stale_timeout": self.stale_timeout,
                 "fresh": fresh,
-                "gesture": latest["gesture"] if fresh and latest else Gesture.NONE,
-                "tracking": bool(fresh and latest and latest["tracking"]),
-                "booth_present": bool(fresh and latest and latest["booth_present"]),
+                "gesture": current["gesture"] if current else Gesture.NONE,
+                "tracking": tracked is not None,
+                "booth_present": bool(current and current["booth_present"]),
                 "observed_at": latest["observed_at"] if latest else None,
                 "frame_id": latest["frame_id"] if latest else None,
                 "source_timestamp": latest["source_timestamp"] if latest else None,
             }
-            if fresh and latest and latest["tracking"] and latest["action"] is not None:
-                message["action"] = latest["action"]
-                message["phase"] = latest["phase"]
+            if tracked is None:
+                return message
+            if tracked["action"] is not None:
+                message["action"] = tracked["action"]
+                message["phase"] = tracked["phase"]
             if (
-                fresh
-                and latest
-                and latest["tracking"]
-                and latest["gesture"] != Gesture.NONE
-                and latest["action_accuracy"] is not None
+                tracked["gesture"] != Gesture.NONE
+                and tracked["action_accuracy"] is not None
             ):
-                message["action_accuracy"] = latest["action_accuracy"]
+                message["action_accuracy"] = tracked["action_accuracy"]
             return message
 
     def events(self, now: float, *, reconnect: bool = False) -> list[Message]:
