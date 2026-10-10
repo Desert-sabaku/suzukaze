@@ -66,13 +66,18 @@ class PoseResult(TypedDict):
     phase: NotRequired[str | None]
 
 
+def current_state(result: PoseResult) -> RecognitionState:
+    """Return the current value; a result without one has no usable pose."""
+    return result.get("current", {"gesture": Gesture.NONE, "tracking": False})
+
+
 def recognition_phase(result: PoseResult) -> tuple[str | None, str | None]:
     """Select detector progress, including preparation before an occurrence.
 
     The current action wins; otherwise prefer Ramune preparation to Uchimizu.
     Explicit fields carry the selected camera's phase through fusion.
     """
-    current = result.get("current", {"gesture": Gesture.NONE, "tracking": False})
+    current = current_state(result)
     if not current["tracking"]:
         return None, None
     if "action" in result:
@@ -143,7 +148,7 @@ class GestureSample:
     @classmethod
     def from_result(cls, result: PoseResult, observed_at: float) -> Self:
         """observed_at is capture time, not inference completion or video time."""
-        current = result.get("current", {"gesture": Gesture.NONE, "tracking": False})
+        current = current_state(result)
         action, phase = recognition_phase(result)
         timestamps = result.get("occurrence_timestamps", {})
         occurrences = []

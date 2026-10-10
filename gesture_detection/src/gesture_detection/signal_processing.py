@@ -1,4 +1,29 @@
+from collections.abc import Iterable
+
 import numpy as np
+
+
+def count_reversals(values: Iterable[float], distance: float) -> int:
+    """Count direction changes that each move at least distance from the last extreme."""
+    extreme: float | None = None
+    direction = 0
+    reversals = 0
+    for value in values:
+        if extreme is None:
+            extreme = value
+            continue
+        delta = value - extreme
+        if direction == 0:
+            if abs(delta) >= distance:
+                direction = 1 if delta > 0 else -1
+                extreme = value
+        elif delta * direction >= 0:
+            extreme = value
+        elif abs(delta) >= distance:
+            reversals += 1
+            direction *= -1
+            extreme = value
+    return reversals
 
 
 def resample_time_window(

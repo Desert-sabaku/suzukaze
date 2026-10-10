@@ -93,7 +93,6 @@ TOMLでは真偽値は `true` / `false`、配列は `[0, 2]` のように記述�
 | `RECORD_LIVE_VIDEO` | `output.record_live` |
 | `VIDEO_OUTPUT_BUFFER_FRAMES` | `output.buffer_frames` |
 | `POSE_MODEL_PATH` | `models.pose` |
-| `YOLO_MODEL_PATH` | `models.yolo` |
 | `POSE_RUNNING_MODE` | `pose.running_mode` |
 | `POSE_DISPLAY_SMOOTHING` | `pose.display_smoothing` |
 | `POSE_SELECT_SUBJECT` | `pose.select_subject` |

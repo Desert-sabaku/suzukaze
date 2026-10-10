@@ -8,7 +8,6 @@ from .config import (
     BOW_MAX_HEAD_DEVIATION_DEGREES,
     BOW_MIN_ANGLE_DEGREES,
     RELAXING_DWELL_SECONDS,
-    RIGHT_WRIST_INDEX,
     SUBJECT_AREA,
 )
 from .gesture_types import Phase
@@ -17,6 +16,20 @@ from .recognition_types import PoseResult
 type Landmark = tuple[float, float, float]
 type PixelPoint = tuple[int, int]
 type Message = tuple[str, PixelPoint, tuple[int, int, int], float]
+
+
+def escape_or_closed(window: str, window_created: bool) -> bool:
+    """Return true for Escape or a HighGUI window the user has closed."""
+    if cv2.waitKey(1) & 0xFF == 27:
+        return True
+    if not window_created:
+        return False
+    try:
+        return cv2.getWindowProperty(window, cv2.WND_PROP_VISIBLE) < 1
+    except cv2.error:
+        # Some HighGUI backends remove the native window before reporting
+        # its visibility. Treat the missing-window error as a close event.
+        return True
 
 
 def draw_landmarks(
@@ -44,27 +57,11 @@ def draw_landmarks(
             cv2.circle(image, (int(x * width), int(y * height)), 3, (0, 0, 255), -1)
 
 
-def wrist_pixel(
-    landmarks: list[Landmark],
-    width: int,
-    height: int,
-    wrist_index: int = RIGHT_WRIST_INDEX,
-) -> PixelPoint | None:
-    if len(landmarks) <= wrist_index:
-        return None
-    x, y, visibility = landmarks[wrist_index]
-    if visibility <= 0.5:
-        return None
-    return int(x * width), int(y * height)
-
-
 def draw_messages(
     image: npt.NDArray[np.uint8],
     messages: list[Message],
 ) -> None:
     for text, position, color, scale in messages:
-        if text.startswith("Action: "):
-            continue
         cv2.putText(
             image,
             text,

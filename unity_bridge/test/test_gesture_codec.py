@@ -3,10 +3,10 @@ from pathlib import Path
 from typing import cast
 
 import pytest
+from bridge.v1 import bridge_pb2 as bridge_pb
+from gesture.v1 import gesture_pb2 as pb
 from gesture_detection.gesture_types import Gesture, Phase
 
-from unity_bridge.gen.bridge.v1 import bridge_pb2 as bridge_pb
-from unity_bridge.gen.gesture.v1 import gesture_pb2 as pb
 from unity_bridge.gesture_codec import decode_message, encode_message
 
 

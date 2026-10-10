@@ -19,7 +19,7 @@ from .config import (
 )
 from .gesture_position import is_fanning_position, normalized_wrist_distances
 from .gesture_types import Gesture, Phase
-from .signal_processing import resample_time_window
+from .signal_processing import count_reversals, resample_time_window
 from .uchimizu import AnchoredUchimizuAnalyzer, UchimizuAnalyzer
 
 
@@ -51,7 +51,6 @@ class HandGestureAnalyzer:
         self.fanning_position_last_seen: float | None = None
         self.fanning_height_history: deque[tuple[float, float]] = deque()
         self.selected_action = Gesture.NONE
-        self.action_hold_count = 0
 
     def _update_gesture_scores(
         self, landmarks, timestamp: float, *, aspect_ratio: float = 1.0
@@ -146,24 +145,8 @@ class HandGestureAnalyzer:
 
     def _has_repeated_fanning(self) -> bool:
         """Require several substantial reversals, not a single scoop/release."""
-        if not self.fanning_height_history:
-            return False
-        extreme = self.fanning_height_history[0][1]
-        direction = 0
-        reversals = 0
-        for _, height in self.fanning_height_history:
-            delta = height - extreme
-            if direction == 0:
-                if abs(delta) >= FANNING_REVERSAL_DISTANCE:
-                    direction = 1 if delta > 0 else -1
-                    extreme = height
-            elif delta * direction >= 0:
-                extreme = height
-            elif abs(delta) >= FANNING_REVERSAL_DISTANCE:
-                reversals += 1
-                direction *= -1
-                extreme = height
-        return reversals >= FANNING_MIN_REVERSALS
+        heights = (height for _, height in self.fanning_height_history)
+        return count_reversals(heights, FANNING_REVERSAL_DISTANCE) >= FANNING_MIN_REVERSALS
 
     def _calculate_fanning_score(self):
         if len(self.hand_y_history) < 8:

@@ -3,11 +3,10 @@ import os
 import threading
 
 import questionary
+from micon.v1.log_pb2 import LogEntry
 from prompt_toolkit.patch_stdout import patch_stdout
 
-from mcu.gen.micon.v1.log_pb2 import LogEntry
-
-from .client import MCUClient, _local_version
+from .client import MCUClient, local_version
 
 
 def _listen(client: MCUClient) -> None:
@@ -63,7 +62,7 @@ def main() -> None:
         else:
             print(  # noqa: T201
                 f"schema mismatch: controller={resp.controller_version.schema_hash} "
-                f"client={_local_version().schema_hash}",
+                f"client={local_version().schema_hash}",
             )
 
         def on_log(log_entry: LogEntry) -> None:

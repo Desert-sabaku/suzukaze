@@ -6,24 +6,23 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Self
 
 import serial
-
-from mcu.gen.micon.v1.gpio_pb2 import GpioPulse
-from mcu.gen.micon.v1.heartbeat_pb2 import HandshakeReq, VersionInfo
-from mcu.gen.micon.v1.micon_pb2 import Packet
-from mcu.gen.micon.v1.pwm_pb2 import PwmFade
+from micon.v1.gpio_pb2 import GpioPulse
+from micon.v1.heartbeat_pb2 import HandshakeReq, VersionInfo
+from micon.v1.micon_pb2 import Packet
+from micon.v1.pwm_pb2 import PwmFade
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from mcu.gen.micon.v1.heartbeat_pb2 import HandshakeResp
-    from mcu.gen.micon.v1.log_pb2 import LogEntry
+    from micon.v1.heartbeat_pb2 import HandshakeResp
+    from micon.v1.log_pb2 import LogEntry
 
 # firmware/Makefile の SCHEMA_HASH と同じ手順(proto/micon/v1/*.protoの内容をsha256)で
 # スキーマの一致を確認するため、リポジトリ内の proto/ を相対パスで参照する。
 PROTO_DIR = Path(__file__).resolve().parents[2] / "proto" / "micon" / "v1"
 
 
-def _local_version() -> VersionInfo:
+def local_version() -> VersionInfo:
     proto_bytes = b"".join(p.read_bytes() for p in sorted(PROTO_DIR.glob("*.proto")))
     schema_hash = hashlib.sha256(proto_bytes).hexdigest()[:8]
 
@@ -101,12 +100,11 @@ class MCUClient:
             (length,) = struct.unpack(">H", len_buf)
 
             payload = self.read_exact(length)
-
-            pkt = Packet()
         except SerialTimeoutError as e:
             msg = "Failed to read packet"
             raise PacketParseError(msg) from e
 
+        pkt = Packet()
         try:
             pkt.ParseFromString(payload)
         except Exception as e:
@@ -127,7 +125,7 @@ class MCUClient:
 
     def handshake(self, timeout: float = 2.0) -> "HandshakeResp":
         """HandshakeReqを送り、HandshakeRespが返るまで待つ."""
-        self.send_packet(Packet(handshake_req=HandshakeReq(client_version=_local_version())))
+        self.send_packet(Packet(handshake_req=HandshakeReq(client_version=local_version())))
 
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
@@ -152,17 +150,8 @@ class MCUClient:
         try:
             while True:
                 pkt = self.read_packet()
-                if not pkt:
-                    continue
-
-                payload_type = pkt.WhichOneof("payload")
-
-                match payload_type:
-                    case "log_entry":
-                        if self.on_log:
-                            self.on_log(pkt.log_entry)
-
-                continue
+                if pkt and pkt.WhichOneof("payload") == "log_entry" and self.on_log:
+                    self.on_log(pkt.log_entry)
         except KeyboardInterrupt:
             print("Stopping listening...")  # noqa: T201
         finally:

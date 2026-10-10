@@ -56,7 +56,8 @@ fps = 60
     )
     assert config["VIDEO_SOURCE"] == PROJECT_ROOT / "sample_movies/example.mp4"
     assert config["POSE_MODEL_PATH"] == PROJECT_ROOT / "models/pose.task"
-    assert config["YOLO_MODEL_PATH"] == tmp_path / "yolo.pt"
+    # models.yolo is retired but still accepted from older files.
+    assert "YOLO_MODEL_PATH" not in config
     assert config["VIDEO_OUTPUT_PATH"].parent == tmp_path
     assert config["CAMERA_INDICES"] == (2,)
     assert config["CAMERA_BACKEND"] == 200

@@ -1,6 +1,5 @@
 unity_websocket_host: 0.0.0.0
 unity_websocket_port: 5000
-unity_websocket_test_host: 127.0.0.1
 
 microcontroller_serial_port: COM3
 microcontroller_baudrate: 115200

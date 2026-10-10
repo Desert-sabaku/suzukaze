@@ -56,7 +56,6 @@ class Settings(BaseSettings):
 
     unity_websocket_host: str
     unity_websocket_port: int
-    unity_websocket_test_host: str
 
     microcontroller_serial_port: str
     microcontroller_baudrate: int

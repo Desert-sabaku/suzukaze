@@ -2,12 +2,12 @@
 
 import math
 
+from bridge.v1 import bridge_pb2 as bridge_pb
+from gesture.v1 import gesture_pb2 as pb
 from gesture_detection.gesture_types import Gesture, Phase, valid_action_phase
 from google.protobuf.message import DecodeError
 
-from .gen.bridge.v1 import bridge_pb2 as bridge_pb
-from .gen.gesture.v1 import gesture_pb2 as pb
-
+PROTOCOL_VERSION = 1
 MAX_MESSAGE_BYTES = 8192
 
 _ENUMS = {
@@ -36,6 +36,7 @@ _ENUMS = {
         },
     ),
 }
+ACK_STATUSES = frozenset(_ENUMS["ack"][1])
 _PROGRESS_ENUMS = {
     "action": {
         Gesture(name.removeprefix("ACTION_")): number
@@ -105,7 +106,10 @@ def _validate(message: dict) -> str:
     kind = message.get("type")
     if not isinstance(kind, str) or kind not in _FIELDS:
         raise ValueError("Unknown message type")
-    if type(message.get("version")) is not int or message["version"] != 1:
+    if (
+        type(message.get("version")) is not int
+        or message["version"] != PROTOCOL_VERSION
+    ):
         raise ValueError("Unsupported protocol version")
     if not isinstance(message.get("session_id"), str) or not message["session_id"]:
         raise ValueError("session_id must be a nonempty string")
@@ -174,7 +178,9 @@ def _validate(message: dict) -> str:
 def encode_message(message: dict) -> bytes:
     """Encode a validated flat v1 dictionary; omitted metadata means None."""
     kind = _validate(message)
-    envelope = pb.GestureEnvelope(version=1, session_id=message["session_id"])
+    envelope = pb.GestureEnvelope(
+        version=PROTOCOL_VERSION, session_id=message["session_id"]
+    )
     payload = getattr(envelope, kind)
     enum_field, values = _ENUMS[kind]
     try:

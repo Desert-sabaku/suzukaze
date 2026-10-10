@@ -1,10 +1,34 @@
 """Bounded, ordered video encoding off the display thread."""
 
+import math
 import queue
 import threading
+from pathlib import Path
 from typing import Any
 
 import cv2
+
+
+def usable_fps(value: object, fallback: float) -> float:
+    """Return a reported frame rate, or fallback when it is missing or invalid."""
+    if (
+        isinstance(value, int | float)
+        and not isinstance(value, bool)
+        and math.isfinite(value)
+        and value > 0
+    ):
+        return float(value)
+    return fallback
+
+
+def open_video_writer(path: Path, fps: float, size: tuple[int, int]) -> cv2.VideoWriter:
+    """Open an MP4 writer, creating its directory; raise if it cannot be opened."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    writer = cv2.VideoWriter(str(path), cv2.VideoWriter.fourcc(*"mp4v"), fps, size)
+    if writer.isOpened():
+        return writer
+    writer.release()
+    raise RuntimeError(f"Unable to open output video file {path}")
 
 
 class AsyncVideoWriter:

@@ -9,18 +9,13 @@ import websockets
 
 from .bridge_relay import BridgeRelay, RestartingDetection, SampleSource
 from .diffuser import DiffuserController
-from .fan import FanController, mcu_sender_from_env
+from .fan import FanController, mcu_sender_from_settings
+from .gesture_codec import MAX_MESSAGE_BYTES as MAX_GESTURE_MESSAGE_BYTES
 from .gesture_debug import ManualGestureSource, serve_debug_gui
 from .gesture_delivery import DeliveryOutbox
 from .settings import Settings, load_settings
 
-MAX_MESSAGE_BYTES = 64 * 1024
-
-
-def iter_lines(buffer: bytes) -> tuple[list[bytes], bytes]:
-    """Return complete newline-delimited messages and the incomplete remainder."""
-    messages = buffer.split(b"\n")
-    return messages[:-1], messages[-1]
+MAX_SERIAL_MESSAGE_BYTES = 64 * 1024
 
 
 class UnityBridge:
@@ -81,7 +76,11 @@ class UnityBridge:
                         relay.serve if relay else self._serve_client,
                         self.host,
                         self.websocket_port,
-                        max_size=8192 if relay else MAX_MESSAGE_BYTES,
+                        max_size=(
+                            MAX_GESTURE_MESSAGE_BYTES
+                            if relay
+                            else MAX_SERIAL_MESSAGE_BYTES
+                        ),
                         close_timeout=0.5,
                     )
                 )
@@ -171,18 +170,8 @@ class UnityBridge:
         self._serial.flush()
 
 
-def _environment_defaults(settings: Settings) -> dict[str, str | int]:
-    return {
-        "host": settings.unity_websocket_host,
-        "websocket_port": settings.unity_websocket_port,
-        "serial_port": settings.microcontroller_serial_port,
-        "baudrate": settings.microcontroller_baudrate,
-    }
-
-
-def bridge_relay_from_env() -> BridgeRelay:
+def bridge_relay_from_settings(settings: Settings) -> BridgeRelay:
     """Delivery timing; times are seconds on the host monotonic clock."""
-    settings = load_settings()
     state_interval = settings.gesture_state_interval
     stale_timeout = settings.gesture_stale_timeout
     if not 0 < state_interval < stale_timeout:
@@ -193,7 +182,7 @@ def bridge_relay_from_env() -> BridgeRelay:
         retry_interval=settings.gesture_retry_interval,
         max_pending=settings.gesture_max_pending,
     )
-    sender = mcu_sender_from_env(settings)
+    sender = mcu_sender_from_settings(settings)
     return BridgeRelay(
         outbox,
         state_interval,
@@ -202,41 +191,23 @@ def bridge_relay_from_env() -> BridgeRelay:
     )
 
 
-def test_websocket_connection() -> bool:
-    settings = load_settings()
-    host = settings.unity_websocket_test_host
-    port = settings.unity_websocket_port
-
-    async def connect() -> None:
-        async with websockets.connect(f"ws://{host}:{port}"):
-            return
-
-    try:
-        asyncio.run(connect())
-        print(f"WebSocket connection succeeded: ws://{host}:{port}")
-        return True
-    except OSError as error:
-        print(f"WebSocket connection failed: ws://{host}:{port} ({error})")
-        return False
-
-
-def _parse_args() -> argparse.Namespace:
-    settings = load_settings()
-    defaults = _environment_defaults(settings)
+def _parse_args(settings: Settings) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Bridge Unity WebSocket and microcontroller serial I/O."
     )
     parser.add_argument("--host", default=None)
     parser.add_argument(
-        "--websocket-port", type=int, default=defaults["websocket_port"]
+        "--websocket-port", type=int, default=settings.unity_websocket_port
     )
-    parser.add_argument("--serial-port", default=defaults["serial_port"])
+    parser.add_argument("--serial-port", default=settings.microcontroller_serial_port)
     parser.add_argument(
         "--no-serial",
         action="store_true",
         help="Start the WebSocket server without opening a serial port.",
     )
-    parser.add_argument("--baudrate", type=int, default=defaults["baudrate"])
+    parser.add_argument(
+        "--baudrate", type=int, default=settings.microcontroller_baudrate
+    )
     parser.add_argument(
         "--gesture",
         action="store_true",
@@ -270,19 +241,20 @@ def _parse_args() -> argparse.Namespace:
         if args.host not in {"127.0.0.1", "localhost", "::1"}:
             parser.error("Gesture mode requires a loopback --host")
     if args.host is None:
-        args.host = defaults["host"]
+        args.host = settings.unity_websocket_host
     return args
 
 
 def main() -> None:
-    args = _parse_args()
+    settings = load_settings()
+    args = _parse_args(settings)
     serial_port = None if args.no_serial or args.gesture else args.serial_port
     bridge = UnityBridge(
         args.host,
         args.websocket_port,
         serial_port,
         args.baudrate,
-        bridge_relay_from_env() if args.gesture else None,
+        bridge_relay_from_settings(settings) if args.gesture else None,
         detect=not args.fan,
         debug_port=args.debug_port if args.debug_gui else None,
     )

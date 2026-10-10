@@ -14,8 +14,6 @@ from .config import (
 from .gesture_types import OCCURRENCE_GESTURES, Gesture
 from .recognition_types import Landmark, OccurrenceEvidence
 
-EVENT_GESTURES = OCCURRENCE_GESTURES
-
 
 def observes_release(points: list[Landmark], gesture: str, wrist: int | None) -> bool:
     if len(points) != 33:
@@ -89,7 +87,7 @@ class EventRearmGate:
                 self._last_observed.pop(label, None)
         accepted = []
         for label in events:
-            if label not in EVENT_GESTURES:
+            if label not in OCCURRENCE_GESTURES:
                 raise ValueError("Unknown discrete gesture")
             item = evidence.get(label)
             if item is None:
@@ -119,6 +117,6 @@ class EventRearmGate:
             self._active = label
         if self._active is not None and now < self._feedback_end[self._active]:
             gesture = self._active
-        elif gesture in EVENT_GESTURES:
+        elif gesture in OCCURRENCE_GESTURES:
             gesture = Gesture.NONE
         return gesture, tuple(accepted)

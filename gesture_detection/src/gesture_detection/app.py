@@ -34,9 +34,10 @@ from .rendering import (
     draw_messages,
     draw_ramune_guide,
     draw_subject_area,
+    escape_or_closed,
     status_messages,
 )
-from .video_output import AsyncVideoWriter
+from .video_output import AsyncVideoWriter, open_video_writer, usable_fps
 
 type Frame = npt.NDArray[Any]
 
@@ -57,9 +58,7 @@ class FrameClock:
             or timestamp < 0
             or (self.previous is not None and timestamp <= self.previous)
         ):
-            fps = capture.get(cv2.CAP_PROP_FPS)
-            if not math.isfinite(fps) or fps <= 0:
-                fps = FPS
+            fps = usable_fps(capture.get(cv2.CAP_PROP_FPS), FPS)
             timestamp = 0.0 if self.previous is None else self.previous + 1.0 / fps
         self.previous = timestamp
         return timestamp
@@ -100,13 +99,7 @@ class GestureApplication:
             timestamp = frame_clock.timestamp(capture)
             frame_id = 0
             self.pose_frame_queue = SharedLatestFrame(frame.shape)
-            source_fps = capture.get(cv2.CAP_PROP_FPS)
-            if (
-                isinstance(source_fps, (int, float))
-                and math.isfinite(source_fps)
-                and source_fps > 0
-            ):
-                self.source_fps = float(source_fps)
+            self.source_fps = usable_fps(capture.get(cv2.CAP_PROP_FPS), self.source_fps)
             self._start_workers()
             assert self.pose_process is not None
             writer = self._open_output(capture, frame)
@@ -194,16 +187,7 @@ class GestureApplication:
         """Return true for Escape, a stop request, or a closed HighGUI window."""
         if self.stop is not None and self.stop.is_set():
             return True
-        if cv2.waitKey(1) & 0xFF == 27:
-            return True
-        if not self._window_created:
-            return False
-        try:
-            return cv2.getWindowProperty(WINDOW_TITLE, cv2.WND_PROP_VISIBLE) < 1
-        except cv2.error:
-            # Some HighGUI backends remove the native window before reporting
-            # its visibility. Treat the missing-window error as a close event.
-            return True
+        return escape_or_closed(WINDOW_TITLE, self._window_created)
 
     def _open_capture(self) -> cv2.VideoCapture:
         if VIDEO_SOURCE is not None:
@@ -239,20 +223,8 @@ class GestureApplication:
         height = (
             frame.shape[0] if frame is not None else int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
         )
-        fps = capture.get(cv2.CAP_PROP_FPS)
-        if not math.isfinite(fps) or fps <= 0:
-            fps = FPS
-        Path(VIDEO_OUTPUT_PATH).parent.mkdir(parents=True, exist_ok=True)
-        output = cv2.VideoWriter(
-            str(VIDEO_OUTPUT_PATH),
-            cv2.VideoWriter.fourcc(*"mp4v"),
-            fps,
-            (width, height),
-        )
-        if output.isOpened():
-            return output
-        output.release()
-        raise RuntimeError(f"Unable to open output video file {VIDEO_OUTPUT_PATH}")
+        fps = usable_fps(capture.get(cv2.CAP_PROP_FPS), FPS)
+        return open_video_writer(Path(VIDEO_OUTPUT_PATH), fps, (width, height))
 
     def _start_workers(self) -> None:
         self.pose_process = mp.Process(
@@ -269,19 +241,16 @@ class GestureApplication:
         self.pose_process.start()
 
     def _stop_workers(self) -> None:
-        for channel in (self.pose_frame_queue,):
-            if channel is not None:
-                channel.close()
-        for process in (self.pose_process,):
-            if process is None or process.pid is None:
-                continue
+        if self.pose_frame_queue is not None:
+            self.pose_frame_queue.close()
+        process = self.pose_process
+        if process is not None and process.pid is not None:
             process.join(timeout=5)
             if process.is_alive():
                 process.terminate()
                 process.join()
-        for channel in (self.pose_result_queue,):
-            channel.close()
-            channel.cancel_join_thread()
+        self.pose_result_queue.close()
+        self.pose_result_queue.cancel_join_thread()
 
     @staticmethod
     def _annotate_frame(frame: Frame, pose_result: PoseResult) -> Frame:

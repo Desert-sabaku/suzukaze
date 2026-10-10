@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from gesture_detection.signal_processing import resample_time_window
+from gesture_detection.signal_processing import count_reversals, resample_time_window
 
 
 class ResampleTimeWindowTests(unittest.TestCase):
@@ -36,6 +36,16 @@ class ResampleTimeWindowTests(unittest.TestCase):
             np.diff(sampled_timestamps),
             np.full(3, (timestamps[-1] - timestamps[0]) / 3),
         )
+
+
+class CountReversalsTests(unittest.TestCase):
+    def test_counts_only_excursions_beyond_the_distance(self):
+        heights = [0.0, 0.1, 0.05, 0.2, 0.0, 0.25, 0.1]
+        self.assertEqual(count_reversals(heights, 0.1), 3)
+
+    def test_ignores_jitter_and_empty_input(self):
+        self.assertEqual(count_reversals([0.0, 0.05, 0.0, 0.05], 0.1), 0)
+        self.assertEqual(count_reversals([], 0.1), 0)
 
 
 if __name__ == "__main__":

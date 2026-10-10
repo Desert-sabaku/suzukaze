@@ -29,7 +29,6 @@ buffer_frames = 8
 
 [models]
 pose = "pose_landmarker_heavy.task"
-yolo = "yolov8n.pt"
 
 [pose]
 running_mode = "VIDEO" # IMAGE または VIDEO

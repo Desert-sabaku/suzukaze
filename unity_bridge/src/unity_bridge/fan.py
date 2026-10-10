@@ -131,7 +131,7 @@ class McuFadeSender:
             self._client = None
 
 
-def mcu_sender_from_env(settings: Settings) -> McuFadeSender:
+def mcu_sender_from_settings(settings: Settings) -> McuFadeSender:
     """設定のシリアルポートとファンのピンから、マイコンへの送信役を作る。"""
     return McuFadeSender(
         settings.microcontroller_serial_port,

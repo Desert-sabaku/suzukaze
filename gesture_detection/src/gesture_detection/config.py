@@ -81,7 +81,8 @@ SUPPRESS_MEDIAPIPE_STARTUP_LOGS = _settings.boolean(
     "diagnostics", "suppress_mediapipe_startup_logs", True
 )
 
-YOLO_MODEL_PATH = _settings.path("models", "yolo", "yolov8n.pt")
+# The retired YOLO bottle detector left this key in older config.toml files.
+_settings.get("models", "yolo", None)
 
 CAMERA_BACKEND = _settings.integer("camera", "backend", cv2.CAP_ANY)
 CAMERA_FOURCC = _settings.text("camera", "fourcc", "MJPG")
@@ -135,11 +136,6 @@ BOW_MIN_VISIBILITY = 0.5
 BOW_HEAD_MIN_VISIBILITY = 0.35
 # A bowing head can leave the side of a close camera; MediaPipe still estimates it.
 BOW_HEAD_FRAME_MARGIN = 0.10
-RIGHT_WRIST_INDEX = 16
-YOLO_BOTTLE_CLASS_ID = 39
-YOLO_CONFIDENCE_THRESHOLD = 0.5
-YOLO_TTL_SECONDS = 0.5
-YOLO_EMA_ALPHA = 0.3
 
 READY_FACE_EXCLUSION_DISTANCE = 1.0
 FANNING_FACE_DISTANCE = 1.5
