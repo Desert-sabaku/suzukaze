@@ -133,10 +133,6 @@ public class GameFlowManager : MonoBehaviour
                     EnterResult();
                     break;
                 }
-                // Enter による手動の打ち水(ParticleOnEnter)も所作として数える
-                if (keyboard != null && (keyboard.enterKey.wasPressedThisFrame
-                    || keyboard.numpadEnterKey.wasPressedThisFrame))
-                    Score.CountManual();
                 Remaining -= Time.unscaledDeltaTime;
                 if (Remaining <= 0f) EnterResult();
                 break;

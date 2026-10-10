@@ -199,14 +199,13 @@ probeもWebSocketの受信クライアントなので、Unityで試す前にprob
 診断用 Prefab を追加する必要はありません。接続先は既定で `ws://127.0.0.1:5000`。
 変更する場合は、あらかじめ設定した受信器をシーンに配置してください。
 
-- `UCHIMIZU` の成立イベントで、Enter と同じ `TryPlay()` を呼びます。
+- `UCHIMIZU` の成立イベントで `TryPlay()` を呼びます。
 - シーンに設定済みの `particlePrefab` を `neck.position + Vector3.up * heightOffset`
   に、`neck.rotation` で生成します。生成できた場合だけ `accepted` になります。
 - ラムネ、無効な演出、Prefab/首位置の未設定はこの購読者が `false` を返します。
   他の購読者も採用しなければ `ignored`。継続状態では水を出しません。
 - 期限切れと重複は既存の受信ポリシーが演出前に除外します。
-- Enter / テンキー Enter は手動確認用として利用できます。
-- `receiveGestures` を無効にしてからコンポーネントを有効化すると、キー入力のみになります。
+- `receiveGestures` を無効にしてからコンポーネントを有効化すると、成立イベントを受信しません。
 - 複数の有効な `ParticleOnEnter` はそれぞれ受信します。旧シーンを無効化しても
   新シーンの購読や、別の所作を担当する演出の購読は解除しません。
 
@@ -246,16 +245,17 @@ probeもWebSocketの受信クライアントなので、Unityで試す前にprob
 
 | キー | 所作 |
 |---|---|
-| `C` | 打ち水（`Occurred` の `Uchimizu`） |
-| `V`（長押し） | 押している間、ラムネを構える（`Action == Ramune`、`Phase == Ready`） |
-| `B` | ラムネを開栓（`Occurred` の `Ramune`）。押している間は `Phase == WaitRelease`。離したとき `V` を押していれば `Ready` に戻り、もう一度 `B` で再び開栓する |
-| `X`（長押し） | 押している間、扇ぐ（`Gesture == Fanning`） |
+| `↓` | 打ち水（`Occurred` の `Uchimizu`） |
+| `↑`（長押し） | 押している間、ラムネを構える（`Action == Ramune`、`Phase == Ready`） |
+| `Enter` | ラムネを開栓（`Occurred` の `Ramune`）。押している間は `Phase == WaitRelease`。離したとき `↑` を押していれば `Ready` に戻り、もう一度 `Enter` で再び開栓する |
+| `→`（長押し） | 押している間、扇ぐ（`Gesture == Fanning`） |
 | `Z` | 一礼（`Gesture == Bow` を1秒間） |
 
 キー入力中は `Fresh` と `Tracking` が true になり、認識結果より優先されます。
 キーを離すと受信した状態に戻ります。`Z` の直前には礼でない追跡状態を挟むため、
 礼を戻す必要がある画面遷移もキーだけで進められます。
-キー入力の所作の精度は1（満点）として扱います。扇ぎ・礼の状態と成立イベントの `ActionAccuracy` が1になります。
+キー入力の所作の精度（扇ぎ・礼の状態と成立イベントの `ActionAccuracy`）は、0.6〜1.0 の間で無作為に決まります。
+長押しの間は同じ値で、押し直すたびと成立イベントごとに決め直します。
 成立イベントのセッションIDは `keyboard` で、ACK は送りません。
 処理は `KeyboardGestures.cs` にあります。
 

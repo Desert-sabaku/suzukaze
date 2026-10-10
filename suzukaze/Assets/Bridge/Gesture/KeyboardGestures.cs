@@ -1,3 +1,4 @@
+using System;
 using Suzukaze.Gesture.Protocol;
 using Event = Suzukaze.Gesture.Protocol.Event;
 using GestureAction = Suzukaze.Gesture.Protocol.Action;
@@ -22,10 +23,13 @@ namespace Suzukaze.Gesture
         public const string SessionId = "keyboard";
         public const double BowSeconds = 1.0;
         public const double EventLifetimeSeconds = 1.0;
-        // キー入力の所作は常に正確に行ったものとして採点する
-        public const double Accuracy = 1.0;
+        // キー入力の所作の精度は、所作ごとにこの範囲から無作為に決める
+        public const double MinAccuracy = 0.6;
+        public const double MaxAccuracy = 1.0;
 
         private readonly IGestureSink target;
+        // [0, 1) の一様乱数
+        private readonly Func<double> random;
         private StateView network = new StateView();
         private double now;
         private bool fanningHeld;
@@ -33,9 +37,16 @@ namespace Suzukaze.Gesture
         // 開栓キーを押している間は、開栓後に手を離すのを待つ状態にする
         private bool ramuneOpenHeld;
         private double bowUntil = double.NegativeInfinity;
+        // 長押しの間は精度を変えず、押し直すたびに決め直す
+        private double fanningAccuracy;
+        private double bowAccuracy;
         private ulong eventId;
 
-        public KeyboardGestures(IGestureSink target) { this.target = target; }
+        public KeyboardGestures(IGestureSink target, Func<double> random = null)
+        {
+            this.target = target;
+            this.random = random ?? new Random().NextDouble;
+        }
 
         public void DeliverState(StateView state)
         {
@@ -55,6 +66,7 @@ namespace Suzukaze.Gesture
         public void Tick(double time, KeyboardGestureInput input)
         {
             now = time;
+            if (input.FanningHeld && !fanningHeld) fanningAccuracy = NextAccuracy();
             fanningHeld = input.FanningHeld;
             ramuneHeld = input.RamuneHeld;
             // 同じフレームで押して離しても、そのフレームは開栓後の状態にする
@@ -65,6 +77,7 @@ namespace Suzukaze.Gesture
                 // 礼の直前に立っている状態を挟み、キーだけでも遷移できるようにする。
                 if (now >= bowUntil) target.DeliverState(Compose(false, true));
                 bowUntil = now + BowSeconds;
+                bowAccuracy = NextAccuracy();
             }
             target.DeliverState(Compose(now < bowUntil, false));
             if (input.RamuneOpenPressed) Occur(OccurrenceGesture.Ramune);
@@ -76,9 +89,12 @@ namespace Suzukaze.Gesture
             target.TryAcceptEvent(SessionId, new Event {
                 EventId = ++eventId, Gesture = gesture,
                 OccurredAt = now, ExpiresAt = now + EventLifetimeSeconds,
-                ActionAccuracy = Accuracy
+                ActionAccuracy = NextAccuracy()
             });
         }
+
+        private double NextAccuracy() =>
+            MinAccuracy + (MaxAccuracy - MinAccuracy) * random();
 
         private StateView Compose(bool bow, bool tracked)
         {
@@ -96,7 +112,8 @@ namespace Suzukaze.Gesture
                 Tracking = true,
                 BoothPresent = network.BoothPresent,
                 Gesture = gesture ?? (observed ? network.Gesture : ContinuousGesture.None),
-                ActionAccuracy = gesture != null ? Accuracy
+                ActionAccuracy = gesture == ContinuousGesture.Bow ? bowAccuracy
+                    : gesture != null ? fanningAccuracy
                     : observed ? network.ActionAccuracy : null
             };
             if (ramune)

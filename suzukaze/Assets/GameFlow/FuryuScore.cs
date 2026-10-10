@@ -31,11 +31,6 @@ public class FuryuScore
 
     public void Reset() => GestureCount = 0;
 
-    public void CountManual()
-    {
-        if (Counting) GestureCount++;
-    }
-
     // 数えるだけの観測者なので、演出の採用(ACK)には関与しない
     bool OnOccurred(string sessionId, GestureEvent occurrence)
     {

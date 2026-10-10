@@ -11,6 +11,10 @@ namespace Suzukaze.Gesture.Tests
         private KeyboardGestures keyboard;
         private List<StateView> changes;
         private List<OccurrenceGesture> occurrences;
+        private List<double> accuracies;
+        // 乱数は 0, .5, .25 の順に繰り返す
+        private static readonly double[] Samples = { 0, .5, .25 };
+        private int sampled;
 
         private sealed class Clock : IMonotonicClock
         {
@@ -35,14 +39,16 @@ namespace Suzukaze.Gesture.Tests
         public void SetUp()
         {
             gestures = new GestureEvents();
-            keyboard = new KeyboardGestures(gestures);
+            sampled = 0;
+            keyboard = new KeyboardGestures(gestures, () => Samples[sampled++ % Samples.Length]);
             changes = new List<StateView>();
             occurrences = new List<OccurrenceGesture>();
+            accuracies = new List<double>();
             gestures.StateChanged += changes.Add;
             gestures.Occurred += (session, occurrence) => {
                 Assert.That(session, Is.EqualTo(KeyboardGestures.SessionId));
-                Assert.That(occurrence.ActionAccuracy, Is.EqualTo(KeyboardGestures.Accuracy));
                 occurrences.Add(occurrence.Gesture);
+                accuracies.Add(occurrence.ActionAccuracy);
                 return true;
             };
         }
@@ -67,7 +73,7 @@ namespace Suzukaze.Gesture.Tests
             Assert.That(state.Gesture, Is.EqualTo(ContinuousGesture.Fanning));
             Assert.That(state.Action, Is.EqualTo(GestureAction.Fanning));
             Assert.That(state.Phase, Is.EqualTo(Phase.Active));
-            Assert.That(state.ActionAccuracy, Is.EqualTo(KeyboardGestures.Accuracy));
+            Assert.That(state.ActionAccuracy, Is.EqualTo(KeyboardGestures.MinAccuracy));
 
             keyboard.Tick(2, new KeyboardGestureInput { FanningHeld = true });
             Assert.That(changes, Has.Count.EqualTo(1));
@@ -167,6 +173,25 @@ namespace Suzukaze.Gesture.Tests
             keyboard.DeliverState(new StateView());
             Assert.That(gestures.CurrentState.Gesture, Is.EqualTo(ContinuousGesture.None));
             Assert.That(gestures.CurrentState.Action, Is.Null);
+        }
+
+        [Test]
+        public void AccuracyIsDrawnPerGestureAndKeptWhileHeld()
+        {
+            keyboard.Tick(1, new KeyboardGestureInput { FanningHeld = true });
+            keyboard.Tick(2, new KeyboardGestureInput { FanningHeld = true });
+            Assert.That(gestures.CurrentState.ActionAccuracy, Is.EqualTo(.6).Within(1e-9));
+            keyboard.Tick(3, default);
+            keyboard.Tick(4, new KeyboardGestureInput { FanningHeld = true });
+            Assert.That(gestures.CurrentState.ActionAccuracy, Is.EqualTo(.8).Within(1e-9));
+            keyboard.Tick(5, default);
+
+            keyboard.Tick(6, new KeyboardGestureInput { BowPressed = true });
+            Assert.That(gestures.CurrentState.ActionAccuracy, Is.EqualTo(.7).Within(1e-9));
+
+            keyboard.Tick(10, new KeyboardGestureInput { UchimizuPressed = true });
+            keyboard.Tick(11, new KeyboardGestureInput { UchimizuPressed = true });
+            Assert.That(accuracies, Is.EqualTo(new[] { .6, .8 }).Within(1e-9));
         }
     }
 }
