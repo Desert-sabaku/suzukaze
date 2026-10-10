@@ -8,10 +8,10 @@ from .config import (
     BOW_MAX_HEAD_DEVIATION_DEGREES,
     BOW_MIN_ANGLE_DEGREES,
     RELAXING_DWELL_SECONDS,
-    RIGHT_WRIST_INDEX,
     SUBJECT_AREA,
 )
 from .gesture_types import Phase
+from .pose_landmarks import RIGHT_WRIST
 from .recognition_types import PoseResult
 
 type Landmark = tuple[float, float, float]
@@ -48,7 +48,7 @@ def wrist_pixel(
     landmarks: list[Landmark],
     width: int,
     height: int,
-    wrist_index: int = RIGHT_WRIST_INDEX,
+    wrist_index: int = RIGHT_WRIST,
 ) -> PixelPoint | None:
     if len(landmarks) <= wrist_index:
         return None

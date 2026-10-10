@@ -12,34 +12,47 @@ from .config import (
     UCHIMIZU_FEEDBACK_SECONDS,
 )
 from .gesture_types import OCCURRENCE_GESTURES, Gesture
+from .pose_landmarks import (
+    HIPS,
+    LANDMARK_COUNT,
+    LEFT_SHOULDER,
+    LEFT_WRIST,
+    RIGHT_SHOULDER,
+    RIGHT_WRIST,
+    SHOULDERS,
+    TORSO,
+    WRISTS,
+)
 from .recognition_types import Landmark, OccurrenceEvidence
 
 EVENT_GESTURES = OCCURRENCE_GESTURES
 
 
 def observes_release(points: list[Landmark], gesture: str, wrist: int | None) -> bool:
-    if len(points) != 33:
+    """Whether one view shows the hands back in a neutral, rearmable pose."""
+    if len(points) != LANDMARK_COUNT:
         return False
     p = np.asarray(points)
-    wrists = [wrist] if wrist in (15, 16) else [15, 16]
-    indices = [11, 12, 23, 24] + wrists
+    wrists = [wrist] if wrist in WRISTS else list(WRISTS)
+    indices = [*TORSO, *wrists]
     if not np.isfinite(p[indices]).all() or (p[indices, 2] <= 0.5).any():
         return False
     if not ((p[indices, :2] >= 0) & (p[indices, :2] <= 1)).all():
         return False
-    shoulder = p[[11, 12], 1].mean()
-    scale = p[[23, 24], 1].mean() - shoulder
-    width = abs(p[11, 0] - p[12, 0])
+    shoulder = p[list(SHOULDERS), 1].mean()
+    scale = p[list(HIPS), 1].mean() - shoulder
+    width = abs(p[LEFT_SHOULDER, 0] - p[RIGHT_SHOULDER, 0])
     if min(scale, width) <= 1e-6:
         return False
     lowered = bool(((p[wrists, 1] - shoulder) / scale >= FANNING_EXIT_TORSO_HEIGHT).all())
     if gesture == Gesture.UCHIMIZU:
         return lowered
+    both_wrists = p[list(WRISTS)]
     separated = (
-        np.isfinite(p[[15, 16]]).all()
-        and (p[[15, 16], 2] > 0.5).all()
-        and ((p[[15, 16], :2] >= 0) & (p[[15, 16], :2] <= 1)).all()
-        and abs(p[15, 0] - p[16, 0]) / width > 1.0
+        np.isfinite(both_wrists).all()
+        and (both_wrists[:, 2] > 0.5).all()
+        and ((both_wrists[:, :2] >= 0) & (both_wrists[:, :2] <= 1)).all()
+        and abs(p[LEFT_WRIST, 0] - p[RIGHT_WRIST, 0]) / width > 1.0
     )
     return lowered or bool(separated)
 
@@ -100,7 +113,7 @@ class EventRearmGate:
                 not math.isfinite(setup)
                 or setup < 0
                 or setup > now
-                or item["wrist_index"] not in (15, 16)
+                or item["wrist_index"] not in WRISTS
             ):
                 raise ValueError("Invalid occurrence evidence")
             if label in self.locked and setup > self._release_at.get(label, math.inf):

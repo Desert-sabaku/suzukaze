@@ -13,7 +13,7 @@ from .config import (
     RELAXING_MIN_VISIBILITY,
     RELAXING_TORSO_LANDMARKS,
 )
-from .gesture_position import Landmarks
+from .pose_landmarks import LEFT_HIP, LEFT_SHOULDER, RIGHT_HIP, RIGHT_SHOULDER, Landmarks
 
 
 class RelaxingAnalyzer:
@@ -55,7 +55,11 @@ class RelaxingAnalyzer:
             return False
         # Put x and y in the same image-height units before comparing distances.
         points[:, 0] *= aspect_ratio
-        scale = float(np.linalg.norm((points[11] + points[12] - points[23] - points[24]) / 2))
+        # Hip-center to shoulder-center distance.
+        hips_to_shoulders = (
+            points[LEFT_SHOULDER] + points[RIGHT_SHOULDER] - points[LEFT_HIP] - points[RIGHT_HIP]
+        )
+        scale = float(np.linalg.norm(hips_to_shoulders / 2))
         if scale <= 1e-6:
             self.reset()
             return False

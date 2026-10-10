@@ -16,11 +16,17 @@ from .config import (
     UCHIMIZU_READY_TIMEOUT_SECONDS,
     UCHIMIZU_X_MARGIN,
 )
-from .gesture_position import (
-    Landmarks,
-    normalized_wrist_distances,
-)
+from .gesture_position import normalized_wrist_distances
 from .gesture_types import Phase
+from .pose_landmarks import (
+    NOSE,
+    TORSO,
+    Landmarks,
+    hip_center_y,
+    shoulder_center_y,
+    shoulder_width,
+    torso_x_range,
+)
 
 
 class UchimizuAnalyzer:
@@ -42,11 +48,11 @@ class UchimizuAnalyzer:
         self._preparation_scores: tuple[float, ...] = ()
 
     def update(self, landmarks: Landmarks, now: float) -> bool:
-        shoulder_y = (landmarks[11].y + landmarks[12].y) / 2
-        torso_height = (landmarks[23].y + landmarks[24].y) / 2 - shoulder_y
+        shoulder_y = shoulder_center_y(landmarks)
+        torso_height = hip_center_y(landmarks) - shoulder_y
         if torso_height <= 1e-6 or any(
             getattr(landmarks[index], "visibility", 1.0) <= 0.5
-            for index in (0, 11, 12, 23, 24, self.wrist_index)
+            for index in (NOSE, *TORSO, self.wrist_index)
         ):
             self.reset()
             return False
@@ -94,11 +100,9 @@ class UchimizuAnalyzer:
                 return True
             return False
 
-        torso_x = [landmarks[index].x for index in (11, 12, 23, 24)]
-        margin = abs(landmarks[11].x - landmarks[12].x) * UCHIMIZU_X_MARGIN
-        within_torso = (
-            min(torso_x) - margin <= landmarks[self.wrist_index].x <= max(torso_x) + margin
-        )
+        torso_left, torso_right = torso_x_range(landmarks)
+        margin = shoulder_width(landmarks) * UCHIMIZU_X_MARGIN
+        within_torso = torso_left - margin <= landmarks[self.wrist_index].x <= torso_right + margin
         if not away_from_face or not within_torso:
             self.history.clear()
             return False
@@ -148,15 +152,15 @@ class AnchoredUchimizuAnalyzer(UchimizuAnalyzer):
         if len(landmarks) < 25:
             self.reset()
             return False
-        needed = [landmarks[i] for i in (0, 11, 12, 23, 24, self.wrist_index)]
+        needed = [landmarks[i] for i in (NOSE, *TORSO, self.wrist_index)]
         if any(
             getattr(p, "visibility", 1.0) <= 0.5 or not math.isfinite(p.x) or not math.isfinite(p.y)
             for p in needed
         ):
             self.reset()
             return False
-        shoulder_y = (landmarks[11].y + landmarks[12].y) / 2
-        scale = (landmarks[23].y + landmarks[24].y) / 2 - shoulder_y
+        shoulder_y = shoulder_center_y(landmarks)
+        scale = hip_center_y(landmarks) - shoulder_y
         if scale <= 1e-6:
             self.reset()
             return False
@@ -164,9 +168,9 @@ class AnchoredUchimizuAnalyzer(UchimizuAnalyzer):
             self.reset()
         wrist = landmarks[self.wrist_index]
         height = (wrist.y - shoulder_y) / scale
-        margin = abs(landmarks[11].x - landmarks[12].x) * UCHIMIZU_X_MARGIN
-        xs = [landmarks[i].x for i in (11, 12, 23, 24)]
-        central = min(xs) - margin <= wrist.x <= max(xs) + margin
+        margin = shoulder_width(landmarks) * UCHIMIZU_X_MARGIN
+        torso_left, torso_right = torso_x_range(landmarks)
+        central = torso_left - margin <= wrist.x <= torso_right + margin
         away = (
             normalized_wrist_distances(landmarks, self.wrist_index)[0]
             >= READY_FACE_EXCLUSION_DISTANCE
