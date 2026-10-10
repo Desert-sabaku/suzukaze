@@ -40,6 +40,18 @@ from .video_output import AsyncVideoWriter
 
 type Frame = npt.NDArray[Any]
 
+ESCAPE_KEY = 27
+# Uchimizu is labelled "sprinkling water" on screen.
+SPRINKLING = "SPRINKLING"
+
+
+def capture_fps(capture: cv2.VideoCapture, default: float) -> float:
+    """The capture's reported FPS, or default when it is missing or invalid."""
+    fps = capture.get(cv2.CAP_PROP_FPS)
+    if isinstance(fps, (int, float)) and math.isfinite(fps) and fps > 0:
+        return float(fps)
+    return default
+
 
 class FrameClock:
     """Timestamp decoded frames in source seconds, or camera capture time."""
@@ -57,9 +69,7 @@ class FrameClock:
             or timestamp < 0
             or (self.previous is not None and timestamp <= self.previous)
         ):
-            fps = capture.get(cv2.CAP_PROP_FPS)
-            if not math.isfinite(fps) or fps <= 0:
-                fps = FPS
+            fps = capture_fps(capture, FPS)
             timestamp = 0.0 if self.previous is None else self.previous + 1.0 / fps
         self.previous = timestamp
         return timestamp
@@ -100,22 +110,10 @@ class GestureApplication:
             timestamp = frame_clock.timestamp(capture)
             frame_id = 0
             self.pose_frame_queue = SharedLatestFrame(frame.shape)
-            source_fps = capture.get(cv2.CAP_PROP_FPS)
-            if (
-                isinstance(source_fps, (int, float))
-                and math.isfinite(source_fps)
-                and source_fps > 0
-            ):
-                self.source_fps = float(source_fps)
+            self.source_fps = capture_fps(capture, self.source_fps)
             self._start_workers()
             assert self.pose_process is not None
-            writer = self._open_output(capture, frame)
-            if writer is not None:
-                try:
-                    output = AsyncVideoWriter(writer, VIDEO_OUTPUT_BUFFER_FRAMES)
-                except Exception:
-                    writer.release()
-                    raise
+            output = self._open_async_output(capture, frame)
             while success:
                 if not self.pose_process.is_alive():
                     raise RuntimeError("Pose worker process has exited unexpectedly")
@@ -129,17 +127,8 @@ class GestureApplication:
                     latest_pose = get_latest(self.pose_result_queue, latest_pose)
                 annotated = self._annotate_frame(frame, latest_pose)
                 current_time = time.monotonic()
-                frame_rate = 1.0 / max(current_time - previous_time, 1e-6)
+                self._draw_main_fps(annotated, current_time - previous_time)
                 previous_time = current_time
-                cv2.putText(
-                    annotated,
-                    f"Main FPS: {frame_rate:.1f}",
-                    (450, 30),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.7,
-                    (200, 200, 200),
-                    2,
-                )
                 if output is not None:
                     output.write(annotated)
                 cv2.imshow(WINDOW_TITLE, annotated)
@@ -163,6 +152,31 @@ class GestureApplication:
             finally:
                 if output is not None:
                     output.release()
+
+    def _open_async_output(
+        self, capture: cv2.VideoCapture, frame: Frame
+    ) -> AsyncVideoWriter | None:
+        writer = self._open_output(capture, frame)
+        if writer is None:
+            return None
+        try:
+            return AsyncVideoWriter(writer, VIDEO_OUTPUT_BUFFER_FRAMES)
+        except Exception:
+            writer.release()
+            raise
+
+    @staticmethod
+    def _draw_main_fps(image: Frame, frame_seconds: float) -> None:
+        frame_rate = 1.0 / max(frame_seconds, 1e-6)
+        cv2.putText(
+            image,
+            f"Main FPS: {frame_rate:.1f}",
+            (450, 30),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.7,
+            (200, 200, 200),
+            2,
+        )
 
     def _process_video_frame(
         self, frame: Frame, timestamp: float, frame_id: int
@@ -194,7 +208,7 @@ class GestureApplication:
         """Return true for Escape, a stop request, or a closed HighGUI window."""
         if self.stop is not None and self.stop.is_set():
             return True
-        if cv2.waitKey(1) & 0xFF == 27:
+        if cv2.waitKey(1) & 0xFF == ESCAPE_KEY:
             return True
         if not self._window_created:
             return False
@@ -239,9 +253,7 @@ class GestureApplication:
         height = (
             frame.shape[0] if frame is not None else int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
         )
-        fps = capture.get(cv2.CAP_PROP_FPS)
-        if not math.isfinite(fps) or fps <= 0:
-            fps = FPS
+        fps = capture_fps(capture, FPS)
         Path(VIDEO_OUTPUT_PATH).parent.mkdir(parents=True, exist_ok=True)
         output = cv2.VideoWriter(
             str(VIDEO_OUTPUT_PATH),
@@ -269,19 +281,16 @@ class GestureApplication:
         self.pose_process.start()
 
     def _stop_workers(self) -> None:
-        for channel in (self.pose_frame_queue,):
-            if channel is not None:
-                channel.close()
-        for process in (self.pose_process,):
-            if process is None or process.pid is None:
-                continue
+        if self.pose_frame_queue is not None:
+            self.pose_frame_queue.close()
+        process = self.pose_process
+        if process is not None and process.pid is not None:
             process.join(timeout=5)
             if process.is_alive():
                 process.terminate()
                 process.join()
-        for channel in (self.pose_result_queue,):
-            channel.close()
-            channel.cancel_join_thread()
+        self.pose_result_queue.close()
+        self.pose_result_queue.cancel_join_thread()
 
     @staticmethod
     def _annotate_frame(frame: Frame, pose_result: PoseResult) -> Frame:
@@ -304,11 +313,11 @@ class GestureApplication:
         current = pose_result.get("current")
         if current is not None:
             gesture = current["gesture"]
-            return "SPRINKLING" if gesture == Gesture.UCHIMIZU else gesture
+            return SPRINKLING if gesture == Gesture.UCHIMIZU else gesture
         selected = pose_result.get("selected_action", Gesture.NONE)
         actions: dict[str, str] = {
             Gesture.RAMUNE: Gesture.RAMUNE,
-            Gesture.UCHIMIZU: "SPRINKLING",
+            Gesture.UCHIMIZU: SPRINKLING,
             Gesture.FANNING: Gesture.FANNING,
         }
         return actions.get(
@@ -319,7 +328,7 @@ class GestureApplication:
     def _draw_action(image: Frame, action: str) -> None:
         labels = {
             Gesture.FANNING: ("Action: Fanning!", (0, 165, 255)),
-            "SPRINKLING": ("Action: Sprinkling Water!", (255, 100, 100)),
+            SPRINKLING: ("Action: Sprinkling Water!", (255, 100, 100)),
             Gesture.RAMUNE: ("Action: Opening Ramune!", (0, 255, 255)),
             Gesture.RELAXING: ("Action: Relaxing...", (0, 255, 255)),
             Gesture.BOW: ("Action: Bowing", (0, 255, 255)),
