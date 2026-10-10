@@ -18,9 +18,8 @@
 - `src/gesture_detection/config.py`: パス、入力設定、しきい値
 - `src/gesture_detection/ipc.py`: 最新フレームを共有するメールボックス
 - `src/gesture_detection/video_output.py`: 動画書き出し用の有界バッファ
-- `src/gesture_detection/yolo_worker.py`: 未使用の旧物体検出ワーカー
 
-通常のアプリケーションは MediaPipe のみを起動します。YOLO モデルは実行に不要です。
+通常のアプリケーションは MediaPipe のみを起動します。
 MediaPipe の Lite モデルがない場合は自動取得します。
 
 ## 認識状態と演出制御の担当
