@@ -97,8 +97,8 @@ namespace Features.Gesture_Effect.Scripts
             var keyboard = Keyboard.current;
             if (keyboard != null)
             {
-                if (keyboard.tKey.wasPressedThisFrame) TryPlayUchimizu();
-                if (keyboard.yKey.wasPressedThisFrame)
+                if (keyboard.cKey.wasPressedThisFrame) TryPlayUchimizu();
+                if (keyboard.vKey.wasPressedThisFrame)
                 {
                     _keyboardRamune = !_keyboardRamune;
                     _ramuneExitAt = null;
@@ -107,7 +107,7 @@ namespace Features.Gesture_Effect.Scripts
                         : RamuneGesturePlayer.AnimState.None);
                     if (!_keyboardRamune) OnGestureStateChanged(_gestureReceiver.Events.CurrentState);
                 }
-                if (keyboard.uKey.wasPressedThisFrame && ramune.State == RamuneGesturePlayer.AnimState.ReadyOpen)
+                if (keyboard.bKey.wasPressedThisFrame && ramune.State == RamuneGesturePlayer.AnimState.ReadyOpen)
                 {
                     _keyboardRamune = true;
                     _ramuneExitAt = null;
@@ -115,7 +115,7 @@ namespace Features.Gesture_Effect.Scripts
                     PlayOneShot(ramuneOpenClip, ramuneOpenVolume);
                 }
             }
-            SetAogiPlaying((keyboard != null && keyboard.rKey.isPressed)
+            SetAogiPlaying((keyboard != null && keyboard.xKey.isPressed)
                 || _gestureReceiver.Events.CurrentState.Gesture == ContinuousGesture.Fanning);
 
             if (_ramuneExitAt is { } exitAt && Time.unscaledTime >= exitAt)
@@ -161,7 +161,7 @@ namespace Features.Gesture_Effect.Scripts
         {
             // 追跡が切れると Gesture は None、Action は null になるため、ここで自然に停止する
             SetAogiPlaying(state.Gesture == ContinuousGesture.Fanning
-                || (Keyboard.current != null && Keyboard.current.rKey.isPressed));
+                || (Keyboard.current != null && Keyboard.current.xKey.isPressed));
 
             if (_keyboardRamune) return;
             UpdateRamuneState(state.Action == Action.Ramune

@@ -74,7 +74,7 @@ namespace Features.SceneTransition
 
         private void Update()
         {
-            if (Keyboard.current == null || !Keyboard.current.eKey.wasPressedThisFrame) return;
+            if (Keyboard.current == null || !Keyboard.current.zKey.wasPressedThisFrame) return;
             OnDebugNextStep(default);
             enabled = false;
         }

@@ -101,7 +101,7 @@ namespace Features.Wind.Scripts
 
         private void Update()
         {
-            SetFanning((Keyboard.current != null && Keyboard.current.rKey.isPressed)
+            SetFanning((Keyboard.current != null && Keyboard.current.xKey.isPressed)
                 || _gestureReceiver.Events.CurrentState.Gesture == ContinuousGesture.Fanning);
             UpdateGust();
 
@@ -157,7 +157,7 @@ namespace Features.Wind.Scripts
         {
             // 追跡が切れると Gesture は None になるため、ここで自然に止まる
             SetFanning(state.Gesture == ContinuousGesture.Fanning
-                || (Keyboard.current != null && Keyboard.current.rKey.isPressed));
+                || (Keyboard.current != null && Keyboard.current.xKey.isPressed));
         }
 
         [Button("扇ぎの風を切り替え")]

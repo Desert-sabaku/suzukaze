@@ -45,7 +45,7 @@ namespace Features.SceneTransition
 
         private void Update()
         {
-            if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
+            if (Keyboard.current != null && Keyboard.current.zKey.wasPressedThisFrame)
             {
                 OnTransition(default);
                 enabled = false;

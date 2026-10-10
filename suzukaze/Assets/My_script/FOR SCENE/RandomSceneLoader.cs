@@ -32,7 +32,7 @@ public class RandomSceneLoader : MonoBehaviour
     void Update()
     {
         if (Keyboard.current != null && (Keyboard.current.spaceKey.wasPressedThisFrame
-            || Keyboard.current.eKey.wasPressedThisFrame)) TryStartGame();
+            || Keyboard.current.zKey.wasPressedThisFrame)) TryStartGame();
     }
 
     public bool TryStartGame()

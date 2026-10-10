@@ -112,10 +112,10 @@ namespace Features.SceneTransition
             _sandTimerController.Progress = math.unlerp(0f, _gameSettings.gameTimeLimit, _elapsedTime);
             // シーン遷移の重複を防ぐ。遷移中も時間の更新は続ける。
             if (_isCycling) return;
-            var forceEnd = Keyboard.current != null && Keyboard.current.bKey.wasPressedThisFrame;
+            var forceEnd = Keyboard.current != null && Keyboard.current.nKey.wasPressedThisFrame;
             if (!forceEnd && _elapsedTime < _gameSettings.gameTimeLimit) return;
 
-            // 時間切れ、または B キーで結果シーンへ進む。評価できた所作がなければ 0。
+            // 時間切れ、または N キーで結果シーンへ進む。評価できた所作がなければ 0。
             PlayScore.Submit((float)(_accuracy.Overall ?? 0));
             SceneTransitionManager.Instance.LoadSceneAsync(_gameSettings.resultScene).Forget();
             enabled = false;
