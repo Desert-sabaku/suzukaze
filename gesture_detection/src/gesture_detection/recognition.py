@@ -9,9 +9,22 @@ from .config import FPS, RAMUNE_ALIGN_TOLERANCE, RAMUNE_DETECTOR, RAMUNE_LEARNED
 from .gesture_types import Gesture, Phase
 from .hand_gesture import HandGestureAnalyzer
 from .learned_ramune import LearnedRamuneAnalyzer
+from .pose_landmarks import (
+    LEFT_WRIST,
+    RIGHT_WRIST,
+    WRISTS,
+    other_wrist,
+    shoulder_width,
+)
 from .ramune import FollowingRamuneAnalyzer, RamuneAnalyzer
 from .recognition_types import OccurrenceEvidence, PoseResult
 from .relaxing import RelaxingAnalyzer
+
+# When the two hands disagree, the higher value wins.
+_HAND_ACTION_PRIORITY = {Gesture.NONE: 0, Gesture.FANNING: 1, Gesture.UCHIMIZU: 2}
+_UCHIMIZU_PHASE_PRIORITY = {Phase.IDLE: 0, Phase.READY: 1, Phase.SWING: 2}
+
+type Occurrences = tuple[tuple[str, ...], dict[str, float | None], dict[str, OccurrenceEvidence]]
 
 
 class RecognitionCoordinator:
@@ -31,7 +44,7 @@ class RecognitionCoordinator:
         ):
             raise ValueError("The multicam profile requires rule-based recognition")
         self.hands = [
-            HandGestureAnalyzer(i, anchored_scoop=profile == "multicam") for i in (15, 16)
+            HandGestureAnalyzer(wrist, anchored_scoop=profile == "multicam") for wrist in WRISTS
         ]
         self.ramune = (
             LearnedRamuneAnalyzer(RAMUNE_LEARNED_MODEL_PATH, fps=source_fps)
@@ -58,10 +71,12 @@ class RecognitionCoordinator:
             self.ramune.reset()
         for hand in self.hands:
             hand._reset_gesture_state()
-        self.selected_action = Gesture.NONE
+        self._clear_hand_scores(Gesture.NONE)
+
+    def _clear_hand_scores(self, selected_action: str) -> None:
+        self.selected_action = selected_action
+        self.fanning_score = self.uchimizu_score = 0.0
         self.uchimizu_state = Phase.IDLE
-        self.uchimizu_score = 0.0
-        self.fanning_score = 0.0
 
     def _update_gesture_scores(
         self, landmarks, timestamp: float, *, aspect_ratio: float = 1.0, frame_id: int | None = None
@@ -76,9 +91,7 @@ class RecognitionCoordinator:
             # Keep the press from leaking into the single-hand classifiers.
             for hand in self.hands:
                 hand._reset_gesture_state()
-            self.selected_action = Gesture.RAMUNE if opened else Gesture.NONE
-            self.fanning_score = self.uchimizu_score = 0.0
-            self.uchimizu_state = Phase.IDLE
+            self._clear_hand_scores(Gesture.RAMUNE if opened else Gesture.NONE)
             return
         for hand in self.hands:
             if landmarks[hand.wrist_index].visibility > 0.5:
@@ -88,8 +101,8 @@ class RecognitionCoordinator:
         if self.ramune.state == Phase.FORMING:
             # A loose two-hand candidate must not erase the low scoop history.
             # A completed scoop preparation wins before Ramune's dwell commits.
-            tightly_aligned = abs(landmarks[15].x - landmarks[16].x) <= (
-                abs(landmarks[11].x - landmarks[12].x) * RAMUNE_ALIGN_TOLERANCE
+            tightly_aligned = abs(landmarks[LEFT_WRIST].x - landmarks[RIGHT_WRIST].x) <= (
+                shoulder_width(landmarks) * RAMUNE_ALIGN_TOLERANCE
             )
             if isinstance(self.ramune, RamuneAnalyzer) and any(
                 hand.uchimizu_state == Phase.SWING
@@ -98,13 +111,9 @@ class RecognitionCoordinator:
             ):
                 self.ramune.reset()
             else:
-                self.selected_action = "NONE"
-                self.fanning_score = self.uchimizu_score = 0.0
-                self.uchimizu_state = "IDLE"
+                self._clear_hand_scores(Gesture.NONE)
                 return
-        # Preserve the existing priority when hands perform different gestures.
-        priority = {Gesture.NONE: 0, Gesture.FANNING: 1, Gesture.UCHIMIZU: 2}
-        selected = max(self.hands, key=lambda hand: priority[hand.selected_action])
+        selected = max(self.hands, key=lambda hand: _HAND_ACTION_PRIORITY[hand.selected_action])
         self.selected_action = selected.selected_action
         # The other hand can also produce a transient fanning score while one
         # hand prepares/releases water. Apply the same priority at pose level.
@@ -125,8 +134,7 @@ class RecognitionCoordinator:
         self.fanning_score = max(hand.fanning_score for hand in self.hands)
         self.uchimizu_score = max(hand.uchimizu_score for hand in self.hands)
         self.uchimizu_state = max(
-            self.hands,
-            key=lambda hand: {Phase.IDLE: 0, Phase.READY: 1, Phase.SWING: 2}[hand.uchimizu_state],
+            self.hands, key=lambda hand: _UCHIMIZU_PHASE_PRIORITY[hand.uchimizu_state]
         ).uchimizu_state
 
     def _reset_tracking_state(self, *, preserve_ramune: bool = False):
@@ -150,74 +158,17 @@ class RecognitionCoordinator:
             )
             self.bow_state = self.bow.update(landmarks, timestamp, aspect_ratio)
         else:
-            learned = isinstance(self.ramune, LearnedRamuneAnalyzer)
-            if isinstance(self.ramune, LearnedRamuneAnalyzer):
-                self.ramune.update([], timestamp, aspect_ratio=aspect_ratio, frame_id=frame_id)
-            self._reset_tracking_state(preserve_ramune=learned)
-        current = self.selected_action
-        if current == Gesture.NONE:
-            if self.bow_state:
-                current = Gesture.BOW
-            elif self.relaxing_state:
-                current = Gesture.RELAXING
-        occurrences: tuple[str, ...] = ()
-        evidence: dict[str, OccurrenceEvidence] = {}
-        event_scores: dict[str, float | None] = {}
-        ramune_event = (
-            self.ramune.just_opened
-            if isinstance(self.ramune, LearnedRamuneAnalyzer)
-            else previous_ramune != Phase.OPENED
+            # The learned detector keeps its own history across tracking loss.
+            learned = self.ramune if isinstance(self.ramune, LearnedRamuneAnalyzer) else None
+            if learned is not None:
+                learned.update([], timestamp, aspect_ratio=aspect_ratio, frame_id=frame_id)
+            self._reset_tracking_state(preserve_ramune=learned is not None)
+        current = self._current_gesture()
+        occurrences, event_scores, evidence = self._detect_occurrences(
+            previous_ramune, previous_water
         )
-        if self.selected_action == Gesture.RAMUNE and ramune_event:
-            occurrences = (Gesture.RAMUNE,)
-            event_scores[Gesture.RAMUNE] = (
-                self.ramune.action_accuracy if isinstance(self.ramune, RamuneAnalyzer) else None
-            )
-            if (
-                isinstance(self.ramune, RamuneAnalyzer)
-                and self.ramune.base_index is not None
-                and self.ramune.setup_started_at is not None
-            ):
-                evidence[Gesture.RAMUNE] = {
-                    "wrist_index": 31 - self.ramune.base_index,
-                    "setup_timestamp": self.ramune.setup_started_at,
-                }
-        elif self.selected_action == Gesture.UCHIMIZU and any(
-            hand.uchimizu.completed_at is not None and hand.uchimizu.completed_at != previous
-            for hand, previous in zip(self.hands, previous_water, strict=True)
-        ):
-            # Simultaneous releases retain the existing single-action policy.
-            occurrences = (Gesture.UCHIMIZU,)
-            for hand, previous in zip(self.hands, previous_water, strict=True):
-                if (
-                    hand.uchimizu.completed_at is not None
-                    and hand.uchimizu.completed_at != previous
-                    and hand.uchimizu.setup_started_at is not None
-                ):
-                    event_scores[Gesture.UCHIMIZU] = hand.uchimizu.action_accuracy
-                    evidence[Gesture.UCHIMIZU] = {
-                        "wrist_index": hand.wrist_index,
-                        "setup_timestamp": hand.uchimizu.setup_started_at,
-                    }
-        accuracy = None
-        if current == Gesture.BOW:
-            accuracy = bow_accuracy(
-                self.bow.torso_angle,
-                self.bow.head_deviation,
-                self.bow.head_aligned,
-                self.bow.hold_seconds,
-            )
-        elif current == Gesture.RELAXING:
-            accuracy = relaxing_accuracy(
-                self.relaxing.motion_speed,
-                self.relaxing.drift,
-                self.relaxing.still_seconds,
-            )
-        elif current == Gesture.FANNING:
-            hand = next(h for h in self.hands if h.selected_action == Gesture.FANNING)
-            accuracy = fanning_accuracy(list(hand.accuracy_history))
         return {
-            "action_accuracy": accuracy,
+            "action_accuracy": self._action_accuracy(current),
             "occurrence_accuracies": event_scores,
             "booth_present": self.booth.update(landmarks, timestamp, aspect_ratio),
             "landmarks": [(p.x, p.y, p.visibility) for p in landmarks],
@@ -240,3 +191,73 @@ class RecognitionCoordinator:
             "motion_speed": self.relaxing.motion_speed,
             "still_seconds": self.relaxing.still_seconds,
         }
+
+    def _current_gesture(self) -> str:
+        """Hand actions win; otherwise a held bow, then relaxing."""
+        if self.selected_action != Gesture.NONE:
+            return self.selected_action
+        if self.bow_state:
+            return Gesture.BOW
+        if self.relaxing_state:
+            return Gesture.RELAXING
+        return Gesture.NONE
+
+    def _detect_occurrences(
+        self, previous_ramune: str, previous_water: list[float | None]
+    ) -> Occurrences:
+        """Return this frame's discrete events with their accuracy and evidence."""
+        evidence: dict[str, OccurrenceEvidence] = {}
+        event_scores: dict[str, float | None] = {}
+        ramune_event = (
+            self.ramune.just_opened
+            if isinstance(self.ramune, LearnedRamuneAnalyzer)
+            else previous_ramune != Phase.OPENED
+        )
+        if self.selected_action == Gesture.RAMUNE and ramune_event:
+            if not isinstance(self.ramune, RamuneAnalyzer):
+                event_scores[Gesture.RAMUNE] = None
+            else:
+                event_scores[Gesture.RAMUNE] = self.ramune.action_accuracy
+                if self.ramune.base_index is not None and self.ramune.setup_started_at is not None:
+                    evidence[Gesture.RAMUNE] = {
+                        # The pressing hand is the one above the bottle base.
+                        "wrist_index": other_wrist(self.ramune.base_index),
+                        "setup_timestamp": self.ramune.setup_started_at,
+                    }
+            return (Gesture.RAMUNE,), event_scores, evidence
+
+        released = [
+            hand
+            for hand, previous in zip(self.hands, previous_water, strict=True)
+            if hand.uchimizu.completed_at is not None and hand.uchimizu.completed_at != previous
+        ]
+        if self.selected_action == Gesture.UCHIMIZU and released:
+            # Simultaneous releases retain the existing single-action policy.
+            for hand in released:
+                if hand.uchimizu.setup_started_at is not None:
+                    event_scores[Gesture.UCHIMIZU] = hand.uchimizu.action_accuracy
+                    evidence[Gesture.UCHIMIZU] = {
+                        "wrist_index": hand.wrist_index,
+                        "setup_timestamp": hand.uchimizu.setup_started_at,
+                    }
+            return (Gesture.UCHIMIZU,), event_scores, evidence
+        return (), event_scores, evidence
+
+    def _action_accuracy(self, current: str) -> float | None:
+        if current == Gesture.BOW:
+            return bow_accuracy(
+                self.bow.torso_angle,
+                self.bow.head_deviation,
+                self.bow.head_aligned,
+                self.bow.hold_seconds,
+            )
+        if current == Gesture.RELAXING:
+            return relaxing_accuracy(
+                self.relaxing.motion_speed,
+                self.relaxing.drift,
+                self.relaxing.still_seconds,
+            )
+        if current == Gesture.FANNING:
+            hand = next(h for h in self.hands if h.selected_action == Gesture.FANNING)
+            return fanning_accuracy(list(hand.accuracy_history))
+        return None

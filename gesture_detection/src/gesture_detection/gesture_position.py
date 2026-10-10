@@ -1,38 +1,46 @@
 import math
-from collections.abc import Sequence
-from typing import Protocol
 
 from .config import FANNING_MAX_TORSO_HEIGHT, READY_FACE_EXCLUSION_DISTANCE
+from .pose_landmarks import (
+    LEFT_HIP,
+    LEFT_SHOULDER,
+    NOSE,
+    RIGHT_HIP,
+    RIGHT_SHOULDER,
+    RIGHT_WRIST,
+    Landmarks,
+    hip_center_y,
+    shoulder_center_y,
+    torso_x_range,
+)
 
 type Point = tuple[float, float]
 
 
-class LandmarkLike(Protocol):
-    x: float
-    y: float
-
-
-type Landmarks = Sequence[LandmarkLike]
-
-
 def is_fanning_position(landmarks: Landmarks, wrist_index: int) -> bool:
     """Allow hands beside the chest or face, but exclude a lowered arm."""
-    shoulder_y = (landmarks[11].y + landmarks[12].y) * 0.5
-    hip_y = (landmarks[23].y + landmarks[24].y) * 0.5
-    torso_height = hip_y - shoulder_y
+    shoulder_y = shoulder_center_y(landmarks)
+    torso_height = hip_center_y(landmarks) - shoulder_y
     return (
         torso_height > 1e-6
         and landmarks[wrist_index].y <= shoulder_y + FANNING_MAX_TORSO_HEIGHT * torso_height
     )
 
 
-def normalized_wrist_distances(landmarks: Landmarks, wrist_index: int = 16) -> tuple[float, float]:
-    wrist = (landmarks[wrist_index].x, landmarks[wrist_index].y)
-    nose = (landmarks[0].x, landmarks[0].y)
-    left_shoulder = (landmarks[11].x, landmarks[11].y)
-    right_shoulder = (landmarks[12].x, landmarks[12].y)
-    left_hip = (landmarks[23].x, landmarks[23].y)
-    right_hip = (landmarks[24].x, landmarks[24].y)
+def normalized_wrist_distances(
+    landmarks: Landmarks, wrist_index: int = RIGHT_WRIST
+) -> tuple[float, float]:
+    """Wrist distances to the nose and to the torso axis, in shoulder widths."""
+
+    def point(index: int) -> Point:
+        return (landmarks[index].x, landmarks[index].y)
+
+    wrist = point(wrist_index)
+    nose = point(NOSE)
+    left_shoulder = point(LEFT_SHOULDER)
+    right_shoulder = point(RIGHT_SHOULDER)
+    left_hip = point(LEFT_HIP)
+    right_hip = point(RIGHT_HIP)
 
     shoulder_width = max(math.dist(left_shoulder, right_shoulder), 1e-6)
     shoulder_center = _midpoint(left_shoulder, right_shoulder)
@@ -49,15 +57,9 @@ def normalized_wrist_distances(landmarks: Landmarks, wrist_index: int = 16) -> t
     )
 
 
-def is_wrist_within_torso_x(landmarks: Landmarks, wrist_index: int = 16) -> bool:
-    wrist_x = landmarks[wrist_index].x
-    torso_x_coordinates = (
-        landmarks[11].x,
-        landmarks[12].x,
-        landmarks[23].x,
-        landmarks[24].x,
-    )
-    return min(torso_x_coordinates) <= wrist_x <= max(torso_x_coordinates)
+def is_wrist_within_torso_x(landmarks: Landmarks, wrist_index: int = RIGHT_WRIST) -> bool:
+    left, right = torso_x_range(landmarks)
+    return left <= landmarks[wrist_index].x <= right
 
 
 def is_uchimizu_ready_motion(

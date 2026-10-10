@@ -1,6 +1,7 @@
 """Validated conversion between flat delivery dictionaries and protobuf."""
 
 import math
+from typing import Any
 
 from gesture_detection.gesture_types import Gesture, Phase, valid_action_phase
 from google.protobuf.message import DecodeError
@@ -8,6 +9,7 @@ from google.protobuf.message import DecodeError
 from .gen.bridge.v1 import bridge_pb2 as bridge_pb
 from .gen.gesture.v1 import gesture_pb2 as pb
 
+PROTOCOL_VERSION = 1
 MAX_MESSAGE_BYTES = 8192
 
 _ENUMS = {
@@ -84,6 +86,12 @@ _OPTIONAL = {
     "phase",
     "booth_present",
 }
+# Optional fields that decode to a missing key rather than None when unset.
+_OMITTED_WHEN_UNSET = {"action", "phase", "booth_present", "action_accuracy"}
+# Integer fields and their minimum; all must also fit in uint64.
+_INTEGER_MINIMUMS = {"sequence": 1, "event_id": 1, "frame_id": 0}
+_BOOLS = {"fresh", "tracking", "booth_present"}
+_NAMES = {"action", "phase"}
 _TIMES = {
     "sent_at",
     "stale_timeout",
@@ -99,13 +107,43 @@ def _check_size(size: int) -> None:
         raise ValueError(f"Message length must be 1..{MAX_MESSAGE_BYTES}")
 
 
+def _is_number(value: Any) -> bool:
+    return isinstance(value, int | float) and not isinstance(value, bool)
+
+
+def _is_finite_number(value: Any) -> bool:
+    try:
+        return _is_number(value) and math.isfinite(value)
+    except OverflowError:
+        return False
+
+
 def _validate(message: dict) -> str:
+    """Check a flat message completely and return its type."""
+    kind = _validate_header(message)
+    for field in _FIELDS[kind]:
+        value = message.get(field)
+        if field in _OPTIONAL and value is None:
+            continue
+        _validate_field(field, value)
+    if kind == "state":
+        _validate_state(message)
+    elif kind == "event":
+        _validate_event(message)
+    return kind
+
+
+def _validate_header(message: dict) -> str:
+    """Check type, version, session and the field set; return the type."""
     if not isinstance(message, dict):
         raise ValueError("Message must be a dictionary")  # noqa: TRY004
     kind = message.get("type")
     if not isinstance(kind, str) or kind not in _FIELDS:
         raise ValueError("Unknown message type")
-    if type(message.get("version")) is not int or message["version"] != 1:
+    if (
+        type(message.get("version")) is not int
+        or message["version"] != PROTOCOL_VERSION
+    ):
         raise ValueError("Unsupported protocol version")
     if not isinstance(message.get("session_id"), str) or not message["session_id"]:
         raise ValueError("session_id must be a nonempty string")
@@ -115,76 +153,68 @@ def _validate(message: dict) -> str:
     value = message.get(enum_field)
     if not isinstance(value, str) or value not in values:
         raise ValueError(f"Unknown {enum_field}")
-    for field in _FIELDS[kind]:
-        value = message.get(field)
-        if field in _OPTIONAL and value is None:
-            continue
-        if field == "action_accuracy" and (
-            not isinstance(value, int | float)
-            or isinstance(value, bool)
-            or not 0 <= value <= 1
-        ):
-            raise ValueError("action_accuracy must be finite and in [0, 1]")
-        if field in {"sequence", "event_id", "frame_id"}:
-            minimum = 0 if field == "frame_id" else 1
-            if type(value) is not int or not minimum <= value < 2**64:
-                raise ValueError(f"Invalid {field}")
-        elif field in _TIMES:
-            try:
-                valid = (
-                    isinstance(value, int | float)
-                    and not isinstance(value, bool)
-                    and math.isfinite(value)
-                )
-            except OverflowError:
-                valid = False
-            if not valid:
-                raise ValueError(f"{field} must be finite")
-        elif (
-            field in {"fresh", "tracking", "booth_present"} and type(value) is not bool
-        ):
-            raise ValueError(f"{field} must be bool")
-        elif field in {"action", "phase"} and (not isinstance(value, str) or not value):
-            raise ValueError(f"{field} must be a nonempty string")
-    if kind == "state":
-        if message.get("action_accuracy") is not None and (
-            not message["fresh"]
-            or not message["tracking"]
-            or message["gesture"] == Gesture.NONE
-        ):
-            raise ValueError("State accuracy requires a fresh tracked gesture")
-        action, phase = message.get("action"), message.get("phase")
-        if (action is None) != (phase is None):
-            raise ValueError("action and phase must be present together")
-        if action is not None and (
-            not valid_action_phase(action, phase)
-            or not message["fresh"]
-            or not message["tracking"]
-        ):
-            raise ValueError(
-                "Phase requires a valid action/phase pair and fresh tracking"
-            )
-    if kind == "state" and message["stale_timeout"] <= 0:
-        raise ValueError("stale_timeout must be positive")
-    if kind == "event" and message["expires_at"] <= message["occurred_at"]:
-        raise ValueError("expires_at must follow occurred_at")
     return kind
+
+
+def _validate_field(field: str, value: Any) -> None:
+    """Check one present field's type and range."""
+    if field == "action_accuracy":
+        if not _is_number(value) or not 0 <= value <= 1:
+            raise ValueError("action_accuracy must be finite and in [0, 1]")
+    elif field in _INTEGER_MINIMUMS:
+        if type(value) is not int or not _INTEGER_MINIMUMS[field] <= value < 2**64:
+            raise ValueError(f"Invalid {field}")
+    elif field in _TIMES:
+        if not _is_finite_number(value):
+            raise ValueError(f"{field} must be finite")
+    elif field in _BOOLS:
+        if type(value) is not bool:
+            raise ValueError(f"{field} must be bool")
+    elif field in _NAMES and (not isinstance(value, str) or not value):
+        raise ValueError(f"{field} must be a nonempty string")
+
+
+def _validate_state(message: dict) -> None:
+    """Accuracy and progress are only meaningful for a fresh, tracked person."""
+    tracked = message["fresh"] and message["tracking"]
+    if message.get("action_accuracy") is not None and (
+        not tracked or message["gesture"] == Gesture.NONE
+    ):
+        raise ValueError("State accuracy requires a fresh tracked gesture")
+    action, phase = message.get("action"), message.get("phase")
+    if (action is None) != (phase is None):
+        raise ValueError("action and phase must be present together")
+    if action is not None and (not valid_action_phase(action, phase) or not tracked):
+        raise ValueError("Phase requires a valid action/phase pair and fresh tracking")
+    if message["stale_timeout"] <= 0:
+        raise ValueError("stale_timeout must be positive")
+
+
+def _validate_event(message: dict) -> None:
+    if message["expires_at"] <= message["occurred_at"]:
+        raise ValueError("expires_at must follow occurred_at")
+
+
+def _enum_mapping(kind: str, field: str) -> dict | None:
+    """The name-to-number mapping for an enum field, or None for plain fields."""
+    enum_field, values = _ENUMS[kind]
+    return values if field == enum_field else _PROGRESS_ENUMS.get(field)
 
 
 def encode_message(message: dict) -> bytes:
     """Encode a validated flat v1 dictionary; omitted metadata means None."""
     kind = _validate(message)
-    envelope = pb.GestureEnvelope(version=1, session_id=message["session_id"])
+    envelope = pb.GestureEnvelope(
+        version=PROTOCOL_VERSION, session_id=message["session_id"]
+    )
     payload = getattr(envelope, kind)
-    enum_field, values = _ENUMS[kind]
     try:
         for field in _FIELDS[kind]:
             value = message.get(field)
-            if value is not None:
-                mapping = values if field == enum_field else _PROGRESS_ENUMS.get(field)
-                setattr(
-                    payload, field, mapping[value] if mapping is not None else value
-                )
+            if value is None:
+                continue
+            mapping = _enum_mapping(kind, field)
+            setattr(payload, field, mapping[value] if mapping is not None else value)
         return _wrap(envelope)
     except (UnicodeError, TypeError, OverflowError) as exc:
         raise ValueError("Invalid protobuf value") from exc
@@ -232,21 +262,19 @@ def decode_gesture(envelope: pb.GestureEnvelope) -> dict:
         "type": kind,
     }
     payload = getattr(envelope, kind)
-    enum_field, values = _ENUMS[kind]
     for field in _FIELDS[kind]:
         if field in _OPTIONAL and not payload.HasField(field):
-            if field in {"action", "phase", "booth_present", "action_accuracy"}:
-                continue
-            message[field] = None
+            if field not in _OMITTED_WHEN_UNSET:
+                message[field] = None
             continue
         value = getattr(payload, field)
-        mapping = values if field == enum_field else _PROGRESS_ENUMS.get(field)
-        message[field] = (
-            {number: name for name, number in mapping.items()}.get(value)
-            if mapping is not None
-            else value
-        )
-        if mapping is not None and message[field] is None:
+        mapping = _enum_mapping(kind, field)
+        if mapping is None:
+            message[field] = value
+            continue
+        name = next((name for name, number in mapping.items() if number == value), None)
+        if name is None:
             raise ValueError(f"Unknown {field}")
+        message[field] = name
     _validate(message)
     return message

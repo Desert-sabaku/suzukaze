@@ -12,7 +12,15 @@ from .config import (
     BOW_MIN_ANGLE_DEGREES,
     BOW_MIN_VISIBILITY,
 )
-from .gesture_position import Landmarks
+from .pose_landmarks import (
+    NOSE,
+    TORSO,
+    Landmarks,
+    hip_center_x,
+    hip_center_y,
+    shoulder_center_x,
+    shoulder_center_y,
+)
 
 
 class BowAnalyzer:
@@ -33,8 +41,8 @@ class BowAnalyzer:
             self.reset()
             return False
         # Only the nose may lie just outside the frame; the torso must stay inside.
-        limits = {0: (BOW_HEAD_FRAME_MARGIN, BOW_HEAD_MIN_VISIBILITY)}
-        limits.update((i, (0.0, BOW_MIN_VISIBILITY)) for i in (11, 12, 23, 24))
+        limits = {NOSE: (BOW_HEAD_FRAME_MARGIN, BOW_HEAD_MIN_VISIBILITY)}
+        limits.update((i, (0.0, BOW_MIN_VISIBILITY)) for i in TORSO)
         if len(landmarks) <= max(limits) or any(
             not math.isfinite(landmarks[i].x)
             or not math.isfinite(landmarks[i].y)
@@ -46,14 +54,15 @@ class BowAnalyzer:
         ):
             self.reset()
             return False
-        shoulder_x = (landmarks[11].x + landmarks[12].x) / 2 * aspect_ratio
-        shoulder_y = (landmarks[11].y + landmarks[12].y) / 2
-        hip_x = (landmarks[23].x + landmarks[24].x) / 2 * aspect_ratio
-        hip_y = (landmarks[23].y + landmarks[24].y) / 2
+        shoulder_x = shoulder_center_x(landmarks) * aspect_ratio
+        shoulder_y = shoulder_center_y(landmarks)
+        hip_x = hip_center_x(landmarks) * aspect_ratio
+        hip_y = hip_center_y(landmarks)
+        nose = landmarks[NOSE]
         dx, dy = shoulder_x - hip_x, hip_y - shoulder_y
-        head_dx = (landmarks[0].x * aspect_ratio) - shoulder_x
-        face_dx = landmarks[0].x * aspect_ratio - hip_x
-        face_dy = hip_y - landmarks[0].y
+        head_dx = nose.x * aspect_ratio - shoulder_x
+        face_dx = nose.x * aspect_ratio - hip_x
+        face_dy = hip_y - nose.y
         if math.hypot(dx, dy) <= 1e-6 or math.hypot(face_dx, face_dy) <= 1e-6:
             self.reset()
             return False

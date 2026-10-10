@@ -24,6 +24,20 @@ from .config import (
     RAMUNE_WINDUP_SECONDS,
 )
 from .gesture_types import Phase
+from .pose_landmarks import (
+    HIPS,
+    LEFT_WRIST,
+    RIGHT_WRIST,
+    SHOULDERS,
+    WRISTS,
+    hip_center_y,
+    other_wrist,
+    shoulder_center_y,
+    shoulder_width,
+)
+
+# Every landmark the two-hand stack needs, all of which must be visible.
+_REQUIRED_LANDMARKS = (*SHOULDERS, *WRISTS, *HIPS)
 
 
 class Landmark(Protocol):
@@ -63,26 +77,26 @@ class RamuneAnalyzer:
         ):
             self.reset()
         self.last_time = now
-        if len(landmarks) < 25 or any(
+        if len(landmarks) <= max(_REQUIRED_LANDMARKS) or any(
             landmarks[i].visibility <= 0.5
             or not all(math.isfinite(v) for v in (landmarks[i].x, landmarks[i].y))
-            for i in (11, 12, 15, 16, 23, 24)
+            for i in _REQUIRED_LANDMARKS
         ):
             self.reset()
             return False
-        scale = abs(landmarks[11].x - landmarks[12].x) * aspect_ratio
+        scale = shoulder_width(landmarks) * aspect_ratio
         if scale < 1e-6:
             self.reset()
             return False
-        lower = max((15, 16), key=lambda i: landmarks[i].y)
-        upper = 31 - lower
+        lower = max(WRISTS, key=lambda i: landmarks[i].y)
+        upper = other_wrist(lower)
         gap = (landmarks[lower].y - landmarks[upper].y) / scale
-        horizontal_gap = abs(landmarks[15].x - landmarks[16].x) * aspect_ratio / scale
+        horizontal_gap = (
+            abs(landmarks[LEFT_WRIST].x - landmarks[RIGHT_WRIST].x) * aspect_ratio / scale
+        )
         aligned = horizontal_gap <= RAMUNE_ALIGN_TOLERANCE
         ready_aligned = horizontal_gap <= RAMUNE_READY_ALIGN_TOLERANCE
-        shoulder_y = (landmarks[11].y + landmarks[12].y) / 2
-        hip_y = (landmarks[23].y + landmarks[24].y) / 2
-        in_torso = shoulder_y <= landmarks[lower].y <= hip_y
+        in_torso = shoulder_center_y(landmarks) <= landmarks[lower].y <= hip_center_y(landmarks)
         # A wide diagonal pair (e.g. one hand resting at the waist while the
         # other scoops water) is not a stacked bottle preparation.
         stacked = horizontal_gap <= gap * RAMUNE_READY_MAX_SLOPE
@@ -115,7 +129,7 @@ class RamuneAnalyzer:
 
         assert self.base_index is not None
         base = landmarks[self.base_index]
-        pressing = landmarks[31 - self.base_index]
+        pressing = landmarks[other_wrist(self.base_index)]
         stable = (
             abs(base.x - self.base[0]) * aspect_ratio / self.scale <= RAMUNE_BASE_X_TOLERANCE
             and abs(base.y - self.base[1]) / self.scale <= RAMUNE_BASE_TOLERANCE

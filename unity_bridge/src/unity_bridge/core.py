@@ -10,6 +10,7 @@ import websockets
 from .bridge_relay import BridgeRelay, RestartingDetection, SampleSource
 from .diffuser import DiffuserController
 from .fan import FanController, mcu_sender_from_env
+from .gesture_codec import MAX_MESSAGE_BYTES as GESTURE_MAX_MESSAGE_BYTES
 from .gesture_debug import ManualGestureSource, serve_debug_gui
 from .gesture_delivery import DeliveryOutbox
 from .settings import Settings, load_settings
@@ -59,29 +60,20 @@ class UnityBridge:
 
             self._serial = Serial(self.serial_port, self.baudrate, timeout=0.1)
         relay = self.bridge_relay
-        manual = (
-            ManualGestureSource(relay.state_interval / 2)
-            if relay is not None and self.debug_port is not None
-            else None
-        )
-        detection = (
-            RestartingDetection(
-                restart_delay=float(os.getenv("GESTURE_RESTART_DELAY", "2.0"))
-            )
-            if relay is not None and self.detect and manual is None
-            else None
-        )
+        manual, detection = self._create_sample_sources()
         source: SampleSource | None = manual or detection
+        handler = relay.serve if relay else self._serve_client
+        max_size = GESTURE_MAX_MESSAGE_BYTES if relay else MAX_MESSAGE_BYTES
         try:
             if detection is not None:
                 detection.start()
             async with contextlib.AsyncExitStack() as stack:
                 await stack.enter_async_context(
                     websockets.serve(
-                        relay.serve if relay else self._serve_client,
+                        handler,
                         self.host,
                         self.websocket_port,
-                        max_size=8192 if relay else MAX_MESSAGE_BYTES,
+                        max_size=max_size,
                         close_timeout=0.5,
                     )
                 )
@@ -95,18 +87,8 @@ class UnityBridge:
                         "Gesture source: debug GUI at "
                         f"http://{self.host}:{self.debug_port}/"
                     )
-                elif relay is not None:
-                    print(
-                        "Gesture source: gesture_detection child process"
-                        if self.detect
-                        else "Fan only: gesture_detection is not started"
-                    )
-                elif self.serial_port is None:
-                    print("Serial disabled")
                 else:
-                    print(
-                        f"Serial connected: {self.serial_port} ({self.baudrate} baud)"
-                    )
+                    print(self._mode_description())
                 if relay is not None and source is not None:
                     await relay.pump(source)
                 else:
@@ -117,6 +99,29 @@ class UnityBridge:
             if detection is not None:
                 detection.close()
             self.stop()
+
+    def _create_sample_sources(
+        self,
+    ) -> tuple[ManualGestureSource | None, RestartingDetection | None]:
+        """Pick where gestures come from: the debug GUI, recognition, or nowhere."""
+        relay = self.bridge_relay
+        if relay is None:
+            return None, None
+        if self.debug_port is not None:
+            return ManualGestureSource(relay.state_interval / 2), None
+        if not self.detect:
+            return None, None
+        restart_delay = float(os.getenv("GESTURE_RESTART_DELAY", "2.0"))
+        return None, RestartingDetection(restart_delay=restart_delay)
+
+    def _mode_description(self) -> str:
+        if self.bridge_relay is not None:
+            if self.detect:
+                return "Gesture source: gesture_detection child process"
+            return "Fan only: gesture_detection is not started"
+        if self.serial_port is None:
+            return "Serial disabled"
+        return f"Serial connected: {self.serial_port} ({self.baudrate} baud)"
 
     def stop(self) -> None:
         self._stop.set()

@@ -19,6 +19,7 @@ from .config import (
 )
 from .gesture_position import is_fanning_position, normalized_wrist_distances
 from .gesture_types import Gesture, Phase
+from .pose_landmarks import hip_center_y, shoulder_center_y
 from .signal_processing import resample_time_window
 from .uchimizu import AnchoredUchimizuAnalyzer, UchimizuAnalyzer
 
@@ -57,6 +58,7 @@ class HandGestureAnalyzer:
         self, landmarks, timestamp: float, *, aspect_ratio: float = 1.0
     ) -> None:
         wrist = landmarks[self.wrist_index]
+        # The wrist, pinky and index finger of the same hand (MediaPipe +0, +2, +4).
         hand = [landmarks[self.wrist_index + offset] for offset in (0, 2, 4)]
         self.hand_x_history.append(sum(p.x for p in hand) / 3 * aspect_ratio)
         self.hand_y_history.append(sum(p.y for p in hand) / 3)
@@ -72,8 +74,8 @@ class HandGestureAnalyzer:
         smoothing = 0.35 if raw_fanning_score > self.fanning_score else 0.55
         self.fanning_score += smoothing * (raw_fanning_score - self.fanning_score)
         self.fanning_score = min(1.0, self.fanning_score + face_proximity * 0.08)
-        shoulder_y = (landmarks[11].y + landmarks[12].y) / 2
-        torso_height = (landmarks[23].y + landmarks[24].y) / 2 - shoulder_y
+        shoulder_y = shoulder_center_y(landmarks)
+        torso_height = hip_center_y(landmarks) - shoulder_y
         height = (wrist.y - shoulder_y) / torso_height if torso_height > 1e-6 else float("inf")
         if (
             math.isfinite(timestamp)
