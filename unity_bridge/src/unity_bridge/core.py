@@ -1,13 +1,14 @@
 import argparse
 import asyncio
 import contextlib
+import os
 import threading
 from typing import Any
 
 import websockets
 
 from .bridge_relay import BridgeRelay, RestartingDetection, SampleSource
-from .diffuser import DiffuserController, pins_from_env
+from .diffuser import DiffuserController
 from .fan import FanController, mcu_sender_from_env
 from .gesture_debug import ManualGestureSource, serve_debug_gui
 from .gesture_delivery import DeliveryOutbox
