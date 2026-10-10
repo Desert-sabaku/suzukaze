@@ -7,6 +7,9 @@ public class QuitOnEscape : MonoBehaviour
     {
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
+            // ゲーム中は GameSceneTransition がリザルトへの遷移を担当する。
+            // 遷移開始後にコンポーネントが無効になっていても、アプリは終了しない。
+            if (FindAnyObjectByType<Features.SceneTransition.GameSceneTransition>() != null) return;
             Quit();
         }
     }
