@@ -22,14 +22,14 @@ namespace Suzukaze.Gesture.Tests
         }
 
         // 認識結果は実際の受信経路 (ReceiverHandoff) から渡す
-        private void DeliverNetwork(ContinuousGesture gesture)
+        private void DeliverNetwork(ContinuousGesture gesture, bool boothPresent = false)
         {
             var handoff = new ReceiverHandoff();
             var token = handoff.BeginConnection();
             Assert.That(handoff.Publish(token, new ReceivedMessage(new GestureEnvelope {
                 Version = 1, SessionId = "s", State = new State {
                     Sequence = 1, SentAt = 10, ObservedAt = 10, StaleTimeout = .5,
-                    Fresh = true, Tracking = true, Gesture = gesture
+                    Fresh = true, Tracking = true, Gesture = gesture, BoothPresent = boothPresent
                 }
             }, 10)), Is.True);
             handoff.Tick(new Clock(), keyboard);
@@ -158,11 +158,30 @@ namespace Suzukaze.Gesture.Tests
         }
 
         [Test]
-        public void NetworkStateDuringHeldKeyKeepsKeyboardGesture()
+        public void NetworkStateDuringHeldKeyIsIgnoredUntilReleased()
         {
+            keyboard.Tick(1, new KeyboardGestureInput { RamuneHeld = true });
+            DeliverNetwork(ContinuousGesture.Relaxing, boothPresent: true);
+            keyboard.Tick(2, new KeyboardGestureInput { RamuneHeld = true });
+            Assert.That(gestures.CurrentState.BoothPresent, Is.False);
+            Assert.That(changes, Has.Count.EqualTo(1));
+
+            keyboard.Tick(3, default);
+            Assert.That(gestures.CurrentState.Gesture, Is.EqualTo(ContinuousGesture.Relaxing));
+            Assert.That(gestures.CurrentState.BoothPresent, Is.True);
+        }
+
+        [Test]
+        public void NetworkEventDuringHeldKeyIsIgnored()
+        {
+            var network = new Event { EventId = 1, Gesture = OccurrenceGesture.Uchimizu };
             keyboard.Tick(1, new KeyboardGestureInput { FanningHeld = true });
-            DeliverNetwork(ContinuousGesture.Relaxing);
-            Assert.That(gestures.CurrentState.Gesture, Is.EqualTo(ContinuousGesture.Fanning));
+            Assert.That(keyboard.TryAcceptEvent("s", network), Is.False);
+            Assert.That(occurrences, Is.Empty);
+
+            keyboard.Tick(2, default);
+            Assert.That(keyboard.TryAcceptEvent(KeyboardGestures.SessionId, network), Is.True);
+            Assert.That(occurrences, Is.EqualTo(new[] { OccurrenceGesture.Uchimizu }));
         }
 
         [Test]
