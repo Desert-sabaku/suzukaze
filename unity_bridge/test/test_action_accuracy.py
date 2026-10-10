@@ -1,9 +1,9 @@
 import math
 
 import pytest
+from bridge.v1 import bridge_pb2 as bridge_pb
 from gesture_detection.recognition_types import GestureSample
 
-from unity_bridge.gen.bridge.v1 import bridge_pb2 as bridge_pb
 from unity_bridge.gesture_codec import decode_message, encode_message
 from unity_bridge.gesture_delivery import DeliveryOutbox
 

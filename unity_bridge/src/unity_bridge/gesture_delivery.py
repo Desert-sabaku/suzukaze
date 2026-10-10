@@ -8,8 +8,8 @@ from typing import Any
 from gesture_detection.gesture_types import Gesture
 from gesture_detection.recognition_types import GestureSample
 
-PROTOCOL_VERSION = 1
-ACK_STATUSES = {"accepted", "ignored", "expired", "duplicate"}
+from .gesture_codec import ACK_STATUSES, PROTOCOL_VERSION
+
 type Message = dict[str, Any]
 
 

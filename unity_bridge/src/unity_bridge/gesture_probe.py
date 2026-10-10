@@ -15,7 +15,12 @@ from gesture_detection.gesture_types import (
     Gesture,
 )
 
-from .gesture_codec import MAX_MESSAGE_BYTES, decode_message, encode_message
+from .gesture_codec import (
+    MAX_MESSAGE_BYTES,
+    PROTOCOL_VERSION,
+    decode_message,
+    encode_message,
+)
 
 
 def finite_number(value: object) -> float:
@@ -69,7 +74,7 @@ class GestureReceiver:
         self.poll(now)
         if (
             type(message.get("version")) is not int
-            or message.get("version") != 1
+            or message.get("version") != PROTOCOL_VERSION
             or not isinstance(message.get("session_id"), str)
             or not message["session_id"]
             or message.get("type") not in ("state", "event")
@@ -138,7 +143,7 @@ class GestureReceiver:
             status = "accepted" if accept(kind) else "ignored"
             self._seen[event_id] = expires
         return {
-            "version": 1,
+            "version": PROTOCOL_VERSION,
             "type": "ack",
             "session_id": self.session_id,
             "event_id": event_id,
