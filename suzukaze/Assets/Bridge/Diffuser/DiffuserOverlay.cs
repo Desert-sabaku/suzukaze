@@ -29,17 +29,17 @@ namespace Suzukaze.Diffuser
             DontDestroyOnLoad(host);
         }
 
-        private void OnGUI()
-        {
-            var output = DiffuserOutput.Instance;
-            style ??= new GUIStyle(GUI.skin.label) { fontSize = FontSize, alignment = TextAnchor.MiddleCenter };
-            for (var i = 0; i < Rows.Length; i++)
-            {
-                var y = Screen.height - Margin - RowHeight * (Rows.Length - i);
-                var row = new Rect((Screen.width - Width) / 2f, y, Width, RowHeight);
-                GUI.Box(row, GUIContent.none);
-                GUI.Label(row, Rows[i].Name + ": " + (output.Mock.IsOn(Rows[i].Channel) ? "ON" : "OFF"), style);
-            }
-        }
+        // private void OnGUI()
+        // {
+        //     var output = DiffuserOutput.Instance;
+        //     style ??= new GUIStyle(GUI.skin.label) { fontSize = FontSize, alignment = TextAnchor.MiddleCenter };
+        //     for (var i = 0; i < Rows.Length; i++)
+        //     {
+        //         var y = Screen.height - Margin - RowHeight * (Rows.Length - i);
+        //         var row = new Rect((Screen.width - Width) / 2f, y, Width, RowHeight);
+        //         GUI.Box(row, GUIContent.none);
+        //         GUI.Label(row, Rows[i].Name + ": " + (output.Mock.IsOn(Rows[i].Channel) ? "ON" : "OFF"), style);
+        //     }
+        // }
     }
 }
