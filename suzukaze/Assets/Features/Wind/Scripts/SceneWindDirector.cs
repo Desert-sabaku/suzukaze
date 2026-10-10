@@ -12,7 +12,7 @@ namespace Features.Wind.Scripts
     /// </summary>
     /// <remarks>
     ///     自然の風はときどき、吹くたびに違う向きから、ゆっくり滑らかな揺らぎで吹く。扇いでいる間は自然の風を止め、
-    ///     扇ぎのエフェクトの向きから、強く速く細かい揺らぎで吹かせる。
+    ///     扇ぎのエフェクトの向きから、揺らぎなしの最大の強さで吹かせる。
     ///     WindZone は自然の風だけに合わせる。
     /// </remarks>
     public class SceneWindDirector : MonoBehaviour
@@ -50,10 +50,7 @@ namespace Features.Wind.Scripts
         [SerializeField] [Min(0.01f)] private float naturalFadeInSeconds = 2f;
         [SerializeField] [Min(0.01f)] private float naturalFadeOutSeconds = 3f;
 
-        [Title("扇ぎの風")] [Tooltip("扇ぎの風の揺らぎ。自然の風より強く、速く細かく変わる")] [SerializeField] [InlineProperty] [HideLabel]
-        private YuragiProfile fanningYuragi = YuragiProfile.Fanning;
-
-        [SerializeField] [Min(0.01f)] private float fanningFadeInSeconds = 0.5f;
+        [Title("扇ぎの風")] [SerializeField] [Min(0.01f)] private float fanningFadeInSeconds = 0.5f;
         [SerializeField] [Min(0.01f)] private float fanningFadeOutSeconds = 1.5f;
 
         [Title("WindZone")] [Tooltip("自然の風が止んでいるときの、シーンに置いた強さに対する割合")] [SerializeField] [Range(0f, 1f)]
@@ -74,8 +71,6 @@ namespace Features.Wind.Scripts
         private float _gustStart;
         private float _gustSeed;
         private float _gustAngle;
-        private float _fanningStart;
-        private float _fanningSeed;
 
         private bool _hasWindZone;
         private float _windZoneMain;
@@ -108,7 +103,8 @@ namespace Features.Wind.Scripts
                 Time.deltaTime / (_isFanning ? fanningFadeInSeconds : fanningFadeOutSeconds));
 
             var naturalPower = _naturalLevel * naturalYuragi.Power(Time.time - _gustStart, _gustSeed);
-            var fanningPower = _fanningLevel * fanningYuragi.Power(Time.time - _fanningStart, _fanningSeed);
+            // 扇ぎの風は揺らがせず、フェードし終えたら常に最大で吹かせる
+            var fanningPower = _fanningLevel;
 
             // 切り替わりで重なる間は、2 つの風を足し合わせる
             var naturalDirection = NaturalWorldDirection();
@@ -171,11 +167,7 @@ namespace Features.Wind.Scripts
 
         private void SetFanning(bool fanning)
         {
-            if (fanning == _isFanning) return;
             _isFanning = fanning;
-            if (!fanning) return;
-            _fanningStart = Time.time;
-            _fanningSeed = Random.Range(0f, 1000f);
         }
 
         // 扇いでいる間は次の自然の風を待たせ、扇ぎ終わってから静かな間を置く
