@@ -53,7 +53,7 @@ buf generate
 | `diffuser_pins.forest` | 9 | `DiffuserChannel` の2 |
 
 - `fan_pwm_pins` は、firmwareの `fanPins`(GP2〜GP7)と同じにします。
-- キーが足りないとき、知らないキーがあるとき、ピンが重複するときは、起動時にエラーになります。
+- キーが足りないとき、知らないキーがあるとき、ピンが重複するとき(`fan_pwm_pins` と `diffuser_pins` の間も含む)は、起動時にエラーになります。
 - `suzukaze.local.yaml` に書くときは、`fan_pwm_pins` や `diffuser_pins` の全キーを書きます。一部だけを書くと、そのキーの設定が丸ごと置き換わり、足りないキーのエラーになります。
 
 ## ファン

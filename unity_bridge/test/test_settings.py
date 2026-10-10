@@ -100,3 +100,11 @@ def test_shared_suzukaze_yaml_is_complete():
     # 共有の suzukaze.yaml だけで、全キーが埋まる(= コードが読むキーがすべて書かれている)。
     assert set(BASE) == set(Settings.model_fields)
     load_settings()
+
+
+def test_fan_and_diffuser_sharing_a_pin_is_an_error(tmp_path, monkeypatch):
+    base = {**BASE, "diffuser_pins": {**BASE["diffuser_pins"], "ramune": 2}}
+    _use(monkeypatch, tmp_path, base=base)
+
+    with pytest.raises(ValidationError, match="share pins"):
+        load_settings()

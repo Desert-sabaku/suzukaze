@@ -71,6 +71,15 @@ class Settings(BaseSettings):
     gesture_max_pending: int
     gesture_debug_port: int
 
+    @model_validator(mode="after")
+    def _check_fan_and_diffuser_pins_differ(self) -> Settings:
+        shared = set(self.fan_pwm_pins.ordered()) & set(self.diffuser_pins.ordered())
+        if shared:
+            raise ValueError(
+                f"fan_pwm_pins and diffuser_pins share pins: {sorted(shared)}"
+            )
+        return self
+
     @classmethod
     def settings_customise_sources(
         cls,
