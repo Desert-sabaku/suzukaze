@@ -1,7 +1,6 @@
 using Suzukaze.Gesture.Protocol;
 using Suzukaze.Gesture;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using GestureEvent = Suzukaze.Gesture.Protocol.Event;
 
 public class ParticleOnEnter : MonoBehaviour
@@ -13,7 +12,7 @@ public class ParticleOnEnter : MonoBehaviour
 
     public float heightOffset = 1f;
 
-    [Tooltip("Receive UCHIMIZU from unity_bridge. Enter remains available for manual testing.")]
+    [Tooltip("Receive UCHIMIZU from unity_bridge.")]
     public bool receiveGestures = true;
     private GestureReceiverBehaviour receiver;
 
@@ -44,16 +43,5 @@ public class ParticleOnEnter : MonoBehaviour
         Vector3 spawnPos = neck.position + Vector3.up * heightOffset;
         Instantiate(particlePrefab, spawnPos, neck.rotation);
         return true;
-    }
-
-    void Update()
-    {
-        if (Keyboard.current == null) return;
-
-        if (Keyboard.current.enterKey.wasPressedThisFrame ||
-            Keyboard.current.numpadEnterKey.wasPressedThisFrame)
-        {
-            TryPlay();
-        }
     }
 }

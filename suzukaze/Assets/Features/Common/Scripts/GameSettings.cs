@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Sirenix.OdinInspector;
+using Suzukaze.Fan;
 using UnityEditor;
 using UnityEngine;
 
@@ -25,6 +26,26 @@ namespace Features.Common.Scripts
         [ValueDropdown(nameof(GetSceneNames))] public string resultScene;
         [ValueDropdown(nameof(GetSceneNames))] public string[] ignoreTimeManageScenes;
         [ValueDropdown(nameof(GetSceneNames))] public string[] gameScenes;
+
+        [Title("香り")] [Tooltip("ラムネを開けてから香りを出し続ける秒数")] [Min(0f)]
+        public float ramuneScentSeconds = 10f;
+
+        [Tooltip("扇ぐのをやめてから香りを止めるまでの秒数。認識が一瞬途切れても止めない")] [Min(0f)]
+        public float fanningScentGraceSeconds = 3f;
+
+        [Tooltip("扇いでも香りを出さないシーン")] [ValueDropdown(nameof(GetSceneNames))]
+        public string[] noFanningScentScenes = { "Sea" };
+
+        [Tooltip("ラムネの香りのディフューザーが裏にあるファン")]
+        public FanLocation ramuneDiffuserFan = new(FanSide.Left, FanPosition.Front);
+
+        [Tooltip("森の香り (扇ぎ) のディフューザーが裏にあるファン")]
+        public FanLocation forestDiffuserFan = new(FanSide.Right, FanPosition.Front);
+
+        [Tooltip("香りを出している間、ディフューザーの前のファンを回す出力 (0〜255)。" +
+                 "実機のデューティは (値/255)^2.2 で、例えば 20% は 122、30% は 148")]
+        [Range(0, 255)]
+        public int scentFanOutput = 122;
 
         private static IEnumerable<string> GetSceneNames()
         {

@@ -18,6 +18,10 @@ namespace Suzukaze.Fan
         private readonly FanDeviceMcu mcu;
         private readonly FanDeviceMock mock;
 
+        // ファンごとに、最後に指示された値と、それに関わらず保つ下限
+        private readonly byte[] requested = new byte[FanCount];
+        private readonly byte[] floors = new byte[FanCount];
+
         public FanOutput() : this(new FanDeviceMcu(), new FanDeviceMock()) { }
 
         public FanOutput(FanDeviceMcu mcu, FanDeviceMock mock)
@@ -42,10 +46,27 @@ namespace Suzukaze.Fan
             SetDuration(side, position, value, 0);
         
         /// <summary>
-        /// ファンの出力を[durationMs]ミリ秒で[value]に変化させる
+        /// ファンの出力を[durationMs]ミリ秒で[value]に変化させる。下限より弱くはしない
         /// </summary>
-        public void SetDuration(FanSide side, FanPosition position, byte value, ulong durationMs) =>
-            Device.SetDuration(side, position, value, durationMs);
+        public void SetDuration(FanSide side, FanPosition position, byte value, ulong durationMs)
+        {
+            var index = Index(side, position);
+            requested[index] = value;
+            Device.SetDuration(side, position, Math.Max(value, floors[index]), durationMs);
+        }
+
+        /// <summary>
+        /// ほかの指示に関わらず、ファンを[value]以上で回し続ける。0 で解除する
+        /// </summary>
+        public void SetFloor(FanSide side, FanPosition position, byte value)
+        {
+            var index = Index(side, position);
+            if (floors[index] == value) return;
+            floors[index] = value;
+            Device.SetDuration(side, position, Math.Max(requested[index], value), 0);
+        }
+
+        public byte GetFloor(FanSide side, FanPosition position) => floors[Index(side, position)];
 
         /// <summary>
         /// 現在のファンの出力

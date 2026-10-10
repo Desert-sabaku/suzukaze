@@ -246,17 +246,6 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
---- !u!114 &338029362 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1161993364444313435, guid: cbfb1841cbc7bbc41a5ac06a3454ebe3, type: 3}
-  m_PrefabInstance: {fileID: 8208569959670105302}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9adecdc44c87e5e449545c39f571fc7a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SandTimerController
 --- !u!1 &478259002
 GameObject:
   m_ObjectHideFlags: 0
@@ -403,7 +392,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 673316133}
-  - component: {fileID: 673316132}
   m_Layer: 0
   m_Name: SandTimerSample
   m_TagString: Untagged
@@ -411,20 +399,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &673316132
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 673316131}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 25b56a2233a60844bb5f0f108c7db481, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SandTimerSample
-  sandTimer: {fileID: 338029362}
-  durationSeconds: 30
 --- !u!4 &673316133
 Transform:
   m_ObjectHideFlags: 0
@@ -519,6 +493,122 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1111060090 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7309393933257754590, guid: 4344ea662f7612944909c09f31db6df0, type: 3}
+  m_PrefabInstance: {fileID: 5369802364977449617}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0aac829a607dbb842929fb8553f2994e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SparklerGaugeController
+--- !u!1 &1921917880
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1921917882}
+  - component: {fileID: 1921917881}
+  m_Layer: 0
+  m_Name: SparklerGaugeSample
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1921917881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1921917880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a87bafec1ebb29f4d9ded7f75c1ae7a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SparklerGaugeSample
+  sparklerGauge: {fileID: 1111060090}
+  startBurning: 0
+  endBurning: 0
+  targetProgress: 0
+--- !u!4 &1921917882
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1921917880}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 72.25622, y: -4.69968, z: 97.01302}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &5369802364977449617
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 906370760910752870, guid: 4344ea662f7612944909c09f31db6df0, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 906370760910752870, guid: 4344ea662f7612944909c09f31db6df0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 906370760910752870, guid: 4344ea662f7612944909c09f31db6df0, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 906370760910752870, guid: 4344ea662f7612944909c09f31db6df0, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 906370760910752870, guid: 4344ea662f7612944909c09f31db6df0, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 906370760910752870, guid: 4344ea662f7612944909c09f31db6df0, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 906370760910752870, guid: 4344ea662f7612944909c09f31db6df0, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 906370760910752870, guid: 4344ea662f7612944909c09f31db6df0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 906370760910752870, guid: 4344ea662f7612944909c09f31db6df0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 906370760910752870, guid: 4344ea662f7612944909c09f31db6df0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5395653281324684037, guid: 4344ea662f7612944909c09f31db6df0, type: 3}
+      propertyPath: m_Name
+      value: SparklerUIManager
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4344ea662f7612944909c09f31db6df0, type: 3}
 --- !u!1001 &8208569959670105302
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -534,6 +624,10 @@ PrefabInstance:
     - target: {fileID: 1047715773773234329, guid: cbfb1841cbc7bbc41a5ac06a3454ebe3, type: 3}
       propertyPath: m_Name
       value: SandTimer
+      objectReference: {fileID: 0}
+    - target: {fileID: 1047715773773234329, guid: cbfb1841cbc7bbc41a5ac06a3454ebe3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4889106499242444166, guid: cbfb1841cbc7bbc41a5ac06a3454ebe3, type: 3}
       propertyPath: m_Mesh
@@ -593,3 +687,5 @@ SceneRoots:
   - {fileID: 8208569959670105302}
   - {fileID: 1029407755}
   - {fileID: 673316133}
+  - {fileID: 5369802364977449617}
+  - {fileID: 1921917882}

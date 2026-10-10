@@ -47,7 +47,7 @@ public class GameFlowUI
         countText = Label(resultPanel.transform, "", 48, new Vector2(0.5f, 0.34f));
         resultFooter = Label(resultPanel.transform, "", 36, new Vector2(0.5f, 0.16f));
         resultFooter.color = new Color(1f, 1f, 1f, 0.7f);
-        resultFooterFormat = "{0}秒後にスタート画面へ戻ります(［" + startKeyName + "］ですぐ戻る)";
+        resultFooterFormat = "{0}秒後にスタート画面へ戻ります(［" + startKeyName + "］または［Esc］ですぐ戻る)";
     }
 
     public void Show(GameFlowManager.FlowState state)

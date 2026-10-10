@@ -5,6 +5,7 @@ using Suzukaze.Core;
 using Suzukaze.Diffuser;
 using Suzukaze.Fan;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Suzukaze.Gesture
 {
@@ -17,6 +18,7 @@ namespace Suzukaze.Gesture
         private static Task _retiring = Task.CompletedTask;
         private static DeliveryPolicy _history = new();
         private ReceiverHandoff handoff;
+        private KeyboardGestures keyboard;
         private IMonotonicClock clock;
         private Transceiver receiver;
         private CancellationTokenSource stopping;
@@ -52,6 +54,7 @@ namespace Suzukaze.Gesture
             DontDestroyOnLoad(gameObject);
             _history.Disconnected();
             handoff = new ReceiverHandoff(_history);
+            keyboard = new KeyboardGestures(Events);
         }
 
         private void OnEnable()
@@ -109,9 +112,27 @@ namespace Suzukaze.Gesture
                 stopping = null;
             }
             if (worker == null) StartWorker();
-            if (clock == null) return;
-            try { handoff.Tick(clock, Events); }
+            try
+            {
+                if (clock != null) handoff.Tick(clock, keyboard);
+                keyboard.Tick(Time.unscaledTimeAsDouble, ReadKeys());
+            }
             catch (Exception error) { Debug.LogException(error, this); }
+        }
+
+        // ↓: 打ち水、↑(長押し): ラムネを構える、Enter: ラムネを開栓(長押しで開栓後の状態を保つ)、→(長押し): 扇ぎ、Z: 一礼
+        private static KeyboardGestureInput ReadKeys()
+        {
+            var keys = Keyboard.current;
+            if (keys == null) return default;
+            return new KeyboardGestureInput {
+                UchimizuPressed = keys.downArrowKey.wasPressedThisFrame,
+                RamuneHeld = keys.upArrowKey.isPressed,
+                RamuneOpenPressed = keys.enterKey.wasPressedThisFrame,
+                RamuneOpenHeld = keys.enterKey.isPressed,
+                FanningHeld = keys.rightArrowKey.isPressed,
+                BowPressed = keys.zKey.wasPressedThisFrame
+            };
         }
 
         private void OnDisable()
@@ -120,8 +141,9 @@ namespace Suzukaze.Gesture
             stopping?.Cancel();
             // Invalidate all pending callbacks immediately, before async cleanup.
             handoff.Suspend();
+            keyboard.Reset();
             if (clock == null) return;
-            try { handoff.Tick(clock, Events); }
+            try { handoff.Tick(clock, keyboard); }
             catch (Exception error) { Debug.LogException(error, this); }
         }
 
