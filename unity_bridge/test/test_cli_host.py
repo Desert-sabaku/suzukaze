@@ -7,7 +7,7 @@ from unity_bridge import core
 
 def parse(monkeypatch, *argv):
     monkeypatch.setattr(sys, "argv", ["unity-bridge", *argv])
-    return core._parse_args()
+    return core._parse_args(core.load_settings())
 
 
 def test_serial_mode_uses_the_host_in_yaml(monkeypatch):

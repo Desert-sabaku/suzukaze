@@ -149,13 +149,13 @@ def test_debug_gui_mode_replaces_detection(monkeypatch):
     monkeypatch.setattr(
         "sys.argv", ["unity-bridge", "--debug-gui", "--debug-port", "5090"]
     )
-    args = core._parse_args()
+    args = core._parse_args(core.load_settings())
     assert args.gesture and args.debug_gui
     assert args.host == "127.0.0.1"
     assert args.debug_port == 5090
     monkeypatch.setattr("sys.argv", ["unity-bridge", "--debug-gui", "--fan"])
     with pytest.raises(SystemExit):
-        core._parse_args()
+        core._parse_args(core.load_settings())
 
 
 def test_unknown_page_is_not_found():
