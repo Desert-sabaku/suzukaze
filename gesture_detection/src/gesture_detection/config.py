@@ -136,7 +136,6 @@ BOW_MIN_VISIBILITY = 0.5
 BOW_HEAD_MIN_VISIBILITY = 0.35
 # A bowing head can leave the side of a close camera; MediaPipe still estimates it.
 BOW_HEAD_FRAME_MARGIN = 0.10
-RIGHT_WRIST_INDEX = 16
 
 READY_FACE_EXCLUSION_DISTANCE = 1.0
 FANNING_FACE_DISTANCE = 1.5

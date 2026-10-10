@@ -8,7 +8,6 @@ from .config import (
     BOW_MAX_HEAD_DEVIATION_DEGREES,
     BOW_MIN_ANGLE_DEGREES,
     RELAXING_DWELL_SECONDS,
-    RIGHT_WRIST_INDEX,
     SUBJECT_AREA,
 )
 from .gesture_types import Phase
@@ -44,27 +43,11 @@ def draw_landmarks(
             cv2.circle(image, (int(x * width), int(y * height)), 3, (0, 0, 255), -1)
 
 
-def wrist_pixel(
-    landmarks: list[Landmark],
-    width: int,
-    height: int,
-    wrist_index: int = RIGHT_WRIST_INDEX,
-) -> PixelPoint | None:
-    if len(landmarks) <= wrist_index:
-        return None
-    x, y, visibility = landmarks[wrist_index]
-    if visibility <= 0.5:
-        return None
-    return int(x * width), int(y * height)
-
-
 def draw_messages(
     image: npt.NDArray[np.uint8],
     messages: list[Message],
 ) -> None:
     for text, position, color, scale in messages:
-        if text.startswith("Action: "):
-            continue
         cv2.putText(
             image,
             text,

@@ -4,8 +4,8 @@ import heapq
 import math
 
 from .config import GESTURE_EVENT_TTL, MULTICAM_EVENT_DEDUP_SECONDS, MULTICAM_MAX_AGE_SECONDS
-from .event_rearm import EVENT_GESTURES, EventRearmGate
-from .gesture_types import Gesture, Phase
+from .event_rearm import EventRearmGate
+from .gesture_types import OCCURRENCE_GESTURES, Gesture, Phase
 from .recognition_types import OccurrenceEvidence, PoseResult, recognition_phase
 
 PRIORITY: dict[str, int] = {
@@ -68,7 +68,7 @@ class MultiCameraFusion:
                 raise ValueError("Camera results must strictly increase")
         current = result.get("current", {"gesture": Gesture.NONE, "tracking": False})
         if current["gesture"] not in PRIORITY or any(
-            g not in EVENT_GESTURES for g in result.get("occurrences", ())
+            g not in OCCURRENCE_GESTURES for g in result.get("occurrences", ())
         ):
             raise ValueError("Unknown gesture in camera result")
         if len(self._pending) >= self.max_pending:

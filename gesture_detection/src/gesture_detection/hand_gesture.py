@@ -51,7 +51,6 @@ class HandGestureAnalyzer:
         self.fanning_position_last_seen: float | None = None
         self.fanning_height_history: deque[tuple[float, float]] = deque()
         self.selected_action = Gesture.NONE
-        self.action_hold_count = 0
 
     def _update_gesture_scores(
         self, landmarks, timestamp: float, *, aspect_ratio: float = 1.0
