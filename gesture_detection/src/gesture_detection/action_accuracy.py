@@ -8,6 +8,7 @@ import math
 from collections.abc import Sequence
 
 from . import config as c
+from .signal_processing import count_reversals
 
 
 def minimum(value: float, target: float) -> float:
@@ -65,22 +66,8 @@ def fanning_accuracy(history: Sequence[tuple[float, float]]) -> float | None:
         for a, b in zip(history, history[1:], strict=False)
     ):
         return None
-    extreme = history[0][1]
-    direction = 0
-    reversals = 0
-    for _, height in history:
-        delta = height - extreme
-        if direction == 0:
-            if abs(delta) >= c.FANNING_REVERSAL_DISTANCE:
-                direction = 1 if delta > 0 else -1
-                extreme = height
-        elif delta * direction >= 0:
-            extreme = height
-        elif abs(delta) >= c.FANNING_REVERSAL_DISTANCE:
-            reversals += 1
-            direction *= -1
-            extreme = height
     heights = [height for _, height in history]
+    reversals = count_reversals(heights, c.FANNING_REVERSAL_DISTANCE)
     # Integrate the measured position criterion in source time, not frame count.
     position = (
         sum(

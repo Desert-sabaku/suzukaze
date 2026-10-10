@@ -6,7 +6,7 @@ import math
 from .config import GESTURE_EVENT_TTL, MULTICAM_EVENT_DEDUP_SECONDS, MULTICAM_MAX_AGE_SECONDS
 from .event_rearm import EventRearmGate
 from .gesture_types import OCCURRENCE_GESTURES, Gesture, Phase
-from .recognition_types import OccurrenceEvidence, PoseResult, recognition_phase
+from .recognition_types import OccurrenceEvidence, PoseResult, current_state, recognition_phase
 
 PRIORITY: dict[str, int] = {
     Gesture.NONE: 0,
@@ -66,7 +66,7 @@ class MultiCameraFusion:
             previous_time, previous_id = self._submitted[camera]
             if timestamp <= previous_time or frame_id <= previous_id:
                 raise ValueError("Camera results must strictly increase")
-        current = result.get("current", {"gesture": Gesture.NONE, "tracking": False})
+        current = current_state(result)
         if current["gesture"] not in PRIORITY or any(
             g not in OCCURRENCE_GESTURES for g in result.get("occurrences", ())
         ):
@@ -108,9 +108,7 @@ class MultiCameraFusion:
         fresh = [
             r for r in self.latest.values() if now - r.get("timestamp", -math.inf) <= self.max_age
         ]
-        candidates = {
-            r.get("current", {"gesture": Gesture.NONE, "tracking": False})["gesture"] for r in fresh
-        }
+        candidates = {current_state(r)["gesture"] for r in fresh}
         # As in a single view, Ramune preparation suppresses fanning. Another
         # angle often reads the stacked hands' small motion as fanning.
         if any(r.get("ramune_state") in {Phase.FORMING, Phase.READY} for r in fresh):
@@ -143,8 +141,7 @@ class MultiCameraFusion:
             (
                 r
                 for r in fresh
-                if r.get("current", {}).get("gesture") == gesture
-                and r.get("current", {}).get("tracking")
+                if current_state(r)["gesture"] == gesture and current_state(r)["tracking"]
             ),
             key=lambda r: r.get("timestamp", 0.0),
             default=None,

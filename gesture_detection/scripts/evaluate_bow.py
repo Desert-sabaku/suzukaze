@@ -20,7 +20,7 @@ from gesture_detection.bow import BowAnalyzer
 from gesture_detection.gesture_types import Gesture, Phase
 from gesture_detection.multicam_fusion import MultiCameraFusion
 from gesture_detection.pose_worker import PoseAnalyzer
-from gesture_detection.recognition_types import PoseResult
+from gesture_detection.recognition_types import PoseResult, current_state
 
 from .video_annotation import load_timeline, sha256
 
@@ -212,13 +212,9 @@ def evaluate_take(
                         "timestamp": timestamp,
                         "action": action,
                         "phase": phase,
-                        "gesture": result.get(
-                            "current", {"gesture": Gesture.NONE, "tracking": False}
-                        )["gesture"],
+                        "gesture": current_state(result)["gesture"],
                         "raw_bow": result.get("bow_state", False),
-                        "tracking": result.get(
-                            "current", {"gesture": Gesture.NONE, "tracking": False}
-                        )["tracking"],
+                        "tracking": current_state(result)["tracking"],
                         "angle": result.get("bow_angle"),
                         "head_deviation": result.get("bow_head_deviation"),
                         "head_aligned": result.get("bow_head_aligned", False),
@@ -252,13 +248,9 @@ def evaluate_take(
                     if any(row["action"] == Gesture.BOW for row in current_rows)
                     else Gesture.NONE,
                     "phase": phase,
-                    "gesture": fused.get("current", {"gesture": Gesture.NONE, "tracking": False})[
-                        "gesture"
-                    ],
+                    "gesture": current_state(fused)["gesture"],
                     "raw_bow": any(row["raw_bow"] for row in current_rows),
-                    "tracking": fused.get("current", {"gesture": Gesture.NONE, "tracking": False})[
-                        "tracking"
-                    ],
+                    "tracking": current_state(fused)["tracking"],
                 }
             )
     finally:
